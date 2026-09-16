@@ -7,9 +7,9 @@
 
 <script lang="ts">
     import { Form } from '@inertiajs/svelte';
-    import AppHead from '@/components/AppHead.svelte';
-    import InputError from '@/components/InputError.svelte';
-    import PasswordInput from '@/components/PasswordInput.svelte';
+    import AppHead from '@/components/app-head.svelte';
+    import InputError from '@/components/input-error.svelte';
+    import PasswordInput from '@/components/password-input.svelte';
     import { Button } from '@/components/ui/button';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';

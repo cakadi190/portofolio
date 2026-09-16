@@ -2,9 +2,8 @@
     import AppHead from '@/components/app-head.svelte';
 </script>
 
-<AppHead title="Dashboard" />
+<AppHead title="Welcome" />
 
 <div class="container py-5">
-    <h1>Admin</h1>
-    <p class="text-muted">Halaman admin belum dibuat.</p>
+    <h1>Gettix</h1>
 </div>

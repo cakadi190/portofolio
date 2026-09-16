@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import AppLayout from '@/layouts/app/AppSidebarLayout.svelte';
+    import AppLayout from '@/layouts/app/app-sidebar-layout.svelte';
     import type { BreadcrumbItem } from '@/types';
 
     let {

@@ -1,7 +1,6 @@
 import { createInertiaApp } from '@inertiajs/svelte';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import AppLayout from '@/layouts/AppLayout.svelte';
-import AuthLayout from '@/layouts/AuthLayout.svelte';
+import AppLayout from '@/layouts/app-layout.svelte';
+import AuthLayout from '@/layouts/auth-layout.svelte';
 import { initializeFlashToast } from '@/lib/flash-toast';
 import { initializeTheme } from '@/lib/theme.svelte';
 
@@ -22,8 +21,14 @@ void createInertiaApp({
     },
 });
 
-// This will set light / dark mode on page load...
-initializeTheme();
+if (typeof document !== 'undefined') {
+    // Bootstrap's JS bundle touches `document` at import time, so it must
+    // only load in the browser, never during SSR.
+    void import('bootstrap/dist/js/bootstrap.bundle.min.js');
 
-// This will listen for flash toast data from the server...
-initializeFlashToast();
+    // This will set light / dark mode on page load...
+    initializeTheme();
+
+    // This will listen for flash toast data from the server...
+    initializeFlashToast();
+}

@@ -3,14 +3,11 @@
     import type { BreadcrumbItem } from '@/types';
 
     let {
-        breadcrumbs = [],
         children,
     }: {
         breadcrumbs?: BreadcrumbItem[];
         children?: Snippet;
     } = $props();
-
-    void breadcrumbs;
 </script>
 
 {@render children?.()}
