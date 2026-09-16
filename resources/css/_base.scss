@@ -21,13 +21,40 @@ html {
   }
 }
 
+// Ghost buttons set `.btn`'s own `--bs-btn-*` custom properties instead of
+// hardcoding rules, so hover/active/focus/disabled states all keep working
+// through Bootstrap's normal `.btn` CSS-variable chain (see `_buttons.scss`).
 .btn-ghost {
-  background-color: transparent;
-  border-color: transparent;
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: var(--bs-accent-foreground);
+  --bs-btn-hover-bg: var(--bs-accent);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: var(--bs-accent-foreground);
+  --bs-btn-active-bg: var(--bs-accent);
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: transparent;
+}
 
-  &:hover,
-  &:focus {
-    background-color: var(--bs-accent);
-    color: var(--bs-accent-foreground);
+// Ghost variants for every Bootstrap theme color, tinted with the color's
+// own `--bs-{color}` / `--bs-{color}-rgb` custom properties.
+$btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
+  dark;
+
+@each $color in $btn-ghost-colors {
+  .btn-ghost-#{$color} {
+    --bs-btn-color: var(--bs-#{$color});
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: var(--bs-#{$color});
+    --bs-btn-hover-bg: rgba(var(--bs-#{$color}-rgb), 0.1);
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-color: var(--bs-#{$color});
+    --bs-btn-active-bg: rgba(var(--bs-#{$color}-rgb), 0.15);
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-disabled-color: var(--bs-#{$color});
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: transparent;
   }
 }

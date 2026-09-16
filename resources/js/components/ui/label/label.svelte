@@ -1,16 +1,16 @@
 <script lang="ts">
-    import type { Snippet } from 'svelte';
-    import type { HTMLLabelAttributes } from 'svelte/elements';
-    import { cn } from '@/lib/utils';
+  import type { Snippet } from 'svelte';
+  import type { HTMLLabelAttributes } from 'svelte/elements';
+  import { cn } from '@/lib/utils';
 
-    type Props = HTMLLabelAttributes & { children?: Snippet };
+  type Props = HTMLLabelAttributes & { children?: Snippet };
 
-    let { class: className = '', children, ...rest }: Props = $props();
+  let { class: className = '', children, ...rest }: Props = $props();
 </script>
 
 <label
-    class={cn('form-label', className)}
-    {...rest}
+  class={cn('form-label mb-0', className)}
+  {...rest}
 >
-    {@render children?.()}
+  {@render children?.()}
 </label>

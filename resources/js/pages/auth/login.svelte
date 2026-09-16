@@ -40,10 +40,10 @@
 <Form
   {...store.form()}
   resetOnSuccess={['password']}
-  class="d-flex flex-column gap-4"
+  class="d-flex flex-column gap-3"
 >
   {#snippet children({ errors, processing })}
-    <div class="d-flex flex-column gap-4">
+    <div class="d-flex flex-column gap-3">
       <div class="d-flex flex-column gap-2">
         <Label for="email">Email address</Label>
         <Input
@@ -76,16 +76,22 @@
         <InputError message={errors.password} />
       </div>
 
-      <div class="d-flex align-items-center justify-content-between">
+      <!-- <div class="d-flex align-items-center justify-content-between">
         <Label for="remember" class="d-flex align-items-center gap-3">
           <Checkbox id="remember" name="remember" />
           <span>Remember me</span>
         </Label>
+      </div> -->
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="remember" name="remember" />
+        <label class="form-check-label" for="remember">
+          Ingatkan saya
+        </label>
       </div>
 
       <Button
         type="submit"
-        class="mt-3 w-100"
+        class="w-100"
         disabled={processing}
         data-test="login-button"
       >

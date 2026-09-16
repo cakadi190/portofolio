@@ -2,8 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Inertia\Support\Header;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -15,6 +18,25 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Handle the incoming request.
+     *
+     * Prevents browsers/proxies from caching Inertia responses, which can
+     * otherwise resurface raw JSON when a page is reopened (e.g. via the
+     * browser back button) even though the response already varies on
+     * the X-Inertia header.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        if ($request->header(Header::INERTIA)) {
+            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+        }
+
+        return $response;
+    }
 
     /**
      * Determines the current asset version.

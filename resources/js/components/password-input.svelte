@@ -23,9 +23,16 @@
     tabindex={-1}
   >
     {#if showPassword}
-      <EyeOff style="width: 1rem; height: 1rem;" />
+      <EyeOff class="password-toggle-icon" />
     {:else}
-      <Eye style="width: 1rem; height: 1rem;" />
+      <Eye class="password-toggle-icon" />
     {/if}
   </button>
 </div>
+
+<style lang="scss">
+  :global(.password-toggle-icon) {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>

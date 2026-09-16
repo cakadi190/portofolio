@@ -31,7 +31,9 @@
     "prettier": "^3.9.7",
     "prettier-plugin-svelte": "^4.1.1",
     "sass": "^1.104.1",
+    "sass-embedded": "^1.104.1",
     "svelte-check": "^4.7.6",
+    "svelte-preprocess": "^6.0.5",
     "typescript": "^7.0.2",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.2",
     "vite-plus": "0.3.2"

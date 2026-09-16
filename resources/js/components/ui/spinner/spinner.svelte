@@ -11,8 +11,10 @@
     } = $props();
 </script>
 
-<LoaderCircle
-    class={cn(className)}
-    style="animation: spin 1s linear infinite;"
-    {...rest}
-/>
+<style lang="scss">
+    :global(.spinner-icon) {
+        animation: spin 1s linear infinite;
+    }
+</style>
+
+<LoaderCircle class={cn('spinner-icon', className)} {...rest} />
