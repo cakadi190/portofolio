@@ -1,13 +1,7 @@
 // Font stack (matches the previously configured Instrument Sans setup)
 $font-family-sans-serif:
-    'Instrument Sans',
-    ui-sans-serif,
-    system-ui,
-    sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol',
-    'Noto Color Emoji';
+    'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
 // Light theme palette, mapped from the previous shadcn/Tailwind HSL tokens.
 $primary: hsl(0 0% 9%);
