@@ -47,7 +47,7 @@
         <InputError message={errors.email} />
       </div>
 
-      <div class="my-4 d-flex align-items-center justify-content-start">
+      <div class="mt-4 d-flex align-items-center justify-content-start">
         <Button
           type="submit"
           class="w-100"
