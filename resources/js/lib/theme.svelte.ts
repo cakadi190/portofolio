@@ -45,7 +45,10 @@ const applyTheme = (value: Appearance): void => {
     }
 
     const isDark = isDarkMode(value);
-    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute(
+        'data-bs-theme',
+        isDark ? 'dark' : 'light',
+    );
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 };
 

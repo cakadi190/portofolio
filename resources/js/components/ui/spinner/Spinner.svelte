@@ -11,4 +11,8 @@
     } = $props();
 </script>
 
-<LoaderCircle class={cn('animate-spin', className)} {...rest} />
+<LoaderCircle
+    class={cn(className)}
+    style="animation: spin 1s linear infinite;"
+    {...rest}
+/>

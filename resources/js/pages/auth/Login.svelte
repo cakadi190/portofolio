@@ -19,7 +19,6 @@
     import { register } from '@/routes';
     import { store } from '@/routes/login';
     import { request } from '@/routes/password';
-    import PasskeyVerify from '@/components/PasskeyVerify.svelte';
 
     let {
         status = '',
@@ -33,21 +32,19 @@
 <AppHead title="Log in" />
 
 {#if status}
-    <div class="mb-4 text-center text-sm font-medium text-green-600">
+    <div class="mb-4 text-center small fw-medium text-success">
         {status}
     </div>
 {/if}
 
-<PasskeyVerify />
-
 <Form
     {...store.form()}
     resetOnSuccess={['password']}
-    class="flex flex-col gap-6"
+    class="d-flex flex-column gap-4"
 >
     {#snippet children({ errors, processing })}
-        <div class="grid gap-6">
-            <div class="grid gap-2">
+        <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-2">
                 <Label for="email">Email address</Label>
                 <Input
                     id="email"
@@ -60,11 +57,11 @@
                 <InputError message={errors.email} />
             </div>
 
-            <div class="grid gap-2">
-                <div class="flex items-center justify-between">
+            <div class="d-flex flex-column gap-2">
+                <div class="d-flex align-items-center justify-content-between">
                     <Label for="password">Password</Label>
                     {#if canResetPassword}
-                        <TextLink href={request()} class="text-sm">
+                        <TextLink href={request()} class="small">
                             Forgot your password?
                         </TextLink>
                     {/if}
@@ -79,8 +76,8 @@
                 <InputError message={errors.password} />
             </div>
 
-            <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center space-x-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <Label for="remember" class="d-flex align-items-center gap-3">
                     <Checkbox id="remember" name="remember" />
                     <span>Remember me</span>
                 </Label>
@@ -88,7 +85,7 @@
 
             <Button
                 type="submit"
-                class="mt-4 w-full"
+                class="mt-3 w-100"
                 disabled={processing}
                 data-test="login-button"
             >
@@ -97,7 +94,7 @@
             </Button>
         </div>
 
-        <div class="text-center text-sm text-muted-foreground">
+        <div class="text-center small text-muted">
             Don't have an account?
             <TextLink href={register()}>Sign up</TextLink>
         </div>

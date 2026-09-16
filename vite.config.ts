@@ -1,7 +1,6 @@
 import inertia from '@inertiajs/vite';
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
@@ -19,7 +18,7 @@ export default defineConfig({
         () =>
             [
                 laravel({
-                    input: ['resources/css/app.css', 'resources/js/app.ts'],
+                    input: ['resources/css/app.scss', 'resources/js/app.ts'],
                     refresh: true,
                     fonts: [
                         bunny('Instrument Sans', {
@@ -28,13 +27,28 @@ export default defineConfig({
                     ],
                 }),
                 inertia(),
-                tailwindcss(),
                 svelte(),
                 wayfinder({
                     formVariants: true,
                 }),
             ] as any[],
     ),
+    css: {
+        preprocessorOptions: {
+            scss: {
+                // Bootstrap's SCSS still uses APIs Sass is deprecating
+                // (legacy @import, global color functions); silence those
+                // so the build output stays readable.
+                quietDeps: true,
+                silenceDeprecations: [
+                    'import',
+                    'color-functions',
+                    'global-builtin',
+                    'mixed-decls',
+                ],
+            },
+        },
+    },
     server: {
         watch: {
             ignored: [
@@ -76,9 +90,5 @@ export default defineConfig({
             'resources/js/components/ui/*',
             'resources/views/mail/*',
         ],
-        sortTailwindcss: {
-            functions: ['clsx', 'cn', 'cva'],
-            entryPoint: 'resources/css/app.css',
-        },
     },
 });

@@ -9,23 +9,23 @@
     let showPassword = $state(false);
 </script>
 
-<div class="relative">
+<div class="position-relative">
     <Input
         type={showPassword ? 'text' : 'password'}
-        class={cn('pr-10', className)}
+        class={cn('pe-5', className)}
         {...rest}
     />
     <button
         type="button"
         onclick={() => (showPassword = !showPassword)}
-        class="text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute inset-y-0 right-0 flex items-center rounded-r-md px-3 focus-visible:outline-none focus-visible:ring-[3px]"
+        class="text-muted position-absolute top-0 bottom-0 end-0 d-flex align-items-center rounded-end px-3 border-0 bg-transparent"
         aria-label={showPassword ? 'Hide password' : 'Show password'}
         tabindex={-1}
     >
         {#if showPassword}
-            <EyeOff class="size-4" />
+            <EyeOff style="width: 1rem; height: 1rem;" />
         {:else}
-            <Eye class="size-4" />
+            <Eye style="width: 1rem; height: 1rem;" />
         {/if}
     </button>
 </div>

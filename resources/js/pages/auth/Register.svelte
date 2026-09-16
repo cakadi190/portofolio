@@ -26,11 +26,11 @@
 <Form
     {...store.form()}
     resetOnSuccess={['password', 'password_confirmation']}
-    class="flex flex-col gap-6"
+    class="d-flex flex-column gap-4"
 >
     {#snippet children({ errors, processing })}
-        <div class="grid gap-6">
-            <div class="grid gap-2">
+        <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-2">
                 <Label for="name">Name</Label>
                 <Input
                     id="name"
@@ -43,7 +43,7 @@
                 <InputError message={errors.name} />
             </div>
 
-            <div class="grid gap-2">
+            <div class="d-flex flex-column gap-2">
                 <Label for="email">Email address</Label>
                 <Input
                     id="email"
@@ -56,7 +56,7 @@
                 <InputError message={errors.email} />
             </div>
 
-            <div class="grid gap-2">
+            <div class="d-flex flex-column gap-2">
                 <Label for="password">Password</Label>
                 <PasswordInput
                     id="password"
@@ -69,7 +69,7 @@
                 <InputError message={errors.password} />
             </div>
 
-            <div class="grid gap-2">
+            <div class="d-flex flex-column gap-2">
                 <Label for="password_confirmation">Confirm password</Label>
                 <PasswordInput
                     id="password_confirmation"
@@ -84,7 +84,7 @@
 
             <Button
                 type="submit"
-                class="mt-2 w-full"
+                class="mt-2 w-100"
                 disabled={processing}
                 data-test="register-user-button"
             >
@@ -93,9 +93,9 @@
             </Button>
         </div>
 
-        <div class="text-center text-sm text-muted-foreground">
+        <div class="text-center small text-muted">
             Already have an account?
-            <TextLink href={login()} class="underline underline-offset-4">
+            <TextLink href={login()} class="text-decoration-underline">
                 Log in
             </TextLink>
         </div>

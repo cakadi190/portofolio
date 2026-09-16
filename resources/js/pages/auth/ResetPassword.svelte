@@ -35,8 +35,8 @@
     resetOnSuccess={['password', 'password_confirmation']}
 >
     {#snippet children({ errors, processing })}
-        <div class="grid gap-6">
-            <div class="grid gap-2">
+        <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-2">
                 <Label for="email">Email</Label>
                 <Input
                     id="email"
@@ -44,32 +44,32 @@
                     name="email"
                     autocomplete="email"
                     value={email}
-                    class="mt-1 block w-full"
+                    class="mt-1 d-block w-100"
                     readonly
                 />
                 <InputError message={errors.email} class="mt-2" />
             </div>
 
-            <div class="grid gap-2">
+            <div class="d-flex flex-column gap-2">
                 <Label for="password">Password</Label>
                 <PasswordInput
                     id="password"
                     name="password"
                     autocomplete="new-password"
-                    class="mt-1 block w-full"
+                    class="mt-1 d-block w-100"
                     placeholder="Password"
                     passwordrules={passwordRules}
                 />
                 <InputError message={errors.password} />
             </div>
 
-            <div class="grid gap-2">
+            <div class="d-flex flex-column gap-2">
                 <Label for="password_confirmation">Confirm password</Label>
                 <PasswordInput
                     id="password_confirmation"
                     name="password_confirmation"
                     autocomplete="new-password"
-                    class="mt-1 block w-full"
+                    class="mt-1 d-block w-100"
                     placeholder="Confirm password"
                     passwordrules={passwordRules}
                 />
@@ -78,7 +78,7 @@
 
             <Button
                 type="submit"
-                class="mt-4 w-full"
+                class="mt-3 w-100"
                 disabled={processing}
                 data-test="reset-password-button"
             >

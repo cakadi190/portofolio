@@ -27,15 +27,15 @@
 <AppHead title="Forgot password" />
 
 {#if status}
-    <div class="mb-4 text-center text-sm font-medium text-green-600">
+    <div class="mb-4 text-center small fw-medium text-success">
         {status}
     </div>
 {/if}
 
-<div class="space-y-6">
+<div class="d-flex flex-column gap-4">
     <Form {...email.form()}>
         {#snippet children({ errors, processing })}
-            <div class="grid gap-2">
+            <div class="d-flex flex-column gap-2">
                 <Label for="email">Email address</Label>
                 <Input
                     id="email"
@@ -47,10 +47,10 @@
                 <InputError message={errors.email} />
             </div>
 
-            <div class="my-6 flex items-center justify-start">
+            <div class="my-4 d-flex align-items-center justify-content-start">
                 <Button
                     type="submit"
-                    class="w-full"
+                    class="w-100"
                     disabled={processing}
                     data-test="email-password-reset-link-button"
                 >
@@ -61,7 +61,7 @@
         {/snippet}
     </Form>
 
-    <div class="space-x-1 text-center text-sm text-muted-foreground">
+    <div class="text-center small text-muted">
         <span>Or, return to</span>
         <TextLink href={login()}>log in</TextLink>
     </div>
