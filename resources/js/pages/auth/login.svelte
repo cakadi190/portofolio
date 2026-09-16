@@ -1,27 +1,27 @@
 <script module lang="ts">
   export const layout = {
-    title: "Log in to your account",
-    description: "Enter your email and password below to log in",
+    title: 'Log in to your account',
+    description: 'Enter your email and password below to log in',
   };
 </script>
 
 <script lang="ts">
-  import { Form } from "@inertiajs/svelte";
-  import AppHead from "@/components/app-head.svelte";
-  import InputError from "@/components/input-error.svelte";
-  import PasswordInput from "@/components/password-input.svelte";
-  import TextLink from "@/components/text-link.svelte";
-  import { Button } from "@/components/ui/button";
-  import { Checkbox } from "@/components/ui/checkbox";
-  import { Input } from "@/components/ui/input";
-  import { Label } from "@/components/ui/label";
-  import { Spinner } from "@/components/ui/spinner";
-  import { register } from "@/routes";
-  import { store } from "@/routes/login";
-  import { request } from "@/routes/password";
+  import { Form } from '@inertiajs/svelte';
+  import AppHead from '@/components/app-head.svelte';
+  import InputError from '@/components/input-error.svelte';
+  import PasswordInput from '@/components/password-input.svelte';
+  import TextLink from '@/components/text-link.svelte';
+  import { Button } from '@/components/ui/button';
+  import { Checkbox } from '@/components/ui/checkbox';
+  import { Input } from '@/components/ui/input';
+  import { Label } from '@/components/ui/label';
+  import { Spinner } from '@/components/ui/spinner';
+  import { register } from '@/routes';
+  import { store } from '@/routes/login';
+  import { request } from '@/routes/password';
 
   let {
-    status = "",
+    status = '',
     canResetPassword,
   }: {
     status?: string;
@@ -39,7 +39,7 @@
 
 <Form
   {...store.form()}
-  resetOnSuccess={["password"]}
+  resetOnSuccess={['password']}
   class="d-flex flex-column gap-4"
 >
   {#snippet children({ errors, processing })}

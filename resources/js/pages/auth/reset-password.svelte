@@ -1,90 +1,90 @@
 <script module lang="ts">
-    export const layout = {
-        title: 'Reset password',
-        description: 'Please enter your new password below',
-    };
+  export const layout = {
+    title: 'Reset password',
+    description: 'Please enter your new password below',
+  };
 </script>
 
 <script lang="ts">
-    import { Form } from '@inertiajs/svelte';
-    import AppHead from '@/components/app-head.svelte';
-    import InputError from '@/components/input-error.svelte';
-    import PasswordInput from '@/components/password-input.svelte';
-    import { Button } from '@/components/ui/button';
-    import { Input } from '@/components/ui/input';
-    import { Label } from '@/components/ui/label';
-    import { Spinner } from '@/components/ui/spinner';
-    import { update } from '@/routes/password';
+  import { Form } from '@inertiajs/svelte';
+  import AppHead from '@/components/app-head.svelte';
+  import InputError from '@/components/input-error.svelte';
+  import PasswordInput from '@/components/password-input.svelte';
+  import { Button } from '@/components/ui/button';
+  import { Input } from '@/components/ui/input';
+  import { Label } from '@/components/ui/label';
+  import { Spinner } from '@/components/ui/spinner';
+  import { update } from '@/routes/password';
 
-    let {
-        token,
-        email,
-        passwordRules,
-    }: {
-        token: string;
-        email: string;
-        passwordRules: string;
-    } = $props();
+  let {
+    token,
+    email,
+    passwordRules,
+  }: {
+    token: string;
+    email: string;
+    passwordRules: string;
+  } = $props();
 </script>
 
 <AppHead title="Reset password" />
 
 <Form
-    {...update.form()}
-    transform={(data) => ({ ...data, token, email })}
-    resetOnSuccess={['password', 'password_confirmation']}
+  {...update.form()}
+  transform={(data) => ({ ...data, token, email })}
+  resetOnSuccess={['password', 'password_confirmation']}
 >
-    {#snippet children({ errors, processing })}
-        <div class="d-flex flex-column gap-4">
-            <div class="d-flex flex-column gap-2">
-                <Label for="email">Email</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    name="email"
-                    autocomplete="email"
-                    value={email}
-                    class="mt-1 d-block w-100"
-                    readonly
-                />
-                <InputError message={errors.email} class="mt-2" />
-            </div>
+  {#snippet children({ errors, processing })}
+    <div class="d-flex flex-column gap-4">
+      <div class="d-flex flex-column gap-2">
+        <Label for="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          name="email"
+          autocomplete="email"
+          value={email}
+          class="mt-1 d-block w-100"
+          readonly
+        />
+        <InputError message={errors.email} class="mt-2" />
+      </div>
 
-            <div class="d-flex flex-column gap-2">
-                <Label for="password">Password</Label>
-                <PasswordInput
-                    id="password"
-                    name="password"
-                    autocomplete="new-password"
-                    class="mt-1 d-block w-100"
-                    placeholder="Password"
-                    passwordrules={passwordRules}
-                />
-                <InputError message={errors.password} />
-            </div>
+      <div class="d-flex flex-column gap-2">
+        <Label for="password">Password</Label>
+        <PasswordInput
+          id="password"
+          name="password"
+          autocomplete="new-password"
+          class="mt-1 d-block w-100"
+          placeholder="Password"
+          passwordrules={passwordRules}
+        />
+        <InputError message={errors.password} />
+      </div>
 
-            <div class="d-flex flex-column gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
-                <PasswordInput
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    autocomplete="new-password"
-                    class="mt-1 d-block w-100"
-                    placeholder="Confirm password"
-                    passwordrules={passwordRules}
-                />
-                <InputError message={errors.password_confirmation} />
-            </div>
+      <div class="d-flex flex-column gap-2">
+        <Label for="password_confirmation">Confirm password</Label>
+        <PasswordInput
+          id="password_confirmation"
+          name="password_confirmation"
+          autocomplete="new-password"
+          class="mt-1 d-block w-100"
+          placeholder="Confirm password"
+          passwordrules={passwordRules}
+        />
+        <InputError message={errors.password_confirmation} />
+      </div>
 
-            <Button
-                type="submit"
-                class="mt-3 w-100"
-                disabled={processing}
-                data-test="reset-password-button"
-            >
-                {#if processing}<Spinner />{/if}
-                Reset password
-            </Button>
-        </div>
-    {/snippet}
+      <Button
+        type="submit"
+        class="mt-3 w-100"
+        disabled={processing}
+        data-test="reset-password-button"
+      >
+        {#if processing}<Spinner />{/if}
+        Reset password
+      </Button>
+    </div>
+  {/snippet}
 </Form>

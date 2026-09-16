@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Link } from "@inertiajs/svelte";
-  import type { Snippet } from "svelte";
-  import AppLogoIcon from "@/components/app-logo-icon.svelte";
-  import { home } from "@/routes";
+  import { Link } from '@inertiajs/svelte';
+  import type { Snippet } from 'svelte';
+  import AppLogoIcon from '@/components/app-logo-icon.svelte';
+  import { home } from '@/routes';
 
   let {
-    title = "",
-    description = "",
+    title = '',
+    description = '',
     children,
   }: {
     title?: string;
