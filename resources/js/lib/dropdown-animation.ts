@@ -109,7 +109,19 @@ interface MenuAnimationState {
 
 const menuStates = new WeakMap<HTMLElement, MenuAnimationState>();
 
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+/**
+ * Lazily resolved so this module can be evaluated during SSR, where `window`
+ * doesn't exist. Only ever called from event handlers, which run client-side.
+ */
+let reducedMotion: MediaQueryList | null = null;
+
+function prefersReducedMotion(): boolean {
+  if (!reducedMotion) {
+    reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  }
+
+  return reducedMotion.matches;
+}
 
 let initialized = false;
 
@@ -285,7 +297,7 @@ function handleShow(event: Event): void {
   const toggle = event.target as HTMLElement;
   const menu = resolveMenu(toggle);
 
-  if (!menu || reducedMotion.matches) {
+  if (!menu || prefersReducedMotion()) {
     return;
   }
 
@@ -345,7 +357,7 @@ function handleHide(event: Event): void {
   const toggle = event.target as HTMLElement;
   const menu = resolveMenu(toggle);
 
-  if (!menu || reducedMotion.matches) {
+  if (!menu || prefersReducedMotion()) {
     return;
   }
 

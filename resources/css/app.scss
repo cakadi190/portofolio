@@ -1,92 +1,58 @@
-// Font stack (matches the previously configured Instrument Sans setup)
-$font-family-sans-serif:
-  'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-  'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-
-// Light theme palette, mapped from the previous shadcn/Tailwind HSL tokens.
-$primary: hsl(0 0% 9%);
-$secondary: hsl(0 0% 92.1%);
-$body-bg: hsl(0 0% 100%);
-$body-color: hsl(0 0% 3.9%);
-$border-color: hsl(0 0% 92.8%);
-$input-border-color: hsl(0 0% 89.8%);
-$danger: hsl(0 84.2% 60.2%);
-$border-radius: 0.5rem;
-$border-radius-sm: calc(0.5rem - 4px);
-$border-radius-lg: 0.5rem;
-
-$enable-shadows: false;
-$min-contrast-ratio: 3;
-
 // Only the Bootstrap parts the current pages (auth forms + a bare admin
-// placeholder) actually need. Add more partials here as the UI grows instead
-// of importing the whole framework — keeps Sass compile time down.
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
-@import 'bootstrap/scss/variables-dark';
-@import 'bootstrap/scss/maps';
-@import 'bootstrap/scss/mixins';
-@import 'bootstrap/scss/utilities';
+// placeholder) actually need — see `_bootstrap.scss` for the trimmed partial
+// list. Loading it as one `@use ... with (...)` module lets every Bootstrap
+// `!default` variable be overridden from a single place below.
+@use 'bootstrap/scss/bootstrap' with ($font-family-sans-serif: ('Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+  ),
 
-@import 'bootstrap/scss/root';
-@import 'bootstrap/scss/reboot';
-@import 'bootstrap/scss/type';
-@import 'bootstrap/scss/containers';
-@import 'bootstrap/scss/grid';
-@import 'bootstrap/scss/forms';
-@import 'bootstrap/scss/buttons';
-@import 'bootstrap/scss/transitions';
-@import 'bootstrap/scss/dropdown';
-@import 'bootstrap/scss/close';
-@import 'bootstrap/scss/modal';
-@import 'bootstrap/scss/tooltip';
-@import 'bootstrap/scss/helpers';
+  $white: #ffffff,
+  $gray-100: #f3f5f8,
+  $gray-200: #e7ebf1,
+  $gray-300: #d7dee8,
+  $gray-400: #b9c4d3,
+  $gray-500: #95a4b8,
+  $gray-600: #6f8098,
+  $gray-700: #526277,
+  $gray-800: #39475b,
+  $gray-900: #1e2b41,
+  $black: #000000,
 
-@import 'bootstrap/scss/utilities/api';
+  $blue: #4582ec,
+  $indigo: #6610f2,
+  $purple: #6f42c1,
+  $pink: #e83e8c,
+  $red: #ff3838,
+  $orange: #fe6133,
+  $yellow: #ff9f1c,
+  $green: #02b875,
+  $teal: #20c997,
+  $cyan: #00a3ff,
 
-// Tokens that don't map to a Bootstrap variable are kept as CSS custom
-// properties so components can reference them directly, following
-// Bootstrap's own --bs-* convention.
-:root {
-  --bs-muted: hsl(0 0% 96.1%);
-  --bs-muted-foreground: hsl(0 0% 45.1%);
-  --bs-accent: hsl(0 0% 96.1%);
-  --bs-accent-foreground: hsl(0 0% 9%);
-}
+  $primary: #6610f2,
+  $secondary: #95a4b8,
+  $success: #02b875,
+  $info: #00a3ff,
+  $warning: #ff9f1c,
+  $danger: #ff3838,
+  $light: #f3f5f8,
+  $dark: #090e18,
 
-[data-bs-theme='dark'] {
-  --bs-body-bg: hsl(0 0% 3.9%);
-  --bs-body-color: hsl(0 0% 98%);
-  --bs-primary: hsl(0 0% 98%);
-  --bs-secondary: hsl(0 0% 14.9%);
-  --bs-muted: hsl(0 0% 16.08%);
-  --bs-muted-foreground: hsl(0 0% 63.9%);
-  --bs-accent: hsl(0 0% 14.9%);
-  --bs-accent-foreground: hsl(0 0% 98%);
-  --bs-border-color: hsl(0 0% 14.9%);
-  --bs-danger: hsl(0 84% 60%);
-}
+  $min-contrast-ratio: 1.85,
 
-body,
-html {
-  font-family: $font-family-sans-serif;
-}
+  $border-color: rgba(#000000, 0.0875),
+  $border-color-translucent: rgba(#000000, 0.075),
+  $border-color-dark: rgba(#ffffff, 0.0875),
+  $border-color-translucent-dark: rgba(#ffffff, 0.05),
+  $input-border-color: rgba(#000000, 0.15),
+  $border-radius: 0.5rem,
+  $border-radius-sm: calc(0.5rem - 4px),
+  $border-radius-lg: 0.5rem,
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+  $box-shadow: 0 0.625rem 1.25rem rgba(#000000, 0.1),
+  $box-shadow-sm: 0 0.25rem 0.425rem rgba(#000000, 0.05),
+  $box-shadow-lg: 0 1.75rem 3.5rem rgba(#000000, 0.15),
+  $box-shadow-inset: inset 0 1px 2px rgba(#000000, 0.075));
 
-.btn-ghost {
-  background-color: transparent;
-  border-color: transparent;
-
-  &:hover,
-  &:focus {
-    background-color: var(--bs-accent);
-    color: var(--bs-accent-foreground);
-  }
-}
-
+@import 'base';
 @import 'components/dropdown-animation';
