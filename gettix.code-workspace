@@ -2,11 +2,7 @@
     "folders": [
         {
             "name": "Gettix Core",
-            "path": ".",
-        },
-        {
-            "name": "Batamtix Core",
-            "path": "/home/cakadi190/Projects/php/batamtix",
+            "path": "/home/cakadi190/Projects/php/gettix/",
         },
     ],
     "settings": {},
