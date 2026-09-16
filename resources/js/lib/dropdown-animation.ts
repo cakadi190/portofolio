@@ -71,13 +71,13 @@ const POPPER_ATTRIBUTE = 'data-bs-popper';
  * so the leave animation can put them back.
  */
 const POPPER_STYLE_PROPERTIES = [
-    'position',
-    'top',
-    'right',
-    'bottom',
-    'left',
-    'margin',
-    'transform',
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'margin',
+  'transform',
 ];
 
 /**
@@ -93,18 +93,18 @@ type MenuPhase = 'entering' | 'leaving';
 
 /** Per-menu bookkeeping for the animation currently in flight. */
 interface MenuAnimationState {
-    /** Direction of the running (or about-to-run) animation. */
-    phase: MenuPhase;
-    /** Placement resolved from the dropdown's classes, used until Popper reports its own. */
-    placement: string;
-    /** Popper's inline positioning, captured before Bootstrap destroys the instance. */
-    frozenStyles: Record<string, string> | null;
-    /** Bootstrap's `data-bs-popper` value, captured before Bootstrap strips it. */
-    frozenPopperAttribute: string | null;
-    /** Whether *we* wrote `data-popper-placement`, and therefore owe its removal. */
-    wrotePlacement: boolean;
-    /** Tears down the listeners and timer of the running animation. */
-    dispose: (() => void) | null;
+  /** Direction of the running (or about-to-run) animation. */
+  phase: MenuPhase;
+  /** Placement resolved from the dropdown's classes, used until Popper reports its own. */
+  placement: string;
+  /** Popper's inline positioning, captured before Bootstrap destroys the instance. */
+  frozenStyles: Record<string, string> | null;
+  /** Bootstrap's `data-bs-popper` value, captured before Bootstrap strips it. */
+  frozenPopperAttribute: string | null;
+  /** Whether *we* wrote `data-popper-placement`, and therefore owe its removal. */
+  wrotePlacement: boolean;
+  /** Tears down the listeners and timer of the running animation. */
+  dispose: (() => void) | null;
 }
 
 const menuStates = new WeakMap<HTMLElement, MenuAnimationState>();
@@ -119,30 +119,29 @@ let initialized = false;
  * wrapper) so we always animate exactly the element Bootstrap shows.
  */
 function resolveMenu(toggle: HTMLElement): HTMLElement | null {
-    for (
-        let sibling = toggle.nextElementSibling;
-        sibling;
-        sibling = sibling.nextElementSibling
-    ) {
-        if (sibling.classList.contains('dropdown-menu')) {
-            return sibling as HTMLElement;
-        }
+  for (
+    let sibling = toggle.nextElementSibling;
+    sibling;
+    sibling = sibling.nextElementSibling
+  ) {
+    if (sibling.classList.contains('dropdown-menu')) {
+      return sibling as HTMLElement;
     }
+  }
 
-    for (
-        let sibling = toggle.previousElementSibling;
-        sibling;
-        sibling = sibling.previousElementSibling
-    ) {
-        if (sibling.classList.contains('dropdown-menu')) {
-            return sibling as HTMLElement;
-        }
+  for (
+    let sibling = toggle.previousElementSibling;
+    sibling;
+    sibling = sibling.previousElementSibling
+  ) {
+    if (sibling.classList.contains('dropdown-menu')) {
+      return sibling as HTMLElement;
     }
+  }
 
-    return (
-        toggle.parentElement?.querySelector<HTMLElement>('.dropdown-menu') ??
-        null
-    );
+  return (
+    toggle.parentElement?.querySelector<HTMLElement>('.dropdown-menu') ?? null
+  );
 }
 
 /**
@@ -156,37 +155,35 @@ function resolveMenu(toggle: HTMLElement): HTMLElement | null {
  * for everything else.
  */
 function resolveStaticPlacement(
-    toggle: HTMLElement,
-    menu: HTMLElement,
+  toggle: HTMLElement,
+  menu: HTMLElement,
 ): string {
-    const wrapper = toggle.parentElement;
-    const isRtl = document.documentElement.dir === 'rtl';
+  const wrapper = toggle.parentElement;
+  const isRtl = document.documentElement.dir === 'rtl';
 
-    if (wrapper?.classList.contains('dropend')) {
-        return isRtl ? 'left-start' : 'right-start';
-    }
+  if (wrapper?.classList.contains('dropend')) {
+    return isRtl ? 'left-start' : 'right-start';
+  }
 
-    if (wrapper?.classList.contains('dropstart')) {
-        return isRtl ? 'right-start' : 'left-start';
-    }
+  if (wrapper?.classList.contains('dropstart')) {
+    return isRtl ? 'right-start' : 'left-start';
+  }
 
-    if (wrapper?.classList.contains('dropup-center')) {
-        return 'top';
-    }
+  if (wrapper?.classList.contains('dropup-center')) {
+    return 'top';
+  }
 
-    if (wrapper?.classList.contains('dropdown-center')) {
-        return 'bottom';
-    }
+  if (wrapper?.classList.contains('dropdown-center')) {
+    return 'bottom';
+  }
 
-    const isEnd =
-        window
-            .getComputedStyle(menu)
-            .getPropertyValue('--bs-position')
-            .trim() === 'end';
-    const side = wrapper?.classList.contains('dropup') ? 'top' : 'bottom';
-    const alignment = isEnd !== isRtl ? 'end' : 'start';
+  const isEnd =
+    window.getComputedStyle(menu).getPropertyValue('--bs-position').trim() ===
+    'end';
+  const side = wrapper?.classList.contains('dropup') ? 'top' : 'bottom';
+  const alignment = isEnd !== isRtl ? 'end' : 'start';
 
-    return `${side}-${alignment}`;
+  return `${side}-${alignment}`;
 }
 
 /**
@@ -195,17 +192,17 @@ function resolveStaticPlacement(
  * cannot force a reflow.
  */
 function freezePopperStyles(menu: HTMLElement): Record<string, string> | null {
-    const frozen: Record<string, string> = {};
+  const frozen: Record<string, string> = {};
 
-    for (const property of POPPER_STYLE_PROPERTIES) {
-        const value = menu.style.getPropertyValue(property);
+  for (const property of POPPER_STYLE_PROPERTIES) {
+    const value = menu.style.getPropertyValue(property);
 
-        if (value !== '') {
-            frozen[property] = value;
-        }
+    if (value !== '') {
+      frozen[property] = value;
     }
+  }
 
-    return Object.keys(frozen).length > 0 ? frozen : null;
+  return Object.keys(frozen).length > 0 ? frozen : null;
 }
 
 /**
@@ -218,34 +215,34 @@ function freezePopperStyles(menu: HTMLElement): Record<string, string> | null {
  * stacking two animations on one element.
  */
 function settle(menu: HTMLElement): void {
-    const state = menuStates.get(menu);
+  const state = menuStates.get(menu);
 
-    if (!state) {
-        return;
+  if (!state) {
+    return;
+  }
+
+  menuStates.delete(menu);
+  state.dispose?.();
+  menu.classList.remove(ENTER_CLASS, LEAVE_CLASS);
+
+  if (state.frozenStyles) {
+    for (const property of Object.keys(state.frozenStyles)) {
+      menu.style.removeProperty(property);
     }
+  }
 
-    menuStates.delete(menu);
-    state.dispose?.();
-    menu.classList.remove(ENTER_CLASS, LEAVE_CLASS);
+  // Only ever set by the leave path, and always back to the exact value
+  // Bootstrap itself had removed — so dropping it here restores Bootstrap's
+  // own hidden state rather than inventing one.
+  if (state.frozenPopperAttribute !== null) {
+    menu.removeAttribute(POPPER_ATTRIBUTE);
+  }
 
-    if (state.frozenStyles) {
-        for (const property of Object.keys(state.frozenStyles)) {
-            menu.style.removeProperty(property);
-        }
-    }
-
-    // Only ever set by the leave path, and always back to the exact value
-    // Bootstrap itself had removed — so dropping it here restores Bootstrap's
-    // own hidden state rather than inventing one.
-    if (state.frozenPopperAttribute !== null) {
-        menu.removeAttribute(POPPER_ATTRIBUTE);
-    }
-
-    // Only ever true when this module — not Popper — put the placement attribute
-    // on, so a menu Popper is still positioning keeps the one it owns.
-    if (state.wrotePlacement) {
-        menu.removeAttribute(PLACEMENT_ATTRIBUTE);
-    }
+  // Only ever true when this module — not Popper — put the placement attribute
+  // on, so a menu Popper is still positioning keeps the one it owns.
+  if (state.wrotePlacement) {
+    menu.removeAttribute(PLACEMENT_ATTRIBUTE);
+  }
 }
 
 /**
@@ -255,27 +252,27 @@ function settle(menu: HTMLElement): void {
  * animation short.
  */
 function runAnimation(
-    menu: HTMLElement,
-    state: MenuAnimationState,
-    className: string,
+  menu: HTMLElement,
+  state: MenuAnimationState,
+  className: string,
 ): void {
-    const onAnimationDone = (event: AnimationEvent): void => {
-        if (event.target === menu) {
-            settle(menu);
-        }
-    };
+  const onAnimationDone = (event: AnimationEvent): void => {
+    if (event.target === menu) {
+      settle(menu);
+    }
+  };
 
-    const timer = window.setTimeout(() => settle(menu), ANIMATION_TIMEOUT_MS);
+  const timer = window.setTimeout(() => settle(menu), ANIMATION_TIMEOUT_MS);
 
-    state.dispose = (): void => {
-        window.clearTimeout(timer);
-        menu.removeEventListener('animationend', onAnimationDone);
-        menu.removeEventListener('animationcancel', onAnimationDone);
-    };
+  state.dispose = (): void => {
+    window.clearTimeout(timer);
+    menu.removeEventListener('animationend', onAnimationDone);
+    menu.removeEventListener('animationcancel', onAnimationDone);
+  };
 
-    menu.addEventListener('animationend', onAnimationDone);
-    menu.addEventListener('animationcancel', onAnimationDone);
-    menu.classList.add(className);
+  menu.addEventListener('animationend', onAnimationDone);
+  menu.addEventListener('animationcancel', onAnimationDone);
+  menu.classList.add(className);
 }
 
 /**
@@ -285,24 +282,24 @@ function runAnimation(
  * gets a chance to write fresh ones.
  */
 function handleShow(event: Event): void {
-    const toggle = event.target as HTMLElement;
-    const menu = resolveMenu(toggle);
+  const toggle = event.target as HTMLElement;
+  const menu = resolveMenu(toggle);
 
-    if (!menu || reducedMotion.matches) {
-        return;
-    }
+  if (!menu || reducedMotion.matches) {
+    return;
+  }
 
-    const placement = resolveStaticPlacement(toggle, menu);
+  const placement = resolveStaticPlacement(toggle, menu);
 
-    settle(menu);
-    menuStates.set(menu, {
-        phase: 'entering',
-        placement,
-        frozenStyles: null,
-        frozenPopperAttribute: null,
-        wrotePlacement: false,
-        dispose: null,
-    });
+  settle(menu);
+  menuStates.set(menu, {
+    phase: 'entering',
+    placement,
+    frozenStyles: null,
+    frozenPopperAttribute: null,
+    wrotePlacement: false,
+    dispose: null,
+  });
 }
 
 /**
@@ -311,36 +308,33 @@ function handleShow(event: Event): void {
  * task) has published `data-popper-placement`, then start the enter animation.
  */
 function handleShown(event: Event): void {
-    const menu = resolveMenu(event.target as HTMLElement);
-    const state = menu ? menuStates.get(menu) : undefined;
+  const menu = resolveMenu(event.target as HTMLElement);
+  const state = menu ? menuStates.get(menu) : undefined;
 
-    if (!menu || !state || state.phase !== 'entering') {
-        return;
+  if (!menu || !state || state.phase !== 'entering') {
+    return;
+  }
+
+  queueMicrotask(() => {
+    // A rapid re-toggle may already have replaced or cleared this state.
+    if (menuStates.get(menu) !== state || !menu.classList.contains('show')) {
+      return;
     }
 
-    queueMicrotask(() => {
-        // A rapid re-toggle may already have replaced or cleared this state.
-        if (
-            menuStates.get(menu) !== state ||
-            !menu.classList.contains('show')
-        ) {
-            return;
-        }
+    const popperPlacement = menu.getAttribute(PLACEMENT_ATTRIBUTE);
 
-        const popperPlacement = menu.getAttribute(PLACEMENT_ATTRIBUTE);
+    // Popper owns the attribute whenever it positioned the menu, so the common
+    // path is a pure read. Only the menus Popper never touches get it written
+    // here, and `settle()` takes those back off again.
+    if (popperPlacement === null) {
+      menu.setAttribute(PLACEMENT_ATTRIBUTE, state.placement);
+      state.wrotePlacement = true;
+    } else {
+      state.placement = popperPlacement;
+    }
 
-        // Popper owns the attribute whenever it positioned the menu, so the common
-        // path is a pure read. Only the menus Popper never touches get it written
-        // here, and `settle()` takes those back off again.
-        if (popperPlacement === null) {
-            menu.setAttribute(PLACEMENT_ATTRIBUTE, state.placement);
-            state.wrotePlacement = true;
-        } else {
-            state.placement = popperPlacement;
-        }
-
-        runAnimation(menu, state, ENTER_CLASS);
-    });
+    runAnimation(menu, state, ENTER_CLASS);
+  });
 }
 
 /**
@@ -348,40 +342,40 @@ function handleShown(event: Event): void {
  * still on the element, so it is captured here and replayed in `hidden`.
  */
 function handleHide(event: Event): void {
-    const toggle = event.target as HTMLElement;
-    const menu = resolveMenu(toggle);
+  const toggle = event.target as HTMLElement;
+  const menu = resolveMenu(toggle);
 
-    if (!menu || reducedMotion.matches) {
-        return;
-    }
+  if (!menu || reducedMotion.matches) {
+    return;
+  }
 
-    // Captured before `settle()` runs, so an interrupted enter can't take
-    // Bootstrap's still-present positioning state down with it.
-    const placement =
-        menu.getAttribute(PLACEMENT_ATTRIBUTE) ??
-        resolveStaticPlacement(toggle, menu);
-    const frozenStyles = freezePopperStyles(menu);
-    const frozenPopperAttribute = menu.getAttribute(POPPER_ATTRIBUTE);
-    const isInFlow = window.getComputedStyle(menu).position === 'static';
+  // Captured before `settle()` runs, so an interrupted enter can't take
+  // Bootstrap's still-present positioning state down with it.
+  const placement =
+    menu.getAttribute(PLACEMENT_ATTRIBUTE) ??
+    resolveStaticPlacement(toggle, menu);
+  const frozenStyles = freezePopperStyles(menu);
+  const frozenPopperAttribute = menu.getAttribute(POPPER_ATTRIBUTE);
+  const isInFlow = window.getComputedStyle(menu).position === 'static';
 
-    // Cancels a still-running enter animation.
-    settle(menu);
+  // Cancels a still-running enter animation.
+  settle(menu);
 
-    // A statically positioned menu — Bootstrap's collapsed-navbar layout — takes
-    // up space in the flow, so holding it visible would push the surrounding
-    // content around for the length of the animation. Those hide instantly.
-    if (isInFlow) {
-        return;
-    }
+  // A statically positioned menu — Bootstrap's collapsed-navbar layout — takes
+  // up space in the flow, so holding it visible would push the surrounding
+  // content around for the length of the animation. Those hide instantly.
+  if (isInFlow) {
+    return;
+  }
 
-    menuStates.set(menu, {
-        phase: 'leaving',
-        placement,
-        frozenStyles,
-        frozenPopperAttribute,
-        wrotePlacement: false,
-        dispose: null,
-    });
+  menuStates.set(menu, {
+    phase: 'leaving',
+    placement,
+    frozenStyles,
+    frozenPopperAttribute,
+    wrotePlacement: false,
+    dispose: null,
+  });
 }
 
 /**
@@ -389,32 +383,32 @@ function handleHide(event: Event): void {
  * instance. Re-pin the menu where it was and play the leave animation.
  */
 function handleHidden(event: Event): void {
-    const menu = resolveMenu(event.target as HTMLElement);
-    const state = menu ? menuStates.get(menu) : undefined;
+  const menu = resolveMenu(event.target as HTMLElement);
+  const state = menu ? menuStates.get(menu) : undefined;
 
-    if (!menu || !state || state.phase !== 'leaving') {
-        return;
+  if (!menu || !state || state.phase !== 'leaving') {
+    return;
+  }
+
+  if (state.frozenStyles) {
+    for (const [property, value] of Object.entries(state.frozenStyles)) {
+      menu.style.setProperty(property, value);
     }
+  }
 
-    if (state.frozenStyles) {
-        for (const [property, value] of Object.entries(state.frozenStyles)) {
-            menu.style.setProperty(property, value);
-        }
-    }
+  // Re-arms Bootstrap's positioning rules for the length of the animation —
+  // without this a `dropdown-menu-end` visibly jumps back to start-aligned as
+  // it fades, and a `dropup` drops the spacer that lifts it above the toggle.
+  if (state.frozenPopperAttribute !== null) {
+    menu.setAttribute(POPPER_ATTRIBUTE, state.frozenPopperAttribute);
+  }
 
-    // Re-arms Bootstrap's positioning rules for the length of the animation —
-    // without this a `dropdown-menu-end` visibly jumps back to start-aligned as
-    // it fades, and a `dropup` drops the spacer that lifts it above the toggle.
-    if (state.frozenPopperAttribute !== null) {
-        menu.setAttribute(POPPER_ATTRIBUTE, state.frozenPopperAttribute);
-    }
+  // Popper's instance is gone by now, so it took its own placement attribute
+  // with it — put it back for the length of the leave animation.
+  menu.setAttribute(PLACEMENT_ATTRIBUTE, state.placement);
+  state.wrotePlacement = true;
 
-    // Popper's instance is gone by now, so it took its own placement attribute
-    // with it — put it back for the length of the leave animation.
-    menu.setAttribute(PLACEMENT_ATTRIBUTE, state.placement);
-    state.wrotePlacement = true;
-
-    runAnimation(menu, state, LEAVE_CLASS);
+  runAnimation(menu, state, LEAVE_CLASS);
 }
 
 /**
@@ -429,14 +423,14 @@ function handleHidden(event: Event): void {
  * Bootstrap.
  */
 export function initDropdownAnimation(): void {
-    if (initialized) {
-        return;
-    }
+  if (initialized) {
+    return;
+  }
 
-    initialized = true;
+  initialized = true;
 
-    document.addEventListener('show.bs.dropdown', handleShow);
-    document.addEventListener('shown.bs.dropdown', handleShown);
-    document.addEventListener('hide.bs.dropdown', handleHide);
-    document.addEventListener('hidden.bs.dropdown', handleHidden);
+  document.addEventListener('show.bs.dropdown', handleShow);
+  document.addEventListener('shown.bs.dropdown', handleShown);
+  document.addEventListener('hide.bs.dropdown', handleHide);
+  document.addEventListener('hidden.bs.dropdown', handleHidden);
 }

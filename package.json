@@ -1,41 +1,41 @@
 {
-    "$schema": "https://www.schemastore.org/package.json",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "build": "vp build",
-        "build:ssr": "vp build && vp build --ssr",
-        "dev": "vp dev",
-        "check": "vp check",
-        "check:fix": "vp check --fix",
-        "types:check": "svelte-check --tsconfig ./tsconfig.json"
-    },
-    "dependencies": {
-        "@inertiajs/svelte": "^3.7.1",
-        "@inertiajs/vite": "^3.7.1",
-        "@lucide/svelte": "^1.46.0",
-        "@popperjs/core": "^2.11.8",
-        "@sveltejs/vite-plugin-svelte": "^7.3.0",
-        "bootstrap": "^5.3.8",
-        "clsx": "^2.1.1",
-        "laravel-vite-plugin": "^3.2.0",
-        "svelte": "^5.57.0",
-        "svelte-sonner": "^1.2.1",
-        "tailwind-merge": "^3.7.0"
-    },
-    "devDependencies": {
-        "@laravel/vite-plugin-wayfinder": "^0.1.10",
-        "@types/node": "^22.20.3",
-        "concurrently": "^10.0.5",
-        "sass": "^1.104.1",
-        "svelte-check": "^4.7.6",
-        "typescript": "^7.0.2",
-        "vite": "npm:@voidzero-dev/vite-plus-core@0.3.2",
-        "vite-plus": "0.3.2"
-    },
-    "optionalDependencies": {
-        "@laravel/multiplex": "^0.4.3",
-        "@rollup/rollup-linux-x64-gnu": "4.63.3",
-        "@rollup/rollup-win32-x64-msvc": "4.63.3"
-    }
+  "$schema": "https://www.schemastore.org/package.json",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vp build",
+    "build:ssr": "vp build && vp build --ssr",
+    "dev": "vp dev",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
+    "types:check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@inertiajs/svelte": "^3.7.1",
+    "@inertiajs/vite": "^3.7.1",
+    "@lucide/svelte": "^1.46.0",
+    "@popperjs/core": "^2.11.8",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "bootstrap": "^5.3.8",
+    "clsx": "^2.1.1",
+    "laravel-vite-plugin": "^3.2.0",
+    "svelte": "^5.57.0",
+    "svelte-sonner": "^1.2.1",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@laravel/vite-plugin-wayfinder": "^0.1.10",
+    "@types/node": "^22.20.3",
+    "concurrently": "^10.0.5",
+    "sass": "^1.104.1",
+    "svelte-check": "^4.7.6",
+    "typescript": "^7.0.2",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.2",
+    "vite-plus": "0.3.2"
+  },
+  "optionalDependencies": {
+    "@laravel/multiplex": "^0.4.3",
+    "@rollup/rollup-linux-x64-gnu": "4.63.3",
+    "@rollup/rollup-win32-x64-msvc": "4.63.3"
+  }
 }

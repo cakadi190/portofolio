@@ -8,32 +8,32 @@ import { initializeTheme } from '@/lib/theme.svelte';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 void createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
-    layout: (name) => {
-        switch (true) {
-            case name.startsWith('auth/'):
-                return AuthLayout;
-            default:
-                return AppLayout;
-        }
-    },
-    progress: {
-        color: '#4B5563',
-    },
+  title: (title) => (title ? `${title} - ${appName}` : appName),
+  layout: (name) => {
+    switch (true) {
+      case name.startsWith('auth/'):
+        return AuthLayout;
+      default:
+        return AppLayout;
+    }
+  },
+  progress: {
+    color: '#4B5563',
+  },
 });
 
 if (typeof document !== 'undefined') {
-    // Bootstrap's JS bundle touches `document` at import time, so it must
-    // only load in the browser, never during SSR.
-    void import('bootstrap/dist/js/bootstrap.bundle.min.js');
+  // Bootstrap's JS bundle touches `document` at import time, so it must
+  // only load in the browser, never during SSR.
+  void import('bootstrap/dist/js/bootstrap.bundle.min.js');
 
-    // Layers a shadcn/popover-style fade + zoom on top of Bootstrap's dropdown
-    // show/hide lifecycle for every `.dropdown-menu` on the page.
-    initDropdownAnimation();
+  // Layers a shadcn/popover-style fade + zoom on top of Bootstrap's dropdown
+  // show/hide lifecycle for every `.dropdown-menu` on the page.
+  initDropdownAnimation();
 
-    // This will set light / dark mode on page load...
-    initializeTheme();
+  // This will set light / dark mode on page load...
+  initializeTheme();
 
-    // This will listen for flash toast data from the server...
-    initializeFlashToast();
+  // This will listen for flash toast data from the server...
+  initializeFlashToast();
 }

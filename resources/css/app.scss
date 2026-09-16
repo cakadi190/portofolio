@@ -1,7 +1,7 @@
 // Font stack (matches the previously configured Instrument Sans setup)
 $font-family-sans-serif:
-    'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+  'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
 // Light theme palette, mapped from the previous shadcn/Tailwind HSL tokens.
 $primary: hsl(0 0% 9%);
@@ -48,45 +48,45 @@ $min-contrast-ratio: 3;
 // properties so components can reference them directly, following
 // Bootstrap's own --bs-* convention.
 :root {
-    --bs-muted: hsl(0 0% 96.1%);
-    --bs-muted-foreground: hsl(0 0% 45.1%);
-    --bs-accent: hsl(0 0% 96.1%);
-    --bs-accent-foreground: hsl(0 0% 9%);
+  --bs-muted: hsl(0 0% 96.1%);
+  --bs-muted-foreground: hsl(0 0% 45.1%);
+  --bs-accent: hsl(0 0% 96.1%);
+  --bs-accent-foreground: hsl(0 0% 9%);
 }
 
 [data-bs-theme='dark'] {
-    --bs-body-bg: hsl(0 0% 3.9%);
-    --bs-body-color: hsl(0 0% 98%);
-    --bs-primary: hsl(0 0% 98%);
-    --bs-secondary: hsl(0 0% 14.9%);
-    --bs-muted: hsl(0 0% 16.08%);
-    --bs-muted-foreground: hsl(0 0% 63.9%);
-    --bs-accent: hsl(0 0% 14.9%);
-    --bs-accent-foreground: hsl(0 0% 98%);
-    --bs-border-color: hsl(0 0% 14.9%);
-    --bs-danger: hsl(0 84% 60%);
+  --bs-body-bg: hsl(0 0% 3.9%);
+  --bs-body-color: hsl(0 0% 98%);
+  --bs-primary: hsl(0 0% 98%);
+  --bs-secondary: hsl(0 0% 14.9%);
+  --bs-muted: hsl(0 0% 16.08%);
+  --bs-muted-foreground: hsl(0 0% 63.9%);
+  --bs-accent: hsl(0 0% 14.9%);
+  --bs-accent-foreground: hsl(0 0% 98%);
+  --bs-border-color: hsl(0 0% 14.9%);
+  --bs-danger: hsl(0 84% 60%);
 }
 
 body,
 html {
-    font-family: $font-family-sans-serif;
+  font-family: $font-family-sans-serif;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .btn-ghost {
-    background-color: transparent;
-    border-color: transparent;
+  background-color: transparent;
+  border-color: transparent;
 
-    &:hover,
-    &:focus {
-        background-color: var(--bs-accent);
-        color: var(--bs-accent-foreground);
-    }
+  &:hover,
+  &:focus {
+    background-color: var(--bs-accent);
+    color: var(--bs-accent-foreground);
+  }
 }
 
 @import 'components/dropdown-animation';
