@@ -1,5 +1,9 @@
 {
-    "agents": ["antigravity", "claude_code", "codex"],
+    "agents": [
+        "antigravity",
+        "claude_code",
+        "codex"
+    ],
     "cloud": true,
     "guidelines": true,
     "mcp": true,
@@ -12,7 +16,6 @@
         "laravel-best-practices",
         "testing-best-practices",
         "wayfinder-development",
-        "inertia-svelte-development",
-        "tailwindcss-development"
+        "inertia-svelte-development"
     ]
 }
