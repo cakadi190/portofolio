@@ -9,7 +9,7 @@
     "check": "vp check",
     "check:fix": "vp check --fix",
     "types:check": "svelte-check --tsconfig ./tsconfig.json",
-    "format:svelte": "prettier --write \"resources/js/**/*.svelte\""
+    "format:svelte": "prettier --write \"resources/js/**/**/*.svelte\""
   },
   "dependencies": {
     "@inertiajs/svelte": "^3.7.1",
@@ -17,11 +17,13 @@
     "@lucide/svelte": "^1.46.0",
     "@popperjs/core": "^2.11.8",
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@typescript/native": "npm:typescript@7",
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
     "laravel-vite-plugin": "^3.2.0",
     "svelte": "^5.57.0",
     "svelte-sonner": "^1.2.1",
+    "svelte-toasts": "^1.1.2",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
@@ -34,7 +36,7 @@
     "sass-embedded": "^1.104.1",
     "svelte-check": "^4.7.6",
     "svelte-preprocess": "^6.0.5",
-    "typescript": "^7.0.2",
+    "typescript": "~6",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.2",
     "vite-plus": "0.3.2"
   },

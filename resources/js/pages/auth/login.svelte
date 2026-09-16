@@ -1,7 +1,7 @@
 <script module lang="ts">
   export const layout = {
-    title: 'Log in to your account',
-    description: 'Enter your email and password below to log in',
+    title: 'Masuk ke akun Anda',
+    description: 'Masukkan email dan kata sandi Anda di bawah untuk masuk',
   };
 </script>
 
@@ -9,13 +9,8 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import InputError from '@/components/input-error.svelte';
-  import PasswordInput from '@/components/password-input.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { Button } from '@/components/ui/button';
-  import { Checkbox } from '@/components/ui/checkbox';
   import { Input } from '@/components/ui/input';
-  import { Label } from '@/components/ui/label';
-  import { Spinner } from '@/components/ui/spinner';
   import { register } from '@/routes';
   import { store } from '@/routes/login';
   import { request } from '@/routes/password';
@@ -29,7 +24,7 @@
   } = $props();
 </script>
 
-<AppHead title="Log in" />
+<AppHead title="Masuk" />
 
 {#if status}
   <div class="mb-4 text-center small fw-medium text-success">
@@ -45,64 +40,60 @@
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-3">
       <div class="d-flex flex-column gap-2">
-        <Label for="email">Email address</Label>
+        <label class="form-label" for="email">Alamat email</label>
         <Input
           id="email"
           type="email"
           name="email"
           required
           autocomplete="email"
-          placeholder="email@example.com"
+          placeholder="email@contoh.com"
         />
         <InputError message={errors.email} />
       </div>
 
       <div class="d-flex flex-column gap-2">
         <div class="d-flex align-items-center justify-content-between">
-          <Label for="password">Password</Label>
+          <label class="form-label" for="password">Kata sandi</label>
           {#if canResetPassword}
             <TextLink href={request()} class="small">
-              Forgot your password?
+              Lupa kata sandi Anda?
             </TextLink>
           {/if}
         </div>
-        <PasswordInput
+        <Input.Password
           id="password"
           name="password"
           required
           autocomplete="current-password"
-          placeholder="Password"
+          placeholder="Kata sandi"
         />
         <InputError message={errors.password} />
       </div>
 
-      <!-- <div class="d-flex align-items-center justify-content-between">
-        <Label for="remember" class="d-flex align-items-center gap-3">
-          <Checkbox id="remember" name="remember" />
-          <span>Remember me</span>
-        </Label>
-      </div> -->
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="remember" name="remember" />
-        <label class="form-check-label" for="remember">
-          Ingatkan saya
-        </label>
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="remember"
+          name="remember"
+        />
+        <label class="form-check-label" for="remember"> Ingatkan saya </label>
       </div>
 
-      <Button
+      <button
         type="submit"
-        class="w-100"
+        class="btn btn-primary w-100"
         disabled={processing}
         data-test="login-button"
       >
-        {#if processing}<Spinner />{/if}
-        Log in
-      </Button>
+        Masuk
+      </button>
     </div>
 
     <div class="text-center small text-muted">
-      Don't have an account?
-      <TextLink href={register()}>Sign up</TextLink>
+      Belum punya akun?
+      <TextLink href={register()}>Daftar</TextLink>
     </div>
   {/snippet}
 </Form>

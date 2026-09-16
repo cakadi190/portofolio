@@ -1,0 +1,49 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": [
+      "..",
+      "svelte"
+    ],
+    "allowArbitraryExtensions": true,
+    "noEmit": true,
+    "incremental": false,
+    "tsBuildInfoFile": "tsbuildinfo.json",
+    "paths": {
+      "@/*": [
+        "../resources/js/*",
+        "./svelte/resources/js/*"
+      ]
+    }
+  },
+  "files": [
+    "../node_modules/svelte-check/dist/src/svelte-shims-v4.d.ts",
+    "../node_modules/svelte-check/dist/src/svelte-jsx-v4.d.ts"
+  ],
+  "include": [
+    "../resources/js/**/*.ts",
+    "../resources/js/**/*.d.ts",
+    "../resources/js/**/*.svelte",
+    "svelte/resources/js/**/*.ts",
+    "svelte/resources/js/**/*.d.ts",
+    "svelte/resources/js/**/*.d.svelte.ts"
+  ],
+  "exclude": [
+    "../resources/js/components/app-head.svelte",
+    "../resources/js/components/app-logo-icon.svelte",
+    "../resources/js/components/input-error.svelte",
+    "../resources/js/components/text-link.svelte",
+    "../resources/js/layouts/app-layout.svelte",
+    "../resources/js/layouts/auth-layout.svelte",
+    "../resources/js/pages/dashboard.svelte",
+    "../resources/js/pages/welcome.svelte",
+    "../resources/js/layouts/app/app-sidebar-layout.svelte",
+    "../resources/js/layouts/auth/auth-simple-layout.svelte",
+    "../resources/js/pages/auth/forgot-password.svelte",
+    "../resources/js/pages/auth/login.svelte",
+    "../resources/js/pages/auth/register.svelte",
+    "../resources/js/pages/auth/reset-password.svelte",
+    "../resources/js/components/ui/input/input-password.svelte",
+    "../resources/js/components/ui/input/input.svelte"
+  ]
+}

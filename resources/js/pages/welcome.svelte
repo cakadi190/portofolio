@@ -2,7 +2,7 @@
   import AppHead from '@/components/app-head.svelte';
 </script>
 
-<AppHead title="Welcome" />
+<AppHead title="Selamat Datang" />
 
 <div class="container py-5">
   <h1>Gettix</h1>
@@ -14,12 +14,12 @@
       data-bs-toggle="dropdown"
       aria-expanded="false"
     >
-      Dropdown button
+      Tombol dropdown
     </button>
     <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="#">Action</a></li>
-      <li><a class="dropdown-item" href="#">Another action</a></li>
-      <li><a class="dropdown-item" href="#">Something else here</a></li>
+      <li><a class="dropdown-item" href="#">Aksi</a></li>
+      <li><a class="dropdown-item" href="#">Aksi lainnya</a></li>
+      <li><a class="dropdown-item" href="#">Sesuatu yang lain di sini</a></li>
     </ul>
   </div>
 </div>

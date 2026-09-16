@@ -1,7 +1,7 @@
 <script lang="ts">
   import Eye from '@lucide/svelte/icons/eye';
   import EyeOff from '@lucide/svelte/icons/eye-off';
-  import { Input } from '@/components/ui/input';
+  import Input from './regular.svelte';
   import { cn } from '@/lib/utils';
 
   let { class: className = '', ...rest } = $props();

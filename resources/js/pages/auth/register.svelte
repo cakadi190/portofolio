@@ -1,7 +1,7 @@
 <script module lang="ts">
   export const layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+    title: 'Buat akun',
+    description: 'Masukkan detail Anda di bawah untuk membuat akun',
   };
 </script>
 
@@ -9,19 +9,15 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import InputError from '@/components/input-error.svelte';
-  import PasswordInput from '@/components/password-input.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
-  import { Label } from '@/components/ui/label';
-  import { Spinner } from '@/components/ui/spinner';
   import { login } from '@/routes';
   import { store } from '@/routes/register';
 
   let { passwordRules }: { passwordRules: string } = $props();
 </script>
 
-<AppHead title="Register" />
+<AppHead title="Daftar" />
 
 <Form
   {...store.form()}
@@ -31,72 +27,71 @@
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-4">
       <div class="d-flex flex-column gap-2">
-        <Label for="name">Name</Label>
+        <label class="form-label" for="name">Nama</label>
         <Input
           id="name"
           type="text"
           required
           autocomplete="name"
           name="name"
-          placeholder="Full name"
+          placeholder="Nama lengkap"
         />
         <InputError message={errors.name} />
       </div>
 
       <div class="d-flex flex-column gap-2">
-        <Label for="email">Email address</Label>
+        <label class="form-label" for="email">Alamat email</label>
         <Input
           id="email"
           type="email"
           required
           autocomplete="email"
           name="email"
-          placeholder="email@example.com"
+          placeholder="email@contoh.com"
         />
         <InputError message={errors.email} />
       </div>
 
       <div class="d-flex flex-column gap-2">
-        <Label for="password">Password</Label>
-        <PasswordInput
+        <label class="form-label" for="password">Kata sandi</label>
+        <Input.Password
           id="password"
           required
           autocomplete="new-password"
           name="password"
-          placeholder="Password"
+          placeholder="Kata sandi"
           passwordrules={passwordRules}
         />
         <InputError message={errors.password} />
       </div>
 
       <div class="d-flex flex-column gap-2">
-        <Label for="password_confirmation">Confirm password</Label>
-        <PasswordInput
+        <label class="form-label" for="password_confirmation">Konfirmasi kata sandi</label>
+        <Input.Password
           id="password_confirmation"
           required
           autocomplete="new-password"
           name="password_confirmation"
-          placeholder="Confirm password"
+          placeholder="Konfirmasi kata sandi"
           passwordrules={passwordRules}
         />
         <InputError message={errors.password_confirmation} />
       </div>
 
-      <Button
+      <button
         type="submit"
-        class="mt-2 w-100"
+        class="btn btn-primary mt-2 w-100"
         disabled={processing}
         data-test="register-user-button"
       >
-        {#if processing}<Spinner />{/if}
-        Create account
-      </Button>
+        Buat akun
+      </button>
     </div>
 
     <div class="text-center small text-muted">
-      Already have an account?
+      Sudah punya akun?
       <TextLink href={login()} class="text-decoration-underline">
-        Log in
+        Masuk
       </TextLink>
     </div>
   {/snippet}

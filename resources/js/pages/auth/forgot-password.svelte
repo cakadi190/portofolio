@@ -1,7 +1,8 @@
 <script module lang="ts">
   export const layout = {
-    title: 'Forgot password',
-    description: 'Enter your email to receive a password reset link',
+    title: 'Lupa kata sandi',
+    description:
+      'Masukkan email Anda untuk menerima tautan atur ulang kata sandi',
   };
 </script>
 
@@ -10,10 +11,7 @@
   import AppHead from '@/components/app-head.svelte';
   import InputError from '@/components/input-error.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
-  import { Label } from '@/components/ui/label';
-  import { Spinner } from '@/components/ui/spinner';
   import { login } from '@/routes';
   import { email } from '@/routes/password';
 
@@ -24,7 +22,7 @@
   } = $props();
 </script>
 
-<AppHead title="Forgot password" />
+<AppHead title="Lupa kata sandi" />
 
 {#if status}
   <div class="mb-4 text-center small fw-medium text-success">
@@ -36,33 +34,32 @@
   <Form {...email.form()}>
     {#snippet children({ errors, processing })}
       <div class="d-flex flex-column gap-2">
-        <Label for="email">Email address</Label>
+        <label class="form-label" for="email">Alamat email</label>
         <Input
           id="email"
           type="email"
           name="email"
           autocomplete="off"
-          placeholder="email@example.com"
+          placeholder="email@contoh.com"
         />
         <InputError message={errors.email} />
       </div>
 
       <div class="mt-4 d-flex align-items-center justify-content-start">
-        <Button
+        <button
           type="submit"
-          class="w-100"
+          class="btn btn-primary w-100"
           disabled={processing}
           data-test="email-password-reset-link-button"
         >
-          {#if processing}<Spinner />{/if}
-          Email password reset link
-        </Button>
+          Kirim tautan atur ulang kata sandi
+        </button>
       </div>
     {/snippet}
   </Form>
 
   <div class="text-center small text-muted">
-    <span>Or, return to</span>
-    <TextLink href={login()}>log in</TextLink>
+    <span>Atau, kembali untuk</span>
+    <TextLink href={login()}>masuk</TextLink>
   </div>
 </div>

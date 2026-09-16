@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import AuthLayout from '@/layouts/auth/auth-simple-layout.svelte';
+  import { FlatToast, ToastContainer } from 'svelte-toasts';
 
   let {
     title = '',
@@ -15,4 +16,8 @@
 
 <AuthLayout {title} {description}>
   {@render children?.()}
+
+  <ToastContainer let:data>
+    <FlatToast {data} />
+  </ToastContainer>
 </AuthLayout>

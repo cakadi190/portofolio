@@ -1,7 +1,7 @@
 <script module lang="ts">
   export const layout = {
-    title: 'Reset password',
-    description: 'Please enter your new password below',
+    title: 'Atur ulang kata sandi',
+    description: 'Silakan masukkan kata sandi baru Anda di bawah ini',
   };
 </script>
 
@@ -9,11 +9,7 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import InputError from '@/components/input-error.svelte';
-  import PasswordInput from '@/components/password-input.svelte';
-  import { Button } from '@/components/ui/button';
   import { Input } from '@/components/ui/input';
-  import { Label } from '@/components/ui/label';
-  import { Spinner } from '@/components/ui/spinner';
   import { update } from '@/routes/password';
 
   let {
@@ -27,7 +23,7 @@
   } = $props();
 </script>
 
-<AppHead title="Reset password" />
+<AppHead title="Atur ulang kata sandi" />
 
 <Form
   {...update.form()}
@@ -37,7 +33,7 @@
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-4">
       <div class="d-flex flex-column gap-2">
-        <Label for="email">Email</Label>
+        <label class="form-label" for="email">Email</label>
         <Input
           id="email"
           type="email"
@@ -51,40 +47,39 @@
       </div>
 
       <div class="d-flex flex-column gap-2">
-        <Label for="password">Password</Label>
-        <PasswordInput
+        <label class="form-label" for="password">Kata sandi</label>
+        <Input.Password
           id="password"
           name="password"
           autocomplete="new-password"
           class="mt-1 d-block w-100"
-          placeholder="Password"
+          placeholder="Kata sandi"
           passwordrules={passwordRules}
         />
         <InputError message={errors.password} />
       </div>
 
       <div class="d-flex flex-column gap-2">
-        <Label for="password_confirmation">Confirm password</Label>
-        <PasswordInput
+        <label class="form-label" for="password_confirmation">Konfirmasi kata sandi</label>
+        <Input.Password
           id="password_confirmation"
           name="password_confirmation"
           autocomplete="new-password"
           class="mt-1 d-block w-100"
-          placeholder="Confirm password"
+          placeholder="Konfirmasi kata sandi"
           passwordrules={passwordRules}
         />
         <InputError message={errors.password_confirmation} />
       </div>
 
-      <Button
+      <button
         type="submit"
-        class="mt-3 w-100"
+        class="btn btn-primary mt-3 w-100"
         disabled={processing}
         data-test="reset-password-button"
       >
-        {#if processing}<Spinner />{/if}
-        Reset password
-      </Button>
+        Atur ulang kata sandi
+      </button>
     </div>
   {/snippet}
 </Form>

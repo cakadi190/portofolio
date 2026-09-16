@@ -2,7 +2,7 @@
   import AppHead from '@/components/app-head.svelte';
 </script>
 
-<AppHead title="Dashboard" />
+<AppHead title="Dasbor" />
 
 <div class="container py-5">
   <h1>Admin</h1>
