@@ -2,8 +2,13 @@
 // placeholder) actually need — see `_bootstrap.scss` for the trimmed partial
 // list. Loading it as one `@use ... with (...)` module lets every Bootstrap
 // `!default` variable be overridden from a single place below.
-@use 'bootstrap/scss/bootstrap' with ($font-family-sans-serif: ('Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+@use 'bootstrap/scss/bootstrap' with ($font-family-sans-serif: ('Hanken Grotesk', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+  ),
+  $headings-font-family: ('Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+  ),
+  $font-family-monospace: ('JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace
   ),
 
   $white: #ffffff,

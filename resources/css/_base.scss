@@ -6,19 +6,7 @@
   --bs-muted-foreground: hsl(0 0% 45.1%);
   --bs-accent: hsl(0 0% 96.1%);
   --bs-accent-foreground: hsl(0 0% 9%);
-}
-
-[data-bs-theme='dark'] {
-  --bs-body-bg: hsl(0 0% 3.9%);
-  --bs-body-color: hsl(0 0% 98%);
-  --bs-primary: hsl(0 0% 98%);
-  --bs-secondary: hsl(0 0% 14.9%);
-  --bs-muted: hsl(0 0% 16.08%);
-  --bs-muted-foreground: hsl(0 0% 63.9%);
-  --bs-accent: hsl(0 0% 14.9%);
-  --bs-accent-foreground: hsl(0 0% 98%);
-  --bs-border-color: hsl(0 0% 14.9%);
-  --bs-danger: hsl(0 84% 60%);
+  --bs-font-serif: 'Roboto Slab', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 }
 
 body,

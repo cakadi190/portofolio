@@ -3,7 +3,6 @@ import AppLayout from '@/layouts/app-layout.svelte';
 import AuthLayout from '@/layouts/auth-layout.svelte';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
-import { initializeTheme } from '@/lib/theme.svelte';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -30,9 +29,6 @@ if (typeof document !== 'undefined') {
   // Layers a shadcn/popover-style fade + zoom on top of Bootstrap's dropdown
   // show/hide lifecycle for every `.dropdown-menu` on the page.
   initDropdownAnimation();
-
-  // This will set light / dark mode on page load...
-  initializeTheme();
 
   // This will listen for flash toast data from the server...
   initializeFlashToast();

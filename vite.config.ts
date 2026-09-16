@@ -21,8 +21,17 @@ export default defineConfig({
           input: ['resources/css/app.scss', 'resources/js/app.ts'],
           refresh: true,
           fonts: [
-            bunny('Instrument Sans', {
+            bunny('Plus Jakarta Sans', {
+              weights: [400, 500, 600, 700],
+            }),
+            bunny('Hanken Grotesk', {
               weights: [400, 500, 600],
+            }),
+            bunny('Roboto Slab', {
+              weights: [400, 500, 600],
+            }),
+            bunny('JetBrains Mono', {
+              weights: [400, 500],
             }),
           ],
         }),
@@ -36,6 +45,10 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
+        // Resolves bare `@use 'bootstrap/scss/bootstrap'` against
+        // node_modules; without this Sass treats it as a relative path
+        // and fails with ENOENT looking for `_bootstrap.scss`.
+        loadPaths: ['node_modules'],
         // Bootstrap's SCSS still uses APIs Sass is deprecating
         // (legacy @import, global color functions); silence those
         // so the build output stays readable.
