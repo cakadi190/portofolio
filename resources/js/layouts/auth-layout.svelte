@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import AuthLayout from '@/layouts/auth/auth-simple-layout.svelte';
+  import AuthLayout from '@/layouts/auth/auth-split-layout.svelte';
   import { FlatToast, ToastContainer } from 'svelte-toasts';
 
   let {

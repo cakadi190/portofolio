@@ -15,7 +15,7 @@
   } = $props();
 </script>
 
-<div class="auth-layout auth-layout-simple">
+<div class="auth-layout auth-layout-card">
   <div class="auth-layout-container">
     <div class="auth-layout-body">
       <div class="auth-layout-header">
@@ -74,6 +74,12 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+      padding: 1.5rem;
+      background-color: var(--bs-card-bg, var(--bs-body-bg));
+      background-clip: border-box;
+      border: var(--bs-card-border-width, 1px) solid
+        var(--bs-card-border-color, var(--bs-border-color));
+      border-radius: var(--bs-border-radius-xl);
     }
 
     &-header {
