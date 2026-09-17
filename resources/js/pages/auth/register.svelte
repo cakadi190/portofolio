@@ -8,9 +8,8 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import InputError from '@/components/input-error.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { Input } from '@/components/ui/input';
+  import { Field } from '@/components/ui/field';
   import { login } from '@/routes';
   import { store } from '@/routes/register';
 
@@ -23,60 +22,68 @@
   {...store.form()}
   resetOnSuccess={['password', 'password_confirmation']}
   class="d-flex flex-column gap-4"
+  novalidate
 >
   {#snippet children({ errors, processing })}
-    <div class="d-flex flex-column gap-4">
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="name">Nama</label>
-        <Input
+    <div class="d-flex flex-column gap-3">
+      <Field.Group>
+        <Field.Label for="name">Nama</Field.Label>
+        <Field.Input
           id="name"
           type="text"
           required
           autocomplete="name"
           name="name"
           placeholder="Nama lengkap"
+          invalid={!!errors.name}
         />
-        <InputError message={errors.name} />
-      </div>
+        <Field.Feedback message={errors.name} />
+      </Field.Group>
 
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="email">Alamat email</label>
-        <Input
+      <Field.Group>
+        <Field.Label for="email">Alamat email</Field.Label>
+        <Field.Input
           id="email"
           type="email"
           required
           autocomplete="email"
           name="email"
           placeholder="email@contoh.com"
+          invalid={!!errors.email}
         />
-        <InputError message={errors.email} />
-      </div>
+        <Field.Feedback message={errors.email} />
+      </Field.Group>
 
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="password">Kata sandi</label>
-        <Input.Password
+      <Field.Group>
+        <Field.Label for="password">Kata sandi</Field.Label>
+        <Field.Input.Password
+          confirmed="password_confirmation"
           id="password"
           required
           autocomplete="new-password"
           name="password"
           placeholder="Kata sandi"
           passwordrules={passwordRules}
+          invalid={!!errors.password}
         />
-        <InputError message={errors.password} />
-      </div>
+        <Field.Feedback message={errors.password} />
+      </Field.Group>
 
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="password_confirmation">Konfirmasi kata sandi</label>
-        <Input.Password
+      <!-- <Field.Group>
+        <Field.Label for="password_confirmation"
+          >Konfirmasi kata sandi</Field.Label
+        >
+        <Field.Input.Password
           id="password_confirmation"
           required
           autocomplete="new-password"
           name="password_confirmation"
           placeholder="Konfirmasi kata sandi"
           passwordrules={passwordRules}
+          invalid={!!errors.password_confirmation}
         />
-        <InputError message={errors.password_confirmation} />
-      </div>
+        <Field.Feedback message={errors.password_confirmation} />
+      </Field.Group> -->
 
       <button
         type="submit"

@@ -8,9 +8,8 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import InputError from '@/components/input-error.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { Input } from '@/components/ui/input';
+  import { Field } from '@/components/ui/field';
   import { register } from '@/routes';
   import { store } from '@/routes/login';
   import { request } from '@/routes/password';
@@ -36,50 +35,47 @@
   {...store.form()}
   resetOnSuccess={['password']}
   class="d-flex flex-column gap-3"
+  novalidate
 >
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-3">
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="email">Alamat email</label>
-        <Input
+      <Field.Group>
+        <Field.Label for="email">Alamat email</Field.Label>
+        <Field.Input
           id="email"
           type="email"
           name="email"
           required
           autocomplete="email"
           placeholder="email@contoh.com"
+          invalid={!!errors.email}
         />
-        <InputError message={errors.email} />
-      </div>
+        <Field.Feedback message={errors.email} />
+      </Field.Group>
 
-      <div class="d-flex flex-column gap-2">
-        <div class="d-flex align-items-center justify-content-between">
-          <label class="form-label" for="password">Kata sandi</label>
+      <Field.Group>
+        <Field.Row>
+          <Field.Label for="password">Kata sandi</Field.Label>
           {#if canResetPassword}
             <TextLink href={request()} class="small">
               Lupa kata sandi Anda?
             </TextLink>
           {/if}
-        </div>
-        <Input.Password
+        </Field.Row>
+        <Field.Input.Password
           id="password"
           name="password"
           required
           autocomplete="current-password"
           placeholder="Kata sandi"
+          invalid={!!errors.password}
         />
-        <InputError message={errors.password} />
-      </div>
+        <Field.Feedback message={errors.password} />
+      </Field.Group>
 
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          id="remember"
-          name="remember"
-        />
-        <label class="form-check-label" for="remember"> Ingatkan saya </label>
-      </div>
+      <Field.Input.Check id="remember" name="remember">
+        Ingatkan saya
+      </Field.Input.Check>
 
       <button
         type="submit"

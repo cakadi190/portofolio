@@ -10,6 +10,9 @@
   }: HTMLAttributes<HTMLDivElement> & { children?: Snippet } = $props();
 </script>
 
-<div class={cn('d-flex flex-column gap-2', className)} {...rest}>
+<div
+  class={cn('d-flex align-items-center justify-content-between', className)}
+  {...rest}
+>
   {@render children?.()}
 </div>

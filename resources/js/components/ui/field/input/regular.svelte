@@ -6,8 +6,14 @@
     class: className = '',
     type = 'text',
     value = $bindable(),
+    invalid = false,
     ...rest
-  }: HTMLInputAttributes = $props();
+  }: HTMLInputAttributes & { invalid?: boolean } = $props();
 </script>
 
-<input {type} bind:value class={cn('form-control', className)} {...rest} />
+<input
+  {type}
+  bind:value
+  class={cn('form-control', invalid && 'is-invalid', className)}
+  {...rest}
+/>

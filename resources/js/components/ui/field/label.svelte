@@ -10,6 +10,6 @@
   }: HTMLLabelAttributes & { children?: Snippet } = $props();
 </script>
 
-<label class={cn('form-label', className)} {...rest}>
+<label class={cn('form-label mb-0', className)} {...rest}>
   {@render children?.()}
 </label>

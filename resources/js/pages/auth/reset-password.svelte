@@ -8,8 +8,7 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import InputError from '@/components/input-error.svelte';
-  import { Input } from '@/components/ui/input';
+  import { Field } from '@/components/ui/field';
   import { update } from '@/routes/password';
 
   let {
@@ -29,12 +28,13 @@
   {...update.form()}
   transform={(data) => ({ ...data, token, email })}
   resetOnSuccess={['password', 'password_confirmation']}
+  novalidate
 >
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-4">
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="email">Email</label>
-        <Input
+      <Field.Group>
+        <Field.Label for="email">Email</Field.Label>
+        <Field.Input
           id="email"
           type="email"
           name="email"
@@ -42,35 +42,40 @@
           value={email}
           class="mt-1 d-block w-100"
           readonly
+          invalid={!!errors.email}
         />
-        <InputError message={errors.email} class="mt-2" />
-      </div>
+        <Field.Feedback message={errors.email} class="mt-2" />
+      </Field.Group>
 
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="password">Kata sandi</label>
-        <Input.Password
+      <Field.Group>
+        <Field.Label for="password">Kata sandi</Field.Label>
+        <Field.Input.Password
           id="password"
           name="password"
           autocomplete="new-password"
           class="mt-1 d-block w-100"
           placeholder="Kata sandi"
           passwordrules={passwordRules}
+          invalid={!!errors.password}
         />
-        <InputError message={errors.password} />
-      </div>
+        <Field.Feedback message={errors.password} />
+      </Field.Group>
 
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="password_confirmation">Konfirmasi kata sandi</label>
-        <Input.Password
+      <Field.Group>
+        <Field.Label for="password_confirmation"
+          >Konfirmasi kata sandi</Field.Label
+        >
+        <Field.Input.Password
           id="password_confirmation"
           name="password_confirmation"
           autocomplete="new-password"
           class="mt-1 d-block w-100"
           placeholder="Konfirmasi kata sandi"
           passwordrules={passwordRules}
+          invalid={!!errors.password_confirmation}
         />
-        <InputError message={errors.password_confirmation} />
-      </div>
+        <Field.Feedback message={errors.password_confirmation} />
+      </Field.Group>
 
       <button
         type="submit"

@@ -9,9 +9,8 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import InputError from '@/components/input-error.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { Input } from '@/components/ui/input';
+  import { Field } from '@/components/ui/field';
   import { login } from '@/routes';
   import { email } from '@/routes/password';
 
@@ -31,19 +30,20 @@
 {/if}
 
 <div class="d-flex flex-column gap-4">
-  <Form {...email.form()}>
+  <Form {...email.form()} novalidate>
     {#snippet children({ errors, processing })}
-      <div class="d-flex flex-column gap-2">
-        <label class="form-label" for="email">Alamat email</label>
-        <Input
+      <Field.Group>
+        <Field.Label for="email">Alamat email</Field.Label>
+        <Field.Input
           id="email"
           type="email"
           name="email"
           autocomplete="off"
           placeholder="email@contoh.com"
+          invalid={!!errors.email}
         />
-        <InputError message={errors.email} />
-      </div>
+        <Field.Feedback message={errors.email} />
+      </Field.Group>
 
       <div class="mt-4 d-flex align-items-center justify-content-start">
         <button
