@@ -9,9 +9,13 @@
 </script>
 
 <div class="d-flex flex-column gap-2">
+  <p class="text-center text-muted mb-0">
+    Masuk dengan PassKey yang tertaut dengan akun Anda.
+  </p>
+
   <button
     type="button"
-    class="btn btn-outline-secondary"
+    class="btn btn-outline-primary"
     disabled={passkeyVerify.isLoading}
     onclick={() => passkeyVerify.verify()}
     data-test="login-passkey-button"

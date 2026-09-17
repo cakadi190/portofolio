@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@laravel/vite-plugin-wayfinder": "^0.1.10",
+    "@types/bootstrap": "^5.2.11",
     "@types/node": "^22.20.3",
     "concurrently": "^10.0.5",
     "prettier": "^3.9.7",

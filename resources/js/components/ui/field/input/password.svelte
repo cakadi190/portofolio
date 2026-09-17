@@ -129,6 +129,7 @@
       bind:value={passwordConfirmation}
       id={confirmed}
       name={confirmed}
+      placeholder="Konfirmasi kata sandi Anda."
     />
 
     {@render toggleButton()}

@@ -6,14 +6,9 @@
 </script>
 
 <script lang="ts">
-  import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import TextLink from '@/components/text-link.svelte';
+  import LoginForm from './form.svelte';
   import PasskeyLogin from '@/components/passkey-login.svelte';
-  import { Field } from '@/components/ui/field';
-  import { register } from '@/routes';
-  import { store } from '@/routes/login';
-  import { request } from '@/routes/password';
   import Separator from '@/components/ui/separator.svelte';
 
   let {
@@ -25,81 +20,81 @@
     canResetPassword: boolean;
     canUsePasskeys?: boolean;
   } = $props();
+
+  let loginTabs: {
+    name: 'passkey' | 'password';
+    label: string;
+    active: boolean;
+  }[] = $state([
+    { name: 'passkey', label: 'Passkey', active: true },
+    { name: 'password', label: 'Akun Email', active: false },
+  ]);
+
+  function selectTab(name: 'passkey' | 'password') {
+    loginTabs = loginTabs.map((tab) => ({ ...tab, active: tab.name === name }));
+  }
 </script>
 
-<AppHead title="Masuk" />
+<div id="login-inner-wrapper" class="gap-3 d-flex flex-column">
+  <AppHead title="Masuk" />
 
-{#if status}
-  <div class="mb-4 text-center small fw-medium text-success">
-    {status}
-  </div>
-{/if}
-
-<Form
-  {...store.form()}
-  resetOnSuccess={['password']}
-  class="d-flex flex-column gap-3"
-  novalidate
->
-  {#snippet children({ errors, processing })}
-    <div class="d-flex flex-column gap-3">
-      <Field.Group>
-        <Field.Label for="email">Alamat email</Field.Label>
-        <Field.Input
-          id="email"
-          type="email"
-          name="email"
-          required
-          autocomplete="email"
-          placeholder="email@contoh.com"
-          invalid={!!errors.email}
-        />
-        <Field.Feedback message={errors.email} />
-      </Field.Group>
-
-      <Field.Group>
-        <Field.Row>
-          <Field.Label for="password">Kata sandi</Field.Label>
-          {#if canResetPassword}
-            <TextLink href={request()} class="small">
-              Lupa kata sandi Anda?
-            </TextLink>
-          {/if}
-        </Field.Row>
-        <Field.Input.Password
-          id="password"
-          name="password"
-          required
-          autocomplete="current-password"
-          placeholder="Kata sandi"
-          invalid={!!errors.password}
-        />
-        <Field.Feedback message={errors.password} />
-      </Field.Group>
-
-      <Field.Input.Check id="remember" name="remember">
-        Ingatkan saya
-      </Field.Input.Check>
-
-      <button
-        type="submit"
-        class="btn btn-primary w-100"
-        disabled={processing}
-        data-test="login-button"
-      >
-        Masuk
-      </button>
-
-      {#if canUsePasskeys}
-        <Separator>Atau</Separator>
-
-        <PasskeyLogin />
-      {/if}
+  {#if status}
+    <div class="mb-4 text-center small fw-medium text-success">
+      {status}
     </div>
+  {/if}
 
-    <div class="text-center small text-muted">
-      Belum punya akun?
-      <TextLink href={register()}>Daftar</TextLink>
-    </div>
-  {/snippet}
-</Form>
+  {#if canUsePasskeys}
+    <ul
+      class="nav nav-pills justify-content-center tab-login-selector"
+      role="tablist"
+    >
+      {#each loginTabs as tab (tab.name)}
+        <li class="nav-item" role="presentation">
+          <button
+            type="button"
+            class="nav-link"
+            class:active={tab.active}
+            role="tab"
+            aria-selected={tab.active}
+            onclick={() => selectTab(tab.name)}
+          >
+            {tab.label}
+          </button>
+        </li>
+      {/each}
+    </ul>
+
+    {#if loginTabs.find((tab) => tab.active)?.name === 'password'}
+      <LoginForm {canResetPassword} />
+    {:else}
+      <PasskeyLogin />
+    {/if}
+  {:else}
+    <LoginForm {canResetPassword} />
+  {/if}
+
+  <Separator>Atau masuk dengan</Separator>
+</div>
+
+<style lang="scss">
+  .tab-login-selector {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding: 0.25rem;
+    border-radius: 99rem;
+    background: rgba(var(--bs-primary-rgb), 0.05);
+
+    .nav-item {
+      flex: 1 1 0;
+
+      .nav-link {
+        width: 100%;
+        border-radius: 99rem;
+        text-align: center;
+      }
+    }
+  }
+</style>

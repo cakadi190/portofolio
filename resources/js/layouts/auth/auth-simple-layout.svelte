@@ -41,6 +41,11 @@
       </div>
       {@render children?.()}
     </div>
+
+    <div class="mt-3 text-center">
+      Hak Cipta 2026 <Link href="/">Gettix</Link>. Operated under
+      <a href="https://www.batamtix.com">PT Batam Experience Indonesia</a>.
+    </div>
   </div>
 </div>
 
@@ -54,7 +59,11 @@
     background-size: 1.5rem 1.5rem;
 
     &-inner {
-      max-width: 24rem;
+      max-width: 25rem;
+
+      @media (width <= 992px) {
+        max-width: 100%;
+      }
     }
 
     &-logo {

@@ -1,39 +1,17 @@
-<script module lang="ts">
-  export const layout = {
-    title: 'Masuk ke akun Anda',
-    description: 'Masukkan email dan kata sandi Anda di bawah untuk masuk',
-  };
-</script>
-
 <script lang="ts">
-  import { Form } from '@inertiajs/svelte';
-  import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import PasskeyLogin from '@/components/passkey-login.svelte';
   import { Field } from '@/components/ui/field';
   import { register } from '@/routes';
   import { store } from '@/routes/login';
   import { request } from '@/routes/password';
-  import Separator from '@/components/ui/separator.svelte';
+  import { Form } from '@inertiajs/svelte';
 
   let {
-    status = '',
     canResetPassword,
-    canUsePasskeys = false,
   }: {
-    status?: string;
     canResetPassword: boolean;
-    canUsePasskeys?: boolean;
   } = $props();
 </script>
-
-<AppHead title="Masuk" />
-
-{#if status}
-  <div class="mb-4 text-center small fw-medium text-success">
-    {status}
-  </div>
-{/if}
 
 <Form
   {...store.form()}
@@ -89,12 +67,6 @@
       >
         Masuk
       </button>
-
-      {#if canUsePasskeys}
-        <Separator>Atau</Separator>
-
-        <PasskeyLogin />
-      {/if}
     </div>
 
     <div class="text-center small text-muted">
