@@ -153,9 +153,14 @@
     display: flex;
     align-items: center;
     border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;
-    padding-inline: 1rem;
+    padding-inline: 1rem 0.75rem;
     border: 0;
     background-color: transparent;
+    transition: all 0.2s;
+
+    &:hover {
+      color: var(--bs-primary);
+    }
   }
 
   :global(.password-toggle-icon) {
@@ -204,7 +209,7 @@
     .separator {
       grid-column: 1;
       height: 1px;
-      margin-inline-end: 0.5rem;
+      margin-inline-end: 0.75rem;
       margin-inline-start: 0.25rem;
       background-color: var(--state-color);
     }

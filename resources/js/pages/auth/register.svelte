@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-  import { Form } from '@inertiajs/svelte';
+  import { Form, Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
@@ -69,21 +69,11 @@
         <Field.Feedback message={errors.password} />
       </Field.Group>
 
-      <!-- <Field.Group>
-        <Field.Label for="password_confirmation"
-          >Konfirmasi kata sandi</Field.Label
-        >
-        <Field.Input.Password
-          id="password_confirmation"
-          required
-          autocomplete="new-password"
-          name="password_confirmation"
-          placeholder="Konfirmasi kata sandi"
-          passwordrules={passwordRules}
-          invalid={!!errors.password_confirmation}
-        />
-        <Field.Feedback message={errors.password_confirmation} />
-      </Field.Group> -->
+      <Field.Input.Check id="agreement" name="agreement">
+        Saya setuju dengan <Link href="/policy/agreement"
+          >Syarat dan Ketentuan</Link
+        > dari Gettix.
+      </Field.Input.Check>
 
       <button
         type="submit"

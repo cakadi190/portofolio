@@ -31,7 +31,7 @@
   novalidate
 >
   {#snippet children({ errors, processing })}
-    <div class="d-flex flex-column gap-4">
+    <div class="d-flex flex-column gap-3">
       <Field.Group>
         <Field.Label for="email">Email</Field.Label>
         <Field.Input

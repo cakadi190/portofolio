@@ -1,3 +1,9 @@
+// This file is a plain `@import` target (see `app.scss`), so it has no
+// access to Bootstrap's `@use`d Sass variables/maps ($primary, $theme-colors,
+// $grid-breakpoints, …) — everything below reads Bootstrap's generated
+// `--bs-*` custom properties instead. Local Sass lists (e.g. `$btn-ghost-colors`)
+// only carry color *names*, never values.
+
 // Tokens that don't map to a Bootstrap variable are kept as CSS custom
 // properties so components can reference them directly, following
 // Bootstrap's own --bs-* convention.
@@ -21,9 +27,101 @@ html {
   }
 }
 
+// Utility classes for the two extra font stacks configured in vite.config.ts.
+.font-serif {
+  font-family: var(--bs-font-serif);
+}
+
+.font-mono {
+  font-family: var(--bs-font-monospace);
+}
+
+// =============================================================================
+// Global overrides
+// =============================================================================
+
+// Route transitions aren't compatible with scroll-behavior: smooth; opt out
+// of Bootstrap/browser defaults and let individual scroll calls decide.
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  overflow-x: hidden !important;
+}
+
+// Respect the OS-level "reduce motion" setting by neutralizing all
+// transitions/animations instead of maintaining a per-component override.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Visible focus indicator for keyboard navigation only (:focus-visible leaves
+// pointer interactions untouched). Components with their own ring override
+// this with more specific rules.
+:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+// =============================================================================
+// Forms
+// https://getbootstrap.com/docs/5.3/forms/overview/
+// =============================================================================
+.form-group label {
+  font-weight: 700;
+}
+
+.form-control,
+.form-select {
+  &:focus {
+    border-color: var(--bs-primary);
+  }
+
+  &.form-control-clean {
+    &::-ms-clear,
+    &::-ms-reveal {
+      display: none;
+    }
+
+    &[type='search'] {
+      &::-webkit-search-cancel-button,
+      &::-webkit-search-decoration,
+      &::-webkit-search-results-button,
+      &::-webkit-search-results-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+      }
+    }
+  }
+}
+
+// Admin list pages toggle a trailing `[data-search-clear]` button with
+// `.d-none` instead of removing it from the DOM, but Bootstrap's
+// `.input-group` corner-rounding selectors (`:not(:last-child)`) are purely
+// structural — they don't see `display: none` — so the search input's right
+// corners stay square as if a visible button still followed it. Round them
+// back whenever that immediate next sibling is both hidden and last.
+.input-group > .form-control:has(+ .d-none:last-child) {
+  border-top-right-radius: var(--bs-border-radius);
+  border-bottom-right-radius: var(--bs-border-radius);
+}
+
+// =============================================================================
+// Buttons
+// https://getbootstrap.com/docs/5.3/components/buttons/
+// =============================================================================
+
 // Ghost buttons set `.btn`'s own `--bs-btn-*` custom properties instead of
 // hardcoding rules, so hover/active/focus/disabled states all keep working
-// through Bootstrap's normal `.btn` CSS-variable chain (see `_buttons.scss`).
+// through Bootstrap's normal `.btn` CSS-variable chain.
 .btn-ghost {
   --bs-btn-bg: transparent;
   --bs-btn-border-color: transparent;
@@ -56,5 +154,583 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     --bs-btn-disabled-color: var(--bs-#{$color});
     --bs-btn-disabled-bg: transparent;
     --bs-btn-disabled-border-color: transparent;
+  }
+}
+
+.btn {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+
+  &.btn-block {
+    width: 100%;
+  }
+
+  &-sm {
+    gap: 0.25rem;
+  }
+
+  &-lg {
+    gap: 0.75rem;
+  }
+
+  &-square {
+    aspect-ratio: 1;
+
+    .btn {
+      &-sm {
+        min-height: 32px;
+        min-width: 32px;
+      }
+
+      & {
+        min-height: 48px;
+        min-width: 48px;
+      }
+
+      &-lg {
+        min-height: 72px;
+        min-width: 72px;
+        font-size: 1.125em;
+      }
+    }
+  }
+
+  // Fixed/floating icon button (nav "back to top", WhatsApp, etc.)
+  &-fixed {
+    position: fixed;
+    z-index: 1030;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease,
+      transform 0.2s ease;
+
+    &.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+
+      &[data-animation='top-bottom'] {
+        transform: translateY(-1rem);
+      }
+
+      &[data-animation='left-right'] {
+        transform: translateX(-1rem);
+      }
+
+      &[data-animation='right-left'] {
+        transform: translateX(1rem);
+      }
+
+      &[data-animation='bottom-top'],
+      &:not([data-animation]) {
+        transform: translateY(1rem);
+      }
+    }
+  }
+
+  // Pill-shaped capsule button with an optional leading/trailing icon badge.
+  &-capsule {
+    --bs-capsule-badge-size: 2rem;
+    --bs-capsule-gap: 0.25rem;
+    --bs-capsule-icon-font: 1rem;
+    --bs-capsule-pad-y: 0.375rem;
+    --bs-capsule-pad-x: 0.875rem;
+    --bs-capsule-pad-icon: 1rem;
+
+    border-radius: var(--bs-border-radius-pill);
+    padding: var(--bs-capsule-pad-y) var(--bs-capsule-pad-x);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+
+    &:has(.icon-start) {
+      padding: 0 var(--bs-capsule-pad-icon) 0 0;
+    }
+
+    &:has(.icon-end) {
+      padding: 0 0 0 var(--bs-capsule-pad-icon);
+    }
+
+    &:has(.icon-start):has(.icon-end) {
+      padding: var(--bs-capsule-pad-y) var(--bs-capsule-pad-x);
+    }
+
+    &.btn-sm {
+      --bs-capsule-badge-size: 1.375rem;
+      --bs-capsule-gap: 0.125rem;
+      --bs-capsule-icon-font: 0.6875rem;
+      --bs-capsule-pad-y: 0.25rem;
+      --bs-capsule-pad-x: 0.625rem;
+      --bs-capsule-pad-icon: 0.875rem;
+
+      @media (width >= 768px) {
+        --bs-capsule-badge-size: 1.5rem;
+        --bs-capsule-icon-font: 0.75rem;
+        --bs-capsule-pad-x: 0.75rem;
+        --bs-capsule-pad-icon: 1rem;
+      }
+    }
+
+    &.btn-lg {
+      --bs-capsule-badge-size: 2.5rem;
+      --bs-capsule-gap: 0.375rem;
+      --bs-capsule-icon-font: 0.9375rem;
+      --bs-capsule-pad-y: 0.625rem;
+      --bs-capsule-pad-x: 1.25rem;
+      --bs-capsule-pad-icon: 1.25rem;
+
+      @media (width >= 768px) {
+        --bs-capsule-badge-size: 3rem;
+        --bs-capsule-gap: 0.5rem;
+        --bs-capsule-icon-font: 1rem;
+        --bs-capsule-pad-y: 0.875rem;
+        --bs-capsule-pad-x: 1.5rem;
+        --bs-capsule-pad-icon: 1.75rem;
+      }
+
+      @media (width >= 992px) {
+        --bs-capsule-badge-size: 3.5rem;
+        --bs-capsule-icon-font: 1.125rem;
+        --bs-capsule-pad-y: 1rem;
+        --bs-capsule-pad-x: 2rem;
+        --bs-capsule-pad-icon: 2rem;
+      }
+    }
+
+    .icon {
+      display: flex;
+      flex: 0 0 auto;
+      width: var(--bs-capsule-badge-size);
+      height: var(--bs-capsule-badge-size);
+      margin: 0.25rem;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: var(--bs-border-radius-pill);
+      color: var(--bs-capsule-icon-color);
+      background: var(--bs-capsule-icon-bg);
+      font-size: var(--bs-capsule-icon-font);
+      transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        transform 0.25s ease;
+    }
+
+    // Color treatment per variant: solid rests on the variant fill and
+    // inverts on hover/active, outline rests transparent with a variant
+    // outline + accent icon badge. `light` is the only variant whose
+    // "inverted" state is dark-on-white instead of white-on-variant.
+    @each $variant in primary, secondary, success, danger, warning, info,
+      light, dark
+    {
+      $is-light: $variant == light;
+      $on-variant: if($is-light, var(--bs-dark), var(--bs-white));
+      $variant-color: var(--bs-#{$variant});
+
+      &.btn-#{$variant} {
+        --bs-btn-hover-color: var(--bs-capsule-active-color);
+        --bs-btn-hover-bg: var(--bs-capsule-active-bg);
+        --bs-btn-hover-border-color: var(--bs-capsule-active-bg);
+        --bs-btn-active-color: var(--bs-capsule-active-color);
+        --bs-btn-active-bg: var(--bs-capsule-active-bg);
+        --bs-btn-active-border-color: var(--bs-capsule-active-bg);
+
+        --bs-capsule-active-color: #{if($is-light, var(--bs-white), var(--bs-dark))};
+        --bs-capsule-active-bg: #{if($is-light, var(--bs-dark), var(--bs-white))};
+        --bs-capsule-icon-color: #{if($is-light, var(--bs-white), var(--bs-dark))};
+        --bs-capsule-icon-bg: #{if($is-light, var(--bs-dark), var(--bs-white))};
+        --bs-capsule-active-icon-color: #{if($is-light, var(--bs-dark), var(--bs-white))};
+        --bs-capsule-active-icon-bg: var(--bs-#{if($is-light, 'white', $variant)});
+      }
+
+      &.btn-outline-#{$variant} {
+        --bs-btn-color: #{$variant-color};
+        --bs-btn-bg: transparent;
+        --bs-btn-border-color: #{$variant-color};
+        --bs-btn-hover-color: #{$on-variant};
+        --bs-btn-hover-bg: #{$variant-color};
+        --bs-btn-hover-border-color: #{$variant-color};
+        --bs-btn-active-color: #{$on-variant};
+        --bs-btn-active-bg: #{$variant-color};
+        --bs-btn-active-border-color: #{$variant-color};
+
+        --bs-capsule-active-color: #{$on-variant};
+        --bs-capsule-active-bg: #{$variant-color};
+        --bs-capsule-icon-color: #{$on-variant};
+        --bs-capsule-icon-bg: #{$variant-color};
+        --bs-capsule-active-icon-color: #{if($is-light, var(--bs-white), $variant-color)};
+        --bs-capsule-active-icon-bg: #{if($is-light, var(--bs-dark), var(--bs-white))};
+      }
+    }
+
+    // focus-within has no Bootstrap --bs-btn-* counterpart, so it's declared
+    // explicitly here; hover/active inherit from the vars set above.
+    &:focus-within {
+      color: var(--bs-capsule-active-color);
+      background: var(--bs-capsule-active-bg);
+      border-color: var(--bs-capsule-active-bg);
+    }
+
+    &:hover .icon,
+    &:focus .icon,
+    &:focus-within .icon {
+      background: var(--bs-capsule-active-icon-bg);
+      color: var(--bs-capsule-active-icon-color);
+    }
+  }
+}
+
+// =============================================================================
+// Dropdowns
+// https://getbootstrap.com/docs/5.3/components/dropdowns/
+// The open/close motion itself lives in `components/_dropdown-animation.scss`
+// — only the item-level styling that file doesn't cover goes here.
+// =============================================================================
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--bs-border-radius-lg);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+
+  // Danger treatment for destructive dropdown actions. Overrides every
+  // Bootstrap dropdown-item CSS variable so the danger colour wins across
+  // all interactive states (default, hover, focus, active).
+  &-danger {
+    --bs-dropdown-link-color: var(--bs-danger);
+    --bs-dropdown-link-hover-color: var(--bs-danger);
+    --bs-dropdown-link-hover-bg: rgba(var(--bs-danger-rgb), 0.125);
+    --bs-dropdown-link-active-color: var(--bs-white);
+    --bs-dropdown-link-active-bg: rgba(var(--bs-danger-rgb), 1);
+
+    color: var(--bs-dropdown-link-color);
+    background: transparent;
+
+    &:hover {
+      color: var(--bs-dropdown-link-hover-color);
+      background: var(--bs-dropdown-link-hover-bg);
+    }
+
+    &:focus,
+    &:focus:active,
+    &:focus-within {
+      color: var(--bs-dropdown-link-active-color);
+      background: var(--bs-dropdown-link-active-bg);
+    }
+
+    &:active,
+    &.active {
+      color: var(--bs-dropdown-link-active-color);
+      background: var(--bs-dropdown-link-active-bg);
+    }
+  }
+}
+
+// =============================================================================
+// Account dropdown shared by the public and admin navbars. Recolor per
+// layout via --bs-userinfo-color / --bs-userinfo-bg.
+// =============================================================================
+.userinfo {
+  --bs-userinfo-color: var(--bs-primary);
+  --bs-userinfo-bg: rgba(var(--bs-white-rgb), 1);
+
+  .dropdown-menu {
+    min-width: unset;
+
+    @media (width >= 1200px) {
+      min-width: 20rem;
+    }
+  }
+
+  .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 42px;
+    padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+    border-radius: 99rem;
+
+    @media (width <= 992px) {
+      padding: 0.5rem;
+    }
+
+    &,
+    &:hover,
+    &:focus,
+    &:active,
+    &:focus-within,
+    &:focus:active,
+    &.active {
+      color: var(--bs-userinfo-color);
+      background: var(--bs-userinfo-bg);
+    }
+
+    &::after {
+      display: none;
+    }
+
+    .avatar {
+      overflow: hidden;
+      border-radius: 99rem;
+      width: 26px;
+      aspect-ratio: 1;
+
+      > img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    span {
+      display: flex;
+
+      @media (width <= 992px) {
+        display: none;
+      }
+    }
+  }
+
+  .dropdown-item-row {
+    display: flex;
+    align-items: center;
+
+    .dropdown-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+
+      > * {
+        font-size: 0.875rem;
+        margin: 0;
+      }
+
+      p {
+        opacity: 0.75;
+        text-wrap: wrap;
+      }
+    }
+
+    .dropdown-image {
+      height: 72px;
+      width: auto;
+      flex-shrink: 0;
+      flex-grow: 1;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+
+  .userinfo-badge .dropdown-item {
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bs-light);
+    border-radius: var(--bs-border-radius-lg);
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+
+    .avatar {
+      height: 40px;
+      aspect-ratio: 1;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .content > * {
+      text-wrap: nowrap;
+    }
+  }
+}
+
+// =============================================================================
+// Modals
+// https://getbootstrap.com/docs/5.3/components/modal/
+// shadcn/Radix-style dialog motion: the dialog fades in while zooming up from
+// 95% and rising 8px, instead of Bootstrap's slide-down, with a slightly
+// faster exit. Bootstrap drives both directions through the same `.fade` /
+// `.show` class pair, so the exit timing is expressed on the resting
+// (`.fade`) state and the enter timing on `.show` — no extra classes or JS.
+// =============================================================================
+.modal,
+.modal-backdrop {
+  --bs-modal-anim-duration-in: 200ms;
+  --bs-modal-anim-duration-out: 150ms;
+  --bs-modal-anim-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --bs-modal-anim-scale: 0.95;
+  --bs-modal-anim-offset: 0.5rem;
+}
+
+.modal.fade {
+  transition: opacity var(--bs-modal-anim-duration-out) var(--bs-modal-anim-ease);
+
+  .modal-dialog {
+    transform: translateY(var(--bs-modal-anim-offset)) scale(var(--bs-modal-anim-scale));
+    transition: transform var(--bs-modal-anim-duration-out) var(--bs-modal-anim-ease);
+    will-change: transform;
+  }
+
+  &.show {
+    transition-duration: var(--bs-modal-anim-duration-in);
+
+    .modal-dialog {
+      transform: none;
+      transition-duration: var(--bs-modal-anim-duration-in);
+    }
+  }
+}
+
+// Fullscreen dialogs fill the viewport, where a zoom just exposes the edges —
+// they keep the fade only.
+.modal.fade .modal-fullscreen {
+  transform: none;
+}
+
+@each $breakpoint, $postfix in sm sm-down, md md-down, lg lg-down, xl xl-down,
+  xxl xxl-down
+{
+  .modal.fade .modal-fullscreen-#{$postfix} {
+    transform: none;
+  }
+}
+
+.modal-backdrop.fade {
+  transition: opacity var(--bs-modal-anim-duration-out) var(--bs-modal-anim-ease);
+
+  &.show {
+    transition-duration: var(--bs-modal-anim-duration-in);
+  }
+}
+
+// =============================================================================
+// Mixin: theme-display helpers
+// Generates -dark, -light, -dark-none, -light-none under a given selector prefix
+// =============================================================================
+@mixin theme-display-helpers($prefix) {
+  #{$prefix}-dark {
+    [data-bs-theme='dark'] & {
+      display: block !important;
+    }
+
+    [data-bs-theme='light'] &,
+    & {
+      display: none !important;
+    }
+  }
+
+  #{$prefix}-light {
+    [data-bs-theme='light'] & {
+      display: block !important;
+    }
+
+    [data-bs-theme='dark'] &,
+    & {
+      display: none !important;
+    }
+  }
+
+  #{$prefix}-dark-none {
+    [data-bs-theme='dark'] & {
+      display: none !important;
+    }
+  }
+
+  #{$prefix}-light-none {
+    [data-bs-theme='light'] & {
+      display: none !important;
+    }
+  }
+}
+
+// Base: .d-dark, .d-light, .d-dark-none, .d-light-none
+@include theme-display-helpers('.d');
+
+// Responsive: .d-{breakpoint}-dark / -light / -dark-none / -light-none
+// Breakpoints are Bootstrap's stock defaults; this project doesn't override
+// $grid-breakpoints in app.scss.
+$base-grid-breakpoints: xs 0, sm 576px, md 768px, lg 992px, xl 1200px,
+  xxl 1400px;
+
+@each $bp, $min-width in $base-grid-breakpoints {
+  @if $min-width==0 {
+    @include theme-display-helpers('.d-#{$bp}');
+  } @else {
+    @media (min-width: #{$min-width}) {
+      @include theme-display-helpers('.d-#{$bp}');
+    }
+  }
+}
+
+// =============================================================================
+// Link accessibility
+// The theme's $primary (#6610f2) still clears WCAG body-text contrast on
+// white, but underlining keeps links distinguishable without relying on
+// color alone.
+// =============================================================================
+a {
+  color: var(--bs-body-color);
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--bs-primary);
+  }
+}
+
+// =============================================================================
+// Navigation
+// =============================================================================
+.nav-separator {
+  height: 0;
+  margin: var(--bs-dropdown-divider-margin-y) 0;
+  overflow: hidden;
+  border-top: 1px solid var(--bs-dropdown-divider-bg);
+  opacity: 1;
+}
+
+// =============================================================================
+// Tables
+// =============================================================================
+
+// `.table-responsive` only declares `overflow-x: auto`; per the CSS overflow
+// spec, a non-`visible` value on one axis forces the other axis's computed
+// value to `auto` too. That silently turns every `.table-responsive` into a
+// vertically scrollable box the moment sub-pixel rounding makes content 1px
+// taller than its container — a scrollbar nobody asked for. Pin it to
+// `hidden` so only the intended horizontal scroll behavior remains.
+.table-responsive {
+  overflow-y: hidden;
+}
+
+// =============================================================================
+// Background & text utilities
+// =============================================================================
+.bg-color {
+  background-color: var(--bs-body-color) !important;
+}
+
+.text-color {
+  color: var(--bs-body-color) !important;
+}
+
+// Hides the scrollbar on a scrollable element while leaving wheel/touch
+// scrolling functional (used by sideways-scrolling filter/tab rows).
+.hide-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

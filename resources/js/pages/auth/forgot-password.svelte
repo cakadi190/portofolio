@@ -29,8 +29,8 @@
   </div>
 {/if}
 
-<div class="d-flex flex-column gap-4">
-  <Form {...email.form()} novalidate>
+<div class="d-flex flex-column gap-3">
+  <Form {...email.form()} novalidate class="gap-3 d-flex flex-column">
     {#snippet children({ errors, processing })}
       <Field.Group>
         <Field.Label for="email">Alamat email</Field.Label>
@@ -45,7 +45,7 @@
         <Field.Feedback message={errors.email} />
       </Field.Group>
 
-      <div class="mt-4 d-flex align-items-center justify-content-start">
+      <div class="d-flex align-items-center justify-content-start">
         <button
           type="submit"
           class="btn btn-primary w-100"
