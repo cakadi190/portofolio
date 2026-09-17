@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Enums\SocialiteProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -52,6 +53,10 @@ class FortifyServiceProvider extends ServiceProvider
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'canUsePasskeys' => Features::enabled(Features::passkeys()),
             'status' => $request->session()->get('status'),
+            'socialiteProviders' => array_map(
+                fn (SocialiteProvider $provider) => ['name' => $provider->value, 'label' => $provider->label()],
+                SocialiteProvider::activeCases(),
+            ),
         ]));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password/reset-password', [

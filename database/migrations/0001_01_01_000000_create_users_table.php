@@ -15,9 +15,27 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('account_type')->default('user');
+            $table->string('phone')->nullable();
+            $table->string('gender')->nullable();
+            $table->boolean('is_student')->default(false);
+            $table->text('nik')->nullable();
+            $table->text('date_of_birth')->nullable();
+            $table->text('address')->nullable();
+            $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->rememberToken();
+
+            // List of {id: string, value: string} pairs, one per linked Socialite
+            // provider (id = provider name, value = the provider's user id).
+            // Kept schemaless so providers can be added or removed without a
+            // migration; see App\Enums\SocialiteProvider.
+            $table->json('social_providers')->nullable();
+
             $table->timestamps();
         });
 

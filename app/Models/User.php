@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Casts\EncryptionModels\CryptedDateCast;
 use App\Casts\EncryptionModels\CryptedUnionCast;
 use App\Enums\Gender;
+use App\Enums\SocialiteProvider;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -38,10 +39,11 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
+ * @property array<int, array{id: string, value: string}>|null $social_providers
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'is_student', 'nik', 'date_of_birth', 'address', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'is_student', 'nik', 'date_of_birth', 'address', 'avatar', 'social_providers'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'nik', 'date_of_birth'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -64,7 +66,32 @@ class User extends Authenticatable implements PasskeyUser
             'is_student' => 'boolean',
             'nik' => CryptedUnionCast::class,
             'date_of_birth' => CryptedDateCast::class,
+            'social_providers' => 'array',
         ];
+    }
+
+    /**
+     * The linked account id for a given Socialite provider, or null when the
+     * user has never linked one.
+     */
+    public function socialProviderId(SocialiteProvider $provider): ?string
+    {
+        return collect($this->social_providers)
+            ->firstWhere('id', $provider->value)['value'] ?? null;
+    }
+
+    /**
+     * Link (or update) the account id for a given Socialite provider.
+     */
+    public function setSocialProviderId(SocialiteProvider $provider, string $value): void
+    {
+        $providers = collect($this->social_providers)
+            ->reject(fn (array $entry) => $entry['id'] === $provider->value)
+            ->push(['id' => $provider->value, 'value' => $value])
+            ->values()
+            ->all();
+
+        $this->update(['social_providers' => $providers]);
     }
 
     /**

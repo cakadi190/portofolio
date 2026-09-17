@@ -9,16 +9,19 @@
   import AppHead from '@/components/app-head.svelte';
   import LoginForm from './form.svelte';
   import PasskeyLogin from '@/components/passkey-login.svelte';
+  import SocialLogin from '@/components/social-login.svelte';
   import Separator from '@/components/ui/separator.svelte';
 
   let {
     status = '',
     canResetPassword,
     canUsePasskeys = false,
+    socialiteProviders = [],
   }: {
     status?: string;
     canResetPassword: boolean;
     canUsePasskeys?: boolean;
+    socialiteProviders?: { name: string; label: string }[];
   } = $props();
 
   let loginTabs: {
@@ -74,7 +77,11 @@
     <LoginForm {canResetPassword} />
   {/if}
 
-  <Separator>Atau masuk dengan</Separator>
+  {#if socialiteProviders.length > 0}
+    <Separator>Atau masuk dengan</Separator>
+
+    <SocialLogin providers={socialiteProviders} />
+  {/if}
 </div>
 
 <style lang="scss">
