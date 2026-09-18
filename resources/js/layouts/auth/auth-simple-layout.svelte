@@ -52,7 +52,7 @@
     min-height: 100vh;
     padding: 1.5rem;
     background-image: radial-gradient(
-      var(--bs-border-color) 1px,
+      var(--neo-border-color) 1px,
       transparent 1px
     );
     background-size: 1.5rem 1.5rem;
@@ -90,7 +90,7 @@
       height: 2.25rem;
       width: 2.25rem;
       margin-bottom: 0.25rem;
-      border-radius: var(--bs-border-radius);
+      border-radius: var(--neo-border-radius);
     }
 
     &-heading {
@@ -110,7 +110,7 @@
       margin-bottom: 0;
       text-align: center;
       font-size: 0.875rem;
-      color: var(--bs-secondary-color);
+      color: var(--neo-secondary-color);
     }
 
     &-footer {
@@ -122,7 +122,7 @@
   :global(.auth-layout-logo-icon) {
     width: 2.25rem;
     height: 2.25rem;
-    color: var(--bs-body-color);
+    color: var(--neo-body-color);
   }
 
   :global(.auth-layout-brand) {

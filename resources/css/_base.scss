@@ -1,24 +1,30 @@
 // This file is a plain `@import` target (see `app.scss`), so it has no
 // access to Bootstrap's `@use`d Sass variables/maps ($primary, $theme-colors,
 // $grid-breakpoints, …) — everything below reads Bootstrap's generated
-// `--bs-*` custom properties instead. Local Sass lists (e.g. `$btn-ghost-colors`)
-// only carry color *names*, never values.
+// `--neo-*` custom properties instead (app.scss sets Bootstrap's own
+// `$prefix: neo-`). Local Sass lists (e.g. `$btn-ghost-colors`) only carry
+// color *names*, never values.
+
+// This project's own custom design tokens and Bootstrap component
+// CSS-variable overrides also use this prefix, matching Bootstrap's own
+// `$prefix: neo-` (see app.scss) so every custom property in the app shares
+// one convention.
+$prefix: 'neo';
 
 // Tokens that don't map to a Bootstrap variable are kept as CSS custom
-// properties so components can reference them directly, following
-// Bootstrap's own --bs-* convention.
+// properties so components can reference them directly.
 :root {
-  --bs-muted: hsl(0 0% 96.1%);
-  --bs-muted-foreground: hsl(0 0% 45.1%);
-  --bs-accent: hsl(0 0% 96.1%);
-  --bs-accent-foreground: hsl(0 0% 9%);
-  --bs-font-serif:
+  --#{$prefix}-muted: hsl(0 0% 96.1%);
+  --#{$prefix}-muted-foreground: hsl(0 0% 45.1%);
+  --#{$prefix}-accent: hsl(0 0% 96.1%);
+  --#{$prefix}-accent-foreground: hsl(0 0% 9%);
+  --#{$prefix}-font-serif:
     'Roboto Slab', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 }
 
 body,
 html {
-  font-family: var(--bs-body-font-family);
+  font-family: var(--neo-body-font-family);
 }
 
 @keyframes spin {
@@ -29,11 +35,11 @@ html {
 
 // Utility classes for the two extra font stacks configured in vite.config.ts.
 .font-serif {
-  font-family: var(--bs-font-serif);
+  font-family: var(--#{$prefix}-font-serif);
 }
 
 .font-mono {
-  font-family: var(--bs-font-monospace);
+  font-family: var(--neo-font-monospace);
 }
 
 // =============================================================================
@@ -53,6 +59,7 @@ body {
 // Respect the OS-level "reduce motion" setting by neutralizing all
 // transitions/animations instead of maintaining a per-component override.
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -67,7 +74,7 @@ body {
 // pointer interactions untouched). Components with their own ring override
 // this with more specific rules.
 :focus-visible {
-  outline: 2px solid var(--bs-primary);
+  outline: 2px solid var(--neo-primary);
   outline-offset: 2px;
 }
 
@@ -82,16 +89,18 @@ body {
 .form-control,
 .form-select {
   &:focus {
-    border-color: var(--bs-primary);
+    border-color: var(--neo-primary);
   }
 
   &.form-control-clean {
+
     &::-ms-clear,
     &::-ms-reveal {
       display: none;
     }
 
     &[type='search'] {
+
       &::-webkit-search-cancel-button,
       &::-webkit-search-decoration,
       &::-webkit-search-results-button,
@@ -109,9 +118,9 @@ body {
 // structural — they don't see `display: none` — so the search input's right
 // corners stay square as if a visible button still followed it. Round them
 // back whenever that immediate next sibling is both hidden and last.
-.input-group > .form-control:has(+ .d-none:last-child) {
-  border-top-right-radius: var(--bs-border-radius);
-  border-bottom-right-radius: var(--bs-border-radius);
+.input-group>.form-control:has(+ .d-none:last-child) {
+  border-top-right-radius: var(--neo-border-radius);
+  border-bottom-right-radius: var(--neo-border-radius);
 }
 
 // =============================================================================
@@ -119,41 +128,41 @@ body {
 // https://getbootstrap.com/docs/5.3/components/buttons/
 // =============================================================================
 
-// Ghost buttons set `.btn`'s own `--bs-btn-*` custom properties instead of
+// Ghost buttons set `.btn`'s own `--neo-btn-*` custom properties instead of
 // hardcoding rules, so hover/active/focus/disabled states all keep working
-// through Bootstrap's normal `.btn` CSS-variable chain.
+// through this stylesheet's own `.btn` CSS-variable chain.
 .btn-ghost {
-  --bs-btn-bg: transparent;
-  --bs-btn-border-color: transparent;
-  --bs-btn-hover-color: var(--bs-accent-foreground);
-  --bs-btn-hover-bg: var(--bs-accent);
-  --bs-btn-hover-border-color: transparent;
-  --bs-btn-active-color: var(--bs-accent-foreground);
-  --bs-btn-active-bg: var(--bs-accent);
-  --bs-btn-active-border-color: transparent;
-  --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: transparent;
+  --#{$prefix}-btn-bg: transparent;
+  --#{$prefix}-btn-border-color: transparent;
+  --#{$prefix}-btn-hover-color: var(--#{$prefix}-accent-foreground);
+  --#{$prefix}-btn-hover-bg: var(--#{$prefix}-accent);
+  --#{$prefix}-btn-hover-border-color: transparent;
+  --#{$prefix}-btn-active-color: var(--#{$prefix}-accent-foreground);
+  --#{$prefix}-btn-active-bg: var(--#{$prefix}-accent);
+  --#{$prefix}-btn-active-border-color: transparent;
+  --#{$prefix}-btn-disabled-bg: transparent;
+  --#{$prefix}-btn-disabled-border-color: transparent;
 }
 
 // Ghost variants for every Bootstrap theme color, tinted with the color's
-// own `--bs-{color}` / `--bs-{color}-rgb` custom properties.
+// own `--neo-{color}` / `--neo-{color}-rgb` custom properties.
 $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
   dark;
 
 @each $color in $btn-ghost-colors {
   .btn-ghost-#{$color} {
-    --bs-btn-color: var(--bs-#{$color});
-    --bs-btn-bg: transparent;
-    --bs-btn-border-color: transparent;
-    --bs-btn-hover-color: var(--bs-#{$color});
-    --bs-btn-hover-bg: rgba(var(--bs-#{$color}-rgb), 0.1);
-    --bs-btn-hover-border-color: transparent;
-    --bs-btn-active-color: var(--bs-#{$color});
-    --bs-btn-active-bg: rgba(var(--bs-#{$color}-rgb), 0.15);
-    --bs-btn-active-border-color: transparent;
-    --bs-btn-disabled-color: var(--bs-#{$color});
-    --bs-btn-disabled-bg: transparent;
-    --bs-btn-disabled-border-color: transparent;
+    --#{$prefix}-btn-color: var(--neo-#{$color});
+    --#{$prefix}-btn-bg: transparent;
+    --#{$prefix}-btn-border-color: transparent;
+    --#{$prefix}-btn-hover-color: var(--neo-#{$color});
+    --#{$prefix}-btn-hover-bg: rgba(var(--neo-#{$color}-rgb), 0.1);
+    --#{$prefix}-btn-hover-border-color: transparent;
+    --#{$prefix}-btn-active-color: var(--neo-#{$color});
+    --#{$prefix}-btn-active-bg: rgba(var(--neo-#{$color}-rgb), 0.15);
+    --#{$prefix}-btn-active-border-color: transparent;
+    --#{$prefix}-btn-disabled-color: var(--neo-#{$color});
+    --#{$prefix}-btn-disabled-bg: transparent;
+    --#{$prefix}-btn-disabled-border-color: transparent;
   }
 }
 
@@ -232,86 +241,86 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 
   // Pill-shaped capsule button with an optional leading/trailing icon badge.
   &-capsule {
-    --bs-capsule-badge-size: 2rem;
-    --bs-capsule-gap: 0.25rem;
-    --bs-capsule-icon-font: 1rem;
-    --bs-capsule-pad-y: 0.375rem;
-    --bs-capsule-pad-x: 0.875rem;
-    --bs-capsule-pad-icon: 1rem;
+    --#{$prefix}-capsule-badge-size: 2rem;
+    --#{$prefix}-capsule-gap: 0.25rem;
+    --#{$prefix}-capsule-icon-font: 1rem;
+    --#{$prefix}-capsule-pad-y: 0.375rem;
+    --#{$prefix}-capsule-pad-x: 0.875rem;
+    --#{$prefix}-capsule-pad-icon: 1rem;
 
-    border-radius: var(--bs-border-radius-pill);
-    padding: var(--bs-capsule-pad-y) var(--bs-capsule-pad-x);
+    border-radius: var(--neo-border-radius-pill);
+    padding: var(--#{$prefix}-capsule-pad-y) var(--#{$prefix}-capsule-pad-x);
     font-weight: 600;
     line-height: 1;
     letter-spacing: 0.01em;
 
     &:has(.icon-start) {
-      padding: 0 var(--bs-capsule-pad-icon) 0 0;
+      padding: 0 var(--#{$prefix}-capsule-pad-icon) 0 0;
     }
 
     &:has(.icon-end) {
-      padding: 0 0 0 var(--bs-capsule-pad-icon);
+      padding: 0 0 0 var(--#{$prefix}-capsule-pad-icon);
     }
 
     &:has(.icon-start):has(.icon-end) {
-      padding: var(--bs-capsule-pad-y) var(--bs-capsule-pad-x);
+      padding: var(--#{$prefix}-capsule-pad-y) var(--#{$prefix}-capsule-pad-x);
     }
 
     &.btn-sm {
-      --bs-capsule-badge-size: 1.375rem;
-      --bs-capsule-gap: 0.125rem;
-      --bs-capsule-icon-font: 0.6875rem;
-      --bs-capsule-pad-y: 0.25rem;
-      --bs-capsule-pad-x: 0.625rem;
-      --bs-capsule-pad-icon: 0.875rem;
+      --#{$prefix}-capsule-badge-size: 1.375rem;
+      --#{$prefix}-capsule-gap: 0.125rem;
+      --#{$prefix}-capsule-icon-font: 0.6875rem;
+      --#{$prefix}-capsule-pad-y: 0.25rem;
+      --#{$prefix}-capsule-pad-x: 0.625rem;
+      --#{$prefix}-capsule-pad-icon: 0.875rem;
 
-      @media (width >= 768px) {
-        --bs-capsule-badge-size: 1.5rem;
-        --bs-capsule-icon-font: 0.75rem;
-        --bs-capsule-pad-x: 0.75rem;
-        --bs-capsule-pad-icon: 1rem;
+      @media (width >=768px) {
+        --#{$prefix}-capsule-badge-size: 1.5rem;
+        --#{$prefix}-capsule-icon-font: 0.75rem;
+        --#{$prefix}-capsule-pad-x: 0.75rem;
+        --#{$prefix}-capsule-pad-icon: 1rem;
       }
     }
 
     &.btn-lg {
-      --bs-capsule-badge-size: 2.5rem;
-      --bs-capsule-gap: 0.375rem;
-      --bs-capsule-icon-font: 0.9375rem;
-      --bs-capsule-pad-y: 0.625rem;
-      --bs-capsule-pad-x: 1.25rem;
-      --bs-capsule-pad-icon: 1.25rem;
+      --#{$prefix}-capsule-badge-size: 2.5rem;
+      --#{$prefix}-capsule-gap: 0.375rem;
+      --#{$prefix}-capsule-icon-font: 0.9375rem;
+      --#{$prefix}-capsule-pad-y: 0.625rem;
+      --#{$prefix}-capsule-pad-x: 1.25rem;
+      --#{$prefix}-capsule-pad-icon: 1.25rem;
 
-      @media (width >= 768px) {
-        --bs-capsule-badge-size: 3rem;
-        --bs-capsule-gap: 0.5rem;
-        --bs-capsule-icon-font: 1rem;
-        --bs-capsule-pad-y: 0.875rem;
-        --bs-capsule-pad-x: 1.5rem;
-        --bs-capsule-pad-icon: 1.75rem;
+      @media (width >=768px) {
+        --#{$prefix}-capsule-badge-size: 3rem;
+        --#{$prefix}-capsule-gap: 0.5rem;
+        --#{$prefix}-capsule-icon-font: 1rem;
+        --#{$prefix}-capsule-pad-y: 0.875rem;
+        --#{$prefix}-capsule-pad-x: 1.5rem;
+        --#{$prefix}-capsule-pad-icon: 1.75rem;
       }
 
-      @media (width >= 992px) {
-        --bs-capsule-badge-size: 3.5rem;
-        --bs-capsule-icon-font: 1.125rem;
-        --bs-capsule-pad-y: 1rem;
-        --bs-capsule-pad-x: 2rem;
-        --bs-capsule-pad-icon: 2rem;
+      @media (width >=992px) {
+        --#{$prefix}-capsule-badge-size: 3.5rem;
+        --#{$prefix}-capsule-icon-font: 1.125rem;
+        --#{$prefix}-capsule-pad-y: 1rem;
+        --#{$prefix}-capsule-pad-x: 2rem;
+        --#{$prefix}-capsule-pad-icon: 2rem;
       }
     }
 
     .icon {
       display: flex;
       flex: 0 0 auto;
-      width: var(--bs-capsule-badge-size);
-      height: var(--bs-capsule-badge-size);
+      width: var(--#{$prefix}-capsule-badge-size);
+      height: var(--#{$prefix}-capsule-badge-size);
       margin: 0.25rem;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      border-radius: var(--bs-border-radius-pill);
-      color: var(--bs-capsule-icon-color);
-      background: var(--bs-capsule-icon-bg);
-      font-size: var(--bs-capsule-icon-font);
+      border-radius: var(--neo-border-radius-pill);
+      color: var(--#{$prefix}-capsule-icon-color);
+      background: var(--#{$prefix}-capsule-icon-bg);
+      font-size: var(--#{$prefix}-capsule-icon-font);
       transition:
         background-color 0.25s ease,
         color 0.25s ease,
@@ -323,61 +332,60 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     // outline + accent icon badge. `light` is the only variant whose
     // "inverted" state is dark-on-white instead of white-on-variant.
     @each $variant in primary, secondary, success, danger, warning, info,
-      light, dark
-    {
-      $is-light: $variant == light;
-      $on-variant: if($is-light, var(--bs-dark), var(--bs-white));
-      $variant-color: var(--bs-#{$variant});
+    light, dark {
+      $is-light: $variant ==light;
+      $on-variant: if($is-light, var(--neo-dark), var(--neo-white));
+      $variant-color: var(--neo-#{$variant});
 
       &.btn-#{$variant} {
-        --bs-btn-hover-color: var(--bs-capsule-active-color);
-        --bs-btn-hover-bg: var(--bs-capsule-active-bg);
-        --bs-btn-hover-border-color: var(--bs-capsule-active-bg);
-        --bs-btn-active-color: var(--bs-capsule-active-color);
-        --bs-btn-active-bg: var(--bs-capsule-active-bg);
-        --bs-btn-active-border-color: var(--bs-capsule-active-bg);
+        --#{$prefix}-btn-hover-color: var(--#{$prefix}-capsule-active-color);
+        --#{$prefix}-btn-hover-bg: var(--#{$prefix}-capsule-active-bg);
+        --#{$prefix}-btn-hover-border-color: var(--#{$prefix}-capsule-active-bg);
+        --#{$prefix}-btn-active-color: var(--#{$prefix}-capsule-active-color);
+        --#{$prefix}-btn-active-bg: var(--#{$prefix}-capsule-active-bg);
+        --#{$prefix}-btn-active-border-color: var(--#{$prefix}-capsule-active-bg);
 
-        --bs-capsule-active-color: #{if($is-light, var(--bs-white), var(--bs-dark))};
-        --bs-capsule-active-bg: #{if($is-light, var(--bs-dark), var(--bs-white))};
-        --bs-capsule-icon-color: #{if($is-light, var(--bs-white), var(--bs-dark))};
-        --bs-capsule-icon-bg: #{if($is-light, var(--bs-dark), var(--bs-white))};
-        --bs-capsule-active-icon-color: #{if($is-light, var(--bs-dark), var(--bs-white))};
-        --bs-capsule-active-icon-bg: var(--bs-#{if($is-light, 'white', $variant)});
+        --#{$prefix}-capsule-active-color: #{if($is-light, var(--neo-white), var(--neo-dark))};
+        --#{$prefix}-capsule-active-bg: #{if($is-light, var(--neo-dark), var(--neo-white))};
+        --#{$prefix}-capsule-icon-color: #{if($is-light, var(--neo-white), var(--neo-dark))};
+        --#{$prefix}-capsule-icon-bg: #{if($is-light, var(--neo-dark), var(--neo-white))};
+        --#{$prefix}-capsule-active-icon-color: #{if($is-light, var(--neo-dark), var(--neo-white))};
+        --#{$prefix}-capsule-active-icon-bg: var(--neo-#{if($is-light, 'white', $variant)});
       }
 
       &.btn-outline-#{$variant} {
-        --bs-btn-color: #{$variant-color};
-        --bs-btn-bg: transparent;
-        --bs-btn-border-color: #{$variant-color};
-        --bs-btn-hover-color: #{$on-variant};
-        --bs-btn-hover-bg: #{$variant-color};
-        --bs-btn-hover-border-color: #{$variant-color};
-        --bs-btn-active-color: #{$on-variant};
-        --bs-btn-active-bg: #{$variant-color};
-        --bs-btn-active-border-color: #{$variant-color};
+        --#{$prefix}-btn-color: #{$variant-color};
+        --#{$prefix}-btn-bg: transparent;
+        --#{$prefix}-btn-border-color: #{$variant-color};
+        --#{$prefix}-btn-hover-color: #{$on-variant};
+        --#{$prefix}-btn-hover-bg: #{$variant-color};
+        --#{$prefix}-btn-hover-border-color: #{$variant-color};
+        --#{$prefix}-btn-active-color: #{$on-variant};
+        --#{$prefix}-btn-active-bg: #{$variant-color};
+        --#{$prefix}-btn-active-border-color: #{$variant-color};
 
-        --bs-capsule-active-color: #{$on-variant};
-        --bs-capsule-active-bg: #{$variant-color};
-        --bs-capsule-icon-color: #{$on-variant};
-        --bs-capsule-icon-bg: #{$variant-color};
-        --bs-capsule-active-icon-color: #{if($is-light, var(--bs-white), $variant-color)};
-        --bs-capsule-active-icon-bg: #{if($is-light, var(--bs-dark), var(--bs-white))};
+        --#{$prefix}-capsule-active-color: #{$on-variant};
+        --#{$prefix}-capsule-active-bg: #{$variant-color};
+        --#{$prefix}-capsule-icon-color: #{$on-variant};
+        --#{$prefix}-capsule-icon-bg: #{$variant-color};
+        --#{$prefix}-capsule-active-icon-color: #{if($is-light, var(--neo-white), $variant-color)};
+        --#{$prefix}-capsule-active-icon-bg: #{if($is-light, var(--neo-dark), var(--neo-white))};
       }
     }
 
-    // focus-within has no Bootstrap --bs-btn-* counterpart, so it's declared
+    // focus-within has no --neo-btn-* counterpart, so it's declared
     // explicitly here; hover/active inherit from the vars set above.
     &:focus-within {
-      color: var(--bs-capsule-active-color);
-      background: var(--bs-capsule-active-bg);
-      border-color: var(--bs-capsule-active-bg);
+      color: var(--#{$prefix}-capsule-active-color);
+      background: var(--#{$prefix}-capsule-active-bg);
+      border-color: var(--#{$prefix}-capsule-active-bg);
     }
 
     &:hover .icon,
     &:focus .icon,
     &:focus-within .icon {
-      background: var(--bs-capsule-active-icon-bg);
-      color: var(--bs-capsule-active-icon-color);
+      background: var(--#{$prefix}-capsule-active-icon-bg);
+      color: var(--#{$prefix}-capsule-active-icon-color);
     }
   }
 }
@@ -388,61 +396,67 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 // The open/close motion itself lives in `components/_dropdown-animation.scss`
 // — only the item-level styling that file doesn't cover goes here.
 // =============================================================================
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--bs-border-radius-lg);
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+.dropdown {
+  .dropdown-menu {
+    padding: .5rem;
 
-  // Danger treatment for destructive dropdown actions. Overrides every
-  // Bootstrap dropdown-item CSS variable so the danger colour wins across
-  // all interactive states (default, hover, focus, active).
-  &-danger {
-    --bs-dropdown-link-color: var(--bs-danger);
-    --bs-dropdown-link-hover-color: var(--bs-danger);
-    --bs-dropdown-link-hover-bg: rgba(var(--bs-danger-rgb), 0.125);
-    --bs-dropdown-link-active-color: var(--bs-white);
-    --bs-dropdown-link-active-bg: rgba(var(--bs-danger-rgb), 1);
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--neo-border-radius-lg);
+      transition:
+        background-color 0.2s,
+        color 0.2s;
 
-    color: var(--bs-dropdown-link-color);
-    background: transparent;
+      // Danger treatment for destructive dropdown actions. Overrides every
+      // Bootstrap dropdown-item CSS variable so the danger colour wins across
+      // all interactive states (default, hover, focus, active).
+      &-danger {
+        --#{$prefix}-dropdown-link-color: var(--neo-danger);
+        --#{$prefix}-dropdown-link-hover-color: var(--neo-danger);
+        --#{$prefix}-dropdown-link-hover-bg: rgba(var(--neo-danger-rgb), 0.125);
+        --#{$prefix}-dropdown-link-active-color: var(--neo-white);
+        --#{$prefix}-dropdown-link-active-bg: rgba(var(--neo-danger-rgb), 1);
 
-    &:hover {
-      color: var(--bs-dropdown-link-hover-color);
-      background: var(--bs-dropdown-link-hover-bg);
-    }
+        color: var(--#{$prefix}-dropdown-link-color);
+        background: transparent;
 
-    &:focus,
-    &:focus:active,
-    &:focus-within {
-      color: var(--bs-dropdown-link-active-color);
-      background: var(--bs-dropdown-link-active-bg);
-    }
+        &:hover {
+          color: var(--#{$prefix}-dropdown-link-hover-color);
+          background: var(--#{$prefix}-dropdown-link-hover-bg);
+        }
 
-    &:active,
-    &.active {
-      color: var(--bs-dropdown-link-active-color);
-      background: var(--bs-dropdown-link-active-bg);
+        &:focus,
+        &:focus:active,
+        &:focus-within {
+          color: var(--#{$prefix}-dropdown-link-active-color);
+          background: var(--#{$prefix}-dropdown-link-active-bg);
+        }
+
+        &:active,
+        &.active {
+          color: var(--#{$prefix}-dropdown-link-active-color);
+          background: var(--#{$prefix}-dropdown-link-active-bg);
+        }
+      }
     }
   }
 }
 
 // =============================================================================
 // Account dropdown shared by the public and admin navbars. Recolor per
-// layout via --bs-userinfo-color / --bs-userinfo-bg.
+// layout via --neo-userinfo-color / --neo-userinfo-bg.
 // =============================================================================
 .userinfo {
-  --bs-userinfo-color: var(--bs-primary);
-  --bs-userinfo-bg: rgba(var(--bs-white-rgb), 1);
+  --#{$prefix}-userinfo-color: var(--neo-primary);
+  --#{$prefix}-userinfo-bg: rgba(var(--neo-white-rgb), 1);
 
   .dropdown-menu {
     min-width: unset;
 
-    @media (width >= 1200px) {
+    @media (width >=1200px) {
       min-width: 20rem;
     }
   }
@@ -455,7 +469,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     padding: 0.5rem 0.75rem 0.5rem 0.5rem;
     border-radius: 99rem;
 
-    @media (width <= 992px) {
+    @media (width <=992px) {
       padding: 0.5rem;
     }
 
@@ -466,8 +480,8 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     &:focus-within,
     &:focus:active,
     &.active {
-      color: var(--bs-userinfo-color);
-      background: var(--bs-userinfo-bg);
+      color: var(--#{$prefix}-userinfo-color);
+      background: var(--#{$prefix}-userinfo-bg);
     }
 
     &::after {
@@ -480,7 +494,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       width: 26px;
       aspect-ratio: 1;
 
-      > img {
+      >img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -490,7 +504,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     span {
       display: flex;
 
-      @media (width <= 992px) {
+      @media (width <=992px) {
         display: none;
       }
     }
@@ -505,7 +519,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       flex-direction: column;
       gap: 0.125rem;
 
-      > * {
+      >* {
         font-size: 0.875rem;
         margin: 0;
       }
@@ -533,8 +547,8 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
   .userinfo-badge .dropdown-item {
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
-    background-color: var(--bs-light);
-    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--neo-light);
+    border-radius: var(--neo-border-radius-lg);
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
@@ -550,7 +564,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       }
     }
 
-    .content > * {
+    .content>* {
       text-wrap: nowrap;
     }
   }
@@ -567,28 +581,28 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 // =============================================================================
 .modal,
 .modal-backdrop {
-  --bs-modal-anim-duration-in: 200ms;
-  --bs-modal-anim-duration-out: 150ms;
-  --bs-modal-anim-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --bs-modal-anim-scale: 0.95;
-  --bs-modal-anim-offset: 0.5rem;
+  --#{$prefix}-modal-anim-duration-in: 200ms;
+  --#{$prefix}-modal-anim-duration-out: 150ms;
+  --#{$prefix}-modal-anim-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --#{$prefix}-modal-anim-scale: 0.95;
+  --#{$prefix}-modal-anim-offset: 0.5rem;
 }
 
 .modal.fade {
-  transition: opacity var(--bs-modal-anim-duration-out) var(--bs-modal-anim-ease);
+  transition: opacity var(--#{$prefix}-modal-anim-duration-out) var(--#{$prefix}-modal-anim-ease);
 
   .modal-dialog {
-    transform: translateY(var(--bs-modal-anim-offset)) scale(var(--bs-modal-anim-scale));
-    transition: transform var(--bs-modal-anim-duration-out) var(--bs-modal-anim-ease);
+    transform: translateY(var(--#{$prefix}-modal-anim-offset)) scale(var(--#{$prefix}-modal-anim-scale));
+    transition: transform var(--#{$prefix}-modal-anim-duration-out) var(--#{$prefix}-modal-anim-ease);
     will-change: transform;
   }
 
   &.show {
-    transition-duration: var(--bs-modal-anim-duration-in);
+    transition-duration: var(--#{$prefix}-modal-anim-duration-in);
 
     .modal-dialog {
       transform: none;
-      transition-duration: var(--bs-modal-anim-duration-in);
+      transition-duration: var(--#{$prefix}-modal-anim-duration-in);
     }
   }
 }
@@ -600,18 +614,17 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 }
 
 @each $breakpoint, $postfix in sm sm-down, md md-down, lg lg-down, xl xl-down,
-  xxl xxl-down
-{
+xxl xxl-down {
   .modal.fade .modal-fullscreen-#{$postfix} {
     transform: none;
   }
 }
 
 .modal-backdrop.fade {
-  transition: opacity var(--bs-modal-anim-duration-out) var(--bs-modal-anim-ease);
+  transition: opacity var(--#{$prefix}-modal-anim-duration-out) var(--#{$prefix}-modal-anim-ease);
 
   &.show {
-    transition-duration: var(--bs-modal-anim-duration-in);
+    transition-duration: var(--#{$prefix}-modal-anim-duration-in);
   }
 }
 
@@ -667,7 +680,9 @@ $base-grid-breakpoints: xs 0, sm 576px, md 768px, lg 992px, xl 1200px,
 @each $bp, $min-width in $base-grid-breakpoints {
   @if $min-width==0 {
     @include theme-display-helpers('.d-#{$bp}');
-  } @else {
+  }
+
+  @else {
     @media (min-width: #{$min-width}) {
       @include theme-display-helpers('.d-#{$bp}');
     }
@@ -681,11 +696,11 @@ $base-grid-breakpoints: xs 0, sm 576px, md 768px, lg 992px, xl 1200px,
 // color alone.
 // =============================================================================
 a {
-  color: var(--bs-body-color);
+  color: var(--neo-body-color);
   text-decoration: underline;
 
   &:hover {
-    color: var(--bs-primary);
+    color: var(--neo-primary);
   }
 }
 
@@ -694,9 +709,9 @@ a {
 // =============================================================================
 .nav-separator {
   height: 0;
-  margin: var(--bs-dropdown-divider-margin-y) 0;
+  margin: var(--neo-dropdown-divider-margin-y) 0;
   overflow: hidden;
-  border-top: 1px solid var(--bs-dropdown-divider-bg);
+  border-top: 1px solid var(--neo-dropdown-divider-bg);
   opacity: 1;
 }
 
@@ -718,11 +733,11 @@ a {
 // Background & text utilities
 // =============================================================================
 .bg-color {
-  background-color: var(--bs-body-color) !important;
+  background-color: var(--neo-body-color) !important;
 }
 
 .text-color {
-  color: var(--bs-body-color) !important;
+  color: var(--neo-body-color) !important;
 }
 
 // Hides the scrollbar on a scrollable element while leaving wheel/touch

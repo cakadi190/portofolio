@@ -11,8 +11,9 @@
  *
  * Ported from Batamtix Core's `resources/js/libs/dropdown-animation.ts`, with
  * the jQuery dependency dropped (Gettix has none) and the `btx-` custom
- * property / class prefix dropped (Gettix doesn't rename Bootstrap's
- * `$prefix`, so it reads Bootstrap's own `--bs-position` directly).
+ * property / class prefix dropped (Bootstrap hardcodes `--bs-position`
+ * literally in `_dropdown.scss`, ignoring its own `$prefix`, so it's read
+ * directly with no `--neo-*` mirror).
  *
  * Notes on the two non-obvious pieces:
  *

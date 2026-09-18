@@ -43,6 +43,7 @@ export default defineConfig({
       ] as any[],
   ),
   css: {
+    devSourcemap: true,
     preprocessorOptions: {
       scss: {
         // Resolves bare `@use 'bootstrap/scss/bootstrap'` against

@@ -1,3 +1,5 @@
+$prefix: 'neo';
+
 // shadcn/popover-style menu motion: fade + zoom from 96% with a short slide
 // away from the toggle. Driven entirely by the `.dropdown-anim-enter` /
 // `.dropdown-anim-leave` classes that `@/lib/dropdown-animation` toggles around
@@ -9,24 +11,24 @@
 // keyframe on the same property would override its positioning mid-animation.
 //
 // Ported from Batamtix Core's `resources/scss/core/_base.scss` (`.dropdown-menu`
-// block) and `resources/js/libs/dropdown-animation.ts`. Gettix doesn't rename
-// Bootstrap's `$prefix`, so `--bs-position` (Bootstrap's own custom property,
-// written by `dropdown-menu-end`) is read directly with no `--btx-*` mirror.
+// block) and `resources/js/libs/dropdown-animation.ts`. Bootstrap hardcodes
+// `--bs-position` literally in `_dropdown.scss`, ignoring its own `$prefix`,
+// so it's read directly here too with no `--neo-*` mirror.
 .dropdown-menu {
   // Enter and leave are exact mirrors, so they share one duration and one
   // easing curve: a symmetric ease means the menu retraces the same path at
   // the same speed on the way out as it took on the way in.
-  --dropdown-anim-duration: 180ms;
-  --dropdown-anim-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --dropdown-anim-scale: 0.96;
-  --dropdown-anim-offset: 0.5rem;
+  --#{$prefix}-dropdown-anim-duration: 180ms;
+  --#{$prefix}-dropdown-anim-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --#{$prefix}-dropdown-anim-scale: 0.96;
+  --#{$prefix}-dropdown-anim-offset: 0.5rem;
   // Defaults match the start-aligned case (slide left → right); every other
   // combination is resolved by the placement/alignment rules below.
-  --dropdown-anim-x: calc(var(--dropdown-anim-offset) * -1);
-  --dropdown-anim-y: 0;
-  --dropdown-anim-origin: top center;
+  --#{$prefix}-dropdown-anim-x: calc(var(--#{$prefix}-dropdown-anim-offset) * -1);
+  --#{$prefix}-dropdown-anim-y: 0;
+  --#{$prefix}-dropdown-anim-origin: top center;
 
-  transform-origin: var(--dropdown-anim-origin);
+  transform-origin: var(--#{$prefix}-dropdown-anim-origin);
 
   // Grow out of the edge nearest the toggle. The placement is resolved and
   // written by the TS module, which prefers Popper's post-flip
@@ -38,57 +40,57 @@
   // Side placements own both, since sliding a `dropend` menu horizontally is
   // the only direction that reads as "away from the toggle".
   &[data-popper-placement^='bottom'] {
-    --dropdown-anim-origin: top center;
+    --#{$prefix}-dropdown-anim-origin: top center;
   }
 
   &[data-popper-placement^='top'] {
-    --dropdown-anim-origin: bottom center;
+    --#{$prefix}-dropdown-anim-origin: bottom center;
   }
 
   &[data-popper-placement^='right'] {
-    --dropdown-anim-x: calc(var(--dropdown-anim-offset) * -1);
-    --dropdown-anim-y: 0;
-    --dropdown-anim-origin: left center;
+    --#{$prefix}-dropdown-anim-x: calc(var(--#{$prefix}-dropdown-anim-offset) * -1);
+    --#{$prefix}-dropdown-anim-y: 0;
+    --#{$prefix}-dropdown-anim-origin: left center;
   }
 
   &[data-popper-placement^='left'] {
-    --dropdown-anim-x: var(--dropdown-anim-offset);
-    --dropdown-anim-y: 0;
-    --dropdown-anim-origin: right center;
+    --#{$prefix}-dropdown-anim-x: var(--#{$prefix}-dropdown-anim-offset);
+    --#{$prefix}-dropdown-anim-y: 0;
+    --#{$prefix}-dropdown-anim-origin: right center;
   }
 
   // Aligned variants (`dropdown-menu-end`, `dropup` + `-end`, …) only move the
   // origin along the cross axis; the slide direction stays the one above.
   &[data-popper-placement='bottom-start'] {
-    --dropdown-anim-origin: top left;
+    --#{$prefix}-dropdown-anim-origin: top left;
   }
 
   &[data-popper-placement='bottom-end'] {
-    --dropdown-anim-origin: top right;
+    --#{$prefix}-dropdown-anim-origin: top right;
   }
 
   &[data-popper-placement='top-start'] {
-    --dropdown-anim-origin: bottom left;
+    --#{$prefix}-dropdown-anim-origin: bottom left;
   }
 
   &[data-popper-placement='top-end'] {
-    --dropdown-anim-origin: bottom right;
+    --#{$prefix}-dropdown-anim-origin: bottom right;
   }
 
   &[data-popper-placement='right-start'] {
-    --dropdown-anim-origin: left top;
+    --#{$prefix}-dropdown-anim-origin: left top;
   }
 
   &[data-popper-placement='right-end'] {
-    --dropdown-anim-origin: left bottom;
+    --#{$prefix}-dropdown-anim-origin: left bottom;
   }
 
   &[data-popper-placement='left-start'] {
-    --dropdown-anim-origin: right top;
+    --#{$prefix}-dropdown-anim-origin: right top;
   }
 
   &[data-popper-placement='left-end'] {
-    --dropdown-anim-origin: right bottom;
+    --#{$prefix}-dropdown-anim-origin: right bottom;
   }
 
   // -------------------------------------------------------------------------
@@ -113,16 +115,16 @@
   &[data-popper-placement='top-end'],
   &.dropdown-menu-end[data-popper-placement^='bottom'],
   &.dropdown-menu-end[data-popper-placement^='top'] {
-    --dropdown-anim-x: var(--dropdown-anim-offset);
-    --dropdown-anim-y: 0;
+    --#{$prefix}-dropdown-anim-x: var(--#{$prefix}-dropdown-anim-offset);
+    --#{$prefix}-dropdown-anim-y: 0;
   }
 
   &[data-popper-placement='bottom-start'],
   &[data-popper-placement='top-start'],
   &.dropdown-menu-start[data-popper-placement^='bottom'],
   &.dropdown-menu-start[data-popper-placement^='top'] {
-    --dropdown-anim-x: calc(var(--dropdown-anim-offset) * -1);
-    --dropdown-anim-y: 0;
+    --#{$prefix}-dropdown-anim-x: calc(var(--#{$prefix}-dropdown-anim-offset) * -1);
+    --#{$prefix}-dropdown-anim-y: 0;
   }
 
   // Bootstrap has no centered *menu* class of its own — it centers via the
@@ -133,21 +135,21 @@
   &.dropdown-menu-center,
   .dropdown-center > &,
   .dropup-center > & {
-    --dropdown-anim-x: 0;
-    --dropdown-anim-y: calc(var(--dropdown-anim-offset) * -1);
+    --#{$prefix}-dropdown-anim-x: 0;
+    --#{$prefix}-dropdown-anim-y: calc(var(--#{$prefix}-dropdown-anim-offset) * -1);
 
     &[data-popper-placement^='bottom'] {
-      --dropdown-anim-origin: top center;
+      --#{$prefix}-dropdown-anim-origin: top center;
     }
 
     &[data-popper-placement^='top'] {
-      --dropdown-anim-origin: bottom center;
+      --#{$prefix}-dropdown-anim-origin: bottom center;
     }
   }
 
   &.dropdown-anim-enter {
-    animation: dropdown-anim-enter var(--dropdown-anim-duration)
-      var(--dropdown-anim-ease) backwards;
+    animation: dropdown-anim-enter var(--#{$prefix}-dropdown-anim-duration)
+      var(--#{$prefix}-dropdown-anim-ease) backwards;
     will-change: opacity, scale, translate;
   }
 
@@ -158,8 +160,8 @@
   &.dropdown-anim-leave {
     display: block !important;
     pointer-events: none;
-    animation: dropdown-anim-leave var(--dropdown-anim-duration)
-      var(--dropdown-anim-ease) forwards;
+    animation: dropdown-anim-leave var(--#{$prefix}-dropdown-anim-duration)
+      var(--#{$prefix}-dropdown-anim-ease) forwards;
     will-change: opacity, scale, translate;
   }
 }
@@ -179,8 +181,8 @@
 @keyframes dropdown-anim-enter {
   from {
     opacity: 0;
-    scale: var(--dropdown-anim-scale);
-    translate: var(--dropdown-anim-x) var(--dropdown-anim-y);
+    scale: var(--#{$prefix}-dropdown-anim-scale);
+    translate: var(--#{$prefix}-dropdown-anim-x) var(--#{$prefix}-dropdown-anim-y);
   }
 
   to {
@@ -199,7 +201,7 @@
 
   to {
     opacity: 0;
-    scale: var(--dropdown-anim-scale);
-    translate: var(--dropdown-anim-x) var(--dropdown-anim-y);
+    scale: var(--#{$prefix}-dropdown-anim-scale);
+    translate: var(--#{$prefix}-dropdown-anim-x) var(--#{$prefix}-dropdown-anim-y);
   }
 }

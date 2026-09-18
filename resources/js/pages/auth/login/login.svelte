@@ -92,7 +92,7 @@
     width: 100%;
     padding: 0.25rem;
     border-radius: 99rem;
-    background: rgba(var(--bs-primary-rgb), 0.05);
+    background: rgba(var(--neo-primary-rgb), 0.05);
 
     .nav-item {
       flex: 1 1 0;
