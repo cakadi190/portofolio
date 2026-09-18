@@ -59,7 +59,6 @@ body {
 // Respect the OS-level "reduce motion" setting by neutralizing all
 // transitions/animations instead of maintaining a per-component override.
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -93,14 +92,12 @@ body {
   }
 
   &.form-control-clean {
-
     &::-ms-clear,
     &::-ms-reveal {
       display: none;
     }
 
     &[type='search'] {
-
       &::-webkit-search-cancel-button,
       &::-webkit-search-decoration,
       &::-webkit-search-results-button,
@@ -118,7 +115,7 @@ body {
 // structural — they don't see `display: none` — so the search input's right
 // corners stay square as if a visible button still followed it. Round them
 // back whenever that immediate next sibling is both hidden and last.
-.input-group>.form-control:has(+ .d-none:last-child) {
+.input-group > .form-control:has(+ .d-none:last-child) {
   border-top-right-radius: var(--neo-border-radius);
   border-bottom-right-radius: var(--neo-border-radius);
 }
@@ -146,8 +143,8 @@ body {
 
 // Ghost variants for every Bootstrap theme color, tinted with the color's
 // own `--neo-{color}` / `--neo-{color}-rgb` custom properties.
-$btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
-  dark;
+$btn-ghost-colors:
+  primary, secondary, success, danger, warning, info, light, dark;
 
 @each $color in $btn-ghost-colors {
   .btn-ghost-#{$color} {
@@ -274,7 +271,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       --#{$prefix}-capsule-pad-x: 0.625rem;
       --#{$prefix}-capsule-pad-icon: 0.875rem;
 
-      @media (width >=768px) {
+      @media (width >= 768px) {
         --#{$prefix}-capsule-badge-size: 1.5rem;
         --#{$prefix}-capsule-icon-font: 0.75rem;
         --#{$prefix}-capsule-pad-x: 0.75rem;
@@ -290,7 +287,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       --#{$prefix}-capsule-pad-x: 1.25rem;
       --#{$prefix}-capsule-pad-icon: 1.25rem;
 
-      @media (width >=768px) {
+      @media (width >= 768px) {
         --#{$prefix}-capsule-badge-size: 3rem;
         --#{$prefix}-capsule-gap: 0.5rem;
         --#{$prefix}-capsule-icon-font: 1rem;
@@ -299,7 +296,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
         --#{$prefix}-capsule-pad-icon: 1.75rem;
       }
 
-      @media (width >=992px) {
+      @media (width >= 992px) {
         --#{$prefix}-capsule-badge-size: 3.5rem;
         --#{$prefix}-capsule-icon-font: 1.125rem;
         --#{$prefix}-capsule-pad-y: 1rem;
@@ -331,8 +328,9 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     // inverts on hover/active, outline rests transparent with a variant
     // outline + accent icon badge. `light` is the only variant whose
     // "inverted" state is dark-on-white instead of white-on-variant.
-    @each $variant in primary, secondary, success, danger, warning, info,
-    light, dark {
+    @each $variant in primary, secondary, success, danger, warning, info, light,
+      dark
+    {
       $is-light: $variant ==light;
       $on-variant: if($is-light, var(--neo-dark), var(--neo-white));
       $variant-color: var(--neo-#{$variant});
@@ -340,17 +338,43 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       &.btn-#{$variant} {
         --#{$prefix}-btn-hover-color: var(--#{$prefix}-capsule-active-color);
         --#{$prefix}-btn-hover-bg: var(--#{$prefix}-capsule-active-bg);
-        --#{$prefix}-btn-hover-border-color: var(--#{$prefix}-capsule-active-bg);
+        --#{$prefix}-btn-hover-border-color: var(
+          --#{$prefix}-capsule-active-bg
+        );
         --#{$prefix}-btn-active-color: var(--#{$prefix}-capsule-active-color);
         --#{$prefix}-btn-active-bg: var(--#{$prefix}-capsule-active-bg);
-        --#{$prefix}-btn-active-border-color: var(--#{$prefix}-capsule-active-bg);
+        --#{$prefix}-btn-active-border-color: var(
+          --#{$prefix}-capsule-active-bg
+        );
 
-        --#{$prefix}-capsule-active-color: #{if($is-light, var(--neo-white), var(--neo-dark))};
-        --#{$prefix}-capsule-active-bg: #{if($is-light, var(--neo-dark), var(--neo-white))};
-        --#{$prefix}-capsule-icon-color: #{if($is-light, var(--neo-white), var(--neo-dark))};
-        --#{$prefix}-capsule-icon-bg: #{if($is-light, var(--neo-dark), var(--neo-white))};
-        --#{$prefix}-capsule-active-icon-color: #{if($is-light, var(--neo-dark), var(--neo-white))};
-        --#{$prefix}-capsule-active-icon-bg: var(--neo-#{if($is-light, 'white', $variant)});
+        --#{$prefix}-capsule-active-color: #{if(
+            $is-light,
+            var(--neo-white),
+            var(--neo-dark)
+          )};
+        --#{$prefix}-capsule-active-bg: #{if(
+            $is-light,
+            var(--neo-dark),
+            var(--neo-white)
+          )};
+        --#{$prefix}-capsule-icon-color: #{if(
+            $is-light,
+            var(--neo-white),
+            var(--neo-dark)
+          )};
+        --#{$prefix}-capsule-icon-bg: #{if(
+            $is-light,
+            var(--neo-dark),
+            var(--neo-white)
+          )};
+        --#{$prefix}-capsule-active-icon-color: #{if(
+            $is-light,
+            var(--neo-dark),
+            var(--neo-white)
+          )};
+        --#{$prefix}-capsule-active-icon-bg: var(
+          --neo-#{if($is-light, 'white', $variant)}
+        );
       }
 
       &.btn-outline-#{$variant} {
@@ -368,8 +392,16 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
         --#{$prefix}-capsule-active-bg: #{$variant-color};
         --#{$prefix}-capsule-icon-color: #{$on-variant};
         --#{$prefix}-capsule-icon-bg: #{$variant-color};
-        --#{$prefix}-capsule-active-icon-color: #{if($is-light, var(--neo-white), $variant-color)};
-        --#{$prefix}-capsule-active-icon-bg: #{if($is-light, var(--neo-dark), var(--neo-white))};
+        --#{$prefix}-capsule-active-icon-color: #{if(
+            $is-light,
+            var(--neo-white),
+            $variant-color
+          )};
+        --#{$prefix}-capsule-active-icon-bg: #{if(
+            $is-light,
+            var(--neo-dark),
+            var(--neo-white)
+          )};
       }
     }
 
@@ -398,7 +430,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 // =============================================================================
 .dropdown {
   .dropdown-menu {
-    padding: .5rem;
+    padding: 0.5rem;
     border-radius: var(--neo-border-radius-xl);
 
     .dropdown-item {
@@ -457,7 +489,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
   .dropdown-menu {
     min-width: unset;
 
-    @media (width >=1200px) {
+    @media (width >= 1200px) {
       min-width: 20rem;
     }
   }
@@ -470,7 +502,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     padding: 0.5rem 0.75rem 0.5rem 0.5rem;
     border-radius: 99rem;
 
-    @media (width <=992px) {
+    @media (width <= 992px) {
       padding: 0.5rem;
     }
 
@@ -495,7 +527,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       width: 26px;
       aspect-ratio: 1;
 
-      >img {
+      > img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -505,7 +537,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
     span {
       display: flex;
 
-      @media (width <=992px) {
+      @media (width <= 992px) {
         display: none;
       }
     }
@@ -520,7 +552,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       flex-direction: column;
       gap: 0.125rem;
 
-      >* {
+      > * {
         font-size: 0.875rem;
         margin: 0;
       }
@@ -565,7 +597,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
       }
     }
 
-    .content>* {
+    .content > * {
       text-wrap: nowrap;
     }
   }
@@ -590,11 +622,14 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 }
 
 .modal.fade {
-  transition: opacity var(--#{$prefix}-modal-anim-duration-out) var(--#{$prefix}-modal-anim-ease);
+  transition: opacity var(--#{$prefix}-modal-anim-duration-out)
+    var(--#{$prefix}-modal-anim-ease);
 
   .modal-dialog {
-    transform: translateY(var(--#{$prefix}-modal-anim-offset)) scale(var(--#{$prefix}-modal-anim-scale));
-    transition: transform var(--#{$prefix}-modal-anim-duration-out) var(--#{$prefix}-modal-anim-ease);
+    transform: translateY(var(--#{$prefix}-modal-anim-offset))
+      scale(var(--#{$prefix}-modal-anim-scale));
+    transition: transform var(--#{$prefix}-modal-anim-duration-out)
+      var(--#{$prefix}-modal-anim-ease);
     will-change: transform;
   }
 
@@ -615,14 +650,16 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 }
 
 @each $breakpoint, $postfix in sm sm-down, md md-down, lg lg-down, xl xl-down,
-xxl xxl-down {
+  xxl xxl-down
+{
   .modal.fade .modal-fullscreen-#{$postfix} {
     transform: none;
   }
 }
 
 .modal-backdrop.fade {
-  transition: opacity var(--#{$prefix}-modal-anim-duration-out) var(--#{$prefix}-modal-anim-ease);
+  transition: opacity var(--#{$prefix}-modal-anim-duration-out)
+    var(--#{$prefix}-modal-anim-ease);
 
   &.show {
     transition-duration: var(--#{$prefix}-modal-anim-duration-in);
@@ -675,15 +712,18 @@ xxl xxl-down {
 // Responsive: .d-{breakpoint}-dark / -light / -dark-none / -light-none
 // Breakpoints are Bootstrap's stock defaults; this project doesn't override
 // $grid-breakpoints in app.scss.
-$base-grid-breakpoints: xs 0, sm 576px, md 768px, lg 992px, xl 1200px,
+$base-grid-breakpoints:
+  xs 0,
+  sm 576px,
+  md 768px,
+  lg 992px,
+  xl 1200px,
   xxl 1400px;
 
 @each $bp, $min-width in $base-grid-breakpoints {
   @if $min-width==0 {
     @include theme-display-helpers('.d-#{$bp}');
-  }
-
-  @else {
+  } @else {
     @media (min-width: #{$min-width}) {
       @include theme-display-helpers('.d-#{$bp}');
     }

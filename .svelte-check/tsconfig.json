@@ -1,19 +1,13 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "rootDirs": [
-      "..",
-      "svelte"
-    ],
+    "rootDirs": ["..", "svelte"],
     "allowArbitraryExtensions": true,
     "noEmit": true,
     "incremental": false,
     "tsBuildInfoFile": "tsbuildinfo.json",
     "paths": {
-      "@/*": [
-        "../resources/js/*",
-        "./svelte/resources/js/*"
-      ]
+      "@/*": ["../resources/js/*", "./svelte/resources/js/*"]
     }
   },
   "files": [

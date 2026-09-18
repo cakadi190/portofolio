@@ -108,8 +108,7 @@ export class AdminSidebarState {
    */
   handleMenuScroll(): void {
     this.closeFloating();
-    this.floatingSuspendedUntil =
-      Date.now() + FLOATING_MENU_SCROLL_SETTLE_MS;
+    this.floatingSuspendedUntil = Date.now() + FLOATING_MENU_SCROLL_SETTLE_MS;
   }
 
   /** Re-clamps the open panel after a nested accordion changes its height. */
