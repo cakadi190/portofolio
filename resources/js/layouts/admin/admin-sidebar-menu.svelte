@@ -3,7 +3,12 @@
   import Circle from '@lucide/svelte/icons/circle';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
-  import { useAdminSidebarState } from './sidebar-state.svelte';
+  import {
+    FLOATING_MENU_GAP,
+    FLOATING_MENU_VIEWPORT_PADDING,
+    TRANSITION_DURATION_MS,
+    useAdminSidebarState,
+  } from './sidebar-state.svelte';
 
   let {
     entries,
@@ -34,32 +39,81 @@
     query ? entries.filter((entry) => matchesSearch(entry, query)) : entries,
   );
 
-  /**
-   * Collapsed rail only: the level-1 flyout is `position: fixed` (the scroll
-   * container would clip it), so pin it beside the hovered item and keep it
-   * inside the viewport. Counterpart of batamtix's SidebarFloatingMenu.
-   */
-  function positionFlyout(event: Event): void {
-    if (level !== 1 || !sidebar.isDesktop || !sidebar.collapsed) {
-      return;
-    }
+  const isFlyoutMode = $derived(
+    level === 1 && sidebar.isDesktop && sidebar.collapsed,
+  );
 
-    const item = event.currentTarget as HTMLElement;
+  /**
+   * Anchors a level-1 flyout beside its trigger: dropping down from the
+   * trigger's top edge, or up from its bottom edge when it doesn't fit below.
+   * The anchored edge stays fixed so a nested accordion grows away from the
+   * viewport edge. Counterpart of batamtix's SidebarFloatingMenu.
+   */
+  function computeFlyoutPosition(item: HTMLElement): void {
+    const trigger = item.querySelector<HTMLElement>(':scope > .sm-link');
     const panel = item.querySelector<HTMLElement>(':scope > .sm-submenu');
 
-    if (!panel) {
+    if (!trigger || !panel) {
       return;
     }
 
-    const rect = item.getBoundingClientRect();
-    const margin = 8;
-    const maxTop = window.innerHeight - panel.offsetHeight - margin;
+    const rect = trigger.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.top - FLOATING_MENU_VIEWPORT_PADDING;
+    const spaceAbove = rect.bottom - FLOATING_MENU_VIEWPORT_PADDING;
+    const dropUp = panel.scrollHeight > spaceBelow && spaceAbove > spaceBelow;
+    const left = `left: ${rect.right + FLOATING_MENU_GAP}px;`;
 
-    item.style.setProperty('--sm-flyout-left', `${rect.right}px`);
-    item.style.setProperty(
-      '--sm-flyout-top',
-      `${Math.max(margin, Math.min(rect.top, maxTop))}px`,
-    );
+    sidebar.floatingUp = dropUp;
+    sidebar.floatingStyle = dropUp
+      ? `${left} top: auto; bottom: ${viewportHeight - rect.bottom}px; max-height: ${spaceAbove}px; overflow-y: auto;`
+      : `${left} bottom: auto; top: ${rect.top}px; max-height: ${spaceBelow}px; overflow-y: auto;`;
+  }
+
+  function openFlyout(item: HTMLElement, id: string): void {
+    sidebar.openFloating(id, () => computeFlyoutPosition(item));
+  }
+
+  function onPointerEnter(event: PointerEvent, id: string, hasChildren: boolean): void {
+    if (!isFlyoutMode || !hasChildren || event.pointerType !== 'mouse') {
+      return;
+    }
+
+    if (sidebar.floatingId === id) {
+      sidebar.cancelFloatingClose();
+      return;
+    }
+
+    openFlyout(event.currentTarget as HTMLElement, id);
+  }
+
+  function onPointerLeave(event: PointerEvent, id: string): void {
+    if (isFlyoutMode && event.pointerType === 'mouse') {
+      sidebar.scheduleFloatingClose(id);
+    }
+  }
+
+  function onToggleClick(event: MouseEvent, id: string): void {
+    if (isFlyoutMode) {
+      const item = (event.currentTarget as HTMLElement).closest<HTMLElement>('.sm-item');
+
+      if (sidebar.floatingId === id) {
+        sidebar.closeFloating();
+      } else if (item) {
+        openFlyout(item, id);
+      }
+
+      return;
+    }
+
+    sidebar.toggleBranch(id);
+
+    // A nested branch changing height inside an open flyout: re-clamp now and
+    // once the accordion transition settles.
+    if (sidebar.floatingId !== null) {
+      sidebar.repositionFloating();
+      window.setTimeout(() => sidebar.repositionFloating(), TRANSITION_DURATION_MS);
+    }
   }
 
   function branchId(index: number): string {
@@ -100,15 +154,18 @@
         class:sm-item--open={open}
         class:sm-item--child-active={childActive && !entry.active}
         data-level={level}
-        onmouseenter={positionFlyout}
-        onfocusin={positionFlyout}
+        class:sm-item--floating-open={sidebar.floatingId === id}
+        class:sm-item--floating-up={sidebar.floatingId === id &&
+          sidebar.floatingUp}
+        onpointerenter={(event) => onPointerEnter(event, id, hasChildren)}
+        onpointerleave={(event) => onPointerLeave(event, id)}
       >
         {#if hasChildren}
           <button
             type="button"
             class="sm-link"
-            aria-expanded={open}
-            onclick={() => sidebar.toggleBranch(id)}
+            aria-expanded={isFlyoutMode ? sidebar.floatingId === id : open}
+            onclick={(event) => onToggleClick(event, id)}
           >
             <span class="sm-icon">
               {#if entry.icon}
@@ -126,12 +183,18 @@
               ><ChevronDown size={16} /></span
             >
           </button>
-          <div class="sm-submenu" class:sm-submenu--open={open}>
+          <div
+            class="sm-submenu"
+            class:sm-submenu--open={open}
+            style={isFlyoutMode && sidebar.floatingId === id
+              ? sidebar.floatingStyle
+              : undefined}
+          >
             <div class="sm-submenu-inner">
               <svelte:self
                 entries={entry.children ?? []}
                 level={level + 1}
-                {parentId}
+                parentId={id}
               />
             </div>
           </div>

@@ -7,6 +7,11 @@ export const COLLAPSED_STORAGE_KEY = 'sidebar:collapsed';
 /** Bootstrap 5 `lg` breakpoint (px); mirrors the SCSS desktop media query. */
 export const DESKTOP_BREAKPOINT = 992;
 
+export const FLOATING_MENU_GAP = 8;
+export const FLOATING_MENU_VIEWPORT_PADDING = 8;
+export const FLOATING_MENU_HOVER_CLOSE_DELAY_MS = 200;
+export const TRANSITION_DURATION_MS = 250;
+
 const CONTEXT_KEY = Symbol('admin-sidebar-state');
 
 /**
@@ -25,6 +30,13 @@ export class AdminSidebarState {
   searchQuery = $state('');
   private openBranches = $state(new Set<string>());
   isDesktop = $state(true);
+
+  /** Level-1 item whose collapsed-rail flyout is open (one at a time). */
+  floatingId = $state<string | null>(null);
+  floatingUp = $state(false);
+  floatingStyle = $state('');
+  private floatingCloseTimer: number | null = null;
+  private floatingReposition: (() => void) | null = null;
 
   constructor() {
     if (typeof window === 'undefined') {
@@ -50,8 +62,53 @@ export class AdminSidebarState {
     this.mobileOpen = !this.mobileOpen;
   }
 
+  openFloating(id: string, reposition: () => void): void {
+    this.cancelFloatingClose();
+    this.floatingReposition = reposition;
+    this.floatingId = id;
+    reposition();
+  }
+
+  closeFloating(): void {
+    this.cancelFloatingClose();
+    this.floatingId = null;
+    this.floatingUp = false;
+    this.floatingStyle = '';
+    this.floatingReposition = null;
+  }
+
+  /** Deferred so the pointer can cross the gap between trigger and panel. */
+  scheduleFloatingClose(id: string): void {
+    if (this.floatingId !== id) {
+      return;
+    }
+
+    this.cancelFloatingClose();
+    this.floatingCloseTimer = window.setTimeout(
+      () => this.closeFloating(),
+      FLOATING_MENU_HOVER_CLOSE_DELAY_MS,
+    );
+  }
+
+  cancelFloatingClose(): void {
+    if (this.floatingCloseTimer !== null) {
+      window.clearTimeout(this.floatingCloseTimer);
+      this.floatingCloseTimer = null;
+    }
+  }
+
+  /** Re-clamps the open panel after a nested accordion changes its height. */
+  repositionFloating(): void {
+    this.floatingReposition?.();
+  }
+
   setCollapsed(value: boolean): void {
+    this.closeFloating();
     this.collapsed = value;
+
+    if (value) {
+      this.clearSearch();
+    }
 
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(COLLAPSED_STORAGE_KEY, value ? '1' : '0');
@@ -64,6 +121,7 @@ export class AdminSidebarState {
 
   syncViewport(isDesktop: boolean): void {
     this.isDesktop = isDesktop;
+    this.closeFloating();
 
     if (isDesktop) {
       this.mobileOpen = false;

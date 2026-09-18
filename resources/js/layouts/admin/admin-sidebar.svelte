@@ -55,14 +55,31 @@
         searchInput?.focus();
       }
 
-      if (event.key === 'Escape' && !sidebar.isDesktop && sidebar.mobileOpen) {
-        sidebar.closeMobile();
+      if (event.key === 'Escape') {
+        if (!sidebar.isDesktop && sidebar.mobileOpen) {
+          sidebar.closeMobile();
+        } else if (sidebar.floatingId !== null) {
+          sidebar.closeFloating();
+        }
+      }
+    }
+
+    function onDocumentClick(event: MouseEvent): void {
+      if (
+        sidebar.floatingId !== null &&
+        !(event.target as Element | null)?.closest('.sm-item--floating-open')
+      ) {
+        sidebar.closeFloating();
       }
     }
 
     document.addEventListener('keydown', onKeydown);
+    document.addEventListener('click', onDocumentClick);
 
-    return () => document.removeEventListener('keydown', onKeydown);
+    return () => {
+      document.removeEventListener('keydown', onKeydown);
+      document.removeEventListener('click', onDocumentClick);
+    };
   });
 
   function logout(event: Event): void {

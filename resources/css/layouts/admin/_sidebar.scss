@@ -523,31 +523,27 @@
         }
       }
 
-      // Collapsed rail: level-1 submenus float open on hover/focus. They are
-      // `position: fixed` so the scroll container / rounded card doesn't clip
-      // them; admin-sidebar-menu.svelte writes `--sm-flyout-top/-left` on the
-      // item (the counterpart of batamtix's SidebarFloatingMenu).
+      // Collapsed rail: level-1 submenus float as `position: fixed` panels
+      // (the scroll container / rounded card would clip anything else). Open
+      // state and coordinates come from admin-sidebar-menu.svelte, the
+      // counterpart of batamtix's SidebarFloatingMenu.
       // Deeper levels stay accordion-style inside the floating panel.
       > .sidebar-inner .sm-menu > .sm-item {
         > .sm-submenu {
           position: fixed;
-          top: var(--sm-flyout-top, 0);
-          left: var(--sm-flyout-left, 100%);
           display: block;
           grid-template-rows: unset;
-          width: 16rem;
           max-height: none;
+          height: auto;
+          width: 16rem;
           background: var(--neo-sidebar-accent);
           border-radius: var(--neo-border-radius);
           box-shadow: var(--neo-box-shadow-lg);
           padding: 0.5rem 0;
-          // Transparent gutter keeps the item's :hover alive while the pointer
-          // crosses from the rail to the panel.
-          border-inline-start: 0.5rem solid transparent;
-          background-clip: padding-box;
           opacity: 0;
           visibility: hidden;
           transform: translateY(4px);
+          transform-origin: top left;
           transition:
             opacity var(--neo-sidebar-transition-duration) ease,
             transform var(--neo-sidebar-transition-duration) ease,
@@ -559,8 +555,14 @@
           }
         }
 
-        &:hover > .sm-submenu,
-        &:focus-within > .sm-submenu {
+        // Drop-up: the panel is anchored by its bottom edge, so it opens (and
+        // any nested accordion grows) upward.
+        &.sm-item--floating-up > .sm-submenu {
+          transform: translateY(-4px);
+          transform-origin: bottom left;
+        }
+
+        &.sm-item--floating-open > .sm-submenu {
           opacity: 1;
           visibility: visible;
           transform: translateY(0);
