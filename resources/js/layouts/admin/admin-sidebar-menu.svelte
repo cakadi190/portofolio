@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Link } from '@inertiajs/svelte';
+  import Circle from '@lucide/svelte/icons/circle';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import { useAdminSidebarState } from './sidebar-state.svelte';
@@ -109,9 +110,17 @@
             aria-expanded={open}
             onclick={() => sidebar.toggleBranch(id)}
           >
-            {#if entry.icon}
-              <span class="sm-icon"><entry.icon /></span>
-            {/if}
+            <span class="sm-icon">
+              {#if entry.icon}
+                <entry.icon />
+              {:else}
+                <Circle
+                  size={16}
+                  class={entry.active ? 'sm-icon--filled' : ''}
+                  aria-hidden="true"
+                />
+              {/if}
+            </span>
             <span class="sm-label">{entry.label}</span>
             <span class="sm-arrow" aria-hidden="true"
               ><ChevronDown size={16} /></span
@@ -132,9 +141,17 @@
             class="sm-link"
             aria-current={entry.active ? 'page' : undefined}
           >
-            {#if entry.icon}
-              <span class="sm-icon"><entry.icon /></span>
-            {/if}
+            <span class="sm-icon">
+              {#if entry.icon}
+                <entry.icon />
+              {:else}
+                <Circle
+                  size={16}
+                  class={entry.active ? 'sm-icon--filled' : ''}
+                  aria-hidden="true"
+                />
+              {/if}
+            </span>
             <span class="sm-label">{entry.label}</span>
           </Link>
         {/if}

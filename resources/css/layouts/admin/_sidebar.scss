@@ -183,9 +183,10 @@
     padding-inline-start: 0.5rem;
   }
 
+  // Nested items keep the parent's full-width rows (as batamtix's flat
+  // `.sm-submenu` does); the connector line below supplies the hierarchy.
   .sm-menu--nested {
-    padding-inline-start: 1.75rem;
-    padding-block-start: 0.125rem;
+    padding-inline-start: 0;
   }
 
   .sm-item {
@@ -248,9 +249,22 @@
     }
   }
 
+  // Opaque accent background + z-index masks the connector line behind the
+  // marker, leaving the gaps around each circle seen in batamtix.
   .sm-icon {
     flex-shrink: 0;
     display: flex;
+    z-index: 2;
+    position: relative;
+    background: var(--neo-sidebar-accent);
+
+    .sm-icon--filled {
+      fill: currentColor;
+    }
+  }
+
+  .sm-item--active > .sm-link .sm-icon {
+    background: var(--neo-light);
   }
 
   .sm-label {
@@ -409,6 +423,18 @@
   // toggled` is set pre-paint by the anti-FOUC boot script, so a
   // collapsed-by-preference sidebar paints collapsed before Svelte mounts.
   @media (width >= 992px) {
+    // Vertical tree connector through the submenu markers (expanded only).
+    :root:not(.sidebar-toggled) &:not(.sidebar--collapsed) {
+      .sm-menu .sm-item .sm-submenu .sm-item::before {
+        content: '';
+        left: 2rem;
+        height: 100%;
+        position: absolute;
+        z-index: 1;
+        border-inline-start: 1px solid rgba(var(--neo-light-rgb), 1);
+      }
+    }
+
     &.sidebar--collapsed,
     :root.sidebar-toggled & {
       .sidebar-inner {
