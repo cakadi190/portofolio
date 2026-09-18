@@ -1,21 +1,11 @@
 <script lang="ts">
   import ClockIcon from '@lucide/svelte/icons/clock';
+  import { portal } from '@/lib/dom';
 
   function format(date: Date): string {
     const pad = (value: number) => String(value).padStart(2, '0');
 
     return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-  }
-
-  /**
-   * Moves the node to <body>. `main` is its own stacking context, so a modal
-   * left inside it would sit under Bootstrap's body-level backdrop (the Svelte
-   * counterpart of batamtix's `@push('modals')`).
-   */
-  function portal(node: HTMLElement) {
-    document.body.appendChild(node);
-
-    return { destroy: () => node.remove() };
   }
 
   let now = $state(format(new Date()));

@@ -13,7 +13,6 @@
 
   // Batamtix's brand accent (its `$primary` is `$orange`); scoped to the admin
   // shell so the auth pages keep gettix's own primary.
-  --neo-primary: var(--neo-orange);
   --neo-primary-rgb: var(--neo-orange-rgb);
 
   height: 100svh;
