@@ -10,14 +10,15 @@
   import AppHead from '@/components/app-head.svelte';
   import { Field } from '@/components/ui/field';
   import { update } from '@/routes/password';
+  import { User } from '@/types';
 
   let {
     token,
-    email,
+    user,
     passwordRules,
   }: {
     token: string;
-    email: string;
+    user: User;
     passwordRules: string;
   } = $props();
 </script>
@@ -26,7 +27,7 @@
 
 <Form
   {...update.form()}
-  transform={(data) => ({ ...data, token, email })}
+  transform={(data) => ({ ...data, token, email: user?.email })}
   resetOnSuccess={['password', 'password_confirmation']}
   novalidate
 >
@@ -39,7 +40,7 @@
           type="email"
           name="email"
           autocomplete="email"
-          value={email}
+          value={user?.email}
           class="mt-1 d-block w-100"
           readonly
           invalid={!!errors.email}

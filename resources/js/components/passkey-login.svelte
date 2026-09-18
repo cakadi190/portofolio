@@ -10,7 +10,7 @@
 
 <div class="d-flex flex-column gap-2">
   <p class="text-center text-muted mb-0">
-    Masuk dengan PassKey yang tertaut dengan akun Anda.
+    Masuk dengan passkey yang tertaut dengan akun Anda.
   </p>
 
   <button

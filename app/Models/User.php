@@ -130,6 +130,11 @@ class User extends Authenticatable implements PasskeyUser
             ->first();
     }
 
+    public static function whereEmail(string $email): User
+    {
+        return self::where('email', "$email")->first();
+    }
+
     public function roleFor(?Tenant $tenant = null): ?Role
     {
         return $this->membershipFor($tenant)?->role;

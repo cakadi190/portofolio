@@ -1,5 +1,6 @@
 <script lang="ts">
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
+  import LanguageSwitcher from '@/components/language-switcher.svelte';
   import { Link } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
 
@@ -23,33 +24,14 @@
           <AppLogoIcon height={32} />
         </Link>
 
-        <div class="dropdown dropdown-uncaret">
-          <button
-            class="btn btn-outline-primary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i class="fi fis fi-id rounded-pill"></i>
-            <span>ID</span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="dropdown-item" href="#">
-                <i class="fi fis fi-id"></i>
-                <span>Bahasa Indonesia</span>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">
-                <i class="fi fis fi-us"></i>
-                <span>Bahasa Inggris</span>
-              </a>
-            </li>
-          </ul>
-        </div>
+        <LanguageSwitcher />
       </div>
       <div class="panel-body">
+        <div class="panel-content">
+          <h1 class="content-title">{title}</h1>
+          <p class="content-description">{description}</p>
+        </div>
+
         {@render children?.()}
       </div>
       <div class="panel-footer">
@@ -83,7 +65,12 @@
       margin: var(--#{$prefix}-branding-margin);
       height: calc(100svh - (var(--#{$prefix}-branding-margin) * 2));
       border-radius: 1rem;
-      background: var(--neo-primary);
+      background-color: var(--neo-primary);
+      background-image: radial-gradient(
+        rgba(255, 255, 255, 0.125) 2px,
+        transparent 2px
+      );
+      background-size: 1.5rem 1.5rem;
 
       @media (width <= 768px) {
         display: none;
@@ -94,7 +81,8 @@
       height: 100svh;
       display: flex;
       flex-direction: column;
-      padding: var(--#{$prefix}-branding-margin);
+      padding-inline: var(--#{$prefix}-branding-margin);
+      padding-block: calc(var(--#{$prefix}-branding-margin) * 2.5);
 
       .panel-inner {
         display: flex;
@@ -124,6 +112,25 @@
           justify-self: center;
           padding-block: 2.5rem;
           margin-block: auto;
+
+          .panel-content {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+
+            > * {
+              margin-bottom: 0;
+            }
+
+            .content-title {
+              font-size: clamp(1.25rem, 5vw, 1.75rem);
+            }
+            .content-description {
+              font-size: 1rem;
+              color: var(--#{$prefix}-secondary-color);
+            }
+          }
         }
 
         .panel-footer {
