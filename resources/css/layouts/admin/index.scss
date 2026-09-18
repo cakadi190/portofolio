@@ -11,6 +11,11 @@
 .admin-shell {
   --neo-admin-layout-bg: var(--neo-light);
 
+  // Batamtix's brand accent (its `$primary` is `$orange`); scoped to the admin
+  // shell so the auth pages keep gettix's own primary.
+  --neo-primary: var(--neo-orange);
+  --neo-primary-rgb: var(--neo-orange-rgb);
+
   height: 100svh;
   display: flex;
   background-color: var(--neo-admin-layout-bg);
@@ -60,16 +65,6 @@
     overflow: hidden;
   }
 
-  // Collapsed rail: both panels go full-bleed (no inset margin, no rounded
-  // corners) instead of floating cards — matches batamtix's collapsed look.
-  &.admin-shell--sidebar-collapsed main[data-main-scroll] {
-    @media (width >= 992px) {
-      margin: 0;
-      border-radius: 0;
-      border-color: transparent;
-      height: 100svh;
-    }
-  }
 }
 
 @import 'sidebar';

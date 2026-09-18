@@ -1,7 +1,7 @@
 <script lang="ts">
   import { router } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
-  import UserRound from '@lucide/svelte/icons/user-round';
+  import AppLogoIcon from '@/components/app-logo-icon.svelte';
 
   let {
     userName,
@@ -28,7 +28,7 @@
     aria-expanded="false"
   >
     <div class="avatar">
-      <UserRound size={16} aria-hidden="true" />
+      <AppLogoIcon height={16} aria-hidden="true" />
     </div>
     <span>{userName ?? '—'}</span>
   </button>
@@ -37,11 +37,11 @@
     <li class="userinfo-badge">
       <div class="dropdown-item">
         <div class="avatar">
-          <UserRound size={20} aria-hidden="true" />
+          <AppLogoIcon height={20} aria-hidden="true" />
         </div>
         <div class="content">
           <strong>{userName ?? '—'}</strong>
-          <p class="mb-0 text-muted small">{userEmail ?? ''}</p>
+          <p class="mb-0">Lihat Profil</p>
         </div>
       </div>
     </li>

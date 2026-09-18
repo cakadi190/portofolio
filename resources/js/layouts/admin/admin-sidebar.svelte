@@ -75,7 +75,7 @@
   class="sidebar"
   id="appSidebar"
   tabindex="-1"
-  aria-label="Admin navigation"
+  aria-label="Sidebar admin"
   class:sidebar--collapsed={sidebar.isDesktop && sidebar.collapsed}
   class:sidebar--mobile-open={!sidebar.isDesktop && sidebar.mobileOpen}
 >
@@ -93,7 +93,7 @@
       <button
         type="button"
         class="sidebar-toggler"
-        aria-label="Toggle sidebar"
+        aria-label="Buka/tutup sidebar"
         aria-controls="appSidebar"
         aria-expanded={!sidebar.collapsed}
         onclick={() => sidebar.toggle()}
@@ -108,8 +108,8 @@
         <input
           type="search"
           class="form-control sidebar-search-input"
-          placeholder="Search menu…"
-          aria-label="Search menu"
+          placeholder="Cari menu… (/)"
+          aria-label="Cari menu"
           autocomplete="off"
           bind:this={searchInput}
           bind:value={sidebar.searchQuery}
@@ -119,7 +119,7 @@
 
     <div class="sidebar-body">
       <div class="sidebar-scroll">
-        <nav class="sidebar-nav" aria-label="Main navigation">
+        <nav class="sidebar-nav" aria-label="Navigasi utama">
           <AdminSidebarMenu entries={menu} />
         </nav>
       </div>
@@ -138,7 +138,7 @@
           <button
             type="button"
             class="btn btn-outline-light btn-square logout-actions"
-            aria-label="Log out"
+            aria-label="Keluar dari akun"
             onclick={logout}
           >
             <LogOut size={16} />

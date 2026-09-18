@@ -16,7 +16,7 @@
   height: 100svh;
   flex-shrink: 0;
   transition: width var(--neo-sidebar-transition-duration) ease;
-  will-change: transform, width;
+  will-change: width;
   outline: none;
   z-index: 1010;
 
@@ -411,13 +411,8 @@
   @media (width >= 992px) {
     &.sidebar--collapsed,
     :root.sidebar-toggled & {
-      width: var(--neo-sidebar-collapsed-width);
-
       .sidebar-inner {
         width: var(--neo-sidebar-collapsed-width);
-        margin: 0;
-        height: 100%;
-        border-radius: 0;
       }
 
       .sidebar-footer,
@@ -502,17 +497,16 @@
         }
       }
 
-      // Collapsed rail: level-1 submenus float open on hover/focus, anchored
-      // to their own top-level item via `position: absolute` (batamtix's
-      // SidebarFloatingMenu computes `position: fixed` coordinates in JS for
-      // the same effect — this reaches the same result with plain CSS).
+      // Collapsed rail: level-1 submenus float open on hover/focus. They are
+      // `position: fixed` so the scroll container / rounded card doesn't clip
+      // them; admin-sidebar-menu.svelte writes `--sm-flyout-top/-left` on the
+      // item (the counterpart of batamtix's SidebarFloatingMenu).
       // Deeper levels stay accordion-style inside the floating panel.
       > .sidebar-inner .sm-menu > .sm-item {
         > .sm-submenu {
-          position: absolute;
-          left: 100%;
-          top: 0;
-          margin-inline-start: 0.5rem;
+          position: fixed;
+          top: var(--sm-flyout-top, 0);
+          left: var(--sm-flyout-left, 100%);
           display: block;
           grid-template-rows: unset;
           width: 16rem;
@@ -521,6 +515,10 @@
           border-radius: var(--neo-border-radius);
           box-shadow: var(--neo-box-shadow-lg);
           padding: 0.5rem 0;
+          // Transparent gutter keeps the item's :hover alive while the pointer
+          // crosses from the rail to the panel.
+          border-inline-start: 0.5rem solid transparent;
+          background-clip: padding-box;
           opacity: 0;
           visibility: hidden;
           transform: translateY(4px);

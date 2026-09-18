@@ -32,7 +32,7 @@
   class:admin-shell--sidebar-collapsed={sidebar.isDesktop && sidebar.collapsed}
 >
   <a class="visually-hidden-focusable" href="#admin-main-content"
-    >Skip to main content</a
+    >Langsung ke konten utama</a
   >
 
   <AdminSidebar {menu} {userName} {userEmail} />

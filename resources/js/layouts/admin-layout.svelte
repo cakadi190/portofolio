@@ -1,20 +1,12 @@
 <script lang="ts">
   import { page } from '@inertiajs/svelte';
-  import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
   import type { Snippet } from 'svelte';
+  import { adminMenu } from '@/layouts/admin/admin-menu';
   import AdminSidebarLayout from '@/layouts/admin/admin-sidebar-layout.svelte';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import { FlatToast, ToastContainer } from 'svelte-toasts';
 
-  const defaultMenu: AdminSidebarEntry[] = [
-    { type: 'header', label: 'Menu Utama' },
-    {
-      label: 'Dasbor',
-      icon: LayoutDashboard,
-      href: '/dashboard',
-      active: page.url.startsWith('/dashboard'),
-    },
-  ];
+  const defaultMenu: AdminSidebarEntry[] = adminMenu(page.url);
 
   let {
     menu = defaultMenu,

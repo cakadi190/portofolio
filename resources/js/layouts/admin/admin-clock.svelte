@@ -23,7 +23,7 @@
   class="nav-link nav-clock"
   data-bs-toggle="modal"
   data-bs-target="#adminClockModal"
-  aria-label="Open calendar"
+  aria-label="Buka kalender kegiatan"
 >
   <ClockIcon size={16} aria-hidden="true" />
   <span>{now}</span>
@@ -41,20 +41,20 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="adminClockModalLabel">Calendar</h5>
+        <h5 class="modal-title" id="adminClockModalLabel">Kalender Kegiatan</h5>
         <button
           type="button"
           class="btn-close"
           data-bs-dismiss="modal"
-          aria-label="Close"
+          aria-label="Tutup"
         ></button>
       </div>
       <div class="modal-body">
-        <p>Nothing scheduled.</p>
+        <p>Belum ada kegiatan.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-          >Close</button
+          >Tutup</button
         >
       </div>
     </div>

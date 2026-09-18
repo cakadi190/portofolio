@@ -33,6 +33,34 @@
     query ? entries.filter((entry) => matchesSearch(entry, query)) : entries,
   );
 
+  /**
+   * Collapsed rail only: the level-1 flyout is `position: fixed` (the scroll
+   * container would clip it), so pin it beside the hovered item and keep it
+   * inside the viewport. Counterpart of batamtix's SidebarFloatingMenu.
+   */
+  function positionFlyout(event: Event): void {
+    if (level !== 1 || !sidebar.isDesktop || !sidebar.collapsed) {
+      return;
+    }
+
+    const item = event.currentTarget as HTMLElement;
+    const panel = item.querySelector<HTMLElement>(':scope > .sm-submenu');
+
+    if (!panel) {
+      return;
+    }
+
+    const rect = item.getBoundingClientRect();
+    const margin = 8;
+    const maxTop = window.innerHeight - panel.offsetHeight - margin;
+
+    item.style.setProperty('--sm-flyout-left', `${rect.right}px`);
+    item.style.setProperty(
+      '--sm-flyout-top',
+      `${Math.max(margin, Math.min(rect.top, maxTop))}px`,
+    );
+  }
+
   function branchId(index: number): string {
     return `${parentId}-${level}-${index}`;
   }
@@ -71,6 +99,8 @@
         class:sm-item--open={open}
         class:sm-item--child-active={childActive && !entry.active}
         data-level={level}
+        onmouseenter={positionFlyout}
+        onfocusin={positionFlyout}
       >
         {#if hasChildren}
           <button
@@ -113,6 +143,6 @@
   {/each}
 
   {#if level === 1 && sidebar.searching && visibleEntries.length === 0}
-    <li class="sidebar-search-empty" role="status">No matching menu items.</li>
+    <li class="sidebar-search-empty" role="status">Tidak ada menu yang cocok.</li>
   {/if}
 </ul>

@@ -15,7 +15,7 @@
   const user = $derived(page.props.auth.user);
 </script>
 
-<nav class="navbar navbar-expand border-bottom" aria-label="Top navigation">
+<nav class="navbar navbar-expand border-bottom" aria-label="Navigasi atas">
   <ul class="navbar-start">
     <li
       class="nav-item sidebar-toggling"
@@ -23,7 +23,7 @@
     >
       <button
         class="sidebar-toggler"
-        aria-label="Open/close sidebar"
+        aria-label="Buka/tutup sidebar"
         aria-controls="appSidebar"
         aria-expanded={!sidebar.collapsed}
         onclick={() => sidebar.toggle()}

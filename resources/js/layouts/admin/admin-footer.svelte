@@ -6,8 +6,8 @@
 <footer class="footer">
   <div class="footer-start">
     <span
-      >Copyright 2026{year > 2026 ? `-${year}` : ''}
-      <a href="/">Gettix</a> by PT Batam Experience Indonesia. All rights reserved.</span
+      >Hak Cipta 2026{year > 2026 ? `-${year}` : ''}
+      <a href="/">Gettix</a> oleh PT Batam Experience Indonesia. Hak Cipta Dilindungi Undang-Undang.</span
     >
   </div>
   <div class="footer-end">

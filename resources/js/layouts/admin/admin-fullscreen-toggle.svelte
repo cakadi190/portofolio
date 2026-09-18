@@ -33,7 +33,7 @@
   <button
     type="button"
     class="nav-link nav-fs"
-    aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+    aria-label={isFullscreen ? 'Keluar layar penuh' : 'Masuk layar penuh'}
     aria-pressed={isFullscreen}
     onclick={toggle}
   >
