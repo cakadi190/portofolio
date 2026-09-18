@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SimpleBar from 'simplebar';
+  import 'simplebar/dist/simplebar.css';
   import { Link, router } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
   import PanelLeftClose from '@lucide/svelte/icons/panel-left-close';
@@ -82,6 +84,32 @@
     };
   });
 
+  /**
+   * Overlay scrollbar for the menu region, as in batamtix's SidebarScroll.
+   * SimpleBar's ResizeObserver keeps it in sync as accordions open and close.
+   */
+  function simplebar(node: HTMLElement) {
+    const scrollbar = new SimpleBar(node, {
+      autoHide: false,
+      forceVisible: false,
+      scrollbarMinSize: 24,
+    });
+
+    scrollbar.recalculate();
+
+    const scroller = scrollbar.getScrollElement();
+    const onScroll = () => sidebar.handleMenuScroll();
+
+    scroller?.addEventListener('scroll', onScroll, { passive: true });
+
+    return {
+      destroy: () => {
+        scroller?.removeEventListener('scroll', onScroll);
+        scrollbar.unMount();
+      },
+    };
+  }
+
   function logout(event: Event): void {
     event.preventDefault();
     router.post(logoutHref);
@@ -135,7 +163,7 @@
     </div>
 
     <div class="sidebar-body">
-      <div class="sidebar-scroll">
+      <div class="sidebar-scroll" use:simplebar>
         <nav class="sidebar-nav" aria-label="Navigasi utama">
           <AdminSidebarMenu entries={menu} />
         </nav>

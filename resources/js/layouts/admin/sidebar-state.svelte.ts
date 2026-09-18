@@ -10,6 +10,7 @@ export const DESKTOP_BREAKPOINT = 992;
 export const FLOATING_MENU_GAP = 8;
 export const FLOATING_MENU_VIEWPORT_PADDING = 8;
 export const FLOATING_MENU_HOVER_CLOSE_DELAY_MS = 200;
+export const FLOATING_MENU_SCROLL_SETTLE_MS = 150;
 export const TRANSITION_DURATION_MS = 250;
 
 const CONTEXT_KEY = Symbol('admin-sidebar-state');
@@ -33,8 +34,13 @@ export class AdminSidebarState {
 
   /** Level-1 item whose collapsed-rail flyout is open (one at a time). */
   floatingId = $state<string | null>(null);
-  floatingUp = $state(false);
-  floatingStyle = $state('');
+  /**
+   * Per-item panel coordinates. Kept after a panel closes so it fades out where
+   * it was instead of snapping to its static position mid-transition.
+   */
+  floatingLayout = $state<Record<string, { style: string; up: boolean }>>({});
+  /** Hover-open is suppressed until this timestamp (ms) while the menu scrolls. */
+  floatingSuspendedUntil = 0;
   private floatingCloseTimer: number | null = null;
   private floatingReposition: (() => void) | null = null;
 
@@ -72,8 +78,6 @@ export class AdminSidebarState {
   closeFloating(): void {
     this.cancelFloatingClose();
     this.floatingId = null;
-    this.floatingUp = false;
-    this.floatingStyle = '';
     this.floatingReposition = null;
   }
 
@@ -95,6 +99,17 @@ export class AdminSidebarState {
       window.clearTimeout(this.floatingCloseTimer);
       this.floatingCloseTimer = null;
     }
+  }
+
+  /**
+   * Called on menu scroll: panels are `position: fixed` at the coordinates
+   * measured when they opened, so they'd be left behind by the scrolling
+   * items, and items sliding under a still pointer must not open flyouts.
+   */
+  handleMenuScroll(): void {
+    this.closeFloating();
+    this.floatingSuspendedUntil =
+      Date.now() + FLOATING_MENU_SCROLL_SETTLE_MS;
   }
 
   /** Re-clamps the open panel after a nested accordion changes its height. */

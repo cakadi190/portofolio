@@ -49,7 +49,7 @@
    * The anchored edge stays fixed so a nested accordion grows away from the
    * viewport edge. Counterpart of batamtix's SidebarFloatingMenu.
    */
-  function computeFlyoutPosition(item: HTMLElement): void {
+  function computeFlyoutPosition(item: HTMLElement, id: string): void {
     const trigger = item.querySelector<HTMLElement>(':scope > .sm-link');
     const panel = item.querySelector<HTMLElement>(':scope > .sm-submenu');
 
@@ -64,18 +64,25 @@
     const dropUp = panel.scrollHeight > spaceBelow && spaceAbove > spaceBelow;
     const left = `left: ${rect.right + FLOATING_MENU_GAP}px;`;
 
-    sidebar.floatingUp = dropUp;
-    sidebar.floatingStyle = dropUp
-      ? `${left} top: auto; bottom: ${viewportHeight - rect.bottom}px; max-height: ${spaceAbove}px; overflow-y: auto;`
-      : `${left} bottom: auto; top: ${rect.top}px; max-height: ${spaceBelow}px; overflow-y: auto;`;
+    sidebar.floatingLayout[id] = {
+      up: dropUp,
+      style: dropUp
+        ? `${left} top: auto; bottom: ${viewportHeight - rect.bottom}px; max-height: ${spaceAbove}px; overflow-y: auto;`
+        : `${left} bottom: auto; top: ${rect.top}px; max-height: ${spaceBelow}px; overflow-y: auto;`,
+    };
   }
 
   function openFlyout(item: HTMLElement, id: string): void {
-    sidebar.openFloating(id, () => computeFlyoutPosition(item));
+    sidebar.openFloating(id, () => computeFlyoutPosition(item, id));
   }
 
   function onPointerEnter(event: PointerEvent, id: string, hasChildren: boolean): void {
-    if (!isFlyoutMode || !hasChildren || event.pointerType !== 'mouse') {
+    if (
+      !isFlyoutMode ||
+      !hasChildren ||
+      event.pointerType !== 'mouse' ||
+      Date.now() < sidebar.floatingSuspendedUntil
+    ) {
       return;
     }
 
@@ -154,9 +161,10 @@
         class:sm-item--open={open}
         class:sm-item--child-active={childActive && !entry.active}
         data-level={level}
-        class:sm-item--floating-open={sidebar.floatingId === id}
-        class:sm-item--floating-up={sidebar.floatingId === id &&
-          sidebar.floatingUp}
+        class:sm-item--floating-open={isFlyoutMode &&
+          sidebar.floatingId === id}
+        class:sm-item--floating-up={isFlyoutMode &&
+          sidebar.floatingLayout[id]?.up}
         onpointerenter={(event) => onPointerEnter(event, id, hasChildren)}
         onpointerleave={(event) => onPointerLeave(event, id)}
       >
@@ -186,9 +194,7 @@
           <div
             class="sm-submenu"
             class:sm-submenu--open={open}
-            style={isFlyoutMode && sidebar.floatingId === id
-              ? sidebar.floatingStyle
-              : undefined}
+            style={isFlyoutMode ? sidebar.floatingLayout[id]?.style : undefined}
           >
             <div class="sm-submenu-inner">
               <svelte:self

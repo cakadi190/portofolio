@@ -155,21 +155,57 @@
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    scrollbar-width: thin;
+
+    // Anti-FOUC: until SimpleBar mounts this region scrolls natively — hide
+    // the native scrollbar so none flashes at first paint and content doesn't
+    // shift once the overlay track takes over. Wheel/touch scrolling stays.
+    scrollbar-width: none;
 
     &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .simplebar-content-wrapper {
+      overscroll-behavior-y: contain;
+    }
+
+    // Must exceed the 20px active-item notch (`.sm-link::before/::after`,
+    // `top/bottom: -20px`) or the scroll region clips its rounded tip.
+    .simplebar-content {
+      padding-block: 1.5rem;
+    }
+
+    .simplebar-track.simplebar-vertical {
       width: 0.5rem;
+      background: transparent;
+
+      &:hover,
+      &.simplebar-hover {
+        background: rgba(var(--neo-dark-rgb), 0.08);
+
+        > .simplebar-scrollbar::before {
+          width: 0.375rem;
+          background: var(--neo-dark);
+        }
+      }
+
+      > .simplebar-scrollbar::before {
+        inset-inline: auto 0.125rem;
+        width: 0.25rem;
+        background: rgba(var(--neo-dark-rgb), 0.7);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
     }
 
-    &::-webkit-scrollbar-thumb {
-      background: rgba(var(--neo-white-rgb), 0.25);
-      border-radius: 99rem;
+    &:hover,
+    &:focus-within {
+      .simplebar-track.simplebar-vertical > .simplebar-scrollbar::before {
+        opacity: 1;
+      }
     }
   }
 
-  .sidebar-nav {
-    padding-block: 1rem;
-  }
 
   // --- Menu tree -----------------------------------------------------------
 
@@ -257,6 +293,11 @@
     z-index: 2;
     position: relative;
     background: var(--neo-sidebar-accent);
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
 
     .sm-icon--filled {
       fill: currentColor;
@@ -470,7 +511,7 @@
         display: none;
       }
 
-      .sm-menu {
+      .sidebar-nav > .sm-menu {
         padding-inline-start: 0;
       }
 
@@ -478,7 +519,7 @@
         display: none;
       }
 
-      .sm-item {
+      .sidebar-nav > .sm-menu > .sm-item {
         width: 100%;
 
         > .sm-link {
@@ -491,7 +532,7 @@
       // Collapsed mode hides the submenu tree — and with it the active
       // leaf's pill — so the top-level ancestor is the only visible trace
       // of the current page: promote it to the full active treatment.
-      .sm-menu > .sm-item--child-active > .sm-link {
+      .sidebar-nav > .sm-menu > .sm-item--child-active > .sm-link {
         --neo-sm-link-color: var(--neo-sidebar-accent);
         --neo-sm-link-bg: var(--neo-admin-layout-bg, var(--neo-light));
 
@@ -516,7 +557,7 @@
         }
       }
 
-      .sm-menu > .sm-item > .sm-link {
+      .sidebar-nav > .sm-menu > .sm-item > .sm-link {
         .sm-label,
         .sm-arrow {
           display: none;
@@ -528,7 +569,7 @@
       // state and coordinates come from admin-sidebar-menu.svelte, the
       // counterpart of batamtix's SidebarFloatingMenu.
       // Deeper levels stay accordion-style inside the floating panel.
-      > .sidebar-inner .sm-menu > .sm-item {
+      > .sidebar-inner .sidebar-nav > .sm-menu > .sm-item {
         > .sm-submenu {
           position: fixed;
           display: block;
@@ -582,10 +623,6 @@
           transform: none;
           margin-inline-start: 0;
         }
-      }
-
-      .sm-menu--nested {
-        padding-inline-start: 0.5rem;
       }
     }
   }
