@@ -1,9 +1,10 @@
 import { createInertiaApp } from '@inertiajs/svelte';
+import AdminLayout from '@/layouts/admin-layout.svelte';
 import AppLayout from '@/layouts/app-layout.svelte';
 import AuthLayout from '@/layouts/auth-layout.svelte';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
-import "flag-icons/css/flag-icons.min.css";
+import 'flag-icons/css/flag-icons.min.css';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -13,6 +14,9 @@ void createInertiaApp({
     switch (true) {
       case name.startsWith('auth/'):
         return AuthLayout;
+      case name.startsWith('admin/'):
+      case name.startsWith('dashboard/'):
+        return AdminLayout;
       default:
         return AppLayout;
     }

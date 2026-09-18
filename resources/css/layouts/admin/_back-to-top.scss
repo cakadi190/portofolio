@@ -1,0 +1,36 @@
+.back-to-top {
+  --neo-back-to-top-bottom: 1.5rem;
+
+  position: fixed;
+  inset-block-end: var(--neo-back-to-top-bottom);
+  inset-inline-end: 1.5rem;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--neo-border-color);
+  background: var(--neo-white);
+  color: var(--neo-primary);
+  box-shadow: var(--neo-box-shadow-sm);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.5rem);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s;
+
+  &--visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &:hover {
+    background: var(--neo-primary);
+    color: var(--neo-white);
+  }
+}

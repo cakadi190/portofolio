@@ -4,7 +4,7 @@
 
 <AppHead title="Dasbor" />
 
-<div class="container py-5">
-  <h1>Admin</h1>
-  <p class="text-muted">Halaman admin belum dibuat.</p>
+<div>
+  <h1 class="h4 mb-1">Dasbor</h1>
+  <p class="text-muted mb-0">Halaman admin belum dibuat.</p>
 </div>

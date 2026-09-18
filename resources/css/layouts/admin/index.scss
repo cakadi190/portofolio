@@ -1,0 +1,68 @@
+// Admin layout shell (sidebar, navbar, footer, pull-to-refresh, back-to-top).
+// Ported from batamtix's resources/scss/layouts/admin/*, replacing every
+// `--btx-*` custom property with gettix's `--neo-*` Bootstrap variables
+// (app.scss sets Bootstrap's own `$prefix: neo-`) and dropping the SimpleBar
+// styling batamtix relied on — this port keeps the native scrollbar instead
+// (see admin-sidebar-layout.svelte's report note on the simplebar decision).
+
+// Scoped to `.admin-shell` (rendered by admin-sidebar-layout.svelte) rather
+// than `body` directly, so this layout's flex/height rules never leak onto
+// non-admin pages sharing the same Blade root (resources/views/app.blade.php).
+.admin-shell {
+  --neo-admin-layout-bg: var(--neo-light);
+
+  height: 100svh;
+  display: flex;
+  background-color: var(--neo-admin-layout-bg);
+
+  main[data-main-scroll] {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    height: calc(100svh - 1rem);
+    margin: 0.5rem;
+    margin-inline-start: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1rem;
+    border: 1px solid var(--neo-border-color);
+    background: var(--neo-white);
+    position: relative;
+    z-index: 1;
+    overscroll-behavior-y: contain;
+
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(var(--neo-dark-rgb), 0.2);
+      border-radius: 99rem;
+    }
+
+    @media (width <= 992px) {
+      margin: 0 !important;
+      margin-inline-start: 0 !important;
+      border-color: transparent;
+      border-radius: 0;
+      height: 100svh;
+    }
+
+    .content-inner {
+      flex: 1;
+      padding: 1rem;
+    }
+  }
+
+  &.sidebar-scroll-locked {
+    overflow: hidden;
+  }
+}
+
+@import 'sidebar';
+@import 'navbar';
+@import 'footer';
+@import 'pull-to-refresh';
+@import 'back-to-top';

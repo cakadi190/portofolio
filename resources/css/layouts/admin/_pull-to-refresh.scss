@@ -1,0 +1,76 @@
+.main-refresh {
+  --main-refresh-offset: 0px;
+  --main-refresh-progress: 0;
+  --main-refresh-size: 2.25rem;
+
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1001;
+
+  .main-refresh-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--main-refresh-size);
+    height: var(--main-refresh-size);
+    margin-block-start: 0.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--neo-border-color);
+    background: var(--neo-white);
+    color: var(--neo-primary);
+    box-shadow: 0 0.25rem 0.75rem rgba(var(--neo-dark-rgb), 0.15);
+    opacity: 0;
+    transform: translate3d(
+      0,
+      calc(var(--main-refresh-offset) - var(--main-refresh-size) - 1rem),
+      0
+    );
+    transition:
+      transform 0.25s ease,
+      opacity 0.25s ease;
+
+    > svg {
+      transform: rotate(calc(var(--main-refresh-progress) * 270deg));
+    }
+  }
+
+  &.main-refresh--pulling .main-refresh-indicator {
+    opacity: var(--main-refresh-progress);
+    transition: none;
+  }
+
+  &.main-refresh--armed .main-refresh-indicator {
+    opacity: 1;
+    border-color: var(--neo-primary);
+    background: var(--neo-primary);
+    color: var(--neo-white);
+  }
+
+  &.main-refresh--refreshing .main-refresh-indicator {
+    opacity: 1;
+
+    > svg {
+      animation: main-refresh-spin 0.8s linear infinite;
+    }
+  }
+}
+
+@keyframes main-refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-refresh .main-refresh-indicator {
+    transition-duration: 0.01ms;
+
+    > svg {
+      animation-duration: 2.4s;
+    }
+  }
+}

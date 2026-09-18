@@ -1,0 +1,160 @@
+.navbar {
+  padding: 1rem;
+  align-items: center;
+  min-height: 68px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--neo-white);
+
+  // Visibility mirrors the sidebar's own header toggler: hidden on expanded
+  // desktop (the sidebar header renders one), shown when that one is gone —
+  // desktop collapsed mode (`.sidebar-toggling--visible`, set from
+  // `sidebar.collapsed`) and the mobile drawer, where this button is the
+  // only way to open it.
+  .sidebar-toggling {
+    display: none;
+
+    &--visible {
+      display: flex;
+    }
+
+    // Keep in sync with DESKTOP_BREAKPOINT in sidebar-state.svelte.ts.
+    @media (width < 992px) {
+      display: flex;
+    }
+
+    .sidebar-toggler {
+      cursor: pointer;
+      aspect-ratio: 1;
+      height: 32px;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      border-radius: 0.5rem;
+      border: 1px solid transparent;
+      background-color: transparent;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: var(--neo-border-color);
+      }
+    }
+  }
+
+  &-start,
+  &-end {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &-end {
+    margin-inline-start: auto;
+  }
+  &-start {
+    margin-inline-end: auto;
+  }
+
+  .nav-clock {
+    font-family: var(--neo-font-monospace);
+  }
+
+  .nav-item .nav-link {
+    min-height: 40px;
+  }
+
+  .nav-link.square {
+    padding: 0;
+    aspect-ratio: 1;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 99rem;
+
+    &:hover {
+      background: var(--neo-tertiary-bg);
+    }
+  }
+
+  .notification-badge {
+    font-size: 0.6rem;
+    transform: translate(15%, -15%);
+  }
+
+  // Recolor the shared account dropdown for the light admin navbar.
+  .userinfo {
+    --neo-userinfo-color: var(--neo-body-color);
+    --neo-userinfo-bg: var(--neo-tertiary-bg);
+
+    .dropdown-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 42px;
+      padding: 0.375rem 0.75rem 0.375rem 0.375rem;
+      border-radius: 99rem;
+      color: var(--neo-userinfo-color);
+      background: var(--neo-userinfo-bg);
+
+      &::after {
+        display: none;
+      }
+
+      .avatar {
+        overflow: hidden;
+        border-radius: 99rem;
+        width: 28px;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--neo-white);
+        flex-shrink: 0;
+      }
+
+      span {
+        display: none;
+
+        @media (width >= 992px) {
+          display: block;
+        }
+      }
+    }
+
+    .userinfo-badge .dropdown-item {
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background-color: var(--neo-light);
+      border-radius: var(--neo-border-radius-lg);
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      .avatar {
+        height: 40px;
+        width: 40px;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 99rem;
+        background: var(--neo-white);
+      }
+    }
+
+    .dropdown-item-danger {
+      color: var(--neo-danger);
+
+      &:hover,
+      &:focus {
+        color: var(--neo-danger);
+        background: rgba(var(--neo-danger-rgb), 0.1);
+      }
+    }
+  }
+}
