@@ -81,9 +81,11 @@
 >
   <div class="sidebar-inner">
     <div class="sidebar-header">
-      <Link href="/admin" class="sidebar-brand">
+      <Link href="/dashboard" class="sidebar-brand">
         <div class="sidebar-icon">
-          <AppLogoIcon height={28} />
+          <div class="sidebar-icon-box">
+            <AppLogoIcon height={32} />
+          </div>
         </div>
         <div class="sidebar-logo">Gettix</div>
       </Link>

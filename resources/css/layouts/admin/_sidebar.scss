@@ -1,9 +1,10 @@
 // Port of batamtix's _sidebar.scss. Mirrors its actual look: the sidebar
 // itself is transparent/flush, and `.sidebar-inner` is the floating rounded
 // card (inset by 0.5rem, `--neo-border-radius-xl`, accent-colored) — the same
-// treatment `.admin-shell main` already gets. Deliberately NOT ported: the
-// collapsed-desktop hover flyout panels (SidebarFloatingMenu in batamtix) —
-// the collapsed rail keeps submenus as in-place accordions instead.
+// treatment `.admin-shell main` already gets. The collapsed-desktop hover
+// flyout (batamtix's SidebarFloatingMenu, JS-positioned via `position:
+// fixed`) is reproduced with plain CSS `position: absolute` + `:hover` /
+// `:focus-within` instead, anchored to each top-level item.
 
 .sidebar {
   --neo-sidebar-width: 20.5rem;
@@ -52,6 +53,16 @@
       .sidebar-icon {
         flex-shrink: 0;
         display: none;
+      }
+
+      .sidebar-icon-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: var(--neo-border-radius);
+        background: var(--neo-white);
+        color: var(--neo-sidebar-accent);
       }
 
       .sidebar-logo {
@@ -220,6 +231,21 @@
       outline: 2px solid var(--neo-white);
       outline-offset: -2px;
     }
+
+    // Decorative connector notch — must never intercept clicks. Sits 20px
+    // outside this link's own box (top/bottom) so the active pill reads as
+    // carved into the accent surface, matching batamtix's corner treatment.
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      height: 20px;
+      aspect-ratio: 1;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
   }
 
   .sm-icon {
@@ -242,12 +268,32 @@
   }
 
   // Active item: pill surface that reads like it's punched through to the
-  // page background — matches batamtix's connector-notch treatment, kept
-  // simple here (no radial-gradient corner notches).
+  // page background, with radial-gradient corner notches continuing the
+  // pill into the surrounding accent surface — matches batamtix exactly.
   .sm-item--active > .sm-link {
     --neo-sm-link-color: var(--neo-sidebar-accent);
     --neo-sm-link-bg: var(--neo-admin-layout-bg, var(--neo-light));
     font-weight: bold;
+
+    &::before,
+    &::after {
+      opacity: 1;
+      background: radial-gradient(
+        circle at 100% 0,
+        var(--neo-sidebar-accent) 0 20px,
+        var(--neo-admin-layout-bg, var(--neo-light)) 20px 100%
+      );
+    }
+
+    &::before {
+      top: -20px;
+      transform: rotate(-90deg);
+    }
+
+    &::after {
+      bottom: -20px;
+      transform: rotate(180deg);
+    }
   }
 
   .sm-item--child-active > .sm-link {
@@ -369,6 +415,9 @@
 
       .sidebar-inner {
         width: var(--neo-sidebar-collapsed-width);
+        margin: 0;
+        height: 100%;
+        border-radius: 0;
       }
 
       .sidebar-footer,
@@ -424,6 +473,26 @@
       .sm-menu > .sm-item--child-active > .sm-link {
         --neo-sm-link-color: var(--neo-sidebar-accent);
         --neo-sm-link-bg: var(--neo-admin-layout-bg, var(--neo-light));
+
+        &::before,
+        &::after {
+          opacity: 1;
+          background: radial-gradient(
+            circle at 100% 0,
+            var(--neo-sidebar-accent) 0 20px,
+            var(--neo-admin-layout-bg, var(--neo-light)) 20px 100%
+          );
+        }
+
+        &::before {
+          top: -20px;
+          transform: rotate(-90deg);
+        }
+
+        &::after {
+          bottom: -20px;
+          transform: rotate(180deg);
+        }
       }
 
       .sm-menu > .sm-item > .sm-link {
@@ -433,8 +502,62 @@
         }
       }
 
-      // Collapsed rail keeps submenus accessible in-place (accordion),
-      // rather than batamtix's hover flyout panel.
+      // Collapsed rail: level-1 submenus float open on hover/focus, anchored
+      // to their own top-level item via `position: absolute` (batamtix's
+      // SidebarFloatingMenu computes `position: fixed` coordinates in JS for
+      // the same effect — this reaches the same result with plain CSS).
+      // Deeper levels stay accordion-style inside the floating panel.
+      > .sidebar-inner .sm-menu > .sm-item {
+        > .sm-submenu {
+          position: absolute;
+          left: 100%;
+          top: 0;
+          margin-inline-start: 0.5rem;
+          display: block;
+          grid-template-rows: unset;
+          width: 16rem;
+          max-height: none;
+          background: var(--neo-sidebar-accent);
+          border-radius: var(--neo-border-radius);
+          box-shadow: var(--neo-box-shadow-lg);
+          padding: 0.5rem 0;
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(4px);
+          transition:
+            opacity var(--neo-sidebar-transition-duration) ease,
+            transform var(--neo-sidebar-transition-duration) ease,
+            visibility 0s linear var(--neo-sidebar-transition-duration);
+          z-index: 1020;
+
+          .sm-submenu-inner {
+            overflow: visible;
+          }
+        }
+
+        &:hover > .sm-submenu,
+        &:focus-within > .sm-submenu {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+          transition:
+            opacity var(--neo-sidebar-transition-duration) ease,
+            transform var(--neo-sidebar-transition-duration) ease;
+        }
+
+        // Nested (level 2+) submenus inside the floating panel stay
+        // accordion, in-flow.
+        .sm-submenu .sm-submenu {
+          position: static;
+          width: auto;
+          box-shadow: none;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          margin-inline-start: 0;
+        }
+      }
+
       .sm-menu--nested {
         padding-inline-start: 0.5rem;
       }

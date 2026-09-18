@@ -59,6 +59,17 @@
   &.sidebar-scroll-locked {
     overflow: hidden;
   }
+
+  // Collapsed rail: both panels go full-bleed (no inset margin, no rounded
+  // corners) instead of floating cards — matches batamtix's collapsed look.
+  &.admin-shell--sidebar-collapsed main[data-main-scroll] {
+    @media (width >= 992px) {
+      margin: 0;
+      border-radius: 0;
+      border-color: transparent;
+      height: 100svh;
+    }
+  }
 }
 
 @import 'sidebar';
