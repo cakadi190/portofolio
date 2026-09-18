@@ -107,7 +107,7 @@
       margin-bottom: 0;
       color: rgba(var(--neo-white-rgb), 0.6);
 
-      > svg {
+      >svg {
         position: absolute;
         inset-inline-start: 0.875rem;
         top: 50%;
@@ -169,10 +169,10 @@
       overscroll-behavior-y: contain;
     }
 
-    // Must exceed the 20px active-item notch (`.sm-link::before/::after`,
-    // `top/bottom: -20px`) or the scroll region clips its rounded tip.
+    // SimpleBar rewrites this element's padding inline, so the breathing room
+    // lives on `.sidebar-nav` below instead.
     .simplebar-content {
-      padding-block: 1.5rem;
+      padding-block: 0 !important;
     }
 
     .simplebar-track.simplebar-vertical {
@@ -183,13 +183,13 @@
       &.simplebar-hover {
         background: rgba(var(--neo-dark-rgb), 0.08);
 
-        > .simplebar-scrollbar::before {
+        >.simplebar-scrollbar::before {
           width: 0.375rem;
           background: var(--neo-dark);
         }
       }
 
-      > .simplebar-scrollbar::before {
+      >.simplebar-scrollbar::before {
         inset-inline: auto 0.125rem;
         width: 0.25rem;
         background: rgba(var(--neo-dark-rgb), 0.7);
@@ -200,7 +200,7 @@
 
     &:hover,
     &:focus-within {
-      .simplebar-track.simplebar-vertical > .simplebar-scrollbar::before {
+      .simplebar-track.simplebar-vertical>.simplebar-scrollbar::before {
         opacity: 1;
       }
     }
@@ -304,7 +304,7 @@
     }
   }
 
-  .sm-item--active > .sm-link .sm-icon {
+  .sm-item--active>.sm-link .sm-icon {
     background: var(--neo-light);
   }
 
@@ -325,7 +325,7 @@
   // Active item: pill surface that reads like it's punched through to the
   // page background, with radial-gradient corner notches continuing the
   // pill into the surrounding accent surface — matches batamtix exactly.
-  .sm-item--active > .sm-link {
+  .sm-item--active>.sm-link {
     --neo-sm-link-color: var(--neo-sidebar-accent);
     --neo-sm-link-bg: var(--neo-admin-layout-bg, var(--neo-light));
     font-weight: bold;
@@ -333,11 +333,9 @@
     &::before,
     &::after {
       opacity: 1;
-      background: radial-gradient(
-        circle at 100% 0,
-        var(--neo-sidebar-accent) 0 20px,
-        var(--neo-admin-layout-bg, var(--neo-light)) 20px 100%
-      );
+      background: radial-gradient(circle at 100% 0,
+          var(--neo-sidebar-accent) 0 20px,
+          var(--neo-admin-layout-bg, var(--neo-light)) 20px 100%);
     }
 
     &::before {
@@ -351,12 +349,12 @@
     }
   }
 
-  .sm-item--child-active > .sm-link {
+  .sm-item--child-active>.sm-link {
     --neo-sm-link-color: var(--neo-white);
     font-weight: bold;
   }
 
-  .sm-item--open > .sm-link .sm-arrow {
+  .sm-item--open>.sm-link .sm-arrow {
     transform: rotate(180deg);
   }
 
@@ -463,7 +461,8 @@
   // `.sidebar--collapsed` is toggled by SidebarMenuManager; `:root.sidebar-
   // toggled` is set pre-paint by the anti-FOUC boot script, so a
   // collapsed-by-preference sidebar paints collapsed before Svelte mounts.
-  @media (width >= 992px) {
+  @media (width >=992px) {
+
     // Vertical tree connector through the submenu markers (expanded only).
     :root:not(.sidebar-toggled) &:not(.sidebar--collapsed) {
       .sm-menu .sm-item .sm-submenu .sm-item::before {
@@ -511,7 +510,14 @@
         display: none;
       }
 
-      .sidebar-nav > .sm-menu {
+      // Collapsed rail has no section headers to space the first item, so give
+      // the nav room: it must exceed the 20px active-item notch
+      // (`.sm-link::before/::after`, `top/bottom: -20px`) at both ends.
+      .sidebar-nav {
+        padding-block: 1.5rem;
+      }
+
+      .sidebar-nav>.sm-menu {
         padding-inline-start: 0;
       }
 
@@ -519,10 +525,10 @@
         display: none;
       }
 
-      .sidebar-nav > .sm-menu > .sm-item {
+      .sidebar-nav>.sm-menu>.sm-item {
         width: 100%;
 
-        > .sm-link {
+        >.sm-link {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -532,18 +538,16 @@
       // Collapsed mode hides the submenu tree — and with it the active
       // leaf's pill — so the top-level ancestor is the only visible trace
       // of the current page: promote it to the full active treatment.
-      .sidebar-nav > .sm-menu > .sm-item--child-active > .sm-link {
+      .sidebar-nav>.sm-menu>.sm-item--child-active>.sm-link {
         --neo-sm-link-color: var(--neo-sidebar-accent);
         --neo-sm-link-bg: var(--neo-admin-layout-bg, var(--neo-light));
 
         &::before,
         &::after {
           opacity: 1;
-          background: radial-gradient(
-            circle at 100% 0,
-            var(--neo-sidebar-accent) 0 20px,
-            var(--neo-admin-layout-bg, var(--neo-light)) 20px 100%
-          );
+          background: radial-gradient(circle at 100% 0,
+              var(--neo-sidebar-accent) 0 20px,
+              var(--neo-admin-layout-bg, var(--neo-light)) 20px 100%);
         }
 
         &::before {
@@ -557,7 +561,8 @@
         }
       }
 
-      .sidebar-nav > .sm-menu > .sm-item > .sm-link {
+      .sidebar-nav>.sm-menu>.sm-item>.sm-link {
+
         .sm-label,
         .sm-arrow {
           display: none;
@@ -569,8 +574,8 @@
       // state and coordinates come from admin-sidebar-menu.svelte, the
       // counterpart of batamtix's SidebarFloatingMenu.
       // Deeper levels stay accordion-style inside the floating panel.
-      > .sidebar-inner .sidebar-nav > .sm-menu > .sm-item {
-        > .sm-submenu {
+      >.sidebar-inner .sidebar-nav>.sm-menu>.sm-item {
+        >.sm-submenu {
           position: fixed;
           display: block;
           grid-template-rows: unset;
@@ -591,19 +596,21 @@
             visibility 0s linear var(--neo-sidebar-transition-duration);
           z-index: 1020;
 
-          .sm-submenu-inner {
+          // Direct child only: nested accordions inside the panel still need
+          // their own `overflow: hidden` to collapse.
+          >.sm-submenu-inner {
             overflow: visible;
           }
         }
 
         // Drop-up: the panel is anchored by its bottom edge, so it opens (and
         // any nested accordion grows) upward.
-        &.sm-item--floating-up > .sm-submenu {
+        &.sm-item--floating-up>.sm-submenu {
           transform: translateY(-4px);
           transform-origin: bottom left;
         }
 
-        &.sm-item--floating-open > .sm-submenu {
+        &.sm-item--floating-open>.sm-submenu {
           opacity: 1;
           visibility: visible;
           transform: translateY(0);
@@ -645,7 +652,7 @@
     transition: opacity var(--neo-sidebar-transition-duration, 250ms) ease;
   }
 
-  @media (width >= 992px) {
+  @media (width >=992px) {
     display: none;
   }
 }

@@ -7,6 +7,17 @@
     return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
 
+  /**
+   * Moves the node to <body>. `main` is its own stacking context, so a modal
+   * left inside it would sit under Bootstrap's body-level backdrop (the Svelte
+   * counterpart of batamtix's `@push('modals')`).
+   */
+  function portal(node: HTMLElement) {
+    document.body.appendChild(node);
+
+    return { destroy: () => node.remove() };
+  }
+
   let now = $state(format(new Date()));
 
   $effect(() => {
@@ -30,6 +41,7 @@
 </button>
 
 <div
+  use:portal
   class="modal fade"
   role="dialog"
   aria-modal="true"

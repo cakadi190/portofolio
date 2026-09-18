@@ -22,7 +22,7 @@
       class:sidebar-toggling--visible={sidebar.isDesktop && sidebar.collapsed}
     >
       <button
-        class="sidebar-toggler"
+        class="sidebar-toggler me-2"
         aria-label="Buka/tutup sidebar"
         aria-controls="appSidebar"
         aria-expanded={!sidebar.collapsed}
