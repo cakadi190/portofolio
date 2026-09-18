@@ -1,8 +1,8 @@
 <script lang="ts">
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
-  import { store } from '@/routes/login';
-  import { request } from '@/routes/password';
+  import { store } from '@/wayfinder/routes/login';
+  import { request } from '@/wayfinder/routes/password';
   import { Form } from '@inertiajs/svelte';
 
   let {

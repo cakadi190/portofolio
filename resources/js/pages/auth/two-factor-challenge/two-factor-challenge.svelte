@@ -11,7 +11,7 @@
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
-  import { store } from '@/routes/two-factor/login';
+  import { store } from '@/wayfinder/routes/two-factor/login';
 
   let useRecoveryCode = $state(false);
 

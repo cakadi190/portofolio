@@ -10,8 +10,8 @@
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
-  import { login } from '@/routes';
-  import { store } from '@/routes/register';
+  import { login } from '@/wayfinder/routes';
+  import { store } from '@/wayfinder/routes/register';
 
   let { passwordRules }: { passwordRules: string } = $props();
 </script>

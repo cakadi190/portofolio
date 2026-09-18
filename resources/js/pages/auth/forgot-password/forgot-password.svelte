@@ -11,8 +11,8 @@
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
-  import { login } from '@/routes';
-  import { email } from '@/routes/password';
+  import { login } from '@/wayfinder/routes';
+  import { email } from '@/wayfinder/routes/password';
 
   let {
     status = '',

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { redirect } from '@/actions/App/Http/Controllers/Auth/SocialiteController';
+  import { redirect } from '@/wayfinder/App/Http/Controllers/Auth/SocialiteController';
 
   let {
     providers = [],

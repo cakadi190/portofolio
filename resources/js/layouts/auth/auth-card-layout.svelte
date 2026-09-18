@@ -2,7 +2,7 @@
   import { Link } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
-  import { home } from '@/routes';
+  import { home } from '@/wayfinder/routes';
 
   let {
     title = '',

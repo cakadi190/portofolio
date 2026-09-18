@@ -10,8 +10,8 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { logout } from '@/routes';
-  import { send } from '@/routes/verification';
+  import { logout } from '@/wayfinder/routes';
+  import { send } from '@/wayfinder/routes/verification';
 
   let {
     status = '',

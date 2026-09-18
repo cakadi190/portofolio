@@ -10,7 +10,7 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import { Field } from '@/components/ui/field';
-  import { store } from '@/routes/password/confirm';
+  import { store } from '@/wayfinder/routes/password/confirm';
 </script>
 
 <AppHead title="Konfirmasi kata sandi" />

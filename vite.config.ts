@@ -37,9 +37,7 @@ export default defineConfig({
         }),
         inertia(),
         svelte(),
-        wayfinder({
-          formVariants: true,
-        }),
+        wayfinder(),
       ] as any[],
   ),
   css: {

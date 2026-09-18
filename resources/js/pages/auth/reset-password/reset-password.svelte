@@ -9,8 +9,8 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import { Field } from '@/components/ui/field';
-  import { update } from '@/routes/password';
-  import { User } from '@/types';
+  import { update } from '@/wayfinder/routes/password';
+  import type { App } from '@/wayfinder/types';
 
   let {
     token,
@@ -18,7 +18,7 @@
     passwordRules,
   }: {
     token: string;
-    user: User;
+    user: App.Models.User;
     passwordRules: string;
   } = $props();
 </script>
@@ -33,7 +33,7 @@
 >
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-3">
-      <Field.Group>
+      <Field.Group class="d-none">
         <Field.Label for="email">Email</Field.Label>
         <Field.Input
           id="email"

@@ -168,18 +168,25 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `bun run build` or ask the user to run `bun run dev` or `composer run dev`.
 
-=== wayfinder/core rules ===
-
-# Laravel Wayfinder
-
-Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `@/actions/` (controllers) or `@/routes/` (named routes).
-
 === pint/core rules ===
 
 # Laravel Pint Code Formatter
 
 - If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
+
+=== wayfinder/core rules ===
+
+# Laravel Wayfinder
+
+This application uses Laravel Wayfinder to generate TypeScript from its Laravel code: route and controller-action functions, form request types, model interfaces, enums, Inertia page props, broadcast channels and events, and Vite environment variables.
+
+- Generated files live under `resources/js/wayfinder` and are imported from `@/wayfinder/...`. Never hand-edit them; change the PHP and run `php artisan wayfinder:generate`.
+- Import route functions from the path matching the controller's PHP namespace (`@/wayfinder/App/Http/Controllers/PostController`), named routes from `@/wayfinder/routes/<name>`, and every type from `@/wayfinder/types`.
+- Import types rather than redeclaring them. A hand-written interface for a model, page props or a form request will drift.
+- Keep anything that should not reach the browser out with the `#[WayfinderIgnore]` attribute, or a `@wayfinder-ignore` comment for an array key.
+
+When working on Wayfinder itself — generating types, wiring the Vite plugin, choosing what to leave out, or debugging missing output — invoke `wayfinder-development` for detailed rules.
 
 === pest/core rules ===
 

@@ -12,7 +12,7 @@
   import SocialLogin from '@/components/social-login.svelte';
   import Separator from '@/components/ui/separator.svelte';
   import TextLink from '@/components/text-link.svelte';
-  import { register } from '@/routes';
+  import { register } from '@/wayfinder/routes';
 
   let {
     status = '',
