@@ -1,7 +1,6 @@
 <script lang="ts">
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
-  import { register } from '@/routes';
   import { store } from '@/routes/login';
   import { request } from '@/routes/password';
   import { Form } from '@inertiajs/svelte';
@@ -67,11 +66,6 @@
       >
         Masuk
       </button>
-    </div>
-
-    <div class="text-center small text-muted">
-      Belum punya akun?
-      <TextLink href={register()}>Daftar</TextLink>
     </div>
   {/snippet}
 </Form>

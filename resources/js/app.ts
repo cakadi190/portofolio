@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/app-layout.svelte';
 import AuthLayout from '@/layouts/auth-layout.svelte';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
+import "flag-icons/css/flag-icons.min.css";
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

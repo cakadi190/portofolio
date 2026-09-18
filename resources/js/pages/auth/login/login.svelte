@@ -11,6 +11,8 @@
   import PasskeyLogin from '@/components/passkey-login.svelte';
   import SocialLogin from '@/components/social-login.svelte';
   import Separator from '@/components/ui/separator.svelte';
+  import TextLink from '@/components/text-link.svelte';
+  import { register } from '@/routes';
 
   let {
     status = '',
@@ -82,6 +84,13 @@
 
     <SocialLogin providers={socialiteProviders} />
   {/if}
+
+  <Separator>Atau</Separator>
+
+  <div class="text-center small text-muted">
+    Belum punya akun?
+    <TextLink href={register()}>Daftar</TextLink>
+  </div>
 </div>
 
 <style lang="scss">

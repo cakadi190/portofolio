@@ -21,6 +21,7 @@
     "@typescript/native": "npm:typescript@7",
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
+    "flag-icons": "^7.5.0",
     "laravel-vite-plugin": "^3.2.0",
     "svelte": "^5.57.0",
     "svelte-sonner": "^1.2.1",

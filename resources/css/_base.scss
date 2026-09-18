@@ -399,6 +399,7 @@ $btn-ghost-colors: primary, secondary, success, danger, warning, info, light,
 .dropdown {
   .dropdown-menu {
     padding: .5rem;
+    border-radius: var(--neo-border-radius-xl);
 
     .dropdown-item {
       display: flex;
