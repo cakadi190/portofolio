@@ -9,8 +9,7 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import TextLink from '@/components/text-link.svelte';
-  import { logout } from '@/wayfinder/routes';
+  import LogoutAction from '@/components/logout-action.svelte';
   import { send } from '@/wayfinder/routes/verification';
 
   let {
@@ -52,6 +51,6 @@
   </Form>
 
   <div class="text-center small text-muted">
-    <TextLink href={logout()} method="post" as="button">Keluar</TextLink>
+    <LogoutAction class="btn btn-link p-0 text-body">Keluar</LogoutAction>
   </div>
 </div>

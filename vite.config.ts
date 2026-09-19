@@ -74,6 +74,7 @@ export default defineConfig({
   },
   lint: {
     ignorePatterns: [
+      '.svelte-check/**',
       'vendor/**',
       'node_modules/**',
       'public/**',

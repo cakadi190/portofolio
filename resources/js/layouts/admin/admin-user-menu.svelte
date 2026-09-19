@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { router } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
+  import LogoutAction from '@/components/logout-action.svelte';
 
   let {
     userName,
@@ -12,11 +12,6 @@
     userEmail?: string;
     logoutHref?: string;
   } = $props();
-
-  function logout(event: Event): void {
-    event.preventDefault();
-    router.post(logoutHref);
-  }
 </script>
 
 <li class="nav-item dropdown userinfo">
@@ -49,14 +44,13 @@
     <li><hr class="dropdown-divider" /></li>
 
     <li>
-      <button
-        type="button"
+      <LogoutAction
+        href={logoutHref}
         class="dropdown-item dropdown-item-danger logout-actions"
-        onclick={logout}
       >
         <LogOut size={16} aria-hidden="true" />
         Keluar
-      </button>
+      </LogoutAction>
     </li>
   </ul>
 </li>

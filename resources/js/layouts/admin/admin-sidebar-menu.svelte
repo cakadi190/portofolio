@@ -59,7 +59,8 @@
 
     const rect = trigger.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
-    const spaceBelow = viewportHeight - rect.top - FLOATING_MENU_VIEWPORT_PADDING;
+    const spaceBelow =
+      viewportHeight - rect.top - FLOATING_MENU_VIEWPORT_PADDING;
     const spaceAbove = rect.bottom - FLOATING_MENU_VIEWPORT_PADDING;
     const dropUp = panel.scrollHeight > spaceBelow && spaceAbove > spaceBelow;
     const left = `left: ${rect.right + FLOATING_MENU_GAP}px;`;
@@ -76,7 +77,11 @@
     sidebar.openFloating(id, () => computeFlyoutPosition(item, id));
   }
 
-  function onPointerEnter(event: PointerEvent, id: string, hasChildren: boolean): void {
+  function onPointerEnter(
+    event: PointerEvent,
+    id: string,
+    hasChildren: boolean,
+  ): void {
     if (
       !isFlyoutMode ||
       !hasChildren ||
@@ -102,7 +107,9 @@
 
   function onToggleClick(event: MouseEvent, id: string): void {
     if (isFlyoutMode) {
-      const item = (event.currentTarget as HTMLElement).closest<HTMLElement>('.sm-item');
+      const item = (event.currentTarget as HTMLElement).closest<HTMLElement>(
+        '.sm-item',
+      );
 
       if (sidebar.floatingId === id) {
         sidebar.closeFloating();
@@ -119,7 +126,10 @@
     // once the accordion transition settles.
     if (sidebar.floatingId !== null) {
       sidebar.repositionFloating();
-      window.setTimeout(() => sidebar.repositionFloating(), TRANSITION_DURATION_MS);
+      window.setTimeout(
+        () => sidebar.repositionFloating(),
+        TRANSITION_DURATION_MS,
+      );
     }
   }
 
@@ -161,8 +171,7 @@
         class:sm-item--open={open}
         class:sm-item--child-active={childActive && !entry.active}
         data-level={level}
-        class:sm-item--floating-open={isFlyoutMode &&
-          sidebar.floatingId === id}
+        class:sm-item--floating-open={isFlyoutMode && sidebar.floatingId === id}
         class:sm-item--floating-up={isFlyoutMode &&
           sidebar.floatingLayout[id]?.up}
         onpointerenter={(event) => onPointerEnter(event, id, hasChildren)}
@@ -229,6 +238,8 @@
   {/each}
 
   {#if level === 1 && sidebar.searching && visibleEntries.length === 0}
-    <li class="sidebar-search-empty" role="status">Tidak ada menu yang cocok.</li>
+    <li class="sidebar-search-empty" role="status">
+      Tidak ada menu yang cocok.
+    </li>
   {/if}
 </ul>

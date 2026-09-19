@@ -34,7 +34,9 @@
   aria-labelledby="adminNotificationOffcanvasLabel"
 >
   <div class="offcanvas-header border-bottom">
-    <h5 class="offcanvas-title" id="adminNotificationOffcanvasLabel">Notifikasi</h5>
+    <h5 class="offcanvas-title" id="adminNotificationOffcanvasLabel">
+      Notifikasi
+    </h5>
     <button
       type="button"
       class="btn-close"

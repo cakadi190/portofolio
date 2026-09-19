@@ -1,11 +1,12 @@
 <script lang="ts">
   import SimpleBar from 'simplebar';
   import 'simplebar/dist/simplebar.css';
-  import { Link, router } from '@inertiajs/svelte';
+  import { Link } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
   import PanelLeftClose from '@lucide/svelte/icons/panel-left-close';
   import Search from '@lucide/svelte/icons/search';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
+  import LogoutAction from '@/components/logout-action.svelte';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import AdminSidebarMenu from './admin-sidebar-menu.svelte';
   import {
@@ -109,11 +110,6 @@
       },
     };
   }
-
-  function logout(event: Event): void {
-    event.preventDefault();
-    router.post(logoutHref);
-  }
 </script>
 
 <aside
@@ -180,14 +176,13 @@
           <p class="userinfo-detail-email">{userEmail ?? ''}</p>
         </div>
         <div class="ms-auto">
-          <button
-            type="button"
+          <LogoutAction
+            href={logoutHref}
             class="btn btn-outline-light btn-square logout-actions"
             aria-label="Keluar dari akun"
-            onclick={logout}
           >
             <LogOut size={16} />
-          </button>
+          </LogoutAction>
         </div>
       </div>
     </div>
