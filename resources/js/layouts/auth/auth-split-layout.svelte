@@ -16,7 +16,11 @@
 </script>
 
 <div class="auth-layout auth-layout-split">
-  <div class="auth-panel-branding"></div>
+  <div class="auth-panel-branding">
+    <Link href="/" class="auth-panel-branding-logo">
+      <AppLogoIcon height={96} />
+    </Link>
+  </div>
   <div class="auth-panel-form">
     <div class="panel-inner">
       <div class="panel-header">
@@ -35,8 +39,7 @@
         {@render children?.()}
       </div>
       <div class="panel-footer">
-        Hak Cipta 2026 <Link href="/">CatatanCakadi</Link>. Operated under
-        <a href="https://www.batamtix.com">PT Batam Experience Indonesia</a>.
+        Hak Cipta 2026 <Link href="/">Catatan Cak Adi</Link>.
       </div>
     </div>
   </div>
@@ -71,9 +74,16 @@
         transparent 2px
       );
       background-size: 1.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       @media (width <= 768px) {
         display: none;
+      }
+
+      :global(.auth-panel-branding-logo) {
+        color: rgba(255, 255, 255, 0.95);
       }
     }
 

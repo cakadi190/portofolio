@@ -36,7 +36,7 @@
     </div>
 
     <div class="auth-layout-footer">
-      Hak Cipta 2026 <Link href="/">CatatanCakadi</Link>. Operated under
+      Hak Cipta 2026 <Link href="/">Catatan Cak Adi</Link>. Operated under
       <a href="https://www.batamtix.com">PT Batam Experience Indonesia</a>.
     </div>
   </div>

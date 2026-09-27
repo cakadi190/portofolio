@@ -16,13 +16,13 @@
   <img
     class="site-logo logo-light"
     src="/images/brands/logo-color.svg"
-    alt="Logo CatatanCakadi"
+    alt="Logo Catatan Cak Adi"
     height={height}
   />
   <img
     class="site-logo logo-dark"
     src="/images/brands/logo-white.svg"
-    alt="Logo CatatanCakadi"
+    alt="Logo Catatan Cak Adi"
     height={height}
   />
 </Link>

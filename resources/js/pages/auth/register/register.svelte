@@ -72,7 +72,7 @@
       <Field.Input.Check id="agreement" name="agreement">
         Saya setuju dengan <Link href="/policy/agreement"
           >Syarat dan Ketentuan</Link
-        > dari CatatanCakadi.
+        > dari Catatan Cak Adi.
       </Field.Input.Check>
 
       <button
