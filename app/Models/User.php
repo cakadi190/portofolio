@@ -11,8 +11,6 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -67,54 +65,8 @@ class User extends Authenticatable implements PasskeyUser
         ];
     }
 
-    /**
-     * @return HasMany<Membership, $this>
-     */
-    public function memberships(): HasMany
-    {
-        return $this->hasMany(Membership::class);
-    }
-
-    /**
-     * @return BelongsToMany<Tenant, $this>
-     */
-    public function tenants(): BelongsToMany
-    {
-        return $this->belongsToMany(Tenant::class, 'memberships', 'user_id', 'tenant_id')
-            ->withPivot(['role_id', 'invited_by', 'joined_at']);
-    }
-
-    /**
-     * @return HasMany<Transaction, $this>
-     */
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class);
-    }
-
-    /**
-     * Resolve the caller's membership for a given tenant, or the platform-level
-     * membership when `$tenant` is null.
-     */
-    public function membershipFor(?Tenant $tenant = null): ?Membership
-    {
-        return $this->memberships()
-            ->where('tenant_id', $tenant?->username)
-            ->first();
-    }
-
     public static function whereEmail(string $email): User
     {
         return self::where('email', "$email")->first();
-    }
-
-    public function roleFor(?Tenant $tenant = null): ?Role
-    {
-        return $this->membershipFor($tenant)?->role;
-    }
-
-    public function hasPermission(string $permission, ?Tenant $tenant = null): bool
-    {
-        return $this->roleFor($tenant)?->permissions->contains('slug', $permission) ?? false;
     }
 }
