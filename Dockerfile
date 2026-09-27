@@ -25,6 +25,15 @@ ARG BUN_VERSION=1.4.2
 
 FROM composer:${COMPOSER_VERSION} AS composer-bin
 
+# Taken from the official Bun image rather than the install script, so the
+# version is pinned explicitly. A dedicated stage (rather than `COPY --from=
+# oven/bun:...` directly) so BuildKit classifies it as a build stage at
+# parse time using the top-level ARG default — a `--target` build that
+# doesn't reach the `assets` stage never instantiates a re-declared ARG
+# there, leaving `${BUN_VERSION}` unresolved and the external-image
+# reference invalid.
+FROM oven/bun:${BUN_VERSION}-alpine AS bun-bin
+
 
 # ---------------------------------------------------------------------------
 # base — FrankenPHP + the extensions this app needs
@@ -142,16 +151,8 @@ FROM frontend-base AS assets
 
 ARG UID=1000
 ARG GID=1000
-# Redeclared with its default (rather than bare `ARG BUN_VERSION`) because a
-# `--target` build that doesn't reach this stage still needs to classify the
-# COPY --from below as an external image, and that classification pass does
-# not reliably inherit the top-level default for stages outside the target's
-# dependency chain — leaving BUN_VERSION empty and the reference invalid.
-ARG BUN_VERSION=1.4.2
 
-# Taken from the official Bun image rather than the install script, so the
-# version is pinned explicitly.
-COPY --from=oven/bun:${BUN_VERSION}-alpine /usr/local/bin/bun /usr/local/bin/bun
+COPY --from=bun-bin /usr/local/bin/bun /usr/local/bin/bun
 RUN apk add --no-cache libstdc++ libgcc
 RUN ln -s /usr/local/bin/bun /usr/local/bin/bunx && bun --version
 
