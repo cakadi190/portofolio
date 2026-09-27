@@ -129,6 +129,39 @@ app_port="$(port_for "$new_color")"
 echo "==> Current active color: $current_color"
 echo "==> Deploying new color:  $new_color (app=$app_port)"
 
+# .env is scp'd fresh from the Jenkins "catatancakadi-env" secret on every
+# deploy, which can silently reset APP_KEY to empty if that secret was never
+# populated. APP_KEY must not be regenerated on every deploy though: blue and
+# green share this .env, so a new random key on every run would invalidate
+# every encrypted session/cookie on each colour flip. Instead, persist the
+# key separately in $APP_KEY_FILE — outside anything Jenkins overwrites —
+# and use it to backfill .env whenever the incoming .env has none.
+APP_KEY_FILE="$DEPLOY_PATH/.app_key"
+current_key="$(grep -E '^APP_KEY=' .env 2>/dev/null | cut -d= -f2-)"
+
+if [ -z "$current_key" ]; then
+  if [ -s "$APP_KEY_FILE" ]; then
+    echo "==> APP_KEY missing from .env — restoring the persisted key from $APP_KEY_FILE."
+    current_key="$(cat "$APP_KEY_FILE")"
+  else
+    echo "==> APP_KEY missing from .env and no persisted key found — generating one."
+    current_key="base64:$(openssl rand -base64 32)"
+  fi
+
+  if grep -qE '^APP_KEY=' .env 2>/dev/null; then
+    sed -i -E "s#^APP_KEY=.*#APP_KEY=${current_key}#" .env
+  else
+    printf 'APP_KEY=%s\n' "$current_key" >> .env
+  fi
+fi
+
+# Keep the persisted copy in sync so a future deploy can recover even if the
+# Jenkins secret stays empty. Not a substitute for fixing that secret —
+# rotate it there too (see app:rotate-app-key) so it isn't reset on the next
+# deploy that DOES carry a (stale) key.
+printf '%s' "$current_key" > "$APP_KEY_FILE"
+chmod 600 "$APP_KEY_FILE"
+
 # docker-compose.prod.yml declares this network external (fixed IPs require a
 # user-defined network, unlike the default "bridge") — create it here so a
 # fresh host doesn't need a manual one-time step remembered before the first
