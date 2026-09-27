@@ -24,10 +24,25 @@
 #      today.
 #   4. Only after step 2 is confirmed working should lombacv's own containers
 #      be stopped/decommissioned — that is out of scope for this script.
+#
+# ---------------------------------------------------------------------------
+# Subcommands (usage: deploy-bluegreen.sh <deploy_path> <deploy|rotate|rollback>)
+# ---------------------------------------------------------------------------
+#   deploy   — bring up the currently INACTIVE colour and health-check it.
+#              Does NOT touch Nginx and does NOT stop the old colour, so the
+#              live site is untouched while Jenkins runs its smoke test
+#              against the new colour's port directly.
+#   rotate   — flip Nginx to the colour "deploy" just brought up (only if
+#              already Nginx-managed, see above), then stop the old colour.
+#              Run this only after the smoke test passes.
+#   rollback — smoke test failed: stop/remove the new colour, leave the old
+#              (still-live) colour untouched, and clear the pending state.
 set -euo pipefail
 
-DEPLOY_PATH="${1:?usage: deploy-bluegreen.sh <deploy_path>}"
+DEPLOY_PATH="${1:?usage: deploy-bluegreen.sh <deploy_path> <deploy|rotate|rollback>}"
+ACTION="${2:?usage: deploy-bluegreen.sh <deploy_path> <deploy|rotate|rollback>}"
 STATE_FILE="$DEPLOY_PATH/.active_color"
+PENDING_FILE="$DEPLOY_PATH/.pending_color"
 NGINX_MANAGED_MARKER="$DEPLOY_PATH/.nginx_managed"
 NGINX_SITE_FILE="${NGINX_SITE_FILE:-/etc/nginx/sites-available/cakadi.web.id}"
 COMPOSE_FILE="docker-compose.prod.yml"
@@ -41,16 +56,75 @@ if [ -f "$STATE_FILE" ]; then
   current_color="$(cat "$STATE_FILE")"
 fi
 
+port_for() {
+  case "$1" in
+    blue)  echo 5020 ;;
+    green) echo 5021 ;;
+  esac
+}
+
+case "$ACTION" in
+  deploy)
+    ;;
+  rotate|rollback)
+    if [ ! -f "$PENDING_FILE" ]; then
+      echo "!! No pending deploy found ($PENDING_FILE missing) — run 'deploy' first." >&2
+      exit 1
+    fi
+    new_color="$(cat "$PENDING_FILE")"
+    app_port="$(port_for "$new_color")"
+    ;;
+  *)
+    echo "!! Unknown action '$ACTION' (expected deploy|rotate|rollback)" >&2
+    exit 1
+    ;;
+esac
+
+if [ "$ACTION" = "rollback" ]; then
+  echo "==> Rolling back failed deploy of $new_color."
+  docker compose -f "$COMPOSE_FILE" stop -t 0 "catatancakadi-$new_color" 2>/dev/null || true
+  docker compose -f "$COMPOSE_FILE" rm -f "catatancakadi-$new_color" 2>/dev/null || true
+  rm -f "$PENDING_FILE"
+  echo "==> Rollback complete. Active color remains: $current_color"
+  exit 0
+fi
+
+if [ "$ACTION" = "rotate" ]; then
+  if [ -f "$NGINX_MANAGED_MARKER" ]; then
+    if [ -f "$NGINX_SITE_FILE" ]; then
+      echo "==> Updating Nginx port to $app_port ($new_color)."
+      sed -i -E "s#(proxy_pass http://127\.0\.0\.1:)[0-9]+;#\1${app_port};#" "$NGINX_SITE_FILE"
+      nginx -t
+      systemctl reload nginx
+    else
+      echo "!! ${NGINX_MANAGED_MARKER} exists but ${NGINX_SITE_FILE} is missing — skipping Nginx flip." >&2
+    fi
+  else
+    echo "==> ${NGINX_MANAGED_MARKER} not present — this app does not own the shared Nginx vhost yet."
+    echo "    See the header of this script for the one-time cutover steps."
+  fi
+
+  echo "$new_color" > "$STATE_FILE"
+  rm -f "$PENDING_FILE"
+
+  echo "==> Force-stopping old color: $current_color"
+  old_container="catatancakadi-$current_color"
+  if [ -n "$(docker compose -f "$COMPOSE_FILE" ps -q "$old_container" 2>/dev/null)" ]; then
+    docker compose -f "$COMPOSE_FILE" stop -t 0 "$old_container"
+    docker compose -f "$COMPOSE_FILE" rm -f "$old_container"
+  fi
+
+  echo "==> Rotation complete. Active color is now: $new_color"
+  exit 0
+fi
+
+# ACTION = deploy
 if [ "$current_color" = "blue" ]; then
   new_color="green"
 else
   new_color="blue"
 fi
-
-case "$new_color" in
-  blue)  app_port=5020 ;;
-  green) app_port=5021 ;;
-esac
+app_port="$(port_for "$new_color")"
 
 echo "==> Current active color: $current_color"
 echo "==> Deploying new color:  $new_color (app=$app_port)"
@@ -95,29 +169,13 @@ if [ "$healthy" -ne 1 ]; then
 fi
 
 echo "==> $new_color is healthy."
+echo "$new_color" > "$PENDING_FILE"
 
-if [ -f "$NGINX_MANAGED_MARKER" ]; then
-  if [ -f "$NGINX_SITE_FILE" ]; then
-    echo "==> Updating Nginx port."
-    sed -i -E "s#(proxy_pass http://127\.0\.0\.1:)[0-9]+;#\1${app_port};#" "$NGINX_SITE_FILE"
-    nginx -t
-    systemctl reload nginx
-  else
-    echo "!! ${NGINX_MANAGED_MARKER} exists but ${NGINX_SITE_FILE} is missing — skipping Nginx flip." >&2
-  fi
-else
-  echo "==> ${NGINX_MANAGED_MARKER} not present — this app does not own the shared Nginx vhost yet."
-  echo "    Test the new color directly: curl -fsS http://127.0.0.1:${app_port}/up"
+if [ ! -f "$NGINX_MANAGED_MARKER" ]; then
+  echo "    ${NGINX_MANAGED_MARKER} not present — this app does not own the shared Nginx vhost yet."
   echo "    See the header of this script for the one-time cutover steps."
 fi
 
-echo "$new_color" > "$STATE_FILE"
-
-echo "==> Force-stopping old color: $current_color"
-old_container="catatancakadi-$current_color"
-if [ -n "$(docker compose -f "$COMPOSE_FILE" ps -q "$old_container" 2>/dev/null)" ]; then
-  docker compose -f "$COMPOSE_FILE" stop -t 0 "$old_container"
-  docker compose -f "$COMPOSE_FILE" rm -f "$old_container"
-fi
-
-echo "==> Deployment complete. Active color is now: $new_color"
+echo "==> Deploy complete. $new_color is up on port ${app_port}, old color ($current_color) still live."
+echo "    Smoke-test http://127.0.0.1:${app_port}/ , then run: $0 $DEPLOY_PATH rotate"
+echo "    (or: $0 $DEPLOY_PATH rollback  if the smoke test fails)"

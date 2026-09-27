@@ -23,6 +23,20 @@
 //                              (APP_KEY, DB_*, MAIL_*, socialite secrets...).
 //                              MUST BE CREATED.
 
+void withDeploySsh(Closure body) {
+  withCredentials([
+    sshUserPrivateKey(credentialsId: env.DEPLOY_SSH_CRED_ID, keyFileVariable: 'SSH_KEY')
+  ]) {
+    body()
+  }
+}
+
+// Shared SSH options, redeclared inside each sh block since Jenkins sh steps
+// don't share shell state with each other.
+String sshOptsSnippet() {
+  return 'SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 -o ConnectionAttempts=3 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -i "$SSH_KEY")'
+}
+
 void deployImage() {
   withCredentials([
     file(credentialsId: env.ENV_FILE_CRED_ID, variable: 'ENV_FILE'),
@@ -31,7 +45,7 @@ void deployImage() {
     sh """#!/usr/bin/env bash
       set -euo pipefail
 
-      SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 -o ConnectionAttempts=3 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -i "\$SSH_KEY")
+      ${sshOptsSnippet()}
 
       scp_retry() {
         local src="\$1" dest="\$2" attempt delay
@@ -64,10 +78,64 @@ void deployImage() {
         cd ${DEPLOY_PATH}
         gunzip -c ${IMAGE_ARCHIVE} | docker load
         chmod +x deploy-bluegreen.sh
-        ./deploy-bluegreen.sh ${DEPLOY_PATH}
+        ./deploy-bluegreen.sh ${DEPLOY_PATH} deploy
         rm -f ${IMAGE_ARCHIVE}
         docker image prune -f
       '
+    """
+  }
+}
+
+// Curls the newly deployed (not-yet-live) colour directly on its port, on
+// the deploy host itself — that port isn't reachable from the Jenkins agent,
+// only from 127.0.0.1 on the server. Reads which colour/port is pending from
+// the state deploy-bluegreen.sh left behind in DEPLOY_PATH/.pending_color.
+void smokeTest() {
+  withDeploySsh {
+    sh """#!/usr/bin/env bash
+      set -euo pipefail
+
+      ${sshOptsSnippet()}
+
+      ssh "\${SSH_OPTS[@]}" ${DEPLOY_HOST} bash -s <<'REMOTE'
+        set -euo pipefail
+        cd ${DEPLOY_PATH}
+
+        color="\$(cat .pending_color)"
+        case "\$color" in
+          blue)  port=5020 ;;
+          green) port=5021 ;;
+          *) echo "!! Unknown pending color: \$color" >&2; exit 1 ;;
+        esac
+
+        echo "==> Smoke-testing \$color on port \$port"
+        curl -fsS "http://127.0.0.1:\${port}/up"
+        curl -fsS -o /dev/null -w '%{http_code}' "http://127.0.0.1:\${port}/login" | grep -qE '^(200|302)\$'
+REMOTE
+    """
+  }
+}
+
+void rotate() {
+  withDeploySsh {
+    sh """#!/usr/bin/env bash
+      set -euo pipefail
+
+      ${sshOptsSnippet()}
+
+      ssh "\${SSH_OPTS[@]}" ${DEPLOY_HOST} "cd '${DEPLOY_PATH}' && ./deploy-bluegreen.sh '${DEPLOY_PATH}' rotate"
+    """
+  }
+}
+
+void rollback() {
+  withDeploySsh {
+    sh """#!/usr/bin/env bash
+      set -euo pipefail
+
+      ${sshOptsSnippet()}
+
+      ssh "\${SSH_OPTS[@]}" ${DEPLOY_HOST} "cd '${DEPLOY_PATH}' && ./deploy-bluegreen.sh '${DEPLOY_PATH}' rollback"
     """
   }
 }
@@ -149,6 +217,36 @@ pipeline {
       steps {
         script {
           deployImage()
+        }
+      }
+    }
+
+    // Hits the new colour directly on its own port (still off the live
+    // vhost) before anything real sees it. A failure here rolls the new
+    // colour back and leaves the currently-live colour untouched.
+    stage('Smoke Test') {
+      when { expression { params.DEPLOY } }
+      steps {
+        script {
+          try {
+            smokeTest()
+          } catch (err) {
+            echo "Smoke test failed, rolling back the new color."
+            rollback()
+            error("Smoke test failed: ${err}")
+          }
+        }
+      }
+    }
+
+    // Only after the smoke test passes: flip Nginx to the new colour and
+    // stop the old one. See scripts/deploy-bluegreen.sh's header for the
+    // one-time manual cutover this depends on.
+    stage('Rotate') {
+      when { expression { params.DEPLOY } }
+      steps {
+        script {
+          rotate()
         }
       }
     }
