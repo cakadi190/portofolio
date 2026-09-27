@@ -20,6 +20,21 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        // Nginx terminates TLS and proxies to the app container over plain
+        // HTTP (see deploy/nginx/cakadi.web.id.conf), so without this
+        // Laravel never sees the request as secure and generates
+        // http:// asset/URL links on an https:// page — mixed content
+        // blocked by the browser. TRUSTED_PROXIES is set to "*" in
+        // docker-compose.prod.yml because only nginx can reach the
+        // container (127.0.0.1-only port publish).
+        $middleware->trustProxies(
+            at: env('TRUSTED_PROXIES', ''),
+            headers: Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

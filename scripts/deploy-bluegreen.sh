@@ -102,7 +102,11 @@ if [ "$ACTION" = "rotate" ]; then
   if [ -f "$NGINX_MANAGED_MARKER" ]; then
     if [ -f "$NGINX_SITE_FILE" ]; then
       echo "==> Updating Nginx port to $app_port ($new_color)."
-      sed -i -E "s#(proxy_pass http://127\.0\.0\.1:)[0-9]+;#\1${app_port};#" "$NGINX_SITE_FILE"
+      sed -i -E "s#(proxy_pass[[:space:]]+http://127\.0\.0\.1:)[0-9]+([[:space:]]*;)#\1${app_port}\2#" "$NGINX_SITE_FILE"
+      if ! grep -qE "proxy_pass[[:space:]]+http://127\.0\.0\.1:${app_port}[[:space:]]*;" "$NGINX_SITE_FILE"; then
+        echo "!! sed did not update proxy_pass to port ${app_port} in ${NGINX_SITE_FILE} — refusing to reload Nginx." >&2
+        exit 1
+      fi
       nginx -t
       systemctl reload nginx
     else
