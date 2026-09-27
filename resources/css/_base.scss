@@ -732,9 +732,10 @@ $base-grid-breakpoints:
 
 // =============================================================================
 // Link accessibility
-// The theme's $primary (#6610f2) still clears WCAG body-text contrast on
-// white, but underlining keeps links distinguishable without relying on
-// color alone.
+// Links render in the body color by default rather than $primary, which
+// doesn't clear WCAG body-text contrast on white at every hue this theme has
+// used — underlining keeps them distinguishable without relying on color
+// alone, and only the (transient) hover state switches to $primary.
 // =============================================================================
 a {
   color: var(--neo-body-color);

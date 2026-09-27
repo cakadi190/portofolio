@@ -1,4 +1,7 @@
-.back-to-top {
+// Scoped to `.admin-shell` — the public site has its own `.back-to-top`
+// button (components/back-to-top.svelte) sharing this class name; a bare
+// selector here would leak this white/circular admin styling onto it too.
+.admin-shell .back-to-top {
   --neo-back-to-top-bottom: 1.5rem;
 
   position: fixed;

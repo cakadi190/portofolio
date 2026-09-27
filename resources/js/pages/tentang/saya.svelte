@@ -69,14 +69,20 @@
         <div class="col-md-9">
           <div class="row gy-3 pb-5">
             <div class="col-md-4">
-              <div class="card card-body rounded-4 p-4 text-center align-items-center">
+              <div
+                class="card card-body rounded-4 p-4 text-center align-items-center reveal reveal-tween reveal-bottom"
+                style="--reveal-y: 40px; --reveal-duration: .35s"
+              >
                 <Medal size={48} />
                 <strong class="h3 mb-0 pt-3">{yearsExperience} Tahun</strong>
                 <span>Berpengalaman</span>
               </div>
             </div>
             <div class="col-md-4">
-              <div class="card card-body rounded-4 p-4 text-center align-items-center">
+              <div
+                class="card card-body rounded-4 p-4 text-center align-items-center reveal reveal-tween reveal-bottom"
+                style="--reveal-y: 40px; --reveal-duration: .35s"
+              >
                 <Handshake size={48} />
                 <strong class="h3 mb-0 pt-3">{yearsServing} Tahun</strong>
                 <span>Melayani</span>
@@ -85,7 +91,8 @@
             <div class="col-md-4">
               <Link
                 href="/portofolio"
-                class="card card-body rounded-4 p-4 text-center align-items-center text-decoration-none"
+                class="card card-body rounded-4 p-4 text-center align-items-center text-decoration-none reveal reveal-tween reveal-bottom"
+                style="--reveal-y: 40px; --reveal-duration: .35s"
               >
                 <Briefcase size={48} />
                 <strong class="h3 mb-0 pt-3">{totalProjects}</strong>
@@ -97,9 +104,14 @@
           <div class="mb-5 pb-5 border-bottom">
             <div class="row gy-4">
               <div class="col-md-5">
-                <img src="/images/programmer.svg" class="w-100" alt="Ilustrasi programmer" />
+                <img
+                  src="/images/programmer.svg"
+                  class="w-100 reveal reveal-tween reveal-left"
+                  style="--reveal-x: -40px; --reveal-duration: .35s"
+                  alt="Ilustrasi programmer"
+                />
               </div>
-              <div class="col-md-7">
+              <div class="col-md-7 reveal reveal-tween reveal-right" style="--reveal-x: 40px; --reveal-duration: .35s">
                 <p>
                   Hai, saya <strong>Amir Zuhdi Wibowo, A.Md.Kom.</strong>, seorang
                   <strong>Software Engineer</strong> dan <strong>Wirausahawan</strong> yang hobi ngulik dari
@@ -167,7 +179,10 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card sticky-top overflow-hidden rounded-4">
+          <div
+            class="card sticky-top overflow-hidden rounded-4 reveal reveal-tween reveal-bottom"
+            style="--reveal-y: 40px; --reveal-duration: .35s"
+          >
             <div class="card-header p-4">
               <h4 class="mb-0">Navigasi</h4>
             </div>

@@ -1,0 +1,125 @@
+// Reveal-on-mount animations, replacing the Nuxt app's @vueuse/motion
+// `v-motion` directive. Every `v-motion` usage there is mount-triggered (not
+// scroll/IntersectionObserver-based) since the app only used the raw
+// `:initial`/`:enter` object form, never the `v-motion-*-visible-once-*`
+// preset directives — so a play-on-mount CSS animation is an exact behavioral
+// match, not just an approximation of *when* it plays.
+//
+// Two distinct timing profiles exist in the source and are kept distinct here:
+// - `.reveal-spring`: the site-wide default (app/components/motion.ts), which
+//   never sets an explicit `transition`, so @vueuse/motion falls back to its
+//   spring physics preset. Approximated with a slight overshoot keyframe,
+//   since CSS has no native spring easing.
+// - `.reveal-tween`: pages that pass an explicit `transition: { duration }`
+//   (tentang/saya.vue, karir.vue's local variant overrides) — a plain eased
+//   tween, no overshoot.
+//
+// Distance and duration are read from `--reveal-x` / `--reveal-y` /
+// `--reveal-duration` / `--reveal-delay` so each call site can match the
+// source's own numbers (100px site-wide vs. 40px local) without duplicating
+// keyframes.
+
+@keyframes reveal-spring-x {
+  0% {
+    opacity: 0;
+    transform: translateX(var(--reveal-x));
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateX(calc(var(--reveal-x) * -0.08));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes reveal-spring-y {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--reveal-y));
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(calc(var(--reveal-y) * -0.08));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-tween-x {
+  from {
+    opacity: 0;
+    transform: translateX(var(--reveal-x));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes reveal-tween-y {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-y));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  // Faster than the source's own numbers (spring default ~0.5s, local tween
+  // 0.6s) — ported timings read as sluggish once actually clicking through
+  // the site, so both profiles were tightened here.
+  animation-duration: var(--reveal-duration, 0.3s);
+  animation-delay: var(--reveal-delay, 0s);
+  animation-fill-mode: backwards;
+}
+
+.reveal-spring {
+  animation-timing-function: linear;
+
+  &.reveal-left,
+  &.reveal-right {
+    animation-name: reveal-spring-x;
+  }
+
+  &.reveal-bottom {
+    animation-name: reveal-spring-y;
+  }
+}
+
+.reveal-tween {
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.reveal-left,
+  &.reveal-right {
+    animation-name: reveal-tween-x;
+  }
+
+  &.reveal-bottom {
+    animation-name: reveal-tween-y;
+  }
+}
+
+.reveal-left {
+  --reveal-x: -100px;
+}
+
+.reveal-right {
+  --reveal-x: 100px;
+}
+
+.reveal-bottom {
+  --reveal-y: 100px;
+}

@@ -32,7 +32,10 @@
     <div class="container">
       <ul class="list-group list-group-flush">
         {#each careers as exp (exp.company + exp.startDate)}
-          <li class="list-group-item py-4">
+          <li
+            class="list-group-item py-4 reveal reveal-tween reveal-bottom"
+            style="--reveal-y: 40px; --reveal-duration: .35s"
+          >
             <div class="d-flex gap-4">
               <div class="text-center align-items-start align-items-lg-center">
                 <Briefcase size={48} />

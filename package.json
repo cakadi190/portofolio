@@ -16,9 +16,9 @@
     "@inertiajs/svelte": "^3.7.1",
     "@inertiajs/vite": "^3.7.1",
     "@laravel/passkeys": "^0.4.0",
-    "@lucide/svelte": "^1.47.0",
+    "@lucide/svelte": "^1.48.0",
     "@popperjs/core": "^2.11.8",
-    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@typescript/native": "npm:typescript@^7.0.2",
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
@@ -33,12 +33,12 @@
   "devDependencies": {
     "@laravel/vite-plugin-wayfinder": "^0.1.10",
     "@types/bootstrap": "^5.2.11",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "concurrently": "^10.0.5",
-    "prettier": "^3.9.8",
+    "prettier": "^3.9.9",
     "prettier-plugin-svelte": "^4.1.1",
-    "sass": "^1.104.1",
-    "sass-embedded": "^1.104.1",
+    "sass": "^1.105.0",
+    "sass-embedded": "^1.105.0",
     "svelte-check": "^4.7.6",
     "svelte-preprocess": "^6.0.5",
     "typescript": "~7.0.2",
@@ -46,7 +46,7 @@
     "vite-plus": "0.3.3"
   },
   "optionalDependencies": {
-    "@laravel/multiplex": "^0.4.3",
+    "@laravel/multiplex": "^0.4.4",
     "@rollup/rollup-linux-x64-gnu": "4.63.4",
     "@rollup/rollup-win32-x64-msvc": "4.63.4"
   }

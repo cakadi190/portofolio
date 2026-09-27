@@ -1,0 +1,38 @@
+# Reproducible from lockfiles inside the image — never trust the agent's copy.
+/vendor
+/node_modules
+/public/build
+/public/hot
+
+# Runtime state; the image recreates these directories empty (see Dockerfile).
+/storage/app/*
+!/storage/app/.gitignore
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+# Secrets and local env — never baked into the image.
+.env
+.env.*
+!.env.example
+.env.encrypted
+
+# Deploy-host-only artifacts; irrelevant inside the PHP image.
+Jenkinsfile
+docker-compose*.yml
+deploy/
+scripts/
+workers/
+
+.git
+.github
+.idea
+.vscode
+.agents
+.claude
+.cursor
+.ai
+*.md

@@ -1,0 +1,8 @@
+name = "catatancakadi-image-cache"
+main = "src/index.ts"
+compatibility_date = "2026-09-27"
+
+routes = [
+  { pattern = "www.cakadi.web.id/storage/*", zone_name = "cakadi.web.id" },
+  { pattern = "www.cakadi.web.id/images/*", zone_name = "cakadi.web.id" },
+]

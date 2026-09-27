@@ -34,7 +34,7 @@
   <div class="container">
     <div class="row gy-4">
       <div class="col-md-7 text-center text-lg-start">
-        <div class="breaking-news reveal reveal-left">
+        <div class="breaking-news reveal reveal-spring reveal-left">
           Website ini mendapatkan penghargaan 🏆
           <a
             href="https://www.instagram.com/p/C6faMQ2yld-/?img_index=2"
@@ -49,13 +49,8 @@
           tahun 2024.
         </div>
 
-        <h2 class="h4 reveal reveal-left" style="animation-delay: .1s">
-          Halo rek! 👋 Perkenalkan, Namaku...
-        </h2>
-        <h1
-          class="main-title justify-content-center justify-content-lg-start reveal reveal-left"
-          style="animation-delay: .2s"
-        >
+        <h2 class="h4 reveal reveal-spring reveal-left">Halo rek! 👋 Perkenalkan, Namaku...</h2>
+        <h1 class="main-title justify-content-center justify-content-lg-start reveal reveal-spring reveal-left">
           <div>
             <span class="text-primary text-decoration-underline">A</span>
             <span>mir&nbsp;</span>
@@ -64,15 +59,14 @@
           </div>
           <span>Wibowo, A.Md.Kom.</span>
         </h1>
-        <p class="mb-4 main-desc reveal reveal-left" style="animation-delay: .3s">
+        <p class="mb-4 main-desc reveal reveal-spring reveal-left">
           Seorang <strong>Software Engineer</strong> dan <strong>Wirausahawan</strong> yang berbasis
           di Kabupaten Ngawi yang suka sekali dengan desain dan juga hal yang berbau
           <strong>teknologi</strong>.
         </p>
 
         <div
-          class="d-flex pb-2 gap-2 justify-content-center justify-content-lg-start align-items-center reveal reveal-left"
-          style="animation-delay: .4s"
+          class="d-flex pb-2 gap-2 justify-content-center justify-content-lg-start align-items-center reveal reveal-spring reveal-left"
         >
           <Link href="/kontak" class="btn btn-primary d-flex align-items-center gap-2">
             <Icon icon="fa6-solid:phone" />
@@ -90,7 +84,7 @@
           </a>
         </div>
 
-        <div class="d-flex pt-4 flex-column gap-2 reveal reveal-left" style="animation-delay: .5s">
+        <div class="d-flex pt-4 flex-column gap-2 reveal reveal-spring reveal-left">
           <h5 class="text-center text-lg-start"><em>Tech Stack</em> Andalan Saya</h5>
 
           <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
@@ -112,11 +106,7 @@
         </div>
       </div>
       <div class="col-md-5">
-        <img
-          src="/images/fotoku.webp"
-          alt="Cak Adi"
-          class="w-100 reveal reveal-right"
-        />
+        <img src="/images/fotoku.webp" alt="Cak Adi" class="w-100 reveal reveal-spring reveal-right" />
       </div>
     </div>
   </div>

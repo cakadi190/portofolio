@@ -15,8 +15,8 @@ class AboutController extends Controller
     public function me(): Response
     {
         return Inertia::render('tentang/saya', [
-            'yearsExperience' => Carbon::parse('2015-03-17')->diffInYears(now()),
-            'yearsServing' => Carbon::parse('2019-05-20')->diffInYears(now()),
+            'yearsExperience' => (int) ceil(Carbon::parse('2015-03-17')->diffInYears(now())),
+            'yearsServing' => (int) ceil(Carbon::parse('2019-05-20')->diffInYears(now())),
             'totalProjects' => Portfolio::query()->count(),
         ]);
     }

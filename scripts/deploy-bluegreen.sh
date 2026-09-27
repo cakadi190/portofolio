@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# Blue/Green deployment for catatancakadi (Laravel).
+#
+# Runs on the deploy host, inside DEPLOY_PATH (where docker-compose.prod.yml
+# and .env live). Deploys the newly loaded image to the currently INACTIVE
+# colour, health-checks it, stops the old colour, and — ONLY once this app
+# already owns the shared Nginx vhost — flips Nginx to the new colour's port.
+#
+# cakadi.web.id is currently served by a DIFFERENT app: the Nuxt "lombacv" CV
+# site (~/projects/nodejs/catatancakadi), deployed from /www/lombacv on this
+# same host. This script never touches that site's Nginx file on its own —
+# the cutover is a deliberate one-time manual step:
+#
+#   1. Run this script (via the Jenkins pipeline, or by hand) once. With no
+#      .nginx_managed marker yet, it brings ONE colour up and stops there —
+#      it does NOT touch Nginx. cat "$DEPLOY_PATH/.active_color" to see which
+#      one (the very first run picks green/5021, not blue/5020 — see the
+#      current_color/new_color logic below), then confirm it works:
+#        curl -fsS http://127.0.0.1:<5020-or-5021>/up
+#   2. Manually install deploy/nginx/cakadi.web.id.conf, edit its proxy_pass
+#      to match the port from step 1, and confirm the live site in a browser.
+#   3. touch "$DEPLOY_PATH/.nginx_managed" — from then on this script also
+#      flips Nginx automatically on every deploy, same as it does for lombacv
+#      today.
+#   4. Only after step 2 is confirmed working should lombacv's own containers
+#      be stopped/decommissioned — that is out of scope for this script.
+set -euo pipefail
+
+DEPLOY_PATH="${1:?usage: deploy-bluegreen.sh <deploy_path>}"
+STATE_FILE="$DEPLOY_PATH/.active_color"
+NGINX_MANAGED_MARKER="$DEPLOY_PATH/.nginx_managed"
+NGINX_SITE_FILE="${NGINX_SITE_FILE:-/etc/nginx/sites-available/cakadi.web.id}"
+COMPOSE_FILE="docker-compose.prod.yml"
+HEALTH_RETRIES=30
+HEALTH_INTERVAL=2
+
+cd "$DEPLOY_PATH"
+
+current_color="blue"
+if [ -f "$STATE_FILE" ]; then
+  current_color="$(cat "$STATE_FILE")"
+fi
+
+if [ "$current_color" = "blue" ]; then
+  new_color="green"
+else
+  new_color="blue"
+fi
+
+case "$new_color" in
+  blue)  app_port=5020 ;;
+  green) app_port=5021 ;;
+esac
+
+echo "==> Current active color: $current_color"
+echo "==> Deploying new color:  $new_color (app=$app_port)"
+
+# docker-compose.prod.yml declares this network external (fixed IPs require a
+# user-defined network, unlike the default "bridge") — create it here so a
+# fresh host doesn't need a manual one-time step remembered before the first
+# deploy. Must not overlap lombacv-net (172.21.0.0/16) or mongo-net
+# (172.20.0.0/24) — check `docker network ls` if this ever needs to change.
+docker network inspect catatancakadi-net >/dev/null 2>&1 || \
+  docker network create catatancakadi-net --subnet 172.22.0.0/16
+
+# Uploads must survive both the container and the colour switch. Owned by
+# 1000:1000 to match the container's unprivileged user (the Dockerfile's
+# default UID/GID) — Docker would otherwise create these root-owned on first
+# run (this script runs as root over SSH), and the container user could never
+# write to them.
+mkdir -p storage/app storage/logs
+chown -R 1000:1000 storage/app storage/logs
+
+docker compose -f "$COMPOSE_FILE" --profile "$new_color" up -d --force-recreate
+
+echo "==> Waiting for $new_color to become healthy..."
+healthy=0
+for _ in $(seq 1 "$HEALTH_RETRIES"); do
+  if curl -fsS "http://127.0.0.1:${app_port}/up" >/dev/null 2>&1; then
+    healthy=1
+    break
+  fi
+  sleep "$HEALTH_INTERVAL"
+done
+
+if [ "$healthy" -ne 1 ]; then
+  echo "!! Health check failed for $new_color, rolling back deploy." >&2
+  docker compose -f "$COMPOSE_FILE" --profile "$new_color" logs --tail=100 || true
+  docker compose -f "$COMPOSE_FILE" stop "catatancakadi-$new_color"
+  docker compose -f "$COMPOSE_FILE" rm -f "catatancakadi-$new_color"
+  exit 1
+fi
+
+echo "==> $new_color is healthy."
+
+if [ -f "$NGINX_MANAGED_MARKER" ]; then
+  if [ -f "$NGINX_SITE_FILE" ]; then
+    echo "==> Updating Nginx port."
+    sed -i -E "s#(proxy_pass http://127\.0\.0\.1:)[0-9]+;#\1${app_port};#" "$NGINX_SITE_FILE"
+    nginx -t
+    systemctl reload nginx
+  else
+    echo "!! ${NGINX_MANAGED_MARKER} exists but ${NGINX_SITE_FILE} is missing — skipping Nginx flip." >&2
+  fi
+else
+  echo "==> ${NGINX_MANAGED_MARKER} not present — this app does not own the shared Nginx vhost yet."
+  echo "    Test the new color directly: curl -fsS http://127.0.0.1:${app_port}/up"
+  echo "    See the header of this script for the one-time cutover steps."
+fi
+
+echo "$new_color" > "$STATE_FILE"
+
+echo "==> Force-stopping old color: $current_color"
+old_container="catatancakadi-$current_color"
+if [ -n "$(docker compose -f "$COMPOSE_FILE" ps -q "$old_container" 2>/dev/null)" ]; then
+  docker compose -f "$COMPOSE_FILE" stop -t 0 "$old_container"
+  docker compose -f "$COMPOSE_FILE" rm -f "$old_container"
+fi
+
+echo "==> Deployment complete. Active color is now: $new_color"

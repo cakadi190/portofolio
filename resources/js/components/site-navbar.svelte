@@ -20,7 +20,7 @@
     function onScroll(): void {
       const scrolled = window.scrollY >= 50;
 
-      navbar?.classList.toggle('bg-body', scrolled);
+      navbar?.classList.toggle('bg-body-rgb', scrolled);
       navbar?.classList.toggle('border-bottom', scrolled);
 
       if (scrolled) {

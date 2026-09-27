@@ -7,7 +7,7 @@
   $prefix: neo-,
 
   $font-family-sans-serif: (
-    'Hanken Grotesk',
+    'Signika',
     ui-sans-serif,
     system-ui,
     sans-serif,
@@ -17,7 +17,7 @@
     'Noto Color Emoji',
   ),
   $headings-font-family: (
-    'Plus Jakarta Sans',
+    'Signika',
     ui-sans-serif,
     system-ui,
     sans-serif,
@@ -57,10 +57,10 @@
   $orange: #fe6133,
   $yellow: #ff9f1c,
   $green: #02b875,
-  $teal: #20c997,
+  $teal: #22c55e,
   $cyan: #00a3ff,
 
-  $primary: #6610f2,
+  $primary: #22c55e,
   $secondary: #95a4b8,
   $success: #02b875,
   $info: #00a3ff,
@@ -68,6 +68,12 @@
   $danger: #ff3838,
   $light: #f3f5f8,
   $dark: #090e18,
+
+  // Bootstrap's own dark-mode default (`$body-bg-dark: $gray-900`) would
+  // otherwise use this app's custom, fairly light navy $gray-900 (#1e2b41)
+  // as the dark-theme page background — nowhere near the near-black
+  // (`#010016`) the catatancakadi Nuxt source actually renders in dark mode.
+  $body-bg-dark: #090e18,
 
   $min-contrast-ratio: 1.85,
 

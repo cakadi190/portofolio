@@ -67,7 +67,7 @@
           {#if activeTab === 'education'}
             <div class="list-group list-group-flush">
               {#each educations as item (item.name + item.startDate)}
-                <div class="list-group-item py-4">
+                <div class="list-group-item py-4 reveal reveal-spring reveal-bottom">
                   <div class="row align-items-start align-items-md-center">
                     <div class="col-4 col-md-3">
                       <div class="bg-white rounded-circle p-3">
@@ -129,7 +129,7 @@
           {:else}
             <ul class="list-group list-group-flush">
               {#each organizations as org (org.name + org.startDate)}
-                <li class="list-group-item d-flex flex-column gap-3 py-4">
+                <li class="list-group-item d-flex flex-column gap-3 py-4 reveal reveal-spring reveal-bottom">
                   <div class="d-flex gap-3 align-items-start align-items-md-center">
                     <CircleCheck size={48} />
                     <div class="content">
@@ -148,7 +148,7 @@
           {/if}
         </div>
         <div class="col-md-4">
-          <div class="card sticky-top overflow-hidden rounded-4">
+          <div class="card sticky-top overflow-hidden rounded-4 reveal reveal-spring reveal-bottom">
             <div class="card-header p-4">
               <h4 class="mb-0">Navigasi</h4>
             </div>

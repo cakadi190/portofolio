@@ -8,6 +8,16 @@
   }
 }
 
+// Translucent body-bg the navbar's scroll listener toggles on past 50px
+// (site-navbar.svelte), ported as-is from the Nuxt app's `_base.scss` —
+// Bootstrap has no built-in class for a body-bg tint at a custom opacity.
+.bg-body-rgb {
+  background-color: rgba(
+    var(--neo-body-bg-rgb),
+    var(--neo-bg-opacity)
+  ) !important;
+}
+
 // Default (light mode): hide the dark-mode wordmark. Bootstrap's dark theme
 // flips this so the white wordmark shows against the dark navbar/offcanvas.
 .logo-dark {

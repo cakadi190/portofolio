@@ -1,0 +1,97 @@
+# CatatanCakadi — production stack (one colour of a blue/green pair).
+#
+# Adapted from the lombacv pattern (~/projects/nodejs/catatancakadi), which is
+# already proven on this exact host (103.235.72.17). No registry: the image
+# arrives via `docker save | gzip` + `scp` + `docker load` (see Jenkinsfile).
+#
+# Brought up twice under two profiles so blue and green can run side by side
+# during a flip — see scripts/deploy-bluegreen.sh, which is the only thing
+# that invokes this file on the server.
+#
+# cakadi.web.id is currently served by a DIFFERENT app (the Nuxt "lombacv" CV
+# site, deployed from /www/lombacv on this same host). This app deploys to
+# its own path (/www/catatancakadi) and its own ports (5020/5021) so it can
+# run and be verified independently before the shared Nginx vhost is cut over
+# to it by hand — see the header of deploy-bluegreen.sh for that one-time step.
+#
+# The database is a native MySQL server on the host, not a container here —
+# reached through host.docker.internal, same as lombacv reaches its native
+# Postgres/Redis. MySQL must accept connections from the Docker bridge
+# gateway (172.22.0.1 with the subnet created below), not loopback only.
+
+name: catatancakadi
+
+x-app-common: &app-common
+  image: catatancakadi:latest
+  init: true
+  restart: unless-stopped
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  env_file:
+    - .env
+  environment:
+    APP_ENV: production
+    APP_DEBUG: "false"
+    # Overrides whatever DB_HOST the .env file has: 127.0.0.1 inside this
+    # container is the container itself, not the host's MySQL.
+    DB_HOST: host.docker.internal
+    # nginx is the only thing that can reach this container (it is only
+    # published on 127.0.0.1), so trusting the forwarding headers it sets is
+    # contained to that.
+    TRUSTED_PROXIES: "*"
+  # Host RAM is shared with other apps on this VPS (see lombacv's README) —
+  # keep this modest and tune it with `docker stats` after the first deploy.
+  mem_limit: 320m
+  mem_reservation: 160m
+  # Long enough for an in-flight request to finish; there are no queue
+  # workers or WebSockets here to drain.
+  stop_grace_period: 15s
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+  healthcheck:
+    test: ["CMD", "curl", "-fsS", "http://localhost:8000/up"]
+    interval: 10s
+    timeout: 5s
+    retries: 12
+    start_period: 20s
+
+networks:
+  # `docker network create catatancakadi-net --subnet 172.22.0.0/16` — done
+  # automatically by deploy-bluegreen.sh if missing. Fixed IPs need a
+  # user-defined network (the default "bridge" network doesn't allow them).
+  # Check `docker network ls` on the host first: lombacv already uses
+  # 172.21.0.0/16 and mongo-net uses 172.20.0.0/24 — 172.22.0.0/16 must not
+  # collide with vettrak's network either.
+  default:
+    name: catatancakadi-net
+    external: true
+
+services:
+  catatancakadi-blue:
+    <<: *app-common
+    container_name: catatancakadi-blue
+    profiles: ["blue"]
+    networks:
+      default:
+        ipv4_address: 172.22.0.5
+    ports:
+      - "127.0.0.1:5020:8000"
+    volumes:
+      - ./storage/app:/app/storage/app
+      - ./storage/logs:/app/storage/logs
+
+  catatancakadi-green:
+    <<: *app-common
+    container_name: catatancakadi-green
+    profiles: ["green"]
+    networks:
+      default:
+        ipv4_address: 172.22.0.8
+    ports:
+      - "127.0.0.1:5021:8000"
+    volumes:
+      - ./storage/app:/app/storage/app
+      - ./storage/logs:/app/storage/logs

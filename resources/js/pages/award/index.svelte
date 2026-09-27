@@ -38,7 +38,7 @@
     <div class="container">
       <ul class="list-group list-group-flush">
         {#each awards as award (award.eventName + award.title)}
-          <li class="list-group-item py-4">
+          <li class="list-group-item py-4 reveal reveal-spring reveal-bottom">
             <div class="d-flex gap-3 align-items-start align-items-lg-center">
               <div class="text-center align-items-start align-items-lg-center">
                 <Icon

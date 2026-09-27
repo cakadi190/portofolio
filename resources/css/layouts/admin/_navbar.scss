@@ -1,4 +1,9 @@
-.navbar {
+// Scoped to `.admin-shell` — a bare `.navbar` selector here would otherwise
+// also match the public site's navbar (site-navbar.svelte shares the same
+// Bootstrap `.navbar` class) and force it to this fixed white background
+// regardless of `data-bs-theme`, which is exactly what happened before this
+// was scoped: the public navbar rendered opaque white in dark mode.
+.admin-shell .navbar {
   padding: 1rem;
   align-items: center;
   min-height: 68px;

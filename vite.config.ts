@@ -21,11 +21,8 @@ export default defineConfig({
           input: ['resources/css/app.scss', 'resources/js/app.ts'],
           refresh: true,
           fonts: [
-            bunny('Plus Jakarta Sans', {
+            bunny('Signika', {
               weights: [400, 500, 600, 700],
-            }),
-            bunny('Hanken Grotesk', {
-              weights: [400, 500, 600],
             }),
             bunny('Roboto Slab', {
               weights: [400, 500, 600],
