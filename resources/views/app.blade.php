@@ -31,6 +31,22 @@
             } catch (error) {}
         </script>
 
+        {{--
+            Anti-FOUC boot script for the light/dark theme: sets `data-bs-theme`
+            on <html> before first paint, so the page never flashes light and
+            then snaps to dark once the JS bundle boots. theme-toggler.svelte
+            (resources/js/components/theme-toggler.svelte) keeps this in sync
+            at runtime — the storage key must match THEME_STORAGE_KEY in
+            resources/js/lib/theme.ts.
+        --}}
+        <script>
+            try {
+                var storedTheme = window.localStorage.getItem('catatancakadi:theme');
+                var theme = storedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-bs-theme', theme);
+            } catch (error) {}
+        </script>
+
         @vite(['resources/css/app.scss', 'resources/js/app.ts'])
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>

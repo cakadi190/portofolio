@@ -23,5 +23,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(SystemSettingSeeder::class);
+        $this->call(CareerSeeder::class);
+        $this->call(EducationSeeder::class);
+        $this->call(OrganizationSeeder::class);
+        $this->call(AwardSeeder::class);
     }
 }

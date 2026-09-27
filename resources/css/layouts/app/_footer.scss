@@ -1,0 +1,30 @@
+.site-footer {
+  .social-link {
+    color: var(--neo-body-color);
+    transition:
+      color 0.2s,
+      transform 0.2s;
+
+    &:hover {
+      color: var(--neo-primary);
+      transform: translateY(-2px);
+    }
+  }
+
+  .list-unstyled {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0;
+
+    a {
+      text-decoration: none;
+      color: var(--neo-body-color);
+      opacity: 0.75;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}

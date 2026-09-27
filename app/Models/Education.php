@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Education extends Model
 {
+    /** Eloquent's pluralizer treats "education" as uncountable and would otherwise guess "education". */
+    protected $table = 'educations';
+
     protected $fillable = [
         'name', 'logo', 'website', 'level', 'grade', 'department', 'study_program',
         'start_date', 'end_date', 'place', 'academic_score_type', 'academic_score_label',

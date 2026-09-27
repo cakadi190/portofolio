@@ -1,0 +1,30 @@
+// Public site chrome (navbar, footer, back-to-top) and marketing/content page
+// sections, ported from the catatancakadi Nuxt app's `default` layout and
+// page partials. Every `--bs-*` custom property from the source becomes
+// `--neo-*` here (app.scss sets Bootstrap's own `$prefix: neo-`).
+
+#site-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.site-footer {
+  margin-top: auto;
+}
+
+// Vertical rhythm between stacked marketing sections.
+.need-space {
+  padding-block: 5rem;
+
+  @media (width <= 768px) {
+    padding-block: 3rem;
+  }
+}
+
+@import 'navbar';
+@import 'footer';
+@import 'back-to-top';
+@import 'hero';
+@import 'cards';
+@import 'content-pages';

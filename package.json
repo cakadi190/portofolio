@@ -12,6 +12,7 @@
     "format:svelte": "prettier --write \"resources/js/**/**/*.svelte\""
   },
   "dependencies": {
+    "@iconify/svelte": "^5.2.2",
     "@inertiajs/svelte": "^3.7.1",
     "@inertiajs/vite": "^3.7.1",
     "@laravel/passkeys": "^0.4.0",

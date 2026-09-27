@@ -1,25 +1,41 @@
 <script lang="ts">
   import AppHead from '@/components/app-head.svelte';
+  import BlogHomeSection from '@/components/home/blog-home-section.svelte';
+  import ElkuslaSection from '@/components/home/elkusla-section.svelte';
+  import HeaderHome from '@/components/home/header-home.svelte';
+  import PortfolioHomeSection from '@/components/home/portfolio-home-section.svelte';
+
+  type Portfolio = {
+    name: string;
+    slug: string;
+    image: string;
+    shortDesc: string | null;
+    categories: { name: string; color: string | null }[];
+    technologies: string[];
+  };
+
+  type Post = {
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    coverImage: string | null;
+    categories: { name: string; color: string | null }[];
+    tags: string[];
+  };
+
+  let { portfolios = [], posts = [] }: { portfolios?: Portfolio[]; posts?: Post[] } = $props();
 </script>
 
-<AppHead title="Selamat Datang" />
+<AppHead title="Beranda">
+  <meta
+    name="description"
+    content="Seorang Fullstack Web Developer yang berbasis di Kabupaten Ngawi yang suka sekali dengan desain dan juga hal yang berbau teknologi."
+  />
+</AppHead>
 
-<div class="container py-5">
-  <h1>CatatanCakadi</h1>
-
-  <div class="dropdown">
-    <button
-      class="btn btn-secondary dropdown-toggle"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      Tombol dropdown
-    </button>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="#">Aksi</a></li>
-      <li><a class="dropdown-item" href="#">Aksi lainnya</a></li>
-      <li><a class="dropdown-item" href="#">Sesuatu yang lain di sini</a></li>
-    </ul>
-  </div>
+<div id="homepage">
+  <HeaderHome />
+  <ElkuslaSection />
+  <PortfolioHomeSection {portfolios} />
+  <BlogHomeSection {posts} />
 </div>

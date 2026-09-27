@@ -1,0 +1,123 @@
+.page-masthead {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(226 232 240 / 0.8)' stroke-dasharray='5 3' transform='scale(1%2c -1)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+
+    [data-bs-theme='dark'] & {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / .1)' stroke-dasharray='5 3' transform='scale(1%2c -1)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      var(--neo-white),
+      rgba(255, 255, 255, 0.25)
+    );
+
+    [data-bs-theme='dark'] & {
+      background: linear-gradient(
+        to top,
+        var(--neo-body-bg),
+        rgba(var(--neo-body-bg-rgb), 0.125)
+      );
+    }
+  }
+
+  .row {
+    min-height: 40dvh;
+    padding-top: 5rem;
+    align-items: center;
+  }
+
+  .btn-navigation {
+    width: fit-content;
+    text-decoration: none;
+    padding: 0;
+    margin-bottom: 1.25rem;
+  }
+}
+
+// Vertical sticky "Navigasi" sidebar used on detail/tabbed content pages
+// (blog & portfolio show, tentang/saya, pendidikan, kontak).
+.nav-pills {
+  .nav-item {
+    .nav-link {
+      color: var(--neo-body-color);
+      opacity: 0.75;
+      border-radius: 0;
+
+      &.active {
+        background-color: transparent;
+        box-shadow: none;
+        opacity: 1;
+        font-weight: 600;
+      }
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--neo-card-border-color);
+    }
+  }
+}
+
+.card.sticky-top {
+  position: sticky;
+  top: 7.5rem;
+  z-index: 1020;
+}
+
+.skill-main-wrapper {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+
+  .skill {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    white-space: nowrap;
+    background: rgba(var(--neo-body-color-rgb), 0.125);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.05);
+      border-color: var(--neo-primary);
+    }
+  }
+}
+
+.coffee-filter-bar {
+  position: sticky;
+  top: 4.5rem;
+  background: var(--neo-body-bg);
+  z-index: 1000;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--neo-border-color);
+  display: flex;
+  gap: 1rem;
+  padding-inline: 1rem;
+
+  > * {
+    width: calc(25% - 0.5rem);
+
+    @media (width <= 992px) {
+      width: calc(50% - 0.5rem);
+    }
+  }
+}

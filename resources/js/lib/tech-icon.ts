@@ -1,0 +1,40 @@
+const TECH_ICONS: Record<string, string> = {
+  laravel: 'devicon:laravel',
+  php: 'devicon:php',
+  vuejs: 'devicon:vuejs',
+  'vue.js': 'devicon:vuejs',
+  nuxtjs: 'devicon:nuxtjs',
+  'nuxt.js': 'devicon:nuxtjs',
+  nextjs: 'devicon:nextjs',
+  'next.js': 'devicon:nextjs',
+  react: 'devicon:react',
+  'react native': 'devicon:react',
+  svelte: 'devicon:svelte',
+  bootstrap: 'devicon:bootstrap',
+  tailwindcss: 'devicon:tailwindcss',
+  tailwind: 'devicon:tailwindcss',
+  javascript: 'devicon:javascript',
+  typescript: 'devicon:typescript',
+  html5: 'devicon:html5',
+  html: 'devicon:html5',
+  css3: 'devicon:css3',
+  css: 'devicon:css3',
+  jquery: 'devicon:jquery',
+  alpinejs: 'devicon:alpinejs',
+  docker: 'devicon:docker',
+  kotlin: 'devicon:kotlin',
+  java: 'devicon:java',
+  flutter: 'devicon:flutter',
+  dart: 'devicon:dart',
+  mysql: 'devicon:mysql',
+  postgresql: 'devicon:postgresql',
+  mongodb: 'devicon:mongodb',
+  redis: 'devicon:redis',
+  nodejs: 'devicon:nodejs',
+  'node.js': 'devicon:nodejs',
+};
+
+/** Best-effort technology name → devicon Iconify slug, since our schema stores plain names, not icon ids. */
+export function techIcon(name: string): string {
+  return TECH_ICONS[name.trim().toLowerCase()] ?? 'lucide:code';
+}
