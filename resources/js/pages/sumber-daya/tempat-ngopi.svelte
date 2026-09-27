@@ -55,16 +55,23 @@
 </script>
 
 <AppHead title="Tempat Ngopi">
-  <meta name="description" content="Berikut daftar tempat ngopi yang saya rekomendasikan." />
+  <meta
+    name="description"
+    content="Berikut daftar tempat ngopi yang saya rekomendasikan."
+  />
 </AppHead>
 
 <div id="coffee-page">
-  <HeaderPage title="Tempat Ngopi" subtitle="Berikut daftar tempat ngopi yang aku rekomendasikan.">
-    <p class="text-muted mt-3 d-flex align-items-center gap-2">
+  <HeaderPage
+    title="Tempat Ngopi"
+    subtitle="Berikut daftar tempat ngopi yang aku rekomendasikan."
+  >
+    <p class="text-muted mt-3 align-items-center gap-2">
       <Info size={16} />
       <span>
-        Dan mohon maaf, saya tidak terafiliasi terhadap salah satu kafe / warkop ini, jadi apabila ada
-        kesalahan mohon segera hubungi saya supaya segera saya perbaharui.
+        Dan mohon maaf, saya tidak terafiliasi terhadap salah satu kafe / warkop
+        ini, jadi apabila ada kesalahan mohon segera hubungi saya supaya segera
+        saya perbaharui.
       </span>
     </p>
   </HeaderPage>
@@ -83,7 +90,11 @@
           </button>
           <ul class="dropdown-menu">
             <li>
-              <button class="dropdown-item" type="button" onclick={() => selectRegion(null)}>
+              <button
+                class="dropdown-item"
+                type="button"
+                onclick={() => selectRegion(null)}
+              >
                 Semua Kota
               </button>
             </li>

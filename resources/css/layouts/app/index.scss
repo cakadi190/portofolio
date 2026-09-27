@@ -15,11 +15,7 @@
 
 // Vertical rhythm between stacked marketing sections.
 .need-space {
-  padding-block: 5rem;
-
-  @media (width <= 768px) {
-    padding-block: 3rem;
-  }
+  padding-block-end: 3rem;
 }
 
 @import 'motion';
