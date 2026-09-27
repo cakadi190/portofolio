@@ -244,6 +244,15 @@ set -eu
 # shared between blue and green, so this must stay backward-compatible for
 # the length of one deployment (the old colour keeps serving during the new
 # one's health-check window).
+#
+# APP_KEY is validated explicitly because config:cache does NOT fail when it
+# is empty (the encrypter is resolved lazily) — the container would otherwise
+# start, pass /up, and only blow up with a confusing "headers already sent"
+# cascade on the first request that touches encrypted sessions (e.g. /login).
+if [ -z "${APP_KEY:-}" ]; then
+    echo "!! APP_KEY is empty/unset — refusing to start." >&2
+    exit 1
+fi
 php artisan config:cache
 php artisan route:cache
 php artisan storage:link || true
