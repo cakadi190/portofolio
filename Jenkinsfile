@@ -115,6 +115,8 @@ void smokeTest() {
         if ! echo "\$login_status" | grep -qE '^(200|302)\$'; then
           echo "!! /login returned \$login_status, dumping catatancakadi-\$color logs:" >&2
           docker compose -f docker-compose.prod.yml logs --tail=100 "catatancakadi-\$color" >&2
+          echo "!! storage/logs/laravel.log tail:" >&2
+          docker compose -f docker-compose.prod.yml exec -T "catatancakadi-\$color" tail -n 100 storage/logs/laravel.log >&2 || echo "   (no laravel.log found)" >&2
           exit 1
         fi
 REMOTE
