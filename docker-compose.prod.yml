@@ -15,9 +15,16 @@
 # to it by hand — see the header of deploy-bluegreen.sh for that one-time step.
 #
 # The database is a native MySQL server on the host, not a container here —
-# reached through host.docker.internal, same as lombacv reaches its native
+# reached through the bridge gateway, same as lombacv reaches its native
 # Postgres/Redis. MySQL must accept connections from the Docker bridge
 # gateway (172.22.0.1 with the subnet created below), not loopback only.
+#
+# The gateway is named by address (172.22.0.1), NOT via the `host-gateway`
+# magic value. Docker resolves `host-gateway` from the *default* bridge, not
+# from the network a container is actually attached to (catatancakadi-net
+# here) — on Linux that can hand back an address this network can't route,
+# which is exactly what caused the SQLSTATE[HY000] [2002] Connection refused
+# failures on deploy. See the equivalent fix in ~/projects/php/batamtix.
 
 name: catatancakadi
 
@@ -26,15 +33,21 @@ x-app-common: &app-common
   init: true
   restart: unless-stopped
   extra_hosts:
-    - "host.docker.internal:host-gateway"
+    # Mapped to the address explicitly, NOT to the `host-gateway` magic value
+    # — see the DB_HOST comment above. 172.22.0.1 is the gateway of the
+    # 172.22.0.0/16 subnet catatancakadi-net is created with in
+    # scripts/deploy-bluegreen.sh (Docker assigns the first usable address as
+    # gateway when none is given explicitly).
+    - "host.docker.internal:172.22.0.1"
   env_file:
     - .env
   environment:
     APP_ENV: production
     APP_DEBUG: "false"
     # Overrides whatever DB_HOST the .env file has: 127.0.0.1 inside this
-    # container is the container itself, not the host's MySQL.
-    DB_HOST: host.docker.internal
+    # container is the container itself, not the host's MySQL. Named by
+    # address, not host.docker.internal — see comment above.
+    DB_HOST: 172.22.0.1
     # nginx is the only thing that can reach this container (it is only
     # published on 127.0.0.1), so trusting the forwarding headers it sets is
     # contained to that.

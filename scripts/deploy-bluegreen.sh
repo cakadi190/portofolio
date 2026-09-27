@@ -60,8 +60,11 @@ echo "==> Deploying new color:  $new_color (app=$app_port)"
 # fresh host doesn't need a manual one-time step remembered before the first
 # deploy. Must not overlap lombacv-net (172.21.0.0/16) or mongo-net
 # (172.20.0.0/24) — check `docker network ls` if this ever needs to change.
+# --gateway is pinned explicitly (not left to Docker's default-first-address
+# behaviour) so 172.22.0.1 is guaranteed stable across recreations — the
+# compose file's DB_HOST and extra_hosts entries hardcode that address.
 docker network inspect catatancakadi-net >/dev/null 2>&1 || \
-  docker network create catatancakadi-net --subnet 172.22.0.0/16
+  docker network create catatancakadi-net --subnet 172.22.0.0/16 --gateway 172.22.0.1
 
 # Uploads must survive both the container and the colour switch. Owned by
 # 1000:1000 to match the container's unprivileged user (the Dockerfile's
