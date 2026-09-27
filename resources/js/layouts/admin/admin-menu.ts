@@ -1,7 +1,11 @@
+import Award from '@lucide/svelte/icons/award';
 import Building from '@lucide/svelte/icons/building';
 import Car from '@lucide/svelte/icons/car';
 import ChartPie from '@lucide/svelte/icons/chart-pie';
 import Clapperboard from '@lucide/svelte/icons/clapperboard';
+import Coffee from '@lucide/svelte/icons/coffee';
+import FolderKanban from '@lucide/svelte/icons/folder-kanban';
+import GraduationCap from '@lucide/svelte/icons/graduation-cap';
 import ImagePlay from '@lucide/svelte/icons/image-play';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import Landmark from '@lucide/svelte/icons/landmark';
@@ -23,7 +27,7 @@ import type { AdminSidebarEntry } from '@/types/admin-sidebar';
 /**
  * Admin sidebar tree, mirroring batamtix's `config/sidebar.php` (`admin` key)
  * and its `lang/id/sidebar.php` labels. `#` marks pages that don't exist in
- * gettix yet; only the dashboard is a real route.
+ * catatancakadi yet; only the dashboard is a real route.
  */
 export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
   return [
@@ -98,6 +102,37 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
     { label: 'Kategori Artikel', icon: Newspaper, href: '#' },
     { label: 'Banner', icon: ImagePlay, href: '#' },
     { label: 'Galeri Video', icon: Clapperboard, href: '#' },
+
+    { type: 'header', label: 'Portofolio & Blog' },
+    {
+      label: 'Profil',
+      icon: GraduationCap,
+      children: [
+        { label: 'Riwayat Pendidikan', href: '#' },
+        { label: 'Pengalaman Organisasi', href: '#' },
+        { label: 'Pengalaman Karier', href: '#' },
+      ],
+    },
+    { label: 'Penghargaan', icon: Award, href: '#' },
+    {
+      label: 'Portofolio',
+      icon: FolderKanban,
+      children: [
+        { label: 'Semua Portofolio', href: '#' },
+        { label: 'Kategori Portofolio', href: '#' },
+        { label: 'Teknologi', href: '#' },
+      ],
+    },
+    {
+      label: 'Blog',
+      icon: Newspaper,
+      children: [
+        { label: 'Semua Artikel', href: '#' },
+        { label: 'Kategori Artikel Blog', href: '#' },
+        { label: 'Tag Artikel', href: '#' },
+      ],
+    },
+    { label: 'Kedai Kopi', icon: Coffee, href: '#' },
 
     { type: 'header', label: 'Pengguna & Akses' },
     { label: 'Pengguna', icon: User, href: '#' },

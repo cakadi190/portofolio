@@ -7,7 +7,7 @@
   <div class="footer-start">
     <span
       >Hak Cipta 2026{year > 2026 ? `-${year}` : ''}
-      <a href="/">Gettix</a> oleh PT Batam Experience Indonesia. Hak Cipta Dilindungi
+      <a href="/">CatatanCakadi</a> oleh PT Batam Experience Indonesia. Hak Cipta Dilindungi
       Undang-Undang.</span
     >
   </div>

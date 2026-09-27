@@ -128,7 +128,7 @@
             <AppLogoIcon height={32} />
           </div>
         </div>
-        <div class="sidebar-logo">Gettix</div>
+        <div class="sidebar-logo">CatatanCakadi</div>
       </Link>
 
       <button

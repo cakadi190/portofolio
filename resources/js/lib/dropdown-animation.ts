@@ -10,7 +10,7 @@
  * whose keyframes live in `resources/css/components/_dropdown-animation.scss`.
  *
  * Ported from Batamtix Core's `resources/js/libs/dropdown-animation.ts`, with
- * the jQuery dependency dropped (Gettix has none) and the `btx-` custom
+ * the jQuery dependency dropped (CatatanCakadi has none) and the `btx-` custom
  * property / class prefix dropped (Bootstrap hardcodes `--bs-position`
  * literally in `_dropdown.scss`, ignoring its own `$prefix`, so it's read
  * directly with no `--neo-*` mirror).

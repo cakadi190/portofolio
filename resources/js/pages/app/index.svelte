@@ -5,7 +5,7 @@
 <AppHead title="Selamat Datang" />
 
 <div class="container py-5">
-  <h1>Gettix</h1>
+  <h1>CatatanCakadi</h1>
 
   <div class="dropdown">
     <button

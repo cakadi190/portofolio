@@ -35,7 +35,7 @@
         {@render children?.()}
       </div>
       <div class="panel-footer">
-        Hak Cipta 2026 <Link href="/">Gettix</Link>. Operated under
+        Hak Cipta 2026 <Link href="/">CatatanCakadi</Link>. Operated under
         <a href="https://www.batamtix.com">PT Batam Experience Indonesia</a>.
       </div>
     </div>

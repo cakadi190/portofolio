@@ -1,6 +1,6 @@
 // Admin layout shell (sidebar, navbar, footer, pull-to-refresh, back-to-top).
 // Ported from batamtix's resources/scss/layouts/admin/*, replacing every
-// `--btx-*` custom property with gettix's `--neo-*` Bootstrap variables
+// `--btx-*` custom property with catatancakadi's `--neo-*` Bootstrap variables
 // (app.scss sets Bootstrap's own `$prefix: neo-`) and dropping the SimpleBar
 // styling batamtix relied on — this port keeps the native scrollbar instead
 // (see admin-sidebar-layout.svelte's report note on the simplebar decision).
@@ -12,7 +12,7 @@
   --neo-admin-layout-bg: var(--neo-light);
 
   // Batamtix's brand accent (its `$primary` is `$orange`); scoped to the admin
-  // shell so the auth pages keep gettix's own primary.
+  // shell so the auth pages keep catatancakadi's own primary.
   --neo-primary-rgb: var(--neo-orange-rgb);
 
   height: 100svh;
