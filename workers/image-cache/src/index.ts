@@ -9,38 +9,38 @@ const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const CACHEABLE_EXTENSION = /\.(webp|avif|jpe?g|png|gif|svg)$/i;
 
 export default {
-	async fetch(request: Request, _env: unknown, ctx: ExecutionContext): Promise<Response> {
-		const url = new URL(request.url);
+  async fetch(request: Request, _env: unknown, ctx: ExecutionContext): Promise<Response> {
+    const url = new URL(request.url);
 
-		if (request.method !== 'GET' || !CACHEABLE_EXTENSION.test(url.pathname)) {
-			return fetch(request);
-		}
+    if (request.method !== 'GET' || !CACHEABLE_EXTENSION.test(url.pathname)) {
+      return fetch(request);
+    }
 
-		const cache = caches.default;
-		const cacheKey = new Request(url.toString(), request);
+    const cache = (caches as unknown as { default: Cache }).default;
+    const cacheKey = new Request(url.toString(), request);
 
-		const cached = await cache.match(cacheKey);
-		if (cached) {
-			return cached;
-		}
+    const cached = await cache.match(cacheKey);
+    if (cached) {
+      return cached;
+    }
 
-		const originResponse = await fetch(request);
+    const originResponse = await fetch(request);
 
-		if (!originResponse.ok) {
-			return originResponse;
-		}
+    if (!originResponse.ok) {
+      return originResponse;
+    }
 
-		const headers = new Headers(originResponse.headers);
-		headers.set('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}, immutable`);
+    const headers = new Headers(originResponse.headers);
+    headers.set('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}, immutable`);
 
-		const response = new Response(originResponse.body, {
-			status: originResponse.status,
-			statusText: originResponse.statusText,
-			headers,
-		});
+    const response = new Response(originResponse.body, {
+      status: originResponse.status,
+      statusText: originResponse.statusText,
+      headers,
+    });
 
-		ctx.waitUntil(cache.put(cacheKey, response.clone()));
+    ctx.waitUntil(cache.put(cacheKey, response.clone()));
 
-		return response;
-	},
+    return response;
+  },
 };
