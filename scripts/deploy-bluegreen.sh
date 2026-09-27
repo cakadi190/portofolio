@@ -51,6 +51,15 @@ HEALTH_INTERVAL=2
 
 cd "$DEPLOY_PATH"
 
+# The Jenkins "catatancakadi-env" secret file can carry CRLF line endings.
+# A trailing \r makes an "empty" APP_KEY value non-empty by byte count (so
+# our own -z checks below miss it), while Docker's env_file parser treats it
+# as truly empty inside the container — hence the key looking fine here but
+# still coming up blank at runtime. Normalize before anything reads it.
+if [ -f .env ]; then
+  sed -i 's/\r$//' .env
+fi
+
 current_color="blue"
 if [ -f "$STATE_FILE" ]; then
   current_color="$(cat "$STATE_FILE")"
@@ -137,7 +146,7 @@ echo "==> Deploying new color:  $new_color (app=$app_port)"
 # key separately in $APP_KEY_FILE — outside anything Jenkins overwrites —
 # and use it to backfill .env whenever the incoming .env has none.
 APP_KEY_FILE="$DEPLOY_PATH/.app_key"
-current_key="$(grep -E '^APP_KEY=' .env 2>/dev/null | cut -d= -f2-)"
+current_key="$(grep -E '^APP_KEY=' .env 2>/dev/null | cut -d= -f2- | tr -d '\r')"
 
 if [ -z "$current_key" ]; then
   if [ -s "$APP_KEY_FILE" ]; then
