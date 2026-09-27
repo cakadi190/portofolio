@@ -149,13 +149,18 @@ APP_KEY_FILE="$DEPLOY_PATH/.app_key"
 current_key="$(grep -E '^APP_KEY=' .env 2>/dev/null | cut -d= -f2- | tr -d '\r')"
 
 if [ -z "$current_key" ]; then
-  if [ -s "$APP_KEY_FILE" ]; then
-    echo "==> APP_KEY missing from .env — restoring the persisted key from $APP_KEY_FILE."
-    current_key="$(cat "$APP_KEY_FILE")"
-  else
-    echo "==> APP_KEY missing from .env and no persisted key found — generating one."
-    current_key="base64:$(openssl rand -base64 32)"
-  fi
+  persisted_key="$(tr -d '\r\n' < "$APP_KEY_FILE" 2>/dev/null || true)"
+
+  case "$persisted_key" in
+    base64:*)
+      echo "==> APP_KEY missing from .env — restoring the persisted key from $APP_KEY_FILE."
+      current_key="$persisted_key"
+      ;;
+    *)
+      echo "==> APP_KEY missing from .env and no valid persisted key found — generating one."
+      current_key="base64:$(openssl rand -base64 32)"
+      ;;
+  esac
 
   if grep -qE '^APP_KEY=' .env 2>/dev/null; then
     sed -i -E "s#^APP_KEY=.*#APP_KEY=${current_key}#" .env
