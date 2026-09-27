@@ -35,34 +35,4 @@ return [
         ],
     ],
 
-    'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID'),
-        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'is_active' => env('GOOGLE_IS_ACTIVE', false),
-    ],
-
-    'github' => [
-        'client_id' => env('GITHUB_CLIENT_ID'),
-        'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'is_active' => env('GITHUB_IS_ACTIVE', false),
-    ],
-
-    'facebook' => [
-        'client_id' => env('FACEBOOK_CLIENT_ID'),
-        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'is_active' => env('FACEBOOK_IS_ACTIVE', false),
-    ],
-
-    'twitter' => [
-        'client_id' => env('TWITTER_CLIENT_ID'),
-        'client_secret' => env('TWITTER_CLIENT_SECRET'),
-        'is_active' => env('TWITTER_IS_ACTIVE', false),
-    ],
-
-    'instagram' => [
-        'client_id' => env('INSTAGRAM_CLIENT_ID'),
-        'client_secret' => env('INSTAGRAM_CLIENT_SECRET'),
-        'is_active' => env('INSTAGRAM_IS_ACTIVE', false),
-    ],
-
 ];

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AboutController;
-use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CareerController;
@@ -43,11 +42,6 @@ Route::prefix('sumber-daya')->name('resources.')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard/index')->name('dashboard');
-});
-
-Route::middleware('guest')->group(function () {
-    Route::get('auth/{provider}', [SocialiteController::class, 'redirect'])->name('auth.redirect');
-    Route::get('auth/{provider}/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
 });
 
 require __DIR__.'/settings.php';

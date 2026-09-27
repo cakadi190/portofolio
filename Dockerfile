@@ -142,7 +142,12 @@ FROM frontend-base AS assets
 
 ARG UID=1000
 ARG GID=1000
-ARG BUN_VERSION
+# Redeclared with its default (rather than bare `ARG BUN_VERSION`) because a
+# `--target` build that doesn't reach this stage still needs to classify the
+# COPY --from below as an external image, and that classification pass does
+# not reliably inherit the top-level default for stages outside the target's
+# dependency chain — leaving BUN_VERSION empty and the reference invalid.
+ARG BUN_VERSION=1.4.2
 
 # Taken from the official Bun image rather than the install script, so the
 # version is pinned explicitly.
