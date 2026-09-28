@@ -4,7 +4,7 @@
   import Fingerprint from '@lucide/svelte/icons/fingerprint';
 
   const passkeyVerify = usePasskeyVerify({
-    onSuccess: ({ redirect }) => router.visit(redirect ?? '/dashboard'),
+    onSuccess: ({ redirect }) => router.visit(redirect ?? '/admin'),
   });
 </script>
 

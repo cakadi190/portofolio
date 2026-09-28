@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TechnologyController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -29,4 +30,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('posts', PostController::class)->parameters(['posts' => 'post'])->except('show');
     Route::resource('tags', TagController::class)->parameters(['tags' => 'tag'])->except('show');
     Route::resource('technologies', TechnologyController::class)->parameters(['technologies' => 'technology'])->except('show');
+    Route::resource('users', UserController::class)->parameters(['users' => 'user'])->except('show');
 });

@@ -122,7 +122,7 @@
 >
   <div class="sidebar-inner">
     <div class="sidebar-header">
-      <Link href="/dashboard" class="sidebar-brand">
+      <Link href="/admin" class="sidebar-brand">
         <div class="sidebar-icon">
           <div class="sidebar-icon-box">
             <AppLogoIcon height={32} />

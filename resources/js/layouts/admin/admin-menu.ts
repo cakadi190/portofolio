@@ -35,8 +35,8 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
     {
       label: 'Dasbor',
       icon: LayoutDashboard,
-      href: '/dashboard',
-      active: currentUrl.startsWith('/dashboard'),
+      href: '/admin',
+      active: currentUrl === '/admin',
     },
     { label: 'Statistik', icon: ChartPie, href: '#' },
     {
@@ -147,7 +147,12 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
     },
 
     { type: 'header', label: 'Pengguna & Akses' },
-    { label: 'Pengguna', icon: User, href: '#' },
+    {
+      label: 'Pengguna',
+      icon: User,
+      href: '/admin/users',
+      active: currentUrl.startsWith('/admin/users'),
+    },
     { label: 'Mitra', icon: Store, href: '#' },
     { label: 'Anggota Mitra', icon: Users, href: '#' },
     { label: 'Peran', icon: UserRoundCheck, href: '#' },
