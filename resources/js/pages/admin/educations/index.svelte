@@ -6,9 +6,9 @@
   import FormModal from '@/components/form-modal.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
+  import Select from '@/components/ui/select.svelte';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
-  import { select2 } from '@/lib/select2';
   import { formatDate } from '@/lib/utils';
   import { destroy, store, update } from '@/wayfinder/routes/admin/educations';
   import type { Paginated } from '@/types/pagination';
@@ -168,18 +168,13 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-level">Jenjang</Field.Label>
-              <select
+              <Select
                 id="create-level"
                 name="level"
-                class="form-select"
-                class:is-invalid={!!errors.level}
+                items={levels}
                 required
-                use:select2
-              >
-                {#each levels as option (option.value)}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
+                invalid={!!errors.level}
+              />
               <Field.Feedback message={errors.level} />
             </Field.Group>
           </div>
@@ -281,18 +276,13 @@
               <Field.Label for="create-academic_score_type"
                 >Tipe Nilai</Field.Label
               >
-              <select
+              <Select
                 id="create-academic_score_type"
                 name="academic_score_type"
-                class="form-select"
-                class:is-invalid={!!errors.academic_score_type}
-                use:select2
-              >
-                <option value="">—</option>
-                {#each scoreTypes as option (option.value)}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
+                items={scoreTypes}
+                invalid={!!errors.academic_score_type}
+                placeholder="—"
+              />
               <Field.Feedback message={errors.academic_score_type} />
             </Field.Group>
           </div>
@@ -397,19 +387,14 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-level">Jenjang</Field.Label>
-                <select
+                <Select
                   id="edit-level"
                   name="level"
-                  class="form-select"
-                  class:is-invalid={!!errors.level}
-                  required
+                  items={levels}
                   value={editingEducation.level}
-                  use:select2
-                >
-                  {#each levels as option (option.value)}
-                    <option value={option.value}>{option.label}</option>
-                  {/each}
-                </select>
+                  required
+                  invalid={!!errors.level}
+                />
                 <Field.Feedback message={errors.level} />
               </Field.Group>
             </div>
@@ -517,19 +502,14 @@
                 <Field.Label for="edit-academic_score_type"
                   >Tipe Nilai</Field.Label
                 >
-                <select
+                <Select
                   id="edit-academic_score_type"
                   name="academic_score_type"
-                  class="form-select"
-                  class:is-invalid={!!errors.academic_score_type}
+                  items={scoreTypes}
                   value={editingEducation.academic_score_type}
-                  use:select2
-                >
-                  <option value="">—</option>
-                  {#each scoreTypes as option (option.value)}
-                    <option value={option.value}>{option.label}</option>
-                  {/each}
-                </select>
+                  invalid={!!errors.academic_score_type}
+                  placeholder="—"
+                />
                 <Field.Feedback message={errors.academic_score_type} />
               </Field.Group>
             </div>

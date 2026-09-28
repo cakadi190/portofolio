@@ -5,16 +5,32 @@
   import Briefcase from '@lucide/svelte/icons/briefcase';
   import { Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
+  import FileText from '@lucide/svelte/icons/file-text';
   import HeaderPage from '@/components/header-page.svelte';
+  import { formatDate } from '@/lib/utils';
+
+  type Certification = {
+    id: number;
+    title: string;
+    issuer: string;
+    issuedAt: string;
+    expiresAt: string | null;
+    credentialId: string | null;
+    credentialUrl: string | null;
+    file: string | null;
+    isPdf: boolean;
+  };
 
   let {
     yearsExperience,
     yearsServing,
     totalProjects,
+    certifications,
   }: {
     yearsExperience: number;
     yearsServing: number;
     totalProjects: number;
+    certifications: Certification[];
   } = $props();
 
   const skillset = [
@@ -175,7 +191,63 @@
 
           <div id="certification">
             <h4>Sertifikasi Saya</h4>
-            <p class="opacity-75 mb-0">Belum ada sertifikasi yang ditambahkan saat ini.</p>
+            {#if certifications.length === 0}
+              <p class="opacity-75 mb-0">Belum ada sertifikasi yang ditambahkan saat ini.</p>
+            {:else}
+              <p class="opacity-75 mb-4">Sertifikat dan kredensial yang pernah saya peroleh.</p>
+
+              <div class="row g-4">
+                {#each certifications as certification (certification.id)}
+                  <div class="col-md-6">
+                    <div class="card h-100 overflow-hidden rounded-4">
+                      {#if certification.file}
+                        <a
+                          href={certification.file}
+                          target="_blank"
+                          rel="noopener"
+                          class="d-block text-center bg-body-tertiary"
+                        >
+                          {#if certification.isPdf}
+                            <div class="py-5 d-flex flex-column align-items-center gap-2">
+                              <FileText size={40} />
+                              <span class="small">Lihat sertifikat (PDF)</span>
+                            </div>
+                          {:else}
+                            <img
+                              src={certification.file}
+                              alt={certification.title}
+                              class="w-100 object-fit-cover"
+                              style="max-height: 14rem"
+                              loading="lazy"
+                            />
+                          {/if}
+                        </a>
+                      {/if}
+                      <div class="card-body">
+                        <h5 class="mb-1">{certification.title}</h5>
+                        <p class="mb-2 opacity-75">{certification.issuer}</p>
+                        <p class="small mb-0">
+                          Terbit {formatDate(certification.issuedAt)}{certification.expiresAt
+                            ? ` · Berlaku hingga ${formatDate(certification.expiresAt)}`
+                            : ''}
+                        </p>
+                        {#if certification.credentialId}
+                          <p class="small opacity-75 mb-0">ID: {certification.credentialId}</p>
+                        {/if}
+                        {#if certification.credentialUrl}
+                          <a
+                            href={certification.credentialUrl}
+                            target="_blank"
+                            rel="noopener"
+                            class="small">Verifikasi kredensial</a
+                          >
+                        {/if}
+                      </div>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {/if}
           </div>
         </div>
         <div class="col-md-3">

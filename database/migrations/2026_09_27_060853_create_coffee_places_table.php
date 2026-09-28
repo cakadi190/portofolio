@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('address');
             $table->text('description')->nullable();
-            $table->decimal('latitude', 10, 7)->nullable();
-            $table->decimal('longitude', 10, 7)->nullable();
+            $table->decimal('latitude', 18, 15)->nullable();
+            $table->decimal('longitude', 18, 15)->nullable();
             $table->string('map_url')->nullable();
             $table->string('image')->nullable();
             $table->string('wifi_provider')->nullable();

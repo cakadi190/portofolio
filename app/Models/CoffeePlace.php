@@ -20,8 +20,8 @@ class CoffeePlace extends Model
     protected function casts(): array
     {
         return [
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
+            'latitude' => 'decimal:15',
+            'longitude' => 'decimal:15',
             'wifi_speed' => WifiSpeed::class,
             'price_tier' => CafePriceTier::class,
             'park_fee' => 'integer',

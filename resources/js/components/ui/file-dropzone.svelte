@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FileText from '@lucide/svelte/icons/file-text';
   import ImagePlus from '@lucide/svelte/icons/image-plus';
   import X from '@lucide/svelte/icons/x';
   import ImageLightbox from './image-lightbox.svelte';
@@ -36,9 +37,13 @@
   let fileName = $state<string | null>(null);
   let error = $state<string | null>(null);
   let lightboxOpen = $state(false);
+  let previewIsImage = $state(true);
 
   const resolvedExistingUrl = $derived(storageUrl(existingUrl));
   const displayUrl = $derived(previewUrl ?? resolvedExistingUrl);
+  const displayIsImage = $derived(
+    previewUrl ? previewIsImage : !/\.pdf($|\?)/i.test(resolvedExistingUrl ?? ''),
+  );
 
   function applyFiles(files: FileList | null): void {
     error = null;
@@ -63,6 +68,7 @@
     }
 
     previewUrl = URL.createObjectURL(file);
+    previewIsImage = file.type.startsWith('image/');
     fileName = file.name;
   }
 
@@ -94,7 +100,7 @@
   }
 
   function openLightbox(event: MouseEvent): void {
-    if (!displayUrl) {
+    if (!displayUrl || !displayIsImage) {
       return;
     }
 
@@ -126,7 +132,14 @@
     {#if displayUrl}
       <div class="file-dropzone-preview">
         <button type="button" class="file-dropzone-preview-trigger" onclick={openLightbox}>
-          <img src={displayUrl} alt={fileName ?? 'Pratinjau'} />
+          {#if displayIsImage}
+            <img src={displayUrl} alt={fileName ?? 'Pratinjau'} />
+          {:else}
+            <span class="file-dropzone-document">
+              <FileText size={32} />
+              <span class="small text-break">{fileName ?? 'Dokumen PDF'}</span>
+            </span>
+          {/if}
         </button>
         <button
           type="button"
@@ -160,7 +173,7 @@
   {/if}
 </div>
 
-{#if lightboxOpen && displayUrl}
+{#if lightboxOpen && displayUrl && displayIsImage}
   <ImageLightbox src={displayUrl} alt={fileName ?? 'Pratinjau'} bind:open={lightboxOpen} />
 {/if}
 
@@ -219,6 +232,15 @@
     max-height: 12rem;
     border-radius: 0.5rem;
     cursor: zoom-in;
+  }
+
+  .file-dropzone-document {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: default;
   }
 
   .file-dropzone-remove {

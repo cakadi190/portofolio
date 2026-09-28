@@ -6,9 +6,10 @@
   import FormModal from '@/components/form-modal.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
+  import Select from '@/components/ui/select.svelte';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import MapPicker from '@/components/ui/map-picker.svelte';
   import { Form } from '@inertiajs/svelte';
-  import { select2 } from '@/lib/select2';
   import { storageUrl } from '@/lib/utils';
   import { destroy, store, update } from '@/wayfinder/routes/admin/coffee-places';
   import type { Paginated } from '@/types/pagination';
@@ -44,6 +45,10 @@
   let createOpen = $state(false);
   let editOpen = $state(false);
   let editingPlace = $state<CoffeePlace | null>(null);
+
+  function priceTierLabel(value: string): string {
+    return priceTiers.find((tier) => tier.value === value)?.label ?? value;
+  }
 
   function openEdit(place: CoffeePlace): void {
     editingPlace = place;
@@ -91,7 +96,7 @@
             </td>
             <td>{place.name}</td>
             <td>{place.address}</td>
-            <td>{place.price_tier}</td>
+            <td>{priceTierLabel(place.price_tier)}</td>
             <td>{place.is_recommended ? 'Ya' : 'Tidak'}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
@@ -161,34 +166,11 @@
           <Field.Feedback message={errors.image} />
         </Field.Group>
 
-        <div class="row g-3">
-          <div class="col-sm-6">
-            <Field.Group>
-              <Field.Label for="create-latitude">Latitude</Field.Label>
-              <Field.Input
-                id="create-latitude"
-                name="latitude"
-                type="number"
-                step="any"
-                invalid={!!errors.latitude}
-              />
-              <Field.Feedback message={errors.latitude} />
-            </Field.Group>
-          </div>
-          <div class="col-sm-6">
-            <Field.Group>
-              <Field.Label for="create-longitude">Longitude</Field.Label>
-              <Field.Input
-                id="create-longitude"
-                name="longitude"
-                type="number"
-                step="any"
-                invalid={!!errors.longitude}
-              />
-              <Field.Feedback message={errors.longitude} />
-            </Field.Group>
-          </div>
-        </div>
+        <MapPicker
+          idPrefix="create"
+          latitudeError={errors.latitude}
+          longitudeError={errors.longitude}
+        />
 
         <Field.Group>
           <Field.Label for="create-map_url">Tautan Peta</Field.Label>
@@ -210,36 +192,26 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-wifi_speed">Kecepatan WiFi</Field.Label>
-              <select
+              <Select
                 id="create-wifi_speed"
                 name="wifi_speed"
-                class="form-select"
-                class:is-invalid={!!errors.wifi_speed}
+                items={wifiSpeeds}
                 required
-                use:select2
-              >
-                {#each wifiSpeeds as option (option.value)}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
+                invalid={!!errors.wifi_speed}
+              />
               <Field.Feedback message={errors.wifi_speed} />
             </Field.Group>
           </div>
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-price_tier">Tingkat Harga</Field.Label>
-              <select
+              <Select
                 id="create-price_tier"
                 name="price_tier"
-                class="form-select"
-                class:is-invalid={!!errors.price_tier}
+                items={priceTiers}
                 required
-                use:select2
-              >
-                {#each priceTiers as option (option.value)}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
+                invalid={!!errors.price_tier}
+              />
               <Field.Feedback message={errors.price_tier} />
             </Field.Group>
           </div>
@@ -366,36 +338,13 @@
             <Field.Feedback message={errors.image} />
           </Field.Group>
 
-          <div class="row g-3">
-            <div class="col-sm-6">
-              <Field.Group>
-                <Field.Label for="edit-latitude">Latitude</Field.Label>
-                <Field.Input
-                  id="edit-latitude"
-                  name="latitude"
-                  type="number"
-                  step="any"
-                  value={editingPlace.latitude}
-                  invalid={!!errors.latitude}
-                />
-                <Field.Feedback message={errors.latitude} />
-              </Field.Group>
-            </div>
-            <div class="col-sm-6">
-              <Field.Group>
-                <Field.Label for="edit-longitude">Longitude</Field.Label>
-                <Field.Input
-                  id="edit-longitude"
-                  name="longitude"
-                  type="number"
-                  step="any"
-                  value={editingPlace.longitude}
-                  invalid={!!errors.longitude}
-                />
-                <Field.Feedback message={errors.longitude} />
-              </Field.Group>
-            </div>
-          </div>
+          <MapPicker
+            idPrefix="edit"
+            latitude={editingPlace.latitude}
+            longitude={editingPlace.longitude}
+            latitudeError={errors.latitude}
+            longitudeError={errors.longitude}
+          />
 
           <Field.Group>
             <Field.Label for="edit-map_url">Tautan Peta</Field.Label>
@@ -424,38 +373,28 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-wifi_speed">Kecepatan WiFi</Field.Label>
-                <select
+                <Select
                   id="edit-wifi_speed"
                   name="wifi_speed"
-                  class="form-select"
-                  class:is-invalid={!!errors.wifi_speed}
-                  required
+                  items={wifiSpeeds}
                   value={editingPlace.wifi_speed}
-                  use:select2
-                >
-                  {#each wifiSpeeds as option (option.value)}
-                    <option value={option.value}>{option.label}</option>
-                  {/each}
-                </select>
+                  required
+                  invalid={!!errors.wifi_speed}
+                />
                 <Field.Feedback message={errors.wifi_speed} />
               </Field.Group>
             </div>
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-price_tier">Tingkat Harga</Field.Label>
-                <select
+                <Select
                   id="edit-price_tier"
                   name="price_tier"
-                  class="form-select"
-                  class:is-invalid={!!errors.price_tier}
-                  required
+                  items={priceTiers}
                   value={editingPlace.price_tier}
-                  use:select2
-                >
-                  {#each priceTiers as option (option.value)}
-                    <option value={option.value}>{option.label}</option>
-                  {/each}
-                </select>
+                  required
+                  invalid={!!errors.price_tier}
+                />
                 <Field.Feedback message={errors.price_tier} />
               </Field.Group>
             </div>

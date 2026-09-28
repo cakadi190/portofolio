@@ -37,6 +37,11 @@ export default defineConfig({
         wayfinder(),
       ] as any[],
   ),
+  optimizeDeps: {
+    // Prebundling svelte-select serves its component <style> as raw file
+    // text in dev, leaking global `input { position: absolute }` rules.
+    exclude: ['svelte-select'],
+  },
   css: {
     devSourcemap: true,
     preprocessorOptions: {

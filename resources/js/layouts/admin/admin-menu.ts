@@ -36,6 +36,7 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
         link('Riwayat Pendidikan', '/admin/educations'),
         link('Pengalaman Organisasi', '/admin/organizations'),
         link('Pengalaman Karier', '/admin/careers'),
+        link('Sertifikasi', '/admin/certifications'),
       ],
     },
     {

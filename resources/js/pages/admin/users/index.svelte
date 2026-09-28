@@ -6,10 +6,10 @@
   import FormModal from '@/components/form-modal.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
+  import Select from '@/components/ui/select.svelte';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
   import { storageUrl } from '@/lib/utils';
-  import { select2 } from '@/lib/select2';
   import { destroy, store, update } from '@/wayfinder/routes/admin/users';
   import type { Paginated } from '@/types/pagination';
 
@@ -152,18 +152,13 @@
 
         <Field.Group>
           <Field.Label for="create-account_type">Peran</Field.Label>
-          <select
+          <Select
             id="create-account_type"
             name="account_type"
-            class="form-select"
-            class:is-invalid={!!errors.account_type}
+            items={accountTypes}
             required
-            use:select2
-          >
-            {#each accountTypes as option (option.value)}
-              <option value={option.value}>{option.label}</option>
-            {/each}
-          </select>
+            invalid={!!errors.account_type}
+          />
           <Field.Feedback message={errors.account_type} />
         </Field.Group>
 
@@ -178,18 +173,13 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-gender">Jenis Kelamin</Field.Label>
-              <select
+              <Select
                 id="create-gender"
                 name="gender"
-                class="form-select"
-                class:is-invalid={!!errors.gender}
-                use:select2
-              >
-                <option value="">—</option>
-                {#each genders as option (option.value)}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
+                items={genders}
+                invalid={!!errors.gender}
+                placeholder="—"
+              />
               <Field.Feedback message={errors.gender} />
             </Field.Group>
           </div>
@@ -265,19 +255,14 @@
 
           <Field.Group>
             <Field.Label for="edit-account_type">Peran</Field.Label>
-            <select
+            <Select
               id="edit-account_type"
               name="account_type"
-              class="form-select"
-              class:is-invalid={!!errors.account_type}
-              required
+              items={accountTypes}
               value={editingUser.account_type}
-              use:select2
-            >
-              {#each accountTypes as option (option.value)}
-                <option value={option.value}>{option.label}</option>
-              {/each}
-            </select>
+              required
+              invalid={!!errors.account_type}
+            />
             <Field.Feedback message={errors.account_type} />
           </Field.Group>
 
@@ -297,19 +282,14 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-gender">Jenis Kelamin</Field.Label>
-                <select
+                <Select
                   id="edit-gender"
                   name="gender"
-                  class="form-select"
-                  class:is-invalid={!!errors.gender}
-                  value={editingUser.gender ?? ''}
-                  use:select2
-                >
-                  <option value="">—</option>
-                  {#each genders as option (option.value)}
-                    <option value={option.value}>{option.label}</option>
-                  {/each}
-                </select>
+                  items={genders}
+                  value={editingUser.gender}
+                  invalid={!!errors.gender}
+                  placeholder="—"
+                />
                 <Field.Feedback message={errors.gender} />
               </Field.Group>
             </div>

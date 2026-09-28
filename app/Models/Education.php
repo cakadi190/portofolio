@@ -25,8 +25,8 @@ class Education extends Model
         return [
             'level' => EducationLevel::class,
             'academic_score_type' => AcademicScoreType::class,
-            'start_date' => 'date',
-            'end_date' => 'date',
+            'start_date' => 'date:Y-m-d',
+            'end_date' => 'date:Y-m-d',
             'academic_score_value' => 'decimal:2',
             'academic_score_scale' => 'decimal:2',
         ];

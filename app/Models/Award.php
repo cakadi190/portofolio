@@ -25,7 +25,7 @@ class Award extends Model
         return [
             'year' => 'integer',
             'rank' => 'integer',
-            'awarded_at' => 'date',
+            'awarded_at' => 'date:Y-m-d',
         ];
     }
 

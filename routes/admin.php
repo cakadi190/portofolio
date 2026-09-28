@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AwardController;
 use App\Http\Controllers\Admin\CareerController;
+use App\Http\Controllers\Admin\CertificationController;
 use App\Http\Controllers\Admin\CoffeePlaceController;
 use App\Http\Controllers\Admin\EducationController;
 use App\Http\Controllers\Admin\OrganizationController;
@@ -21,6 +22,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('awards', AwardController::class)->parameters(['awards' => 'award'])->only($only);
     Route::resource('careers', CareerController::class)->parameters(['careers' => 'career'])->only($only);
+    Route::resource('certifications', CertificationController::class)->parameters(['certifications' => 'certification'])->only($only);
     Route::resource('coffee-places', CoffeePlaceController::class)->parameters(['coffee-places' => 'coffeePlace'])->only($only);
     Route::resource('educations', EducationController::class)->parameters(['educations' => 'education'])->only($only);
     Route::resource('organizations', OrganizationController::class)->parameters(['organizations' => 'organization'])->only($only);

@@ -6,8 +6,8 @@
   import FormModal from '@/components/form-modal.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
+  import Select from '@/components/ui/select.svelte';
   import { Form } from '@inertiajs/svelte';
-  import { select2 } from '@/lib/select2';
   import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-ratings';
   import type { Paginated } from '@/types/pagination';
 
@@ -103,35 +103,26 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-portfolio_id">Portofolio</Field.Label>
-          <select
+          <Select
             id="create-portfolio_id"
             name="portfolio_id"
-            class="form-select"
-            class:is-invalid={!!errors.portfolio_id}
+            items={portfolios.map((option) => ({ value: option.id, label: option.name }))}
             required
-            use:select2
-          >
-            {#each portfolios as option (option.id)}
-              <option value={option.id}>{option.name}</option>
-            {/each}
-          </select>
+            invalid={!!errors.portfolio_id}
+          />
           <Field.Feedback message={errors.portfolio_id} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-rating">Rating</Field.Label>
-          <select
+          <Select
             id="create-rating"
             name="rating"
-            class="form-select"
-            class:is-invalid={!!errors.rating}
+            items={[1, 2, 3, 4, 5].map((value) => ({ value, label: String(value) }))}
             required
-            use:select2={{ minimumResultsForSearch: Infinity }}
-          >
-            {#each [1, 2, 3, 4, 5] as value (value)}
-              <option {value}>{value}</option>
-            {/each}
-          </select>
+            invalid={!!errors.rating}
+            searchable={false}
+          />
           <Field.Feedback message={errors.rating} />
         </Field.Group>
 
@@ -178,37 +169,28 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-portfolio_id">Portofolio</Field.Label>
-            <select
+            <Select
               id="edit-portfolio_id"
               name="portfolio_id"
-              class="form-select"
-              class:is-invalid={!!errors.portfolio_id}
-              required
+              items={portfolios.map((option) => ({ value: option.id, label: option.name }))}
               value={editingRating.portfolio_id}
-              use:select2
-            >
-              {#each portfolios as option (option.id)}
-                <option value={option.id}>{option.name}</option>
-              {/each}
-            </select>
+              required
+              invalid={!!errors.portfolio_id}
+            />
             <Field.Feedback message={errors.portfolio_id} />
           </Field.Group>
 
           <Field.Group>
             <Field.Label for="edit-rating">Rating</Field.Label>
-            <select
+            <Select
               id="edit-rating"
               name="rating"
-              class="form-select"
-              class:is-invalid={!!errors.rating}
-              required
+              items={[1, 2, 3, 4, 5].map((value) => ({ value, label: String(value) }))}
               value={editingRating.rating}
-              use:select2={{ minimumResultsForSearch: Infinity }}
-            >
-              {#each [1, 2, 3, 4, 5] as value (value)}
-                <option {value}>{value}</option>
-              {/each}
-            </select>
+              required
+              invalid={!!errors.rating}
+              searchable={false}
+            />
             <Field.Feedback message={errors.rating} />
           </Field.Group>
 
