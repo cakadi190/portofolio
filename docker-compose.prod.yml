@@ -48,6 +48,12 @@ x-app-common: &app-common
     # container is the container itself, not the host's MySQL. Named by
     # address, not host.docker.internal — see comment above.
     DB_HOST: 172.22.0.1
+    # Same reasoning as DB_HOST above: 127.0.0.1 inside this container is the
+    # container itself, not the host's Redis. Native Redis on the host must
+    # also accept connections from the Docker bridge gateway (172.22.0.1),
+    # not loopback only — check its bind address / firewall the same way
+    # MySQL was fixed for this.
+    REDIS_HOST: 172.22.0.1
     # nginx is the only thing that can reach this container (it is only
     # published on 127.0.0.1), so trusting the forwarding headers it sets is
     # contained to that.
