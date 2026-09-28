@@ -52,10 +52,15 @@ x-app-common: &app-common
     # published on 127.0.0.1), so trusting the forwarding headers it sets is
     # contained to that.
     TRUSTED_PROXIES: "*"
+    # The image has no Node runtime — the compiled SSR bundle
+    # (bootstrap/ssr) is run with Bun instead (see the entrypoint).
+    INERTIA_SSR_RUNTIME: bun
   # Host RAM is shared with other apps on this VPS (see lombacv's README) —
   # keep this modest and tune it with `docker stats` after the first deploy.
-  mem_limit: 320m
-  mem_reservation: 160m
+  # Bumped from 320m/160m: each container now also runs the Bun-based
+  # Inertia SSR process alongside FrankenPHP.
+  mem_limit: 384m
+  mem_reservation: 192m
   # Long enough for an in-flight request to finish; there are no queue
   # workers or WebSockets here to drain.
   stop_grace_period: 15s

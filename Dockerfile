@@ -15,8 +15,11 @@
 #                       sqlite :memory: (see phpunit.xml). Build-time only.
 #   frontend-base       base tuned for the Vite/Wayfinder build (needs a
 #                       much higher memory_limit than serving a request does).
-#   assets              frontend-base + Bun + source, runs `bun run build`.
-#   production          base + source + vendor + compiled assets.
+#   assets              frontend-base + Bun + source, runs `bun run build:ssr`
+#                       (client bundle in public/build, SSR bundle in
+#                       bootstrap/ssr).
+#   production          base + source + vendor + compiled assets + Bun (to
+#                       run the Inertia SSR bundle alongside FrankenPHP).
 
 ARG FRANKENPHP_VERSION=1.12.6
 ARG PHP_VERSION=8.4
@@ -182,7 +185,7 @@ RUN set -eux; \
     cp .env.example .env; \
     composer dump-autoload; \
     php artisan key:generate; \
-    bun run build
+    bun run build:ssr
 
 
 # ---------------------------------------------------------------------------
@@ -192,6 +195,14 @@ FROM base AS production
 
 ARG UID=1000
 ARG GID=1000
+
+# Runs the compiled Inertia SSR bundle (bootstrap/ssr) alongside FrankenPHP —
+# see the entrypoint below. Bun, not Node: it's the only JS runtime this
+# image otherwise touches (the `assets` stage builds with it too), so this
+# avoids carrying two JS runtimes into production for one small process.
+COPY --from=bun-bin /usr/local/bin/bun /usr/local/bin/bun
+RUN apk add --no-cache libstdc++ libgcc && \
+    ln -s /usr/local/bin/bun /usr/local/bin/bunx && bun --version
 
 RUN set -eux; \
     mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; \
@@ -213,6 +224,7 @@ RUN set -eux; \
 COPY --chown=${UID}:${GID} . .
 COPY --from=vendor-production --chown=${UID}:${GID} /app/vendor ./vendor
 COPY --from=assets --chown=${UID}:${GID} /app/public/build ./public/build
+COPY --from=assets --chown=${UID}:${GID} /app/bootstrap/ssr ./bootstrap/ssr
 
 # storage/app is bind-mounted at run time (uploads must survive a deploy and
 # be shared by both blue and green); everything else is per-container and
@@ -259,6 +271,20 @@ php artisan config:cache
 php artisan route:cache
 php artisan storage:link || true
 php artisan migrate --force
+
+# Inertia SSR: `inertia:start-ssr` runs bun against bootstrap/ssr and blocks
+# in the foreground, so it's backed by a restart loop and pushed to the
+# background instead. This is best-effort — Inertia's HttpGateway falls back
+# to client-side rendering whenever INERTIA_SSR_URL is unreachable — so a
+# crash loop here must never block or take down the main FrankenPHP process.
+if [ "${INERTIA_SSR_ENABLED:-true}" != "false" ]; then
+    (
+        while true; do
+            php artisan inertia:start-ssr --runtime=bun || true
+            sleep 1
+        done
+    ) &
+fi
 
 exec docker-php-entrypoint "$@"
 SH
