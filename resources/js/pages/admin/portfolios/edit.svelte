@@ -34,9 +34,9 @@
     careers: { id: number; position: string; company: string }[];
   } = $props();
 
-  const selectedTechnologies = portfolio.technologies.map((t) => t.id);
-  const selectedCategories = portfolio.categories.map((c) => c.id);
-  const selectedCareers = portfolio.careers.map((c) => c.id);
+  const selectedTechnologies = $derived(portfolio.technologies.map((t) => t.id));
+  const selectedCategories = $derived(portfolio.categories.map((c) => c.id));
+  const selectedCareers = $derived(portfolio.careers.map((c) => c.id));
 </script>
 
 <AppHead title="Ubah Portofolio" />

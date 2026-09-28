@@ -10,16 +10,16 @@
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
     <li>
-      <a class="dropdown-item" href="#">
+      <button type="button" class="dropdown-item">
         <i class="fi fis fi-id"></i>
         <span>Bahasa Indonesia</span>
-      </a>
+      </button>
     </li>
     <li>
-      <a class="dropdown-item" href="#">
+      <button type="button" class="dropdown-item">
         <i class="fi fis fi-us"></i>
         <span>Bahasa Inggris</span>
-      </a>
+      </button>
     </li>
   </ul>
 </div>

@@ -21,7 +21,7 @@
     portfolios,
   }: { career: CareerForm; portfolios: { id: number; name: string }[] } = $props();
 
-  const selected = career.portfolios.map((p) => p.id);
+  const selected = $derived(career.portfolios.map((p) => p.id));
 </script>
 
 <AppHead title="Ubah Karier" />

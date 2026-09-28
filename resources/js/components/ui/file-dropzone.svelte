@@ -124,7 +124,9 @@
   >
     {#if displayUrl}
       <div class="file-dropzone-preview">
-        <img src={displayUrl} alt={fileName ?? 'Pratinjau'} onclick={openLightbox} />
+        <button type="button" class="file-dropzone-preview-trigger" onclick={openLightbox}>
+          <img src={displayUrl} alt={fileName ?? 'Pratinjau'} />
+        </button>
         <button
           type="button"
           class="file-dropzone-remove"
@@ -200,6 +202,14 @@
   .file-dropzone-preview {
     position: relative;
     max-width: 100%;
+  }
+
+  .file-dropzone-preview-trigger {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
   }
 
   .file-dropzone-preview img {

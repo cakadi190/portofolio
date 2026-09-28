@@ -15,8 +15,8 @@
     children?: Snippet;
   } = $props();
 
-  const titleDelay = backTo ? '120ms' : '60ms';
-  const subtitleDelay = backTo ? '180ms' : '120ms';
+  const titleDelay = $derived(backTo ? '120ms' : '60ms');
+  const subtitleDelay = $derived(backTo ? '180ms' : '120ms');
 </script>
 
 <header class="page-masthead">

@@ -32,12 +32,20 @@
     role="dialog"
     aria-modal="true"
     aria-label={alt}
+    tabindex="-1"
     onclick={close}
+    onkeydown={onKeydown}
   >
     <button type="button" class="image-lightbox-close" onclick={close} aria-label="Tutup">
       <X size={20} />
     </button>
-    <img {src} {alt} onclick={(event) => event.stopPropagation()} />
+    <button
+      type="button"
+      class="image-lightbox-image"
+      onclick={(event) => event.stopPropagation()}
+    >
+      <img {src} {alt} />
+    </button>
   </div>
 {/if}
 
@@ -54,12 +62,19 @@
     cursor: zoom-out;
   }
 
+  .image-lightbox-image {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: default;
+  }
+
   .image-lightbox-backdrop img {
     max-width: 100%;
     max-height: 100%;
     border-radius: 0.5rem;
     box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
-    cursor: default;
+    display: block;
   }
 
   .image-lightbox-close {

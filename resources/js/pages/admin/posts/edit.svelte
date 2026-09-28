@@ -30,8 +30,8 @@
     categories: { id: number; name: string }[];
   } = $props();
 
-  const selectedTags = post.tags.map((t) => t.id);
-  const selectedCategories = post.categories.map((c) => c.id);
+  const selectedTags = $derived(post.tags.map((t) => t.id));
+  const selectedCategories = $derived(post.categories.map((c) => c.id));
 </script>
 
 <AppHead title="Ubah Artikel" />

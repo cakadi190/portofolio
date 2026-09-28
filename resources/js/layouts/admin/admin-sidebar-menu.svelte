@@ -3,6 +3,7 @@
   import Circle from '@lucide/svelte/icons/circle';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
+  import AdminSidebarMenu from './admin-sidebar-menu.svelte';
   import {
     FLOATING_MENU_GAP,
     FLOATING_MENU_VIEWPORT_PADDING,
@@ -206,7 +207,7 @@
             style={isFlyoutMode ? sidebar.floatingLayout[id]?.style : undefined}
           >
             <div class="sm-submenu-inner">
-              <svelte:self
+              <AdminSidebarMenu
                 entries={entry.children ?? []}
                 level={level + 1}
                 parentId={id}
