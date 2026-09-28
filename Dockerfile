@@ -55,6 +55,7 @@ RUN apk add --no-cache bash curl
 # intl      — Laravel locale/number formatting
 # pdo_mysql — production database (a native MySQL server outside Docker)
 # bcmath, exif, zip, pcntl — framework defaults / signal handling
+# redis     — cache/session/rate-limiter store (REDIS_CLIENT=phpredis)
 # sodium, opcache, pdo_sqlite, posix are already in the FrankenPHP base image.
 RUN install-php-extensions \
     gd \
@@ -63,7 +64,8 @@ RUN install-php-extensions \
     bcmath \
     exif \
     zip \
-    pcntl
+    pcntl \
+    redis
 
 COPY --from=composer-bin /usr/bin/composer /usr/local/bin/composer
 
