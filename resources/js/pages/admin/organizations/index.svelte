@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -8,7 +9,11 @@
   import { Field } from '@/components/ui/field';
   import { Form } from '@inertiajs/svelte';
   import { formatDate } from '@/lib/utils';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/organizations';
+  import {
+    destroy,
+    store,
+    update,
+  } from '@/wayfinder/routes/admin/organizations';
   import type { Paginated } from '@/types/pagination';
 
   type Organization = {
@@ -40,7 +45,10 @@
 />
 
 {#if organizations.data.length === 0}
-  <EmptyState title="Belum ada organisasi" text="Tambahkan pengalaman organisasi pertama Anda." />
+  <EmptyState
+    title="Belum ada organisasi"
+    text="Tambahkan pengalaman organisasi pertama Anda."
+  />
 {:else}
   <div class="table-responsive">
     <table class="table align-middle">
@@ -55,7 +63,11 @@
         {#each organizations.data as organization (organization.id)}
           <tr>
             <td>{organization.name}</td>
-            <td>{formatDate(organization.start_date)} &ndash; {organization.end_date ? formatDate(organization.end_date) : 'Sekarang'}</td>
+            <td
+              >{formatDate(organization.start_date)} &ndash; {organization.end_date
+                ? formatDate(organization.end_date)
+                : 'Sekarang'}</td
+            >
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button
@@ -85,7 +97,11 @@
   />
 {/if}
 
-<FormModal bind:open={createOpen} title="Tambah Organisasi" subtitle="Catat pengalaman organisasi baru.">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Organisasi"
+  subtitle="Catat pengalaman organisasi baru."
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -96,7 +112,12 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama Organisasi</Field.Label>
-          <Field.Input id="create-name" name="name" required invalid={!!errors.name} />
+          <Field.Input
+            id="create-name"
+            name="name"
+            required
+            invalid={!!errors.name}
+          />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
@@ -107,8 +128,7 @@
             name="description"
             class="form-control"
             class:is-invalid={!!errors.description}
-            rows="3"
-          ></textarea>
+            rows="3"></textarea>
           <Field.Feedback message={errors.description} />
         </Field.Group>
 
@@ -116,11 +136,9 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-start_date">Mulai</Field.Label>
-              <Field.Input
+              <DatePicker
                 id="create-start_date"
                 name="start_date"
-                type="date"
-                required
                 invalid={!!errors.start_date}
               />
               <Field.Feedback message={errors.start_date} />
@@ -129,10 +147,9 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-end_date">Selesai</Field.Label>
-              <Field.Input
+              <DatePicker
                 id="create-end_date"
                 name="end_date"
-                type="date"
                 invalid={!!errors.end_date}
               />
               <Field.Feedback message={errors.end_date} />
@@ -148,14 +165,20 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Organisasi" subtitle={editingOrganization?.name ?? ''}>
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Organisasi"
+  subtitle={editingOrganization?.name ?? ''}
+>
   {#snippet children()}
     {#if editingOrganization}
       <Form
@@ -193,11 +216,9 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-start_date">Mulai</Field.Label>
-                <Field.Input
+                <DatePicker
                   id="edit-start_date"
                   name="start_date"
-                  type="date"
-                  required
                   value={editingOrganization.start_date}
                   invalid={!!errors.start_date}
                 />
@@ -207,10 +228,9 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-end_date">Selesai</Field.Label>
-                <Field.Input
+                <DatePicker
                   id="edit-end_date"
                   name="end_date"
-                  type="date"
                   value={editingOrganization.end_date}
                   invalid={!!errors.end_date}
                 />
@@ -227,7 +247,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

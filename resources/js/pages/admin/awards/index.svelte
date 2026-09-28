@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -42,7 +43,10 @@
 />
 
 {#if awards.data.length === 0}
-  <EmptyState title="Belum ada penghargaan" text="Tambahkan penghargaan pertama Anda." />
+  <EmptyState
+    title="Belum ada penghargaan"
+    text="Tambahkan penghargaan pertama Anda."
+  />
 {:else}
   <div class="table-responsive">
     <table class="table align-middle">
@@ -95,7 +99,11 @@
   />
 {/if}
 
-<FormModal bind:open={createOpen} title="Tambah Penghargaan" subtitle="Catat penghargaan atau sertifikat baru.">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Penghargaan"
+  subtitle="Catat penghargaan atau sertifikat baru."
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -106,7 +114,12 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-title">Judul</Field.Label>
-          <Field.Input id="create-title" name="title" required invalid={!!errors.title} />
+          <Field.Input
+            id="create-title"
+            name="title"
+            required
+            invalid={!!errors.title}
+          />
           <Field.Feedback message={errors.title} />
         </Field.Group>
 
@@ -138,7 +151,12 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-rank">Peringkat</Field.Label>
-              <Field.Input id="create-rank" name="rank" type="number" invalid={!!errors.rank} />
+              <Field.Input
+                id="create-rank"
+                name="rank"
+                type="number"
+                invalid={!!errors.rank}
+              />
               <Field.Feedback message={errors.rank} />
             </Field.Group>
           </div>
@@ -146,10 +164,9 @@
 
         <Field.Group>
           <Field.Label for="create-awarded_at">Tanggal Diberikan</Field.Label>
-          <Field.Input
+          <DatePicker
             id="create-awarded_at"
             name="awarded_at"
-            type="date"
             invalid={!!errors.awarded_at}
           />
           <Field.Feedback message={errors.awarded_at} />
@@ -163,14 +180,20 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Penghargaan" subtitle={editingAward?.title ?? ''}>
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Penghargaan"
+  subtitle={editingAward?.title ?? ''}
+>
   {#snippet children()}
     {#if editingAward}
       <Form
@@ -236,10 +259,9 @@
 
           <Field.Group>
             <Field.Label for="edit-awarded_at">Tanggal Diberikan</Field.Label>
-            <Field.Input
+            <DatePicker
               id="edit-awarded_at"
               name="awarded_at"
-              type="date"
               value={editingAward.awarded_at}
               invalid={!!errors.awarded_at}
             />
@@ -254,7 +276,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

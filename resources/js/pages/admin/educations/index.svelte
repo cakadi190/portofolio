@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -232,11 +233,9 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-start_date">Mulai</Field.Label>
-              <Field.Input
+              <DatePicker
                 id="create-start_date"
                 name="start_date"
-                type="date"
-                required
                 invalid={!!errors.start_date}
               />
               <Field.Feedback message={errors.start_date} />
@@ -245,10 +244,9 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-end_date">Selesai</Field.Label>
-              <Field.Input
+              <DatePicker
                 id="create-end_date"
                 name="end_date"
-                type="date"
                 invalid={!!errors.end_date}
               />
               <Field.Feedback message={errors.end_date} />
@@ -456,11 +454,9 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-start_date">Mulai</Field.Label>
-                <Field.Input
+                <DatePicker
                   id="edit-start_date"
                   name="start_date"
-                  type="date"
-                  required
                   value={editingEducation.start_date}
                   invalid={!!errors.start_date}
                 />
@@ -470,10 +466,9 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-end_date">Selesai</Field.Label>
-                <Field.Input
+                <DatePicker
                   id="edit-end_date"
                   name="end_date"
-                  type="date"
                   value={editingEducation.end_date}
                   invalid={!!errors.end_date}
                 />

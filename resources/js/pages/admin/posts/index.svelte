@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -40,8 +41,12 @@
   let createOpen = $state(false);
   let editOpen = $state(false);
   let editingPost = $state<Post | null>(null);
-  const editingSelectedTags = $derived(editingPost?.tags.map((t) => t.id) ?? []);
-  const editingSelectedCategories = $derived(editingPost?.categories.map((c) => c.id) ?? []);
+  const editingSelectedTags = $derived(
+    editingPost?.tags.map((t) => t.id) ?? [],
+  );
+  const editingSelectedCategories = $derived(
+    editingPost?.categories.map((c) => c.id) ?? [],
+  );
 
   function openEdit(post: Post): void {
     editingPost = post;
@@ -76,24 +81,34 @@
           <tr>
             <td>{post.title}</td>
             <td>
-              <span class={`badge ${post.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}>
+              <span
+                class={`badge ${post.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}
+              >
                 {post.is_published ? 'Terbit' : 'Draf'}
               </span>
             </td>
-            <td><div class="d-flex flex-wrap gap-1">
+            <td
+              ><div class="d-flex flex-wrap gap-1">
                 {#each post.tags as item (item.id)}
-                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+                  <span class="badge text-bg-secondary fw-normal"
+                    >{item.name}</span
+                  >
                 {:else}
                   <span class="text-muted">&mdash;</span>
                 {/each}
-              </div></td>
-            <td><div class="d-flex flex-wrap gap-1">
+              </div></td
+            >
+            <td
+              ><div class="d-flex flex-wrap gap-1">
                 {#each post.categories as item (item.id)}
-                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+                  <span class="badge text-bg-secondary fw-normal"
+                    >{item.name}</span
+                  >
                 {:else}
                   <span class="text-muted">&mdash;</span>
                 {/each}
-              </div></td>
+              </div></td
+            >
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button
@@ -123,7 +138,12 @@
   />
 {/if}
 
-<FormModal bind:open={createOpen} title="Tambah Artikel" subtitle="Tulis artikel baru." size="lg">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Artikel"
+  subtitle="Tulis artikel baru."
+  size="lg"
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -134,7 +154,12 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-title">Judul</Field.Label>
-          <Field.Input id="create-title" name="title" required invalid={!!errors.title} />
+          <Field.Input
+            id="create-title"
+            name="title"
+            required
+            invalid={!!errors.title}
+          />
           <Field.Feedback message={errors.title} />
         </Field.Group>
 
@@ -157,7 +182,11 @@
 
         <Field.Group>
           <Field.Label for="create-excerpt">Ringkasan</Field.Label>
-          <Field.Input id="create-excerpt" name="excerpt" invalid={!!errors.excerpt} />
+          <Field.Input
+            id="create-excerpt"
+            name="excerpt"
+            invalid={!!errors.excerpt}
+          />
           <Field.Feedback message={errors.excerpt} />
         </Field.Group>
 
@@ -169,30 +198,36 @@
             class="form-control"
             class:is-invalid={!!errors.content}
             rows="10"
-            required
-          ></textarea>
+            required></textarea>
           <Field.Feedback message={errors.content} />
         </Field.Group>
 
         <input type="hidden" name="is_published" value="0" />
-        <Field.Input.Check id="create-is_published" name="is_published" value="1">
+        <Field.Input.Check
+          id="create-is_published"
+          name="is_published"
+          value="1"
+        >
           Terbitkan artikel
         </Field.Input.Check>
 
         <Field.Group>
           <Field.Label for="create-published_at">Tanggal Terbit</Field.Label>
-          <Field.Input
+          <DatePicker
             id="create-published_at"
             name="published_at"
-            type="datetime-local"
             invalid={!!errors.published_at}
+            withTime
           />
           <Field.Feedback message={errors.published_at} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-tags">Tag</Field.Label>
-          <MultiCheck name="tags" options={tags.map((t) => ({ value: t.id, label: t.name }))} />
+          <MultiCheck
+            name="tags"
+            options={tags.map((t) => ({ value: t.id, label: t.name }))}
+          />
         </Field.Group>
 
         <Field.Group>
@@ -211,14 +246,21 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Artikel" subtitle={editingPost?.title ?? ''} size="lg">
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Artikel"
+  subtitle={editingPost?.title ?? ''}
+  size="lg"
+>
   {#snippet children()}
     {#if editingPost}
       <Form
@@ -297,12 +339,12 @@
 
           <Field.Group>
             <Field.Label for="edit-published_at">Tanggal Terbit</Field.Label>
-            <Field.Input
+            <DatePicker
               id="edit-published_at"
               name="published_at"
-              type="datetime-local"
               value={editingPost.published_at}
               invalid={!!errors.published_at}
+              withTime
             />
             <Field.Feedback message={errors.published_at} />
           </Field.Group>
@@ -333,7 +375,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

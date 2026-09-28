@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -32,7 +33,9 @@
   let createOpen = $state(false);
   let editOpen = $state(false);
   let editingCareer = $state<Career | null>(null);
-  const editingSelectedPortfolios = $derived(editingCareer?.portfolios.map((p) => p.id) ?? []);
+  const editingSelectedPortfolios = $derived(
+    editingCareer?.portfolios.map((p) => p.id) ?? [],
+  );
 
   function openEdit(career: Career): void {
     editingCareer = career;
@@ -49,7 +52,10 @@
 />
 
 {#if careers.data.length === 0}
-  <EmptyState title="Belum ada karier" text="Tambahkan riwayat karier pertama Anda." />
+  <EmptyState
+    title="Belum ada karier"
+    text="Tambahkan riwayat karier pertama Anda."
+  />
 {:else}
   <div class="table-responsive">
     <table class="table align-middle">
@@ -68,7 +74,11 @@
             <td>{career.position}</td>
             <td>{career.company}</td>
             <td>{career.location}</td>
-            <td>{formatDate(career.start_date)} &ndash; {career.end_date ? formatDate(career.end_date) : 'Sekarang'}</td>
+            <td
+              >{formatDate(career.start_date)} &ndash; {career.end_date
+                ? formatDate(career.end_date)
+                : 'Sekarang'}</td
+            >
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button
@@ -98,7 +108,12 @@
   />
 {/if}
 
-<FormModal bind:open={createOpen} title="Tambah Karier" subtitle="Catat riwayat pekerjaan baru." size="lg">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Karier"
+  subtitle="Catat riwayat pekerjaan baru."
+  size="lg"
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -109,19 +124,34 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-position">Posisi</Field.Label>
-          <Field.Input id="create-position" name="position" required invalid={!!errors.position} />
+          <Field.Input
+            id="create-position"
+            name="position"
+            required
+            invalid={!!errors.position}
+          />
           <Field.Feedback message={errors.position} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-company">Perusahaan</Field.Label>
-          <Field.Input id="create-company" name="company" required invalid={!!errors.company} />
+          <Field.Input
+            id="create-company"
+            name="company"
+            required
+            invalid={!!errors.company}
+          />
           <Field.Feedback message={errors.company} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-location">Lokasi</Field.Label>
-          <Field.Input id="create-location" name="location" required invalid={!!errors.location} />
+          <Field.Input
+            id="create-location"
+            name="location"
+            required
+            invalid={!!errors.location}
+          />
           <Field.Feedback message={errors.location} />
         </Field.Group>
 
@@ -129,11 +159,9 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-start_date">Mulai</Field.Label>
-              <Field.Input
+              <DatePicker
                 id="create-start_date"
                 name="start_date"
-                type="date"
-                required
                 invalid={!!errors.start_date}
               />
               <Field.Feedback message={errors.start_date} />
@@ -142,10 +170,9 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-end_date">Selesai</Field.Label>
-              <Field.Input
+              <DatePicker
                 id="create-end_date"
                 name="end_date"
-                type="date"
                 invalid={!!errors.end_date}
               />
               <Field.Feedback message={errors.end_date} />
@@ -169,14 +196,21 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Karier" subtitle={editingCareer?.position ?? ''} size="lg">
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Karier"
+  subtitle={editingCareer?.position ?? ''}
+  size="lg"
+>
   {#snippet children()}
     {#if editingCareer}
       <Form
@@ -226,11 +260,9 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-start_date">Mulai</Field.Label>
-                <Field.Input
+                <DatePicker
                   id="edit-start_date"
                   name="start_date"
-                  type="date"
-                  required
                   value={editingCareer.start_date}
                   invalid={!!errors.start_date}
                 />
@@ -240,10 +272,9 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-end_date">Selesai</Field.Label>
-                <Field.Input
+                <DatePicker
                   id="edit-end_date"
                   name="end_date"
-                  type="date"
                   value={editingCareer.end_date}
                   invalid={!!errors.end_date}
                 />
@@ -269,7 +300,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>
