@@ -1,0 +1,45 @@
+// select2-bootstrap-5-theme re-imports Bootstrap's own
+// `functions`/`variables`/`mixins` internally (a plain legacy `@import`,
+// independent of the `@use 'bootstrap/scss/bootstrap' with (...)` module
+// this app renders its real Bootstrap build from). That means none of the
+// palette/radius overrides passed into that `with (...)` map reach it —
+// so the same handful of overrides are mirrored here as `!default` globals
+// *before* the theme is imported, keeping select2's look consistent with
+// the rest of the app instead of falling back to stock Bootstrap blue.
+$primary: #22c55e !default;
+$secondary: #95a4b8 !default;
+$success: #02b875 !default;
+$info: #00a3ff !default;
+$warning: #ff9f1c !default;
+$danger: #ff3838 !default;
+$light: #f3f5f8 !default;
+$dark: #090e18 !default;
+
+$border-color: rgba(#000000, 0.0875) !default;
+$input-border-color: rgba(#000000, 0.15) !default;
+$border-radius: 0.5rem !default;
+$border-radius-sm: calc(0.5rem - 4px) !default;
+$min-contrast-ratio: 1.85 !default;
+
+$font-family-sans-serif: (
+  'Signika',
+  ui-sans-serif,
+  system-ui,
+  sans-serif,
+  'Apple Color Emoji',
+  'Segoe UI Emoji',
+  'Segoe UI Symbol',
+  'Noto Color Emoji',
+) !default;
+
+@import 'select2/dist/css/select2.css';
+
+// Importing the theme's own entry file fails to resolve its internal
+// `@import "node_modules/bootstrap/scss/..."` paths under this app's Vite
+// `loadPaths` setup, so its three prerequisite partials are loaded
+// ourselves (the normal, bare-specifier way) before pulling in the theme's
+// actual styles.
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+@import 'select2-bootstrap-5-theme/src/include-all';

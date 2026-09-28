@@ -8,6 +8,7 @@
   import { Field } from '@/components/ui/field';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
+  import { select2 } from '@/lib/select2';
   import { destroy, store, update } from '@/wayfinder/routes/admin/users';
   import type { Paginated } from '@/types/pagination';
 
@@ -156,6 +157,7 @@
             class="form-select"
             class:is-invalid={!!errors.account_type}
             required
+            use:select2
           >
             {#each accountTypes as option (option.value)}
               <option value={option.value}>{option.label}</option>
@@ -180,6 +182,7 @@
                 name="gender"
                 class="form-select"
                 class:is-invalid={!!errors.gender}
+                use:select2
               >
                 <option value="">—</option>
                 {#each genders as option (option.value)}
@@ -268,6 +271,7 @@
               class:is-invalid={!!errors.account_type}
               required
               value={editingUser.account_type}
+              use:select2
             >
               {#each accountTypes as option (option.value)}
                 <option value={option.value}>{option.label}</option>
@@ -298,6 +302,7 @@
                   class="form-select"
                   class:is-invalid={!!errors.gender}
                   value={editingUser.gender ?? ''}
+                  use:select2
                 >
                   <option value="">—</option>
                   {#each genders as option (option.value)}

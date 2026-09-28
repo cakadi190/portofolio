@@ -7,6 +7,7 @@
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
   import { Form } from '@inertiajs/svelte';
+  import { select2 } from '@/lib/select2';
   import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-ratings';
   import type { Paginated } from '@/types/pagination';
 
@@ -108,6 +109,7 @@
             class="form-select"
             class:is-invalid={!!errors.portfolio_id}
             required
+            use:select2
           >
             {#each portfolios as option (option.id)}
               <option value={option.id}>{option.name}</option>
@@ -124,6 +126,7 @@
             class="form-select"
             class:is-invalid={!!errors.rating}
             required
+            use:select2={{ minimumResultsForSearch: Infinity }}
           >
             {#each [1, 2, 3, 4, 5] as value (value)}
               <option {value}>{value}</option>
@@ -182,6 +185,7 @@
               class:is-invalid={!!errors.portfolio_id}
               required
               value={editingRating.portfolio_id}
+              use:select2
             >
               {#each portfolios as option (option.id)}
                 <option value={option.id}>{option.name}</option>
@@ -199,6 +203,7 @@
               class:is-invalid={!!errors.rating}
               required
               value={editingRating.rating}
+              use:select2={{ minimumResultsForSearch: Infinity }}
             >
               {#each [1, 2, 3, 4, 5] as value (value)}
                 <option {value}>{value}</option>

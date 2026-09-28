@@ -8,6 +8,7 @@
   import { Field } from '@/components/ui/field';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
+  import { select2 } from '@/lib/select2';
   import { destroy, store, update } from '@/wayfinder/routes/admin/coffee-places';
   import type { Paginated } from '@/types/pagination';
 
@@ -201,6 +202,7 @@
                 class="form-select"
                 class:is-invalid={!!errors.wifi_speed}
                 required
+                use:select2
               >
                 {#each wifiSpeeds as option (option.value)}
                   <option value={option.value}>{option.label}</option>
@@ -218,6 +220,7 @@
                 class="form-select"
                 class:is-invalid={!!errors.price_tier}
                 required
+                use:select2
               >
                 {#each priceTiers as option (option.value)}
                   <option value={option.value}>{option.label}</option>
@@ -414,6 +417,7 @@
                   class:is-invalid={!!errors.wifi_speed}
                   required
                   value={editingPlace.wifi_speed}
+                  use:select2
                 >
                   {#each wifiSpeeds as option (option.value)}
                     <option value={option.value}>{option.label}</option>
@@ -432,6 +436,7 @@
                   class:is-invalid={!!errors.price_tier}
                   required
                   value={editingPlace.price_tier}
+                  use:select2
                 >
                   {#each priceTiers as option (option.value)}
                     <option value={option.value}>{option.label}</option>
