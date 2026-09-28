@@ -80,20 +80,6 @@ class RotateAppKey extends Command
         DB::transaction(function () use (&$count) {
             User::query()->chunkById(100, function ($users) use (&$count) {
                 foreach ($users as $user) {
-                    $dirty = false;
-
-                    foreach (['nik', 'date_of_birth'] as $attribute) {
-                        if ($user->getRawOriginal($attribute) !== null) {
-                            $user->setAttribute($attribute, $user->getAttribute($attribute));
-                            $dirty = true;
-                        }
-                    }
-
-                    if ($dirty) {
-                        $user->save();
-                        $count++;
-                    }
-
                     if ($this->reencryptTwoFactorColumns($user)) {
                         $count++;
                     }

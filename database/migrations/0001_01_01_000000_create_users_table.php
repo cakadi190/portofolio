@@ -18,10 +18,6 @@ return new class extends Migration
             $table->string('account_type')->default('user');
             $table->string('phone')->nullable();
             $table->string('gender')->nullable();
-            $table->boolean('is_student')->default(false);
-            $table->text('nik')->nullable();
-            $table->text('date_of_birth')->nullable();
-            $table->text('address')->nullable();
             $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();

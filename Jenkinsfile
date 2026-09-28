@@ -124,6 +124,29 @@ REMOTE
   }
 }
 
+// DESTRUCTIVE: drops every table on the newly deployed (not-yet-live) colour
+// and rebuilds the schema from scratch via `migrate:fresh --seed`. Runs
+// before the smoke test, against the same not-yet-public container/port
+// smokeTest() checks, so the live colour is never touched by this step.
+void migrateFresh() {
+  withDeploySsh {
+    sh """#!/usr/bin/env bash
+      set -euo pipefail
+
+      ${sshOptsSnippet()}
+
+      ssh "\${SSH_OPTS[@]}" ${DEPLOY_HOST} bash -s <<'REMOTE'
+        set -euo pipefail
+        cd ${DEPLOY_PATH}
+
+        color="\$(cat .pending_color)"
+        echo "==> Running migrate:fresh --seed on catatancakadi-\$color"
+        docker compose -f docker-compose.prod.yml exec -T "catatancakadi-\$color" php artisan migrate:fresh --seed --force
+REMOTE
+    """
+  }
+}
+
 void rotate() {
   withDeploySsh {
     sh """#!/usr/bin/env bash
@@ -167,6 +190,11 @@ pipeline {
       name: 'DEPLOY',
       defaultValue: true,
       description: 'Uncheck to build (and test) without shipping to the server.'
+    )
+    booleanParam(
+      name: 'SHOULD_MIGRATE_FRESH',
+      defaultValue: false,
+      description: 'DESTRUCTIVE. Runs `migrate:fresh --seed` on the newly deployed colour before the smoke test, dropping and recreating every production table. Leave unchecked unless you explicitly intend to wipe production data.'
     )
   }
 
@@ -225,6 +253,17 @@ pipeline {
       steps {
         script {
           deployImage()
+        }
+      }
+    }
+
+    // Opt-in and destructive: wipes and recreates the schema on the new
+    // colour, before it's smoke tested and before it's ever live.
+    stage('Migrate Fresh') {
+      when { expression { params.DEPLOY && params.SHOULD_MIGRATE_FRESH } }
+      steps {
+        script {
+          migrateFresh()
         }
       }
     }

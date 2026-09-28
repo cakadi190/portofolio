@@ -3,8 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Casts\EncryptionModels\CryptedDateCast;
-use App\Casts\EncryptionModels\CryptedUnionCast;
 use App\Enums\Gender;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
@@ -25,10 +23,6 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property UserRole $account_type
  * @property string|null $phone
  * @property Gender|null $gender
- * @property bool $is_student
- * @property string|null $nik
- * @property Carbon|null $date_of_birth
- * @property string|null $address
  * @property string|null $avatar
  * @property Carbon|null $email_verified_at
  * @property string $password
@@ -39,8 +33,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'is_student', 'nik', 'date_of_birth', 'address', 'avatar'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'nik', 'date_of_birth'])]
+#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'avatar'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -59,9 +53,6 @@ class User extends Authenticatable implements PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
             'account_type' => UserRole::class,
             'gender' => Gender::class,
-            'is_student' => 'boolean',
-            'nik' => CryptedUnionCast::class,
-            'date_of_birth' => CryptedDateCast::class,
         ];
     }
 

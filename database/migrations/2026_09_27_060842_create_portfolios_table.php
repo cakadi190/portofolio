@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('image');
-            $table->string('short_desc')->nullable();
+            $table->text('short_desc')->nullable();
             $table->longText('description')->nullable();
             $table->string('demo_link')->nullable();
             $table->string('source_code')->nullable();

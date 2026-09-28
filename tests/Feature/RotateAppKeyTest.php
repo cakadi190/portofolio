@@ -25,10 +25,7 @@ test('rotates the application key and re-encrypts encrypted user columns', funct
 
     config(['app.key' => $oldKey, 'app.previous_keys' => []]);
 
-    $user = User::factory()->create([
-        'nik' => '3201234567890001',
-        'date_of_birth' => '1990-05-15',
-    ]);
+    $user = User::factory()->create();
 
     DB::table('users')->where('id', $user->id)->update([
         'two_factor_secret' => Crypt::encryptString('SECRET123'),
@@ -52,16 +49,10 @@ test('rotates the application key and re-encrypts encrypted user columns', funct
 
     $rotatedRow = DB::table('users')->where('id', $user->id)->first();
 
-    expect($rotatedRow->nik)->not->toBe($originalRow->nik)
-        ->and($rotatedRow->date_of_birth)->not->toBe($originalRow->date_of_birth)
-        ->and($rotatedRow->two_factor_secret)->not->toBe($originalRow->two_factor_secret)
+    expect($rotatedRow->two_factor_secret)->not->toBe($originalRow->two_factor_secret)
         ->and($rotatedRow->two_factor_recovery_codes)->not->toBe($originalRow->two_factor_recovery_codes);
 
-    $fresh = $user->fresh();
-
-    expect($fresh->nik)->toBe('3201234567890001')
-        ->and($fresh->date_of_birth->format('Y-m-d'))->toBe('1990-05-15')
-        ->and(Crypt::decryptString($rotatedRow->two_factor_secret))->toBe('SECRET123')
+    expect(Crypt::decryptString($rotatedRow->two_factor_secret))->toBe('SECRET123')
         ->and(Crypt::decryptString($rotatedRow->two_factor_recovery_codes))->toBe('code-one,code-two');
 
     @unlink($envPath);
