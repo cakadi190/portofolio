@@ -18,11 +18,6 @@ class OrganizationController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('admin/organizations/create');
-    }
-
     public function store(OrganizationRequest $request): RedirectResponse
     {
         Organization::query()->create($request->validated());
@@ -30,13 +25,6 @@ class OrganizationController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Organisasi berhasil ditambahkan.']);
 
         return to_route('admin.organizations.index');
-    }
-
-    public function edit(Organization $organization): Response
-    {
-        return Inertia::render('admin/organizations/edit', [
-            'organization' => $organization,
-        ]);
     }
 
     public function update(OrganizationRequest $request, Organization $organization): RedirectResponse

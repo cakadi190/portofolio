@@ -7,11 +7,13 @@
     subtitle,
     createHref,
     createLabel = 'Tambah',
+    onCreate,
   }: {
     title: string;
     subtitle?: string;
     createHref?: string;
     createLabel?: string;
+    onCreate?: () => void;
   } = $props();
 </script>
 
@@ -23,7 +25,16 @@
     {/if}
   </div>
 
-  {#if createHref}
+  {#if onCreate}
+    <button
+      type="button"
+      class="btn btn-primary d-inline-flex align-items-center gap-2"
+      onclick={onCreate}
+    >
+      <Plus size={16} />
+      {createLabel}
+    </button>
+  {:else if createHref}
     <Link href={createHref} class="btn btn-primary d-inline-flex align-items-center gap-2">
       <Plus size={16} />
       {createLabel}

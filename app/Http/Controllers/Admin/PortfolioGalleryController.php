@@ -22,12 +22,6 @@ class PortfolioGalleryController extends Controller
                 ->with('portfolio:id,name')
                 ->orderByDesc('created_at')
                 ->paginate(20),
-        ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('admin/portfolio-galleries/create', [
             'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -42,14 +36,6 @@ class PortfolioGalleryController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Galeri portofolio berhasil ditambahkan.']);
 
         return to_route('admin.portfolio-galleries.index');
-    }
-
-    public function edit(PortfolioGallery $portfolioGallery): Response
-    {
-        return Inertia::render('admin/portfolio-galleries/edit', [
-            'portfolioGallery' => $portfolioGallery,
-            'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
-        ]);
     }
 
     public function update(PortfolioGalleryRequest $request, PortfolioGallery $portfolioGallery): RedirectResponse

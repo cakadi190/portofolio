@@ -15,13 +15,7 @@ class CareerController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/careers/index', [
-            'careers' => Career::query()->orderByDesc('start_date')->paginate(20),
-        ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('admin/careers/create', [
+            'careers' => Career::query()->with('portfolios:id')->orderByDesc('start_date')->paginate(20),
             'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -34,14 +28,6 @@ class CareerController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Karier berhasil ditambahkan.']);
 
         return to_route('admin.careers.index');
-    }
-
-    public function edit(Career $career): Response
-    {
-        return Inertia::render('admin/careers/edit', [
-            'career' => $career->load('portfolios:id'),
-            'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
-        ]);
     }
 
     public function update(CareerRequest $request, Career $career): RedirectResponse

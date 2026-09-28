@@ -18,11 +18,6 @@ class TechnologyController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('admin/technologies/create');
-    }
-
     public function store(TechnologyRequest $request): RedirectResponse
     {
         Technology::query()->create($request->validated());
@@ -30,13 +25,6 @@ class TechnologyController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Teknologi berhasil ditambahkan.']);
 
         return to_route('admin.technologies.index');
-    }
-
-    public function edit(Technology $technology): Response
-    {
-        return Inertia::render('admin/technologies/edit', [
-            'technology' => $technology,
-        ]);
     }
 
     public function update(TechnologyRequest $request, Technology $technology): RedirectResponse

@@ -18,11 +18,6 @@ class PostCategoryController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('admin/post-categories/create');
-    }
-
     public function store(PostCategoryRequest $request): RedirectResponse
     {
         PostCategory::query()->create($request->validated());
@@ -30,13 +25,6 @@ class PostCategoryController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kategori artikel berhasil ditambahkan.']);
 
         return to_route('admin.post-categories.index');
-    }
-
-    public function edit(PostCategory $postCategory): Response
-    {
-        return Inertia::render('admin/post-categories/edit', [
-            'postCategory' => $postCategory,
-        ]);
     }
 
     public function update(PostCategoryRequest $request, PostCategory $postCategory): RedirectResponse

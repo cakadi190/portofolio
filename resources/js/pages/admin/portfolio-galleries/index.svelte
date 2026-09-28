@@ -3,19 +3,37 @@
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import EmptyState from '@/components/empty-state.svelte';
+  import FormModal from '@/components/form-modal.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
-  import { Link } from '@inertiajs/svelte';
-  import { create, destroy, edit } from '@/wayfinder/routes/admin/portfolio-galleries';
+  import { Field } from '@/components/ui/field';
+  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import { Form } from '@inertiajs/svelte';
+  import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-galleries';
   import type { Paginated } from '@/types/pagination';
 
-  type GalleryRow = {
+  type PortfolioOption = { id: number; name: string };
+
+  type Gallery = {
     id: number;
+    portfolio_id: number;
     image_url: string;
     description: string | null;
-    portfolio: { id: number; name: string };
+    portfolio: PortfolioOption;
   };
 
-  let { portfolioGalleries }: { portfolioGalleries: Paginated<GalleryRow> } = $props();
+  let {
+    portfolioGalleries,
+    portfolios,
+  }: { portfolioGalleries: Paginated<Gallery>; portfolios: PortfolioOption[] } = $props();
+
+  let createOpen = $state(false);
+  let editOpen = $state(false);
+  let editingGallery = $state<Gallery | null>(null);
+
+  function openEdit(gallery: Gallery): void {
+    editingGallery = gallery;
+    editOpen = true;
+  }
 </script>
 
 <AppHead title="Galeri Portofolio" />
@@ -23,7 +41,7 @@
 <AdminPageHeader
   title="Galeri Portofolio"
   subtitle="Kelola foto galeri untuk tiap portofolio."
-  createHref={create().url}
+  onCreate={() => (createOpen = true)}
 />
 
 {#if portfolioGalleries.data.length === 0}
@@ -43,9 +61,13 @@
             <p class="fw-semibold mb-1">{gallery.portfolio.name}</p>
             <p class="text-muted small mb-3">{gallery.description ?? '—'}</p>
             <div class="d-flex gap-2">
-              <Link href={edit(gallery.id).url} class="btn btn-sm btn-outline-secondary">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                onclick={() => openEdit(gallery)}
+              >
                 Ubah
-              </Link>
+              </button>
               <AdminDeleteButton
                 href={destroy(gallery.id).url}
                 label={`Hapus foto galeri "${gallery.portfolio.name}"?`}
@@ -66,3 +88,127 @@
     />
   </div>
 {/if}
+
+<FormModal bind:open={createOpen} title="Tambah Galeri Portofolio" subtitle="Unggah foto galeri baru.">
+  {#snippet children()}
+    <Form
+      {...store.form()}
+      class="d-flex flex-column gap-3"
+      novalidate
+      onSuccess={() => (createOpen = false)}
+    >
+      {#snippet children({ errors, processing })}
+        <Field.Group>
+          <Field.Label for="create-portfolio_id">Portofolio</Field.Label>
+          <select
+            id="create-portfolio_id"
+            name="portfolio_id"
+            class="form-select"
+            class:is-invalid={!!errors.portfolio_id}
+            required
+          >
+            {#each portfolios as option (option.id)}
+              <option value={option.id}>{option.name}</option>
+            {/each}
+          </select>
+          <Field.Feedback message={errors.portfolio_id} />
+        </Field.Group>
+
+        <Field.Group>
+          <Field.Label for="create-image">Foto</Field.Label>
+          <FileDropzone name="image" required invalid={!!errors.image} />
+          <Field.Feedback message={errors.image} />
+        </Field.Group>
+
+        <Field.Group>
+          <Field.Label for="create-description">Deskripsi</Field.Label>
+          <Field.Input
+            id="create-description"
+            name="description"
+            invalid={!!errors.description}
+          />
+          <Field.Feedback message={errors.description} />
+        </Field.Group>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            onclick={() => (createOpen = false)}
+          >
+            Batal
+          </button>
+          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+        </div>
+      {/snippet}
+    </Form>
+  {/snippet}
+</FormModal>
+
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Galeri Portofolio"
+  subtitle={editingGallery?.portfolio.name ?? ''}
+>
+  {#snippet children()}
+    {#if editingGallery}
+      <Form
+        {...update.form(editingGallery.id)}
+        class="d-flex flex-column gap-3"
+        novalidate
+        onSuccess={() => (editOpen = false)}
+      >
+        {#snippet children({ errors, processing })}
+          <Field.Group>
+            <Field.Label for="edit-portfolio_id">Portofolio</Field.Label>
+            <select
+              id="edit-portfolio_id"
+              name="portfolio_id"
+              class="form-select"
+              class:is-invalid={!!errors.portfolio_id}
+              required
+              value={editingGallery.portfolio_id}
+            >
+              {#each portfolios as option (option.id)}
+                <option value={option.id}>{option.name}</option>
+              {/each}
+            </select>
+            <Field.Feedback message={errors.portfolio_id} />
+          </Field.Group>
+
+          <Field.Group>
+            <Field.Label for="edit-image">Foto</Field.Label>
+            <FileDropzone
+              name="image"
+              existingUrl={`/storage/${editingGallery.image_url}`}
+              invalid={!!errors.image}
+            />
+            <Field.Feedback message={errors.image} />
+          </Field.Group>
+
+          <Field.Group>
+            <Field.Label for="edit-description">Deskripsi</Field.Label>
+            <Field.Input
+              id="edit-description"
+              name="description"
+              value={editingGallery.description}
+              invalid={!!errors.description}
+            />
+            <Field.Feedback message={errors.description} />
+          </Field.Group>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              onclick={() => (editOpen = false)}
+            >
+              Batal
+            </button>
+            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          </div>
+        {/snippet}
+      </Form>
+    {/if}
+  {/snippet}
+</FormModal>

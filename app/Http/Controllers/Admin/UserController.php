@@ -21,12 +21,6 @@ class UserController extends Controller
     {
         return Inertia::render('admin/users/index', [
             'users' => User::query()->orderBy('name')->paginate(20),
-        ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('admin/users/create', [
             'accountTypes' => UserRole::options(),
             'genders' => Gender::options(),
         ]);
@@ -46,15 +40,6 @@ class UserController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengguna berhasil ditambahkan.']);
 
         return to_route('admin.users.index');
-    }
-
-    public function edit(User $user): Response
-    {
-        return Inertia::render('admin/users/edit', [
-            'user' => $user,
-            'accountTypes' => UserRole::options(),
-            'genders' => Gender::options(),
-        ]);
     }
 
     public function update(UserRequest $request, User $user): RedirectResponse

@@ -21,15 +21,12 @@ class PortfolioController extends Controller
     {
         return Inertia::render('admin/portfolios/index', [
             'portfolios' => Portfolio::query()
+                ->with(['technologies:id', 'categories:id', 'careers:id'])
                 ->withCount(['technologies', 'categories', 'galleries', 'ratings'])
                 ->orderBy('name')
                 ->paginate(20),
+            ...$this->options(),
         ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('admin/portfolios/create', $this->options());
     }
 
     public function store(PortfolioRequest $request): RedirectResponse
@@ -43,14 +40,6 @@ class PortfolioController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Portofolio berhasil ditambahkan.']);
 
         return to_route('admin.portfolios.index');
-    }
-
-    public function edit(Portfolio $portfolio): Response
-    {
-        return Inertia::render('admin/portfolios/edit', [
-            'portfolio' => $portfolio->load(['technologies:id', 'categories:id', 'careers:id']),
-            ...$this->options(),
-        ]);
     }
 
     public function update(PortfolioRequest $request, Portfolio $portfolio): RedirectResponse

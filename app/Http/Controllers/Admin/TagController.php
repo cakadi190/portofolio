@@ -18,11 +18,6 @@ class TagController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('admin/tags/create');
-    }
-
     public function store(TagRequest $request): RedirectResponse
     {
         Tag::query()->create($request->validated());
@@ -30,13 +25,6 @@ class TagController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Tag berhasil ditambahkan.']);
 
         return to_route('admin.tags.index');
-    }
-
-    public function edit(Tag $tag): Response
-    {
-        return Inertia::render('admin/tags/edit', [
-            'tag' => $tag,
-        ]);
     }
 
     public function update(TagRequest $request, Tag $tag): RedirectResponse

@@ -3,26 +3,49 @@
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import EmptyState from '@/components/empty-state.svelte';
+  import FormModal from '@/components/form-modal.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
-  import { Link } from '@inertiajs/svelte';
-  import { create, destroy, edit } from '@/wayfinder/routes/admin/careers';
+  import { Field } from '@/components/ui/field';
+  import MultiCheck from '@/components/ui/multi-check.svelte';
+  import { Form } from '@inertiajs/svelte';
+  import { destroy, store, update } from '@/wayfinder/routes/admin/careers';
   import type { Paginated } from '@/types/pagination';
 
-  type CareerRow = {
+  type PortfolioOption = { id: number; name: string };
+
+  type Career = {
     id: number;
     position: string;
     company: string;
     location: string;
     start_date: string;
     end_date: string | null;
+    portfolios: { id: number }[];
   };
 
-  let { careers }: { careers: Paginated<CareerRow> } = $props();
+  let {
+    careers,
+    portfolios,
+  }: { careers: Paginated<Career>; portfolios: PortfolioOption[] } = $props();
+
+  let createOpen = $state(false);
+  let editOpen = $state(false);
+  let editingCareer = $state<Career | null>(null);
+  const editingSelectedPortfolios = $derived(editingCareer?.portfolios.map((p) => p.id) ?? []);
+
+  function openEdit(career: Career): void {
+    editingCareer = career;
+    editOpen = true;
+  }
 </script>
 
 <AppHead title="Riwayat Karier" />
 
-<AdminPageHeader title="Riwayat Karier" subtitle="Kelola riwayat pekerjaan Anda." createHref={create().url} />
+<AdminPageHeader
+  title="Riwayat Karier"
+  subtitle="Kelola riwayat pekerjaan Anda."
+  onCreate={() => (createOpen = true)}
+/>
 
 {#if careers.data.length === 0}
   <EmptyState title="Belum ada karier" text="Tambahkan riwayat karier pertama Anda." />
@@ -47,9 +70,13 @@
             <td>{career.start_date} &ndash; {career.end_date ?? 'Sekarang'}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
-                <Link href={edit(career.id).url} class="btn btn-sm btn-outline-secondary">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  onclick={() => openEdit(career)}
+                >
                   Ubah
-                </Link>
+                </button>
                 <AdminDeleteButton
                   href={destroy(career.id).url}
                   label={`Hapus karier "${career.position}"?`}
@@ -69,3 +96,182 @@
     nextPageUrl={careers.next_page_url}
   />
 {/if}
+
+<FormModal bind:open={createOpen} title="Tambah Karier" subtitle="Catat riwayat pekerjaan baru." size="lg">
+  {#snippet children()}
+    <Form
+      {...store.form()}
+      class="d-flex flex-column gap-3"
+      novalidate
+      onSuccess={() => (createOpen = false)}
+    >
+      {#snippet children({ errors, processing })}
+        <Field.Group>
+          <Field.Label for="create-position">Posisi</Field.Label>
+          <Field.Input id="create-position" name="position" required invalid={!!errors.position} />
+          <Field.Feedback message={errors.position} />
+        </Field.Group>
+
+        <Field.Group>
+          <Field.Label for="create-company">Perusahaan</Field.Label>
+          <Field.Input id="create-company" name="company" required invalid={!!errors.company} />
+          <Field.Feedback message={errors.company} />
+        </Field.Group>
+
+        <Field.Group>
+          <Field.Label for="create-location">Lokasi</Field.Label>
+          <Field.Input id="create-location" name="location" required invalid={!!errors.location} />
+          <Field.Feedback message={errors.location} />
+        </Field.Group>
+
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <Field.Group>
+              <Field.Label for="create-start_date">Mulai</Field.Label>
+              <Field.Input
+                id="create-start_date"
+                name="start_date"
+                type="date"
+                required
+                invalid={!!errors.start_date}
+              />
+              <Field.Feedback message={errors.start_date} />
+            </Field.Group>
+          </div>
+          <div class="col-sm-6">
+            <Field.Group>
+              <Field.Label for="create-end_date">Selesai</Field.Label>
+              <Field.Input
+                id="create-end_date"
+                name="end_date"
+                type="date"
+                invalid={!!errors.end_date}
+              />
+              <Field.Feedback message={errors.end_date} />
+            </Field.Group>
+          </div>
+        </div>
+
+        <Field.Group>
+          <Field.Label for="create-portfolios">Portofolio terkait</Field.Label>
+          <MultiCheck
+            name="portfolios"
+            options={portfolios.map((p) => ({ value: p.id, label: p.name }))}
+          />
+        </Field.Group>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            onclick={() => (createOpen = false)}
+          >
+            Batal
+          </button>
+          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+        </div>
+      {/snippet}
+    </Form>
+  {/snippet}
+</FormModal>
+
+<FormModal bind:open={editOpen} title="Ubah Karier" subtitle={editingCareer?.position ?? ''} size="lg">
+  {#snippet children()}
+    {#if editingCareer}
+      <Form
+        {...update.form(editingCareer.id)}
+        class="d-flex flex-column gap-3"
+        novalidate
+        onSuccess={() => (editOpen = false)}
+      >
+        {#snippet children({ errors, processing })}
+          <Field.Group>
+            <Field.Label for="edit-position">Posisi</Field.Label>
+            <Field.Input
+              id="edit-position"
+              name="position"
+              required
+              value={editingCareer.position}
+              invalid={!!errors.position}
+            />
+            <Field.Feedback message={errors.position} />
+          </Field.Group>
+
+          <Field.Group>
+            <Field.Label for="edit-company">Perusahaan</Field.Label>
+            <Field.Input
+              id="edit-company"
+              name="company"
+              required
+              value={editingCareer.company}
+              invalid={!!errors.company}
+            />
+            <Field.Feedback message={errors.company} />
+          </Field.Group>
+
+          <Field.Group>
+            <Field.Label for="edit-location">Lokasi</Field.Label>
+            <Field.Input
+              id="edit-location"
+              name="location"
+              required
+              value={editingCareer.location}
+              invalid={!!errors.location}
+            />
+            <Field.Feedback message={errors.location} />
+          </Field.Group>
+
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <Field.Group>
+                <Field.Label for="edit-start_date">Mulai</Field.Label>
+                <Field.Input
+                  id="edit-start_date"
+                  name="start_date"
+                  type="date"
+                  required
+                  value={editingCareer.start_date}
+                  invalid={!!errors.start_date}
+                />
+                <Field.Feedback message={errors.start_date} />
+              </Field.Group>
+            </div>
+            <div class="col-sm-6">
+              <Field.Group>
+                <Field.Label for="edit-end_date">Selesai</Field.Label>
+                <Field.Input
+                  id="edit-end_date"
+                  name="end_date"
+                  type="date"
+                  value={editingCareer.end_date}
+                  invalid={!!errors.end_date}
+                />
+                <Field.Feedback message={errors.end_date} />
+              </Field.Group>
+            </div>
+          </div>
+
+          <Field.Group>
+            <Field.Label for="edit-portfolios">Portofolio terkait</Field.Label>
+            <MultiCheck
+              name="portfolios"
+              options={portfolios.map((p) => ({ value: p.id, label: p.name }))}
+              selected={editingSelectedPortfolios}
+            />
+          </Field.Group>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              onclick={() => (editOpen = false)}
+            >
+              Batal
+            </button>
+            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          </div>
+        {/snippet}
+      </Form>
+    {/if}
+  {/snippet}
+</FormModal>

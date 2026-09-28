@@ -21,11 +21,6 @@ class EducationController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('admin/educations/create');
-    }
-
     public function store(EducationRequest $request): RedirectResponse
     {
         $data = $request->safe()->except('logo');
@@ -39,13 +34,6 @@ class EducationController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Riwayat pendidikan berhasil ditambahkan.']);
 
         return to_route('admin.educations.index');
-    }
-
-    public function edit(Education $education): Response
-    {
-        return Inertia::render('admin/educations/edit', [
-            'education' => $education,
-        ]);
     }
 
     public function update(EducationRequest $request, Education $education): RedirectResponse

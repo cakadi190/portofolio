@@ -18,11 +18,6 @@ class PortfolioCategoryController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('admin/portfolio-categories/create');
-    }
-
     public function store(PortfolioCategoryRequest $request): RedirectResponse
     {
         PortfolioCategory::query()->create($request->validated());
@@ -30,13 +25,6 @@ class PortfolioCategoryController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kategori portofolio berhasil ditambahkan.']);
 
         return to_route('admin.portfolio-categories.index');
-    }
-
-    public function edit(PortfolioCategory $portfolioCategory): Response
-    {
-        return Inertia::render('admin/portfolio-categories/edit', [
-            'portfolioCategory' => $portfolioCategory,
-        ]);
     }
 
     public function update(PortfolioCategoryRequest $request, PortfolioCategory $portfolioCategory): RedirectResponse

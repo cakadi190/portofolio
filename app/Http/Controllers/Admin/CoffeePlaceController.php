@@ -20,12 +20,6 @@ class CoffeePlaceController extends Controller
     {
         return Inertia::render('admin/coffee-places/index', [
             'coffeePlaces' => CoffeePlace::query()->orderBy('name')->paginate(20),
-        ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('admin/coffee-places/create', [
             'wifiSpeeds' => WifiSpeed::options(),
             'priceTiers' => CafePriceTier::options(),
         ]);
@@ -44,15 +38,6 @@ class CoffeePlaceController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil ditambahkan.']);
 
         return to_route('admin.coffee-places.index');
-    }
-
-    public function edit(CoffeePlace $coffeePlace): Response
-    {
-        return Inertia::render('admin/coffee-places/edit', [
-            'coffeePlace' => $coffeePlace,
-            'wifiSpeeds' => WifiSpeed::options(),
-            'priceTiers' => CafePriceTier::options(),
-        ]);
     }
 
     public function update(CoffeePlaceRequest $request, CoffeePlace $coffeePlace): RedirectResponse

@@ -20,15 +20,12 @@ class PostController extends Controller
     {
         return Inertia::render('admin/posts/index', [
             'posts' => Post::query()
+                ->with(['tags:id', 'categories:id'])
                 ->withCount(['tags', 'categories'])
                 ->orderByDesc('created_at')
                 ->paginate(20),
+            ...$this->options(),
         ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('admin/posts/create', $this->options());
     }
 
     public function store(PostRequest $request): RedirectResponse
@@ -45,14 +42,6 @@ class PostController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil ditambahkan.']);
 
         return to_route('admin.posts.index');
-    }
-
-    public function edit(Post $post): Response
-    {
-        return Inertia::render('admin/posts/edit', [
-            'post' => $post->load(['tags:id', 'categories:id']),
-            ...$this->options(),
-        ]);
     }
 
     public function update(PostRequest $request, Post $post): RedirectResponse

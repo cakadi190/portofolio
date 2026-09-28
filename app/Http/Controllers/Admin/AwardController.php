@@ -21,11 +21,6 @@ class AwardController extends Controller
         ]);
     }
 
-    public function create(): Response
-    {
-        return Inertia::render('admin/awards/create');
-    }
-
     public function store(AwardRequest $request): RedirectResponse
     {
         $data = $request->safe()->except('icon');
@@ -39,13 +34,6 @@ class AwardController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Penghargaan berhasil ditambahkan.']);
 
         return to_route('admin.awards.index');
-    }
-
-    public function edit(Award $award): Response
-    {
-        return Inertia::render('admin/awards/edit', [
-            'award' => $award,
-        ]);
     }
 
     public function update(AwardRequest $request, Award $award): RedirectResponse
