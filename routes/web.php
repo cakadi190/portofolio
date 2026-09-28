@@ -42,6 +42,8 @@ Route::prefix('sumber-daya')->name('resources.')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard/index')->name('dashboard');
+
+    require __DIR__.'/admin.php';
 });
 
 require __DIR__.'/settings.php';
