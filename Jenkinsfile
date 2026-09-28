@@ -128,6 +128,12 @@ REMOTE
 // and rebuilds the schema from scratch via `migrate:fresh --seed`. Runs
 // before the smoke test, against the same not-yet-public container/port
 // smokeTest() checks, so the live colour is never touched by this step.
+//
+// AppServiceProvider prohibits migrate:fresh in production on purpose, so
+// this calls `app:deploy-migrate-fresh` — the one narrowly-named command
+// that opts back out of that guard for exactly this deploy step. Plain
+// `migrate:fresh` stays blocked everywhere else, including a shell on this
+// same container.
 void migrateFresh() {
   withDeploySsh {
     sh """#!/usr/bin/env bash
@@ -140,8 +146,8 @@ void migrateFresh() {
         cd ${DEPLOY_PATH}
 
         color="\$(cat .pending_color)"
-        echo "==> Running migrate:fresh --seed on catatancakadi-\$color"
-        docker compose -f docker-compose.prod.yml exec -T "catatancakadi-\$color" php artisan migrate:fresh --seed --force
+        echo "==> Running app:deploy-migrate-fresh --seed on catatancakadi-\$color"
+        docker compose -f docker-compose.prod.yml exec -T "catatancakadi-\$color" php artisan app:deploy-migrate-fresh --seed
 REMOTE
     """
   }
