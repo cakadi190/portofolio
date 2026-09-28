@@ -9,6 +9,7 @@
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
   import { select2 } from '@/lib/select2';
+  import { storageUrl } from '@/lib/utils';
   import { destroy, store, update } from '@/wayfinder/routes/admin/coffee-places';
   import type { Paginated } from '@/types/pagination';
 
@@ -65,6 +66,7 @@
     <table class="table align-middle">
       <thead>
         <tr>
+          <th>Foto</th>
           <th>Nama</th>
           <th>Alamat</th>
           <th>Tingkat Harga</th>
@@ -75,6 +77,18 @@
       <tbody>
         {#each coffeePlaces.data as place (place.id)}
           <tr>
+            <td>
+              {#if place.image}
+                <img
+                  src={storageUrl(place.image) ?? ''}
+                  alt={place.name}
+                  loading="lazy"
+                  style="width:3.5rem;height:2.5rem;object-fit:cover;border-radius:0.5rem;"
+                />
+              {:else}
+                <span class="text-muted">&mdash;</span>
+              {/if}
+            </td>
             <td>{place.name}</td>
             <td>{place.address}</td>
             <td>{place.price_tier}</td>
@@ -346,7 +360,7 @@
             <Field.Label for="edit-image">Foto</Field.Label>
             <FileDropzone
               name="image"
-              existingUrl={editingPlace.image ? `/storage/${editingPlace.image}` : null}
+              existingUrl={editingPlace.image}
               invalid={!!errors.image}
             />
             <Field.Feedback message={errors.image} />

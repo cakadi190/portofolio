@@ -9,6 +9,7 @@
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import MultiCheck from '@/components/ui/multi-check.svelte';
   import { Form } from '@inertiajs/svelte';
+  import { storageUrl } from '@/lib/utils';
   import { destroy, store, update } from '@/wayfinder/routes/admin/portfolios';
   import type { Paginated } from '@/types/pagination';
 
@@ -24,8 +25,8 @@
     is_private: boolean;
     technologies_count: number;
     categories_count: number;
-    technologies: { id: number }[];
-    categories: { id: number }[];
+    technologies: { id: number; name: string }[];
+    categories: { id: number; name: string }[];
     careers: { id: number }[];
   };
 
@@ -71,6 +72,7 @@
     <table class="table align-middle">
       <thead>
         <tr>
+          <th>Sampul</th>
           <th>Nama</th>
           <th>Teknologi</th>
           <th>Kategori</th>
@@ -81,9 +83,29 @@
       <tbody>
         {#each portfolios.data as portfolio (portfolio.id)}
           <tr>
+            <td>
+              <img
+                src={storageUrl(portfolio.image) ?? ''}
+                alt={portfolio.name}
+                loading="lazy"
+                style="width:3.5rem;height:2.5rem;object-fit:cover;border-radius:0.5rem;"
+              />
+            </td>
             <td>{portfolio.name}</td>
-            <td>{portfolio.technologies_count}</td>
-            <td>{portfolio.categories_count}</td>
+            <td><div class="d-flex flex-wrap gap-1">
+                {#each portfolio.technologies as item (item.id)}
+                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+                {:else}
+                  <span class="text-muted">&mdash;</span>
+                {/each}
+              </div></td>
+            <td><div class="d-flex flex-wrap gap-1">
+                {#each portfolio.categories as item (item.id)}
+                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+                {:else}
+                  <span class="text-muted">&mdash;</span>
+                {/each}
+              </div></td>
             <td>{portfolio.is_private ? 'Ya' : 'Tidak'}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
@@ -272,7 +294,7 @@
             <Field.Label for="edit-image">Gambar Sampul</Field.Label>
             <FileDropzone
               name="image"
-              existingUrl={`/storage/${editingPortfolio.image}`}
+              existingUrl={editingPortfolio.image}
               invalid={!!errors.image}
             />
             <Field.Feedback message={errors.image} />

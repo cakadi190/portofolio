@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Services\ImageService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,7 +24,7 @@ class BlogController extends Controller
                 'title' => $post->title,
                 'slug' => $post->slug,
                 'excerpt' => $post->excerpt,
-                'coverImage' => $post->cover_image,
+                'coverImage' => ImageService::url($post->cover_image),
                 'categories' => $post->categories->map(fn ($category): array => [
                     'name' => $category->name,
                     'color' => $category->color,
@@ -47,7 +48,7 @@ class BlogController extends Controller
                 'title' => $post->title,
                 'excerpt' => $post->excerpt,
                 'content' => $post->content,
-                'coverImage' => $post->cover_image,
+                'coverImage' => ImageService::url($post->cover_image),
                 'publishedAt' => $post->published_at,
                 'categories' => $post->categories->map(fn ($category): array => [
                     'name' => $category->name,

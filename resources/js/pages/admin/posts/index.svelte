@@ -23,8 +23,8 @@
     published_at: string | null;
     tags_count: number;
     categories_count: number;
-    tags: { id: number }[];
-    categories: { id: number }[];
+    tags: { id: number; name: string }[];
+    categories: { id: number; name: string }[];
   };
 
   let {
@@ -80,8 +80,20 @@
                 {post.is_published ? 'Terbit' : 'Draf'}
               </span>
             </td>
-            <td>{post.tags_count}</td>
-            <td>{post.categories_count}</td>
+            <td><div class="d-flex flex-wrap gap-1">
+                {#each post.tags as item (item.id)}
+                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+                {:else}
+                  <span class="text-muted">&mdash;</span>
+                {/each}
+              </div></td>
+            <td><div class="d-flex flex-wrap gap-1">
+                {#each post.categories as item (item.id)}
+                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+                {:else}
+                  <span class="text-muted">&mdash;</span>
+                {/each}
+              </div></td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button
@@ -243,7 +255,7 @@
             <Field.Label for="edit-cover_image">Gambar Sampul</Field.Label>
             <FileDropzone
               name="cover_image"
-              existingUrl={editingPost.cover_image ? `/storage/${editingPost.cover_image}` : null}
+              existingUrl={editingPost.cover_image}
               invalid={!!errors.cover_image}
             />
             <Field.Feedback message={errors.cover_image} />

@@ -29,7 +29,7 @@ class PortfolioGalleryController extends Controller
     public function store(PortfolioGalleryRequest $request): RedirectResponse
     {
         $data = $request->safe()->except('image');
-        $data['image_url'] = $this->storeUpload($request->file('image'), 'portfolio-galleries');
+        $data['image_url'] = $this->storeImage('image', 'portfolio-galleries');
 
         PortfolioGallery::query()->create($data);
 
@@ -44,7 +44,7 @@ class PortfolioGalleryController extends Controller
 
         if ($request->hasFile('image')) {
             $this->deleteUpload($portfolioGallery->image_url);
-            $data['image_url'] = $this->storeUpload($request->file('image'), 'portfolio-galleries');
+            $data['image_url'] = $this->storeImage('image', 'portfolio-galleries');
         }
 
         $portfolioGallery->update($data);

@@ -32,7 +32,7 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
 
         if ($request->hasFile('avatar')) {
-            $data['avatar'] = $this->storeUpload($request->file('avatar'), 'avatars');
+            $data['avatar'] = $this->storeImage('avatar', 'avatars', 512, 512, 100);
         }
 
         User::query()->create($data);
@@ -54,7 +54,7 @@ class UserController extends Controller
 
         if ($request->hasFile('avatar')) {
             $this->deleteUpload($user->avatar);
-            $data['avatar'] = $this->storeUpload($request->file('avatar'), 'avatars');
+            $data['avatar'] = $this->storeImage('avatar', 'avatars', 512, 512, 100);
         }
 
         $user->update($data);

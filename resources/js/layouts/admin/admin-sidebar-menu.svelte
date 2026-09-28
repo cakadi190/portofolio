@@ -2,6 +2,7 @@
   import { Link } from '@inertiajs/svelte';
   import Circle from '@lucide/svelte/icons/circle';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import { untrack } from 'svelte';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import AdminSidebarMenu from './admin-sidebar-menu.svelte';
   import {
@@ -121,7 +122,7 @@
       return;
     }
 
-    sidebar.toggleBranch(id);
+    sidebar.toggleBranch(id, groupId);
 
     // A nested branch changing height inside an open flyout: re-clamp now and
     // once the accordion transition settles.
@@ -134,13 +135,28 @@
     }
   }
 
+  const groupId = $derived(`${parentId}-${level}`);
+
   function branchId(index: number): string {
-    return `${parentId}-${level}-${index}`;
+    return `${groupId}-${index}`;
   }
 
-  function isOpen(id: string, hasActiveChild: boolean): boolean {
-    return sidebar.searching || sidebar.isBranchOpen(id) || hasActiveChild;
+  function isOpen(id: string): boolean {
+    return sidebar.searching || sidebar.isBranchOpen(id);
   }
+
+  /**
+   * Reveal the branch holding the current route, closing its siblings. Runs on
+   * navigation only (entries change with the URL), so the user can still
+   * collapse the active branch afterwards.
+   */
+  $effect(() => {
+    entries.forEach((entry, index) => {
+      if (entry.type !== 'header' && (entry.children?.length ?? 0) > 0 && hasActiveDescendant(entry)) {
+        untrack(() => sidebar.openBranch(branchId(index), groupId));
+      }
+    });
+  });
 
   function hasActiveDescendant(entry: AdminSidebarEntry): boolean {
     if (entry.type === 'header') {

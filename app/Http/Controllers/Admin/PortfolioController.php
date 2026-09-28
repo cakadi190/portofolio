@@ -21,7 +21,7 @@ class PortfolioController extends Controller
     {
         return Inertia::render('admin/portfolios/index', [
             'portfolios' => Portfolio::query()
-                ->with(['technologies:id', 'categories:id', 'careers:id'])
+                ->with(['technologies:id,name', 'categories:id,name', 'careers:id'])
                 ->withCount(['technologies', 'categories', 'galleries', 'ratings'])
                 ->orderBy('name')
                 ->paginate(20),
@@ -32,7 +32,7 @@ class PortfolioController extends Controller
     public function store(PortfolioRequest $request): RedirectResponse
     {
         $data = $request->safe()->except(['image', 'technologies', 'categories', 'careers']);
-        $data['image'] = $this->storeUpload($request->file('image'), 'portfolios');
+        $data['image'] = $this->storeImage('image', 'portfolios');
 
         $portfolio = Portfolio::query()->create($data);
         $this->syncRelations($portfolio, $request);
@@ -48,7 +48,7 @@ class PortfolioController extends Controller
 
         if ($request->hasFile('image')) {
             $this->deleteUpload($portfolio->image);
-            $data['image'] = $this->storeUpload($request->file('image'), 'portfolios');
+            $data['image'] = $this->storeImage('image', 'portfolios');
         }
 
         $portfolio->update($data);

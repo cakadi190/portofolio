@@ -26,7 +26,7 @@ class EducationController extends Controller
         $data = $request->safe()->except('logo');
 
         if ($request->hasFile('logo')) {
-            $data['logo'] = $this->storeUpload($request->file('logo'), 'educations');
+            $data['logo'] = $this->storeImage('logo', 'educations', 512, 512, 100);
         }
 
         Education::query()->create($data);
@@ -42,7 +42,7 @@ class EducationController extends Controller
 
         if ($request->hasFile('logo')) {
             $this->deleteUpload($education->logo);
-            $data['logo'] = $this->storeUpload($request->file('logo'), 'educations');
+            $data['logo'] = $this->storeImage('logo', 'educations', 512, 512, 100);
         }
 
         $education->update($data);

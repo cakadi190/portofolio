@@ -20,7 +20,7 @@ class PostController extends Controller
     {
         return Inertia::render('admin/posts/index', [
             'posts' => Post::query()
-                ->with(['tags:id', 'categories:id'])
+                ->with(['tags:id,name', 'categories:id,name'])
                 ->withCount(['tags', 'categories'])
                 ->orderByDesc('created_at')
                 ->paginate(20),
@@ -33,7 +33,7 @@ class PostController extends Controller
         $data = $request->safe()->except(['cover_image', 'tags', 'categories']);
 
         if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $this->storeUpload($request->file('cover_image'), 'posts');
+            $data['cover_image'] = $this->storeImage('cover_image', 'posts');
         }
 
         $post = Post::query()->create($data);
@@ -50,7 +50,7 @@ class PostController extends Controller
 
         if ($request->hasFile('cover_image')) {
             $this->deleteUpload($post->cover_image);
-            $data['cover_image'] = $this->storeUpload($request->file('cover_image'), 'posts');
+            $data['cover_image'] = $this->storeImage('cover_image', 'posts');
         }
 
         $post->update($data);

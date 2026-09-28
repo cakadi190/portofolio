@@ -307,7 +307,7 @@
             <Field.Label for="edit-logo">Logo</Field.Label>
             <FileDropzone
               name="logo"
-              existingUrl={editingEducation.logo ? `/storage/${editingEducation.logo}` : null}
+              existingUrl={editingEducation.logo}
               invalid={!!errors.logo}
             />
             <Field.Feedback message={errors.logo} />

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CoffeePlace;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,7 +32,7 @@ class CoffeeShopController extends Controller
                 'name' => $place->name,
                 'region' => $place->region,
                 'description' => $place->description,
-                'image' => $place->image,
+                'image' => ImageService::url($place->image),
                 'address' => $place->address,
                 'mapUrl' => $place->map_url,
                 'opensAt' => $place->opens_at,

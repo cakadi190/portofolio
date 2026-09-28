@@ -8,6 +8,7 @@
   import { Field } from '@/components/ui/field';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
+  import { storageUrl } from '@/lib/utils';
   import { select2 } from '@/lib/select2';
   import { destroy, store, update } from '@/wayfinder/routes/admin/users';
   import type { Paginated } from '@/types/pagination';
@@ -69,7 +70,7 @@
             <td>
               {#if user.avatar}
                 <img
-                  src={`/storage/${user.avatar}`}
+                  src={storageUrl(user.avatar) ?? ''}
                   alt={user.name}
                   style="width:2.5rem;height:2.5rem;object-fit:cover;border-radius:50%;"
                 />
@@ -318,7 +319,7 @@
             <Field.Label for="edit-avatar">Foto Profil</Field.Label>
             <FileDropzone
               name="avatar"
-              existingUrl={editingUser.avatar ? `/storage/${editingUser.avatar}` : null}
+              existingUrl={editingUser.avatar}
               invalid={!!errors.avatar}
             />
             <Field.Feedback message={errors.avatar} />

@@ -6,10 +6,8 @@
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import { FlatToast, ToastContainer } from 'svelte-toasts';
 
-  const defaultMenu: AdminSidebarEntry[] = adminMenu(page.url);
-
   let {
-    menu = defaultMenu,
+    menu: menuOverride,
     userName = page.props.auth.user.name,
     userEmail = page.props.auth.user.email,
     children,
@@ -19,6 +17,8 @@
     userEmail?: string;
     children?: Snippet;
   } = $props();
+
+  const menu = $derived(menuOverride ?? adminMenu(page.url));
 </script>
 
 <AdminSidebarLayout {menu} {userName} {userEmail}>

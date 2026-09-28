@@ -19,7 +19,6 @@ class AwardRequest extends FormRequest
         return [
             'event_name' => ['required', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:255'],
-            'icon' => ['nullable', 'image', 'max:2048'],
             'year' => ['required', 'integer', 'min:1900', 'max:'.(date('Y') + 1)],
             'rank' => ['nullable', 'integer', 'min:1', 'max:255'],
             'awarded_at' => ['nullable', 'date'],

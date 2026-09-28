@@ -6,7 +6,7 @@
   import FormModal from '@/components/form-modal.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
-  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import Icon from '@iconify/svelte';
   import { Form } from '@inertiajs/svelte';
   import { destroy, store, update } from '@/wayfinder/routes/admin/awards';
   import type { Paginated } from '@/types/pagination';
@@ -15,7 +15,7 @@
     id: number;
     event_name: string;
     title: string;
-    icon: string | null;
+    icon: string;
     year: number;
     rank: number | null;
     awarded_at: string | null;
@@ -60,15 +60,7 @@
         {#each awards.data as award (award.id)}
           <tr>
             <td>
-              {#if award.icon}
-                <img
-                  src={`/storage/${award.icon}`}
-                  alt={award.title}
-                  style="width:2.5rem;height:2.5rem;object-fit:cover;border-radius:0.5rem;"
-                />
-              {:else}
-                <span class="text-muted">&mdash;</span>
-              {/if}
+              <Icon icon={award.icon} width={28} height={28} />
             </td>
             <td>{award.title}</td>
             <td>{award.event_name}</td>
@@ -127,12 +119,6 @@
             invalid={!!errors.event_name}
           />
           <Field.Feedback message={errors.event_name} />
-        </Field.Group>
-
-        <Field.Group>
-          <Field.Label for="create-icon">Ikon</Field.Label>
-          <FileDropzone name="icon" invalid={!!errors.icon} />
-          <Field.Feedback message={errors.icon} />
         </Field.Group>
 
         <div class="row g-3">
@@ -216,16 +202,6 @@
               invalid={!!errors.event_name}
             />
             <Field.Feedback message={errors.event_name} />
-          </Field.Group>
-
-          <Field.Group>
-            <Field.Label for="edit-icon">Ikon</Field.Label>
-            <FileDropzone
-              name="icon"
-              existingUrl={editingAward.icon ? `/storage/${editingAward.icon}` : null}
-              invalid={!!errors.icon}
-            />
-            <Field.Feedback message={errors.icon} />
           </Field.Group>
 
           <div class="row g-3">

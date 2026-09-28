@@ -10,7 +10,7 @@
   import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-categories';
   import type { Paginated } from '@/types/pagination';
 
-  type Category = { id: number; name: string; color: string | null };
+  type Category = { id: number; name: string; color: string | null; portfolios_count: number };
 
   let { portfolioCategories }: { portfolioCategories: Paginated<Category> } = $props();
 
@@ -41,6 +41,7 @@
         <tr>
           <th>Nama</th>
           <th>Warna</th>
+          <th>Portofolio</th>
           <th class="text-end">Aksi</th>
         </tr>
       </thead>
@@ -57,6 +58,7 @@
                 <span class="text-muted">&mdash;</span>
               {/if}
             </td>
+            <td>{category.portfolios_count}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button

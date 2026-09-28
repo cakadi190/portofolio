@@ -18,7 +18,6 @@ class AwardFactory extends Factory
         return [
             'event_name' => fake()->company(),
             'title' => fake()->sentence(3),
-            'icon' => null,
             'year' => fake()->numberBetween(2015, (int) date('Y')),
             'rank' => fake()->numberBetween(1, 3),
             'awarded_at' => fake()->date(),

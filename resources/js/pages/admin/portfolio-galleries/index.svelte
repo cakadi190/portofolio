@@ -8,6 +8,7 @@
   import { Field } from '@/components/ui/field';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
+  import { storageUrl } from '@/lib/utils';
   import { select2 } from '@/lib/select2';
   import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-galleries';
   import type { Paginated } from '@/types/pagination';
@@ -53,7 +54,7 @@
       <div class="col-sm-6 col-lg-4">
         <div class="card h-100">
           <img
-            src={`/storage/${gallery.image_url}`}
+            src={storageUrl(gallery.image_url)}
             alt={gallery.description ?? gallery.portfolio.name}
             class="card-img-top"
             style="height: 10rem; object-fit: cover;"
@@ -183,7 +184,7 @@
             <Field.Label for="edit-image">Foto</Field.Label>
             <FileDropzone
               name="image"
-              existingUrl={`/storage/${editingGallery.image_url}`}
+              existingUrl={editingGallery.image_url}
               invalid={!!errors.image}
             />
             <Field.Feedback message={errors.image} />

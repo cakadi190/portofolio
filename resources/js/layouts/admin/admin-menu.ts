@@ -11,13 +11,21 @@ import type { AdminSidebarEntry } from '@/types/admin-sidebar';
  * Admin sidebar tree. Only entries wired to a real route are listed.
  */
 export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
+  const isActive = (href: string): boolean =>
+    currentUrl === href || currentUrl.startsWith(`${href}/`) || currentUrl.startsWith(`${href}?`);
+  const link = (label: string, href: string): AdminSidebarEntry => ({
+    label,
+    href,
+    active: isActive(href),
+  });
+
   return [
     { type: 'header', label: 'Menu Utama' },
     {
       label: 'Dasbor',
       icon: LayoutDashboard,
       href: '/admin',
-      active: currentUrl === '/admin',
+      active: currentUrl.split('?')[0] === '/admin',
     },
 
     { type: 'header', label: 'Portofolio & Blog' },
@@ -25,42 +33,42 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
       label: 'Profil',
       icon: GraduationCap,
       children: [
-        { label: 'Riwayat Pendidikan', href: '/admin/educations' },
-        { label: 'Pengalaman Organisasi', href: '/admin/organizations' },
-        { label: 'Pengalaman Karier', href: '/admin/careers' },
+        link('Riwayat Pendidikan', '/admin/educations'),
+        link('Pengalaman Organisasi', '/admin/organizations'),
+        link('Pengalaman Karier', '/admin/careers'),
       ],
     },
     {
       label: 'Penghargaan',
       icon: Award,
       href: '/admin/awards',
-      active: currentUrl.startsWith('/admin/awards'),
+      active: isActive('/admin/awards'),
     },
     {
       label: 'Portofolio',
       icon: FolderKanban,
       children: [
-        { label: 'Semua Portofolio', href: '/admin/portfolios' },
-        { label: 'Kategori Portofolio', href: '/admin/portfolio-categories' },
-        { label: 'Galeri Portofolio', href: '/admin/portfolio-galleries' },
-        { label: 'Ulasan Portofolio', href: '/admin/portfolio-ratings' },
-        { label: 'Teknologi', href: '/admin/technologies' },
+        link('Semua Portofolio', '/admin/portfolios'),
+        link('Kategori Portofolio', '/admin/portfolio-categories'),
+        link('Galeri Portofolio', '/admin/portfolio-galleries'),
+        link('Ulasan Portofolio', '/admin/portfolio-ratings'),
+        link('Teknologi', '/admin/technologies'),
       ],
     },
     {
       label: 'Blog',
       icon: Newspaper,
       children: [
-        { label: 'Semua Artikel', href: '/admin/posts' },
-        { label: 'Kategori Artikel Blog', href: '/admin/post-categories' },
-        { label: 'Tag Artikel', href: '/admin/tags' },
+        link('Semua Artikel', '/admin/posts'),
+        link('Kategori Artikel Blog', '/admin/post-categories'),
+        link('Tag Artikel', '/admin/tags'),
       ],
     },
     {
       label: 'Kedai Kopi',
       icon: Coffee,
       href: '/admin/coffee-places',
-      active: currentUrl.startsWith('/admin/coffee-places'),
+      active: isActive('/admin/coffee-places'),
     },
 
     { type: 'header', label: 'Pengguna & Akses' },
@@ -68,7 +76,7 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
       label: 'Pengguna',
       icon: User,
       href: '/admin/users',
-      active: currentUrl.startsWith('/admin/users'),
+      active: isActive('/admin/users'),
     },
   ];
 }

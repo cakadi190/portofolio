@@ -146,24 +146,44 @@ export class AdminSidebarState {
     return this.openBranches.has(id);
   }
 
-  toggleBranch(id: string): void {
+  /**
+   * Accordion behaviour: opening a branch closes every other branch sharing
+   * its `groupId` (`${parentId}-${level}`), while closing just closes it. Branch
+   * ids are `${groupId}-${index}`, so descendants of a closed sibling are
+   * dropped along with it.
+   */
+  toggleBranch(id: string, groupId: string): void {
     const next = new Set(this.openBranches);
 
     if (next.has(id)) {
       next.delete(id);
     } else {
+      this.closeSiblings(next, id, groupId);
       next.add(id);
     }
 
     this.openBranches = next;
   }
 
-  openBranch(id: string): void {
+  /** Opens a branch exclusively within its group (used to reveal the active route). */
+  openBranch(id: string, groupId: string): void {
     if (this.openBranches.has(id)) {
       return;
     }
 
-    this.openBranches = new Set(this.openBranches).add(id);
+    const next = new Set(this.openBranches);
+
+    this.closeSiblings(next, id, groupId);
+    next.add(id);
+    this.openBranches = next;
+  }
+
+  private closeSiblings(branches: Set<string>, id: string, groupId: string): void {
+    for (const openId of branches) {
+      if (openId.startsWith(`${groupId}-`) && openId !== id && !openId.startsWith(`${id}-`)) {
+        branches.delete(openId);
+      }
+    }
   }
 
   clearSearch(): void {

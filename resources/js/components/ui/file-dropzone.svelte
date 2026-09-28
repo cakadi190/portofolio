@@ -2,7 +2,7 @@
   import ImagePlus from '@lucide/svelte/icons/image-plus';
   import X from '@lucide/svelte/icons/x';
   import ImageLightbox from './image-lightbox.svelte';
-  import { cn } from '@/lib/utils';
+  import { cn, storageUrl } from '@/lib/utils';
 
   /**
    * GDrive-style image dropzone: drag & drop or click to browse, a thumbnail
@@ -37,7 +37,8 @@
   let error = $state<string | null>(null);
   let lightboxOpen = $state(false);
 
-  const displayUrl = $derived(previewUrl ?? existingUrl);
+  const resolvedExistingUrl = $derived(storageUrl(existingUrl));
+  const displayUrl = $derived(previewUrl ?? resolvedExistingUrl);
 
   function applyFiles(files: FileList | null): void {
     error = null;
@@ -149,7 +150,7 @@
     type="file"
     {name}
     {accept}
-    required={required && !existingUrl}
+    required={required && !resolvedExistingUrl}
     class="visually-hidden"
     onchange={(event) => applyFiles((event.target as HTMLInputElement).files)}
   />

@@ -226,6 +226,30 @@ class ImageService
     }
 
     /**
+     * Resolve a stored image reference into a browser-loadable URL.
+     *
+     * Values already absolute (http(s) URLs) or rooted at the web root
+     * (e.g. "/images/foo.webp" from seeders) are returned untouched; anything
+     * else is treated as a path on the public disk, so a leading slash or
+     * "/storage/" prefix can never double up.
+     *
+     * @param  string|null  $path  Stored image value.
+     * @return string|null Public URL, or null when nothing is stored.
+     */
+    public static function url(?string $path): ?string
+    {
+        if (blank($path)) {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', '/'])) {
+            return $path;
+        }
+
+        return '/storage/'.ltrim($path, '/');
+    }
+
+    /**
      * Delete a previously saved image from storage.
      *
      * @param  string  $path  Path to the file to delete, relative to the disk root.

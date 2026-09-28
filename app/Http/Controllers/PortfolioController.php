@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Portfolio;
+use App\Services\ImageService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,7 +22,7 @@ class PortfolioController extends Controller
             ->through(fn (Portfolio $portfolio): array => [
                 'name' => $portfolio->name,
                 'slug' => $portfolio->slug,
-                'image' => $portfolio->image,
+                'image' => ImageService::url($portfolio->image),
                 'shortDesc' => $portfolio->short_desc,
                 'categories' => $portfolio->categories->map(fn ($category): array => [
                     'name' => $category->name,
@@ -47,7 +48,7 @@ class PortfolioController extends Controller
                 'name' => $portfolio->name,
                 'shortDesc' => $portfolio->short_desc,
                 'description' => $portfolio->description,
-                'image' => $portfolio->image,
+                'image' => ImageService::url($portfolio->image),
                 'demoLink' => $portfolio->demo_link,
                 'sourceCode' => $portfolio->source_code,
                 'isPrivate' => $portfolio->is_private,

@@ -30,7 +30,7 @@ class CoffeePlaceController extends Controller
         $data = $request->safe()->except('image');
 
         if ($request->hasFile('image')) {
-            $data['image'] = $this->storeUpload($request->file('image'), 'coffee-places');
+            $data['image'] = $this->storeImage('image', 'coffee-places');
         }
 
         CoffeePlace::query()->create($data);
@@ -46,7 +46,7 @@ class CoffeePlaceController extends Controller
 
         if ($request->hasFile('image')) {
             $this->deleteUpload($coffeePlace->image);
-            $data['image'] = $this->storeUpload($request->file('image'), 'coffee-places');
+            $data['image'] = $this->storeImage('image', 'coffee-places');
         }
 
         $coffeePlace->update($data);

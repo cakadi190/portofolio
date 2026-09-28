@@ -32,6 +32,7 @@ test('a portfolio can be created with technologies and categories', function () 
     expect($portfolio->slug)->toBe('sistem-informasi');
     expect($portfolio->technologies)->toHaveCount(1);
     expect($portfolio->categories)->toHaveCount(1);
+    expect($portfolio->image)->toEndWith('.webp');
     Storage::disk('public')->assertExists($portfolio->image);
 });
 

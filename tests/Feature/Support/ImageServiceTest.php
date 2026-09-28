@@ -183,3 +183,12 @@ it('deletes a saved image from storage', function (): void {
     expect($deleted)->toBeTrue();
     Storage::disk('local')->assertMissing('banners/to-delete.webp');
 });
+
+test('url resolves stored values into loadable paths', function (?string $stored, ?string $expected) {
+    expect(ImageService::url($stored))->toBe($expected);
+})->with([
+    'null' => [null, null],
+    'public disk path' => ['awards/a.webp', '/storage/awards/a.webp'],
+    'web-root asset' => ['/images/coffee-shops/floe.webp', '/images/coffee-shops/floe.webp'],
+    'absolute url' => ['https://cdn.test/a.webp', 'https://cdn.test/a.webp'],
+]);

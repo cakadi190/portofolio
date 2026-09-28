@@ -14,7 +14,7 @@ class PortfolioCategoryController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/portfolio-categories/index', [
-            'portfolioCategories' => PortfolioCategory::query()->orderBy('name')->paginate(20),
+            'portfolioCategories' => PortfolioCategory::query()->withCount('portfolios')->orderBy('name')->paginate(20),
         ]);
     }
 

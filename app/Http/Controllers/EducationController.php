@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Education;
 use App\Models\Organization;
+use App\Services\ImageService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +21,7 @@ class EducationController extends Controller
                 ->get()
                 ->map(fn (Education $education): array => [
                     'name' => $education->name,
-                    'logo' => $education->logo,
+                    'logo' => ImageService::url($education->logo),
                     'website' => $education->website,
                     'level' => $education->level,
                     'grade' => $education->grade,
