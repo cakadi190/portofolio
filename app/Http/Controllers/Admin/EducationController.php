@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\AcademicScoreType;
+use App\Enums\EducationLevel;
 use App\Http\Controllers\Concerns\HandlesUploads;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EducationRequest;
@@ -18,6 +20,8 @@ class EducationController extends Controller
     {
         return Inertia::render('admin/educations/index', [
             'educations' => Education::query()->orderByDesc('start_date')->paginate(20),
+            'levels' => EducationLevel::options(),
+            'scoreTypes' => AcademicScoreType::options(),
         ]);
     }
 

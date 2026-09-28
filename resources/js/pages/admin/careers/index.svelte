@@ -8,6 +8,7 @@
   import { Field } from '@/components/ui/field';
   import MultiCheck from '@/components/ui/multi-check.svelte';
   import { Form } from '@inertiajs/svelte';
+  import { formatDate } from '@/lib/utils';
   import { destroy, store, update } from '@/wayfinder/routes/admin/careers';
   import type { Paginated } from '@/types/pagination';
 
@@ -67,7 +68,7 @@
             <td>{career.position}</td>
             <td>{career.company}</td>
             <td>{career.location}</td>
-            <td>{career.start_date} &ndash; {career.end_date ?? 'Sekarang'}</td>
+            <td>{formatDate(career.start_date)} &ndash; {career.end_date ? formatDate(career.end_date) : 'Sekarang'}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button

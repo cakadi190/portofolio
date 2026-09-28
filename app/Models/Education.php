@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AcademicScoreType;
+use App\Enums\EducationLevel;
 use Illuminate\Database\Eloquent\Model;
 
 class Education extends Model
@@ -21,6 +23,8 @@ class Education extends Model
     protected function casts(): array
     {
         return [
+            'level' => EducationLevel::class,
+            'academic_score_type' => AcademicScoreType::class,
             'start_date' => 'date',
             'end_date' => 'date',
             'academic_score_value' => 'decimal:2',

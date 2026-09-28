@@ -25,13 +25,6 @@ return new class extends Migration
             $table->text('two_factor_recovery_codes')->nullable();
             $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->rememberToken();
-
-            // List of {id: string, value: string} pairs, one per linked Socialite
-            // provider (id = provider name, value = the provider's user id).
-            // Kept schemaless so providers can be added or removed without a
-            // migration; see App\Enums\SocialiteProvider.
-            $table->json('social_providers')->nullable();
-
             $table->timestamps();
         });
 

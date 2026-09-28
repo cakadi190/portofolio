@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('event_name');
             $table->string('title');
-            $table->string('icon')->nullable();
             $table->unsignedSmallInteger('year');
             $table->unsignedTinyInteger('rank')->nullable();
             $table->date('awarded_at')->nullable();

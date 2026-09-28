@@ -8,8 +8,12 @@
   import { Field } from '@/components/ui/field';
   import FileDropzone from '@/components/ui/file-dropzone.svelte';
   import { Form } from '@inertiajs/svelte';
+  import { select2 } from '@/lib/select2';
+  import { formatDate } from '@/lib/utils';
   import { destroy, store, update } from '@/wayfinder/routes/admin/educations';
   import type { Paginated } from '@/types/pagination';
+
+  type Option = { value: string; label: string };
 
   type Education = {
     id: number;
@@ -29,7 +33,19 @@
     academic_score_scale: string | null;
   };
 
-  let { educations }: { educations: Paginated<Education> } = $props();
+  let {
+    educations,
+    levels,
+    scoreTypes,
+  }: {
+    educations: Paginated<Education>;
+    levels: Option[];
+    scoreTypes: Option[];
+  } = $props();
+
+  const levelLabels = $derived(
+    Object.fromEntries(levels.map((level) => [level.value, level.label])),
+  );
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -70,9 +86,13 @@
         {#each educations.data as education (education.id)}
           <tr>
             <td>{education.name}</td>
-            <td>{education.level}</td>
+            <td>{levelLabels[education.level] ?? education.level}</td>
             <td>{education.place}</td>
-            <td>{education.start_date} &ndash; {education.end_date ?? 'Sekarang'}</td>
+            <td
+              >{formatDate(education.start_date)} &ndash; {education.end_date
+                ? formatDate(education.end_date)
+                : 'Sekarang'}</td
+            >
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button
@@ -118,7 +138,12 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama Institusi</Field.Label>
-          <Field.Input id="create-name" name="name" required invalid={!!errors.name} />
+          <Field.Input
+            id="create-name"
+            name="name"
+            required
+            invalid={!!errors.name}
+          />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
@@ -130,7 +155,12 @@
 
         <Field.Group>
           <Field.Label for="create-website">Website</Field.Label>
-          <Field.Input id="create-website" name="website" type="url" invalid={!!errors.website} />
+          <Field.Input
+            id="create-website"
+            name="website"
+            type="url"
+            invalid={!!errors.website}
+          />
           <Field.Feedback message={errors.website} />
         </Field.Group>
 
@@ -138,14 +168,29 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-level">Jenjang</Field.Label>
-              <Field.Input id="create-level" name="level" required invalid={!!errors.level} />
+              <select
+                id="create-level"
+                name="level"
+                class="form-select"
+                class:is-invalid={!!errors.level}
+                required
+                use:select2
+              >
+                {#each levels as option (option.value)}
+                  <option value={option.value}>{option.label}</option>
+                {/each}
+              </select>
               <Field.Feedback message={errors.level} />
             </Field.Group>
           </div>
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-grade">Kelas/Angkatan</Field.Label>
-              <Field.Input id="create-grade" name="grade" invalid={!!errors.grade} />
+              <Field.Input
+                id="create-grade"
+                name="grade"
+                invalid={!!errors.grade}
+              />
               <Field.Feedback message={errors.grade} />
             </Field.Group>
           </div>
@@ -155,13 +200,18 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-department">Jurusan</Field.Label>
-              <Field.Input id="create-department" name="department" invalid={!!errors.department} />
+              <Field.Input
+                id="create-department"
+                name="department"
+                invalid={!!errors.department}
+              />
               <Field.Feedback message={errors.department} />
             </Field.Group>
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-study_program">Program Studi</Field.Label>
+              <Field.Label for="create-study_program">Program Studi</Field.Label
+              >
               <Field.Input
                 id="create-study_program"
                 name="study_program"
@@ -174,7 +224,12 @@
 
         <Field.Group>
           <Field.Label for="create-place">Tempat</Field.Label>
-          <Field.Input id="create-place" name="place" required invalid={!!errors.place} />
+          <Field.Input
+            id="create-place"
+            name="place"
+            required
+            invalid={!!errors.place}
+          />
           <Field.Feedback message={errors.place} />
         </Field.Group>
 
@@ -209,7 +264,9 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-academic_score_label">Label Nilai</Field.Label>
+              <Field.Label for="create-academic_score_label"
+                >Label Nilai</Field.Label
+              >
               <Field.Input
                 id="create-academic_score_label"
                 name="academic_score_label"
@@ -221,12 +278,21 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-academic_score_type">Tipe Nilai</Field.Label>
-              <Field.Input
+              <Field.Label for="create-academic_score_type"
+                >Tipe Nilai</Field.Label
+              >
+              <select
                 id="create-academic_score_type"
                 name="academic_score_type"
-                invalid={!!errors.academic_score_type}
-              />
+                class="form-select"
+                class:is-invalid={!!errors.academic_score_type}
+                use:select2
+              >
+                <option value="">—</option>
+                {#each scoreTypes as option (option.value)}
+                  <option value={option.value}>{option.label}</option>
+                {/each}
+              </select>
               <Field.Feedback message={errors.academic_score_type} />
             </Field.Group>
           </div>
@@ -269,7 +335,9 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
@@ -329,13 +397,19 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-level">Jenjang</Field.Label>
-                <Field.Input
+                <select
                   id="edit-level"
                   name="level"
+                  class="form-select"
+                  class:is-invalid={!!errors.level}
                   required
                   value={editingEducation.level}
-                  invalid={!!errors.level}
-                />
+                  use:select2
+                >
+                  {#each levels as option (option.value)}
+                    <option value={option.value}>{option.label}</option>
+                  {/each}
+                </select>
                 <Field.Feedback message={errors.level} />
               </Field.Group>
             </div>
@@ -368,7 +442,8 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-study_program">Program Studi</Field.Label>
+                <Field.Label for="edit-study_program">Program Studi</Field.Label
+                >
                 <Field.Input
                   id="edit-study_program"
                   name="study_program"
@@ -425,7 +500,9 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-academic_score_label">Label Nilai</Field.Label>
+                <Field.Label for="edit-academic_score_label"
+                  >Label Nilai</Field.Label
+                >
                 <Field.Input
                   id="edit-academic_score_label"
                   name="academic_score_label"
@@ -437,13 +514,22 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-academic_score_type">Tipe Nilai</Field.Label>
-                <Field.Input
+                <Field.Label for="edit-academic_score_type"
+                  >Tipe Nilai</Field.Label
+                >
+                <select
                   id="edit-academic_score_type"
                   name="academic_score_type"
+                  class="form-select"
+                  class:is-invalid={!!errors.academic_score_type}
                   value={editingEducation.academic_score_type}
-                  invalid={!!errors.academic_score_type}
-                />
+                  use:select2
+                >
+                  <option value="">—</option>
+                  {#each scoreTypes as option (option.value)}
+                    <option value={option.value}>{option.label}</option>
+                  {/each}
+                </select>
                 <Field.Feedback message={errors.academic_score_type} />
               </Field.Group>
             </div>
@@ -488,7 +574,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

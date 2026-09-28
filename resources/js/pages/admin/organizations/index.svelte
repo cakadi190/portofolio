@@ -7,6 +7,7 @@
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
   import { Form } from '@inertiajs/svelte';
+  import { formatDate } from '@/lib/utils';
   import { destroy, store, update } from '@/wayfinder/routes/admin/organizations';
   import type { Paginated } from '@/types/pagination';
 
@@ -54,7 +55,7 @@
         {#each organizations.data as organization (organization.id)}
           <tr>
             <td>{organization.name}</td>
-            <td>{organization.start_date} &ndash; {organization.end_date ?? 'Sekarang'}</td>
+            <td>{formatDate(organization.start_date)} &ndash; {organization.end_date ? formatDate(organization.end_date) : 'Sekarang'}</td>
             <td class="text-end">
               <div class="d-inline-flex gap-2">
                 <button
