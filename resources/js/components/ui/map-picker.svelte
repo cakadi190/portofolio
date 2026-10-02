@@ -31,7 +31,9 @@
   const DEFAULT_ZOOM = 5;
   const PLACED_ZOOM = 16;
 
+  // svelte-ignore state_referenced_locally
   let lat = $state<string>(latitude === null ? '' : String(latitude));
+  // svelte-ignore state_referenced_locally
   let lng = $state<string>(longitude === null ? '' : String(longitude));
   let container: HTMLDivElement;
   let map: L.Map | undefined;

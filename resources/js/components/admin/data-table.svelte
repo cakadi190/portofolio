@@ -37,6 +37,7 @@
 
   const perPageOptions = [10, 25, 50, 100];
 
+  // svelte-ignore state_referenced_locally
   let search = $state(filters.search);
   let timer: ReturnType<typeof setTimeout> | undefined;
 

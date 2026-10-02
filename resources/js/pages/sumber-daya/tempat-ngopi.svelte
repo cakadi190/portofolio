@@ -42,6 +42,7 @@
     filters: { region: string | null; search: string | null };
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   let searchQuery = $state(filters.search ?? '');
 
   function selectRegion(region: string | null): void {

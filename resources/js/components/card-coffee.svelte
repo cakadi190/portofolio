@@ -68,6 +68,7 @@
 
   const hasCoordinates = $derived(latitude !== null && longitude !== null);
 
+  // svelte-ignore state_referenced_locally
   const modalId = `coffee-place-${id}`;
 
   function truncate(text: string | null, length: number): string {

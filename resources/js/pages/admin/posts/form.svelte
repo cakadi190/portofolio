@@ -37,6 +37,7 @@
     categories: Option[];
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   let isPublished = $state(post?.is_published ?? false);
 
   const heading = $derived(post ? 'Ubah Artikel' : 'Tulis Artikel Baru');

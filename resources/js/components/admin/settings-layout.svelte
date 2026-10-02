@@ -12,9 +12,12 @@
 
 <div class="row g-4">
   <aside class="col-lg-3 col-xl-2">
-    <nav class="nav nav-pills flex-lg-column flex-nowrap overflow-x-auto settings-nav" role="tablist">
+    <div
+      class="nav nav-pills flex-lg-column flex-nowrap overflow-x-auto settings-nav"
+      role="tablist"
+    >
       {@render nav()}
-    </nav>
+    </div>
   </aside>
 
   <div class="col-lg-9 col-xl-10">

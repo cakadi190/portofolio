@@ -53,6 +53,7 @@
 
   let element = $state<HTMLDivElement>();
   let editor = $state.raw<Editor>();
+  // svelte-ignore state_referenced_locally
   let html = $state(value ?? '');
   let mode = $state<'visual' | 'html'>('visual');
   let uploading = $state(false);

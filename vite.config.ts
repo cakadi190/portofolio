@@ -5,6 +5,8 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
+const isSsrBuild = process.argv.includes('--ssr');
+
 const isSvelteCheck = process.argv.some((argument) =>
   argument.includes('svelte-check'),
 );
@@ -34,13 +36,12 @@ export default defineConfig({
         }),
         inertia(),
         svelte(),
-        wayfinder(),
+        // The client build already generated the Wayfinder types
+        // (`build:ssr` runs it first); regenerating for SSR boots the
+        // whole framework again for nothing.
+        ...(isSsrBuild ? [] : [wayfinder()]),
       ] as any[],
   ),
-  server: {
-    port: 5175,
-    strictPort: true,
-  },
   optimizeDeps: {
     // Prebundling svelte-select serves its component <style> as raw file
     // text in dev, leaking global `input { position: absolute }` rules.
@@ -68,6 +69,8 @@ export default defineConfig({
     },
   },
   server: {
+    port: 5175,
+    strictPort: true,
     watch: {
       ignored: [
         '**/.agents/**',
