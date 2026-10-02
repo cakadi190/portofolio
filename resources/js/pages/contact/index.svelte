@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Turnstile from '@/components/turnstile.svelte';
   import Icon from '@iconify/svelte';
   import Info from '@lucide/svelte/icons/info';
   import Send from '@lucide/svelte/icons/send';
@@ -203,6 +204,8 @@
                     />
                     <Field.Feedback message={errors.message} />
                   </Field.Group>
+
+                  <Turnstile error={errors['cf-turnstile-response']} />
 
                   <div>
                     <button type="submit" class="btn btn-primary d-flex gap-2 align-items-center" disabled={processing}>

@@ -6,6 +6,7 @@
 </script>
 
 <script lang="ts">
+  import Turnstile from '@/components/turnstile.svelte';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import { Field } from '@/components/ui/field';
@@ -77,6 +78,8 @@
         />
         <Field.Feedback message={errors.password_confirmation} />
       </Field.Group>
+
+      <Turnstile error={errors['cf-turnstile-response']} />
 
       <button
         type="submit"

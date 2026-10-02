@@ -13,6 +13,7 @@ enum SystemSettingGroup: string
     case SocialMedia = 'social_media';
     case Mail = 'mail';
     case Seo = 'seo';
+    case Security = 'security';
 
     public function label(): string
     {
@@ -21,6 +22,7 @@ enum SystemSettingGroup: string
             self::SocialMedia => 'Sosial Media',
             self::Mail => 'Surel & Notifikasi',
             self::Seo => 'SEO & Analitik',
+            self::Security => 'Keamanan',
         };
     }
 
@@ -31,12 +33,13 @@ enum SystemSettingGroup: string
             self::SocialMedia => 'Tautan akun sosial media yang ditampilkan pada halaman Hubungi Saya.',
             self::Mail => 'Alamat tujuan pesan dari formulir kontak.',
             self::Seo => 'Metadata mesin pencari, verifikasi kepemilikan situs, dan Google Analytics. Kosongkan untuk memakai nilai bawaan.',
+            self::Security => 'Cloudflare Turnstile untuk melindungi formulir login, daftar, atur ulang kata sandi, kontak, dan ulasan. Aktif hanya jika Site Key dan Secret Key terisi.',
         };
     }
 
     /**
      * The fixed set of setting keys managed under this group. Input `type` is
-     * one of text, email, tel, url, image (media library path), gtag (Google tag ID) or digits and drives both validation and the form.
+     * one of text, email, tel, url, image (media library path), secret (masked text), gtag (Google tag ID) or digits and drives both validation and the form.
      *
      * @return list<array{key: string, label: string, type: string, placeholder: string, note?: string}>
      */
@@ -77,6 +80,10 @@ enum SystemSettingGroup: string
                 ['key' => 'pinterest_site_verification', 'label' => 'Verifikasi Pinterest', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta p:domain_verify'],
                 ['key' => 'tiktok_site_verification', 'label' => 'Verifikasi TikTok', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta tiktok-developers-site-verification'],
                 ['key' => 'naver_site_verification', 'label' => 'Verifikasi Naver Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta naver-site-verification'],
+            ],
+            self::Security => [
+                ['key' => 'turnstile_site_key', 'label' => 'Turnstile Site Key', 'type' => 'text', 'placeholder' => '0x4AAAAAAA...', 'note' => 'Kunci publik dari dashboard Cloudflare Turnstile.'],
+                ['key' => 'turnstile_secret_key', 'label' => 'Turnstile Secret Key', 'type' => 'secret', 'placeholder' => '0x4AAAAAAA...', 'note' => 'Kunci rahasia untuk verifikasi di server. Kosongkan salah satu kunci untuk menonaktifkan Turnstile.'],
             ],
         };
     }

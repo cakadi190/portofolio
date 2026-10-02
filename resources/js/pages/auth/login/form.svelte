@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Turnstile from '@/components/turnstile.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
   import { store } from '@/wayfinder/routes/login';
@@ -57,6 +58,8 @@
       <Field.Input.Check id="remember" name="remember">
         Ingatkan saya
       </Field.Input.Check>
+
+      <Turnstile error={errors['cf-turnstile-response']} />
 
       <button
         type="submit"

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Turnstile from '@/components/turnstile.svelte';
   import Icon from '@iconify/svelte';
   import Expand from '@lucide/svelte/icons/expand';
   import Link2 from '@lucide/svelte/icons/link-2';
@@ -364,6 +365,8 @@
                             />
                             <Field.Feedback message={errors.comment} />
                           </Field.Group>
+
+                          <Turnstile error={errors['cf-turnstile-response']} />
 
                           <div>
                             <button

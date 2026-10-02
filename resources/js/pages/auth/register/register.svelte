@@ -6,6 +6,7 @@
 </script>
 
 <script lang="ts">
+  import Turnstile from '@/components/turnstile.svelte';
   import { Form, Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
@@ -74,6 +75,8 @@
           >Syarat dan Ketentuan</Link
         > dari Catatan Cak Adi.
       </Field.Input.Check>
+
+      <Turnstile error={errors['cf-turnstile-response']} />
 
       <button
         type="submit"

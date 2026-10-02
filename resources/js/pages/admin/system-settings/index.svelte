@@ -6,6 +6,7 @@
   import { Field } from '@/components/ui/field';
   import AtSign from '@lucide/svelte/icons/at-sign';
   import Mail from '@lucide/svelte/icons/mail';
+  import ShieldCheck from '@lucide/svelte/icons/shield-check';
   import Search from '@lucide/svelte/icons/search';
   import Share2 from '@lucide/svelte/icons/share-2';
   import { Form } from '@inertiajs/svelte';
@@ -34,7 +35,7 @@
     values: Record<string, string | null>;
   } = $props();
 
-  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search } as const;
+  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search, security: ShieldCheck } as const;
 
   function initialTab(): string {
     const tab =
@@ -120,7 +121,7 @@
                           <Field.Input
                             id={`setting-${field.key}`}
                             name={field.key}
-                            type={field.type === 'gtag' || field.type === 'digits' ? 'text' : field.type}
+                            type={field.type === 'gtag' || field.type === 'digits' ? 'text' : field.type === 'secret' ? 'password' : field.type}
                             placeholder={field.placeholder}
                             value={values[field.key]}
                             invalid={!!errors[field.key]}
