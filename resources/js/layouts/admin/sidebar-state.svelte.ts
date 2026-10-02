@@ -7,6 +7,9 @@ export const COLLAPSED_STORAGE_KEY = 'sidebar:collapsed';
 /** Bootstrap 5 `lg` breakpoint (px); mirrors the SCSS desktop media query. */
 export const DESKTOP_BREAKPOINT = 992;
 
+/** Class the boot script puts on <html> before first paint; mirrored at runtime. */
+const TOGGLED_CLASS = 'sidebar-toggled';
+
 export const FLOATING_MENU_GAP = 8;
 export const FLOATING_MENU_VIEWPORT_PADDING = 8;
 export const FLOATING_MENU_HOVER_CLOSE_DELAY_MS = 200;
@@ -126,6 +129,7 @@ export class AdminSidebarState {
 
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(COLLAPSED_STORAGE_KEY, value ? '1' : '0');
+      document.documentElement.classList.toggle(TOGGLED_CLASS, value);
     }
   }
 

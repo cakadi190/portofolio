@@ -2,6 +2,8 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
+  import SettingsAccountNav from '@/components/admin/settings-account-nav.svelte';
+  import SettingsLayout from '@/components/admin/settings-layout.svelte';
   import ManagePasskeys from '@/components/manage-passkeys.svelte';
   import ManageTwoFactor from '@/components/manage-two-factor.svelte';
   import { Field } from '@/components/ui/field';
@@ -27,11 +29,16 @@
 
 <AppHead title="Keamanan Akun" />
 
-<div id="security-settings-page" style="max-width: 720px;">
+<div id="security-settings-page">
   <AdminPageHeader
     title="Keamanan Akun"
     subtitle="Kelola kata sandi, autentikasi dua faktor, dan passkey Anda."
   />
+
+  <SettingsLayout>
+    {#snippet nav()}
+      <SettingsAccountNav current="security" />
+    {/snippet}
 
       <div class="card mb-4">
         <div class="card-body">
@@ -98,4 +105,5 @@
       />
 
       <ManagePasskeys {canManagePasskeys} {passkeys} />
+  </SettingsLayout>
 </div>

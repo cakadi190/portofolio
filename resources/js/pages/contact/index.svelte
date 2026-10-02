@@ -2,26 +2,31 @@
   import Icon from '@iconify/svelte';
   import Info from '@lucide/svelte/icons/info';
   import Send from '@lucide/svelte/icons/send';
+  import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
+  import { Field } from '@/components/ui/field';
+  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+  import { store } from '@/wayfinder/routes/contact';
 
-  const email = 'me@cakadi.id';
-  const altEmail = 'cakadi190@gmail.com';
-  const phone = '081234771365';
-  const website = 'https://www.cakadi.web.id';
+  type ContactItem = {
+    label: string;
+    value: string;
+    url: string | null;
+    note: string | null;
+  };
 
-  const socialMediaLinks = [
-    { platform: 'Facebook', url: 'https://www.facebook.com/cakadi190' },
-    { platform: 'Instagram', url: 'https://www.instagram.com/masadi.dev/' },
-    { platform: 'Twitter', url: 'https://x.com/cakadi190' },
-    { platform: 'Youtube', url: 'https://youtube.com/@catatancakadi' },
-    { platform: 'LinkedIn', url: 'https://linkedin.com/in/cakadi190' },
-    { platform: 'TikTok', url: 'https://tiktok.com/@cakadi190' },
-  ];
+  let {
+    information,
+    socials,
+    reasons,
+  }: {
+    information: ContactItem[];
+    socials: ContactItem[];
+    reasons: { value: string; label: string }[];
+  } = $props();
 
-  function whatsappLink(number: string): string {
-    return `https://wa.me/62${number.replace(/^0/, '')}`;
-  }
+  let formKey = $state(0);
 </script>
 
 <AppHead title="Hubungi Saya">
@@ -68,42 +73,27 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td class="text-nowrap w-25">Alamat</td>
-                      <td>
-                        Ngawi, Jawa Timur
-                        <span
-                          title="Maaf, saya tidak bisa memberikan alamat lengkap rumah saya dengan alasan privasi. Mohon untuk menghargainya!"
-                        >
-                          <Info size={14} />
-                        </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="text-nowrap w-25">Zona Waktu</td>
-                      <td>GMT+07:00 (Indonesian Western Time / UTC+7)</td>
-                    </tr>
-                    <tr>
-                      <td class="w-25 text-nowrap">Surat Elektronik</td>
-                      <td>
-                        <div class="d-flex gap-1 flex-wrap align-items-center">
-                          <a class="text-decoration-line-through disabled" href={`mailto:${email}`}>{email}</a>
-                          <span title="Sementara belum bisa karena hosting saya belum saya perpanjang wkwkwk.">
-                            <Info size={14} />
-                          </span>
-                          <span>/</span>
-                          <a href={`mailto:${altEmail}`}>{altEmail}</a>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="w-25 text-nowrap">Whatsapp (hanya chat)</td>
-                      <td><a href={whatsappLink(phone)}>{phone}</a></td>
-                    </tr>
-                    <tr>
-                      <td class="w-25 text-nowrap">Website</td>
-                      <td><a href={website}>{website}</a></td>
-                    </tr>
+                    {#each information as item (item.label)}
+                      <tr>
+                        <td class="w-25 text-nowrap">{item.label}</td>
+                        <td>
+                          {#if item.url}
+                            <a href={item.url} target="_blank" rel="noopener">{item.value}</a>
+                          {:else}
+                            {item.value}
+                          {/if}
+                          {#if item.note}
+                            <span title={item.note}>
+                              <Info size={14} />
+                            </span>
+                          {/if}
+                        </td>
+                      </tr>
+                    {:else}
+                      <tr>
+                        <td colspan="2" class="text-center opacity-75">Belum ada informasi kontak.</td>
+                      </tr>
+                    {/each}
                   </tbody>
                 </table>
               </div>
@@ -133,15 +123,23 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {#each socialMediaLinks as link (link.platform)}
+                    {#each socials as link (link.label)}
                       <tr>
-                        <td class="w-25 text-nowrap">{link.platform}</td>
+                        <td class="w-25 text-nowrap">{link.label}</td>
                         <td>
-                          <a href={link.url} target="_blank" rel="noopener" class="text-decoration-none d-inline-flex align-items-center gap-1">
-                            {link.url}
-                            <Icon icon="lucide:external-link" width={14} height={14} />
-                          </a>
+                          {#if link.url}
+                            <a href={link.url} target="_blank" rel="noopener" class="text-decoration-none d-inline-flex align-items-center gap-1">
+                              {link.value}
+                              <Icon icon="lucide:external-link" width={14} height={14} />
+                            </a>
+                          {:else}
+                            {link.value}
+                          {/if}
                         </td>
+                      </tr>
+                    {:else}
+                      <tr>
+                        <td colspan="2" class="text-center opacity-75">Belum ada sosial media.</td>
                       </tr>
                     {/each}
                   </tbody>
@@ -151,14 +149,6 @@
           </div>
 
           <div class="border-top pt-4 mt-4" id="form-contact">
-            <div class="alert bg-info-subtle d-flex gap-3">
-              <Info size={32} class="flex-shrink-0" />
-              <span>
-                Mohon bersabar ya, karena fitur ini masih saya kembangkan untuk kedepannya bisa mengirimkan
-                pesan dan menyimpan pesan yang kamu kirimkan.
-              </span>
-            </div>
-
             <h3>Atau Kirim Pesan Melalui Form Ini</h3>
             <p class="opacity-75">
               Gunakan formulir dibawah ini dan terhubung dengan saya supaya lebih kenal, akrab dan bisa
@@ -166,46 +156,64 @@
               membebani <em>server</em>!
             </p>
 
-            <form class="pt-1" onsubmit={(event) => event.preventDefault()}>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="fullName" class="input-label">Nama Lengkapmu</label>
-                    <input id="fullName" type="text" class="form-control" placeholder="Mis: Cak Adi" />
+            {#key formKey}
+              <Form
+                {...store.form()}
+                class="pt-1 d-flex flex-column gap-3"
+                novalidate
+                resetOnSuccess
+                onSuccess={() => formKey++}
+              >
+                {#snippet children({ errors, processing })}
+                  <div class="row g-3">
+                    <Field.Group class="col-md-6">
+                      <Field.Label for="fullName">Nama Lengkapmu</Field.Label>
+                      <Field.Input id="fullName" name="name" placeholder="Mis: Cak Adi" invalid={!!errors.name} />
+                      <Field.Feedback message={errors.name} />
+                    </Field.Group>
+                    <Field.Group class="col-md-6">
+                      <Field.Label for="contactEmail">Surel (atau <em>E-Mail</em>)</Field.Label>
+                      <Field.Input
+                        id="contactEmail"
+                        name="email"
+                        type="email"
+                        placeholder="Mis: cakadi@email.com"
+                        invalid={!!errors.email}
+                      />
+                      <Field.Feedback message={errors.email} />
+                    </Field.Group>
                   </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="contactEmail" class="input-label">Surat Elektronik (atau <em>E-Mail</em>)</label>
-                    <input id="contactEmail" type="text" class="form-control" placeholder="Mis: cakadi@email.com" />
+
+                  <Field.Group>
+                    <Field.Label for="contactReason">Ada Perlu Apa?</Field.Label>
+                    <select id="contactReason" name="reason" class="form-select" class:is-invalid={!!errors.reason}>
+                      {#each reasons as reason (reason.value)}
+                        <option value={reason.value}>{reason.label}</option>
+                      {/each}
+                    </select>
+                    <Field.Feedback message={errors.reason} />
+                  </Field.Group>
+
+                  <Field.Group>
+                    <Field.Label>Pesan Anda</Field.Label>
+                    <RichTextEditor
+                      name="message"
+                      minimal
+                      placeholder="Tuliskan pesan anda disini…"
+                      invalid={!!errors.message}
+                    />
+                    <Field.Feedback message={errors.message} />
+                  </Field.Group>
+
+                  <div>
+                    <button type="submit" class="btn btn-primary d-flex gap-2 align-items-center" disabled={processing}>
+                      <span>Kirim</span>
+                      <Send size={16} />
+                    </button>
                   </div>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="contactReason" class="input-label d-block">Ada Perlu Apa?</label>
-                <select id="contactReason" class="form-select">
-                  <option value="connecting">Izin Berkoneksi</option>
-                  <option value="services" disabled>Layanan (Masih belum tersedia)</option>
-                  <option value="project-collabs">Kolaborasi Proyek</option>
-                  <option value="general">Ingin Bertanya Hal Umum</option>
-                  <option value="others">Hal Lainnya</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label for="messageText" class="input-label">Pesan Anda</label>
-                <textarea id="messageText" class="form-control" rows="4" placeholder="Tuliskan pesan anda disini…"
-                ></textarea>
-              </div>
-
-              <div>
-                <button type="submit" class="btn btn-primary d-flex gap-2 align-items-center">
-                  <span>Kirim</span>
-                  <Send size={16} />
-                </button>
-              </div>
-            </form>
+                {/snippet}
+              </Form>
+            {/key}
           </div>
         </div>
 

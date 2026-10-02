@@ -7,6 +7,8 @@
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
   import MediaField from '@/components/media/media-field.svelte';
+  import TimePicker from '@/components/ui/time-picker.svelte';
+  import MediaGalleryField from '@/components/media/media-gallery-field.svelte';
   import MapPicker from '@/components/ui/map-picker.svelte';
   import { Form } from '@inertiajs/svelte';
   import { storageUrl } from '@/lib/utils';
@@ -36,6 +38,8 @@
     opens_at: string | null;
     closes_at: string | null;
     region: string | null;
+    facilities: string[] | null;
+    galleries: { image_url: string; description: string | null }[];
     is_recommended: boolean;
   };
 
@@ -43,12 +47,16 @@
     coffeePlaces,
     wifiSpeeds,
     priceTiers,
+    facilities,
+    regions,
     filters,
   }: {
     filters: TableFilters;
     coffeePlaces: Paginated<CoffeePlace>;
     wifiSpeeds: Option[];
     priceTiers: Option[];
+    facilities: Option[];
+    regions: string[];
   } = $props();
 
   let createOpen = $state(false);
@@ -67,6 +75,12 @@
 
 <AppHead title="Kedai Kopi" />
 
+<datalist id="region-options">
+  {#each regions as region (region)}
+    <option value={region}></option>
+  {/each}
+</datalist>
+
 <AdminPageHeader
   title="Kedai Kopi"
   subtitle="Kelola daftar tempat ngopi rekomendasi."
@@ -79,8 +93,7 @@
   url={index().url}
   columns={[
     { label: 'Foto' },
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Alamat', key: 'address', sortable: true },
+    { label: 'Nama & Alamat', key: 'name', sortable: true },
     { label: 'Tingkat Harga', key: 'price_tier', sortable: true },
     { label: 'Rekomendasi', key: 'is_recommended', sortable: true },
     { label: 'Aksi', align: 'end' },
@@ -102,8 +115,10 @@
           <span class="text-muted">&mdash;</span>
         {/if}
       </td>
-      <td>{place.name}</td>
-      <td>{place.address}</td>
+      <td>
+        <div class="fw-semibold">{place.name}</div>
+        <div class="text-muted small">{place.address}</div>
+      </td>
       <td>{priceTierLabel(place.price_tier)}</td>
       <td>{place.is_recommended ? 'Ya' : 'Tidak'}</td>
       <td class="text-end">
@@ -178,6 +193,11 @@
           <Field.Feedback message={errors.image} />
         </Field.Group>
 
+        <Field.Group>
+          <Field.Label>Galeri</Field.Label>
+          <MediaGalleryField {errors} />
+        </Field.Group>
+
         <MapPicker
           idPrefix="create"
           latitudeError={errors.latitude}
@@ -250,24 +270,14 @@
           <div class="col-sm-4">
             <Field.Group>
               <Field.Label for="create-opens_at">Buka</Field.Label>
-              <Field.Input
-                id="create-opens_at"
-                name="opens_at"
-                type="time"
-                invalid={!!errors.opens_at}
-              />
+              <TimePicker id="create-opens_at" name="opens_at" invalid={!!errors.opens_at} />
               <Field.Feedback message={errors.opens_at} />
             </Field.Group>
           </div>
           <div class="col-sm-4">
             <Field.Group>
               <Field.Label for="create-closes_at">Tutup</Field.Label>
-              <Field.Input
-                id="create-closes_at"
-                name="closes_at"
-                type="time"
-                invalid={!!errors.closes_at}
-              />
+              <TimePicker id="create-closes_at" name="closes_at" invalid={!!errors.closes_at} />
               <Field.Feedback message={errors.closes_at} />
             </Field.Group>
           </div>
@@ -277,10 +287,30 @@
           <Field.Label for="create-region">Wilayah</Field.Label>
           <Field.Input placeholder="Masukkan wilayah"
             id="create-region"
+            list="region-options"
+            autocomplete="off"
             name="region"
             invalid={!!errors.region}
           />
           <Field.Feedback message={errors.region} />
+        </Field.Group>
+
+        <Field.Group>
+          <Field.Label>Fasilitas</Field.Label>
+          <div class="row g-2">
+            {#each facilities as facility (facility.value)}
+              <div class="col-6 col-sm-4">
+                <Field.Input.Check
+                  id="create-facility-{facility.value}"
+                  name="facilities[]"
+                  value={facility.value}
+                >
+                  {facility.label}
+                </Field.Input.Check>
+              </div>
+            {/each}
+          </div>
+          <Field.Feedback message={errors.facilities} />
         </Field.Group>
 
         <input type="hidden" name="is_recommended" value="0" />
@@ -370,6 +400,11 @@
             <Field.Feedback message={errors.image} />
           </Field.Group>
 
+          <Field.Group>
+            <Field.Label>Galeri</Field.Label>
+            <MediaGalleryField value={editingPlace.galleries} {errors} />
+          </Field.Group>
+
           <MapPicker
             idPrefix="edit"
             latitude={editingPlace.latitude}
@@ -449,26 +484,14 @@
             <div class="col-sm-4">
               <Field.Group>
                 <Field.Label for="edit-opens_at">Buka</Field.Label>
-                <Field.Input
-                  id="edit-opens_at"
-                  name="opens_at"
-                  type="time"
-                  value={editingPlace.opens_at}
-                  invalid={!!errors.opens_at}
-                />
+                <TimePicker id="edit-opens_at" name="opens_at" value={editingPlace.opens_at} invalid={!!errors.opens_at} />
                 <Field.Feedback message={errors.opens_at} />
               </Field.Group>
             </div>
             <div class="col-sm-4">
               <Field.Group>
                 <Field.Label for="edit-closes_at">Tutup</Field.Label>
-                <Field.Input
-                  id="edit-closes_at"
-                  name="closes_at"
-                  type="time"
-                  value={editingPlace.closes_at}
-                  invalid={!!errors.closes_at}
-                />
+                <TimePicker id="edit-closes_at" name="closes_at" value={editingPlace.closes_at} invalid={!!errors.closes_at} />
                 <Field.Feedback message={errors.closes_at} />
               </Field.Group>
             </div>
@@ -478,11 +501,32 @@
             <Field.Label for="edit-region">Wilayah</Field.Label>
             <Field.Input placeholder="Masukkan wilayah"
               id="edit-region"
+              list="region-options"
+              autocomplete="off"
               name="region"
               value={editingPlace.region}
               invalid={!!errors.region}
             />
             <Field.Feedback message={errors.region} />
+          </Field.Group>
+
+          <Field.Group>
+            <Field.Label>Fasilitas</Field.Label>
+            <div class="row g-2">
+              {#each facilities as facility (facility.value)}
+                <div class="col-6 col-sm-4">
+                  <Field.Input.Check
+                    id="edit-facility-{facility.value}"
+                    name="facilities[]"
+                    value={facility.value}
+          checked={editingPlace.facilities?.includes(facility.value) ?? false}
+                  >
+                    {facility.label}
+                  </Field.Input.Check>
+                </div>
+              {/each}
+            </div>
+            <Field.Feedback message={errors.facilities} />
           </Field.Group>
 
           <input type="hidden" name="is_recommended" value="0" />

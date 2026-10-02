@@ -11,11 +11,11 @@ Status: ✅ ada di kode saat ini. ID dipakai untuk rujukan di PR/tes.
 | PUB-03 | `/pendidikan` | Riwayat pendidikan per jenjang, termasuk nilai akademik (IPK/ujian sekolah). ✅ |
 | PUB-04 | `/penghargaan` | Daftar penghargaan dengan ikon turunan otomatis (piala/medali/sertifikat) dan jenis penghargaan. ✅ |
 | PUB-05 | `/blog`, `/blog/{slug}` | Daftar & detail artikel yang **sudah terbit** (`is_published`, `published_at`), dengan kategori dan tag. ✅ |
-| PUB-06 | `/portofolio`, `/portofolio/{slug}` | Daftar & detail portofolio: teknologi, kategori, galeri, rating. Portofolio `is_private` tidak ditampilkan tautan kodenya. ✅ |
+| PUB-06 | `/portofolio`, `/portofolio/{slug}` | Daftar & detail portofolio: teknologi, kategori, galeri, ulasan (hanya yang `is_approved`). Pengunjung mengirim ulasan lewat `POST /portofolio/{slug}/ulasan` (nama, email, judul, rating 1–5, isi WYSIWYG minimal wajib; perusahaan opsional; throttle 5/menit; HTML disaring ke whitelist; tampil setelah disetujui admin). Galeri portofolio tampil sebagai grid thumbnail dan dibuka dengan lightbox ala Google Drive (zoom, geser, paging). Portofolio `is_private` tidak ditampilkan tautan kodenya. ✅ |
 | PUB-07 | `/tentang/saya` | Profil, daftar sertifikasi (dengan berkas/kredensial). ✅ |
 | PUB-08 | `/tentang/situs`, `/tentang/skill` | Informasi situs dan keahlian (halaman statis). ✅ |
-| PUB-09 | `/layanan`, `/kontak` | Halaman layanan dan kontak (statis). ✅ |
-| PUB-10 | `/sumber-daya/tempat-ngopi` | Direktori kedai kopi: filter region, pencarian, detail Wi-Fi/harga/parkir/jam buka/peta. ✅ |
+| PUB-09 | `/layanan`, `/kontak` | Layanan (statis). Kontak: informasi & sosial media diambil dari `system_settings` lewat `SystemSettingService` (key tetap pada `SystemSettingGroup::fields()`, hanya `is_active` dan terisi; tautan diturunkan: `mailto:`, `wa.me`, atau nilai URL), plus formulir pesan (nama, email, keperluan `ContactReason`, isi WYSIWYG minimal) lewat `POST /kontak` (throttle 5/menit, HTML disaring ke whitelist) yang masuk ke inbox admin **dan** dikirim lewat mailer Laravel ke dua pihak: email pesan ke alamat `contact_recipient_email` (fallback `mail.from.address`; reply-to = pengirim) dan email konfirmasi ke pengirim. Kegagalan email dilaporkan (`report()`) tanpa menggagalkan penyimpanan pesan. ✅ |
+| PUB-10 | `/sumber-daya/tempat-ngopi` | Direktori kedai kopi: filter region, pencarian, kartu membuka modal detail berisi seluruh data kedai: deskripsi, galeri (lightbox), jam buka, biaya parkir, penyedia & kecepatan Wi-Fi, tingkat harga, fasilitas, koordinat, alamat + tautan peta. ✅ |
 | PUB-11 | Semua | Tema terang/gelap, pengalih bahasa, tombol kembali ke atas, lightbox gambar. ✅ |
 
 ## B. Autentikasi & Akun (Laravel Fortify)
@@ -42,13 +42,15 @@ Pola umum: halaman indeks berupa **DataTable** (cari, urut, ukuran halaman 10/25
 | ADM-04 | Karier | `/admin/careers` | |
 | ADM-05 | Sertifikasi | `/admin/certifications` | Berkas (gambar/PDF) **wajib**, dari Pustaka Media. |
 | ADM-06 | Penghargaan | `/admin/awards` | **Jenis** wajib (`AwardType`, 10 nilai); lihat `03-data-model.md`. |
-| ADM-07 | Portofolio | `/admin/portfolios` | Gambar wajib; teknologi, kategori, karier (many-to-many); slug otomatis. |
+| ADM-07 | Portofolio | `/admin/portfolios` | Editor halaman penuh seperti Artikel (`create`/`edit`). Gambar wajib; teknologi, kategori, karier (many-to-many); slug otomatis; galeri multi-gambar (`galleries[]` diganti utuh saat simpan, tiap gambar dari Pustaka Media + keterangan opsional). |
 | ADM-08 | Kategori Portofolio, Teknologi | `/admin/portfolio-categories`, `/admin/technologies` | |
 | ADM-09 | Galeri & Ulasan Portofolio | `/admin/portfolio-galleries`, `/admin/portfolio-ratings` | Gambar galeri wajib (`image_url`). |
 | ADM-10 | Artikel | `/admin/posts` (+create/edit) | Editor Tiptap (visual/HTML), gambar sampul, kategori, tag, slug, jadwal terbit. |
 | ADM-11 | Kategori Artikel, Tag | `/admin/post-categories`, `/admin/tags` | |
-| ADM-12 | Kedai Kopi | `/admin/coffee-places` | Peta (Leaflet) untuk lat/long; enum Wi-Fi & tingkat harga. |
+| ADM-12 | Kedai Kopi | `/admin/coffee-places` | Fasilitas (checkbox, JSON `facilities`); galeri multi-gambar (`galleries[]`, Pustaka Media) dengan lightbox ala Google Drive (zoom, geser, paging). Peta (Leaflet) untuk lat/long; enum Wi-Fi & tingkat harga. |
 | ADM-13 | Pengguna | `/admin/users` | Peran `UserRole`, avatar dari media. |
+| ADM-15 | Pengaturan Sistem | `/admin/system-settings` | Satu halaman form massal (`GET`/`PUT`): key tetap per kelompok `SystemSettingGroup` (informasi kontak, sosial media, surel), divalidasi per tipe (email, url http(s), telepon), disimpan `updateOrCreate` dalam transaksi; tanpa tambah/hapus key. Cache `SystemSettingService` dibersihkan setelah simpan. |
+| ADM-16 | Pesan Masuk | `/admin/contact-messages` | Daftar pesan dari formulir kontak: lihat (otomatis ditandai dibaca), tandai dibaca/belum, hapus. Tanpa tambah/ubah isi. |
 | ADM-14 | **Pustaka Media** | `/admin/media` | Lihat `05-media-library.md`. |
 
 ## D. Aturan lintas modul

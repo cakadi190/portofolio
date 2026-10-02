@@ -25,5 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PostCategorySeeder::class);
         $this->call(PostSeeder::class);
         $this->call(CoffeePlaceSeeder::class);
+        $this->call(SystemSettingSeeder::class);
     }
 }

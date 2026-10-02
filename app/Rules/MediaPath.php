@@ -13,11 +13,14 @@ use Illuminate\Contracts\Validation\ValidationRule;
  */
 class MediaPath implements ValidationRule
 {
-    public function __construct(protected ?string $current = null) {}
+    /**
+     * @param  string|list<string>|null  $current
+     */
+    public function __construct(protected string|array|null $current = null) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if ($value === $this->current) {
+        if (in_array($value, (array) $this->current, true)) {
             return;
         }
 

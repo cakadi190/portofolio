@@ -14,8 +14,13 @@ return new class extends Migration
         Schema::create('portfolio_ratings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('portfolio_id')->constrained()->cascadeOnDelete();
+            $table->string('reviewer_name');
+            $table->string('reviewer_email');
+            $table->string('reviewer_company')->nullable();
+            $table->string('title');
             $table->unsignedTinyInteger('rating');
-            $table->text('comment')->nullable();
+            $table->text('comment');
+            $table->boolean('is_approved')->default(false);
             $table->timestamps();
         });
     }

@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\CoffeePlace;
+use App\Models\User;
+use App\Services\MediaService;
 use Illuminate\Database\Seeder;
 
 class CoffeePlaceSeeder extends Seeder
@@ -37,6 +39,9 @@ class CoffeePlaceSeeder extends Seeder
             ['name' => 'Awor Coffee Klaten', 'address' => 'Jl. Merbabu No.5, Gayamprit, Kec. Klaten Sel., Kabupaten Klaten, Jawa Tengah 57412', 'description' => 'Awor Coffee adalah tempat yang tepat untuk menikmati kopi berkualitas dan suasana yang tenang di Klaten. Dengan WiFi dari Biznet dan jam operasional dari pagi hingga malam.', 'lat' => -7.713044114964349, 'lng' => 110.59335567416215, 'mapUrl' => 'https://maps.app.goo.gl/kq36wfJNWy2g8xNx6', 'image' => 'awor-coffee-klt', 'wifiProvider' => 'Biznet', 'parkFee' => 2000, 'price' => 'medium', 'wifiSpeed' => 'strong', 'region' => 'Klaten', 'recommended' => false, 'open' => '08:00', 'close' => '23:00'],
         ];
 
+        $media = app(MediaService::class);
+        $userId = User::query()->value('id');
+
         foreach ($places as $place) {
             CoffeePlace::query()->create([
                 'name' => $place['name'],
@@ -45,7 +50,7 @@ class CoffeePlaceSeeder extends Seeder
                 'latitude' => $place['lat'],
                 'longitude' => $place['lng'],
                 'map_url' => $place['mapUrl'],
-                'image' => "/images/coffee-shops/{$place['image']}.webp",
+                'image' => $media->storeFromPublicPath("/images/coffee-shops/{$place['image']}.webp", $userId)->path,
                 'wifi_provider' => $place['wifiProvider'],
                 'wifi_speed' => $place['wifiSpeed'],
                 'price_tier' => $place['price'],

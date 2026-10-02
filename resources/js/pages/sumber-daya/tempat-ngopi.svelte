@@ -21,6 +21,15 @@
     closesAt: string | null;
     parkFee: number | null;
     isRecommended: boolean;
+    latitude: string | number | null;
+    longitude: string | number | null;
+    wifiProvider: string | null;
+    wifiSpeed: string | null;
+    wifiSpeedColor: string | null;
+    priceTier: string | null;
+    priceTierColor: string | null;
+    facilities: string[];
+    galleries: { url: string; title: string | null }[];
   };
 
   let {

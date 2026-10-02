@@ -5,13 +5,14 @@ namespace App\Models;
 use App\Enums\CafePriceTier;
 use App\Enums\WifiSpeed;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CoffeePlace extends Model
 {
     protected $fillable = [
         'name', 'address', 'description', 'latitude', 'longitude', 'map_url', 'image',
         'wifi_provider', 'wifi_speed', 'price_tier', 'park_fee', 'opens_at', 'closes_at',
-        'region', 'is_recommended',
+        'region', 'facilities', 'is_recommended',
     ];
 
     /**
@@ -25,7 +26,16 @@ class CoffeePlace extends Model
             'wifi_speed' => WifiSpeed::class,
             'price_tier' => CafePriceTier::class,
             'park_fee' => 'integer',
+            'facilities' => 'array',
             'is_recommended' => 'boolean',
         ];
+    }
+
+    /**
+     * @return HasMany<CoffeePlaceGallery, $this>
+     */
+    public function galleries(): HasMany
+    {
+        return $this->hasMany(CoffeePlaceGallery::class);
     }
 }

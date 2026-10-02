@@ -27,6 +27,7 @@ return new class extends Migration
             $table->time('opens_at')->nullable();
             $table->time('closes_at')->nullable();
             $table->string('region')->nullable();
+            $table->json('facilities')->nullable();
             $table->boolean('is_recommended')->default(false);
             $table->timestamps();
         });

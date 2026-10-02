@@ -508,8 +508,20 @@
 
   .media-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .media-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .media-grid {
+      grid-template-columns: repeat(6, 1fr);
+    }
   }
 
   .media-thumb-wrap {

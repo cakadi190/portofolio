@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Education;
+use App\Models\User;
+use App\Services\MediaService;
 use Illuminate\Database\Seeder;
 
 class EducationSeeder extends Seeder
@@ -95,7 +97,14 @@ class EducationSeeder extends Seeder
             ],
         ];
 
+        $media = app(MediaService::class);
+        $userId = User::query()->value('id');
+
         foreach ($educations as $education) {
+            if ($education['logo']) {
+                $education['logo'] = $media->storeFromPublicPath($education['logo'], $userId)->path;
+            }
+
             Education::query()->create($education);
         }
     }

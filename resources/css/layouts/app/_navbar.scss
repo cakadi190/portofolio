@@ -48,3 +48,8 @@
     transform: scale(1.05);
   }
 }
+
+// Pinned brand variants ignore the theme switch above.
+.logo-fixed {
+  display: inline-block !important;
+}

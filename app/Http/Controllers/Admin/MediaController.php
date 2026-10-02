@@ -23,7 +23,7 @@ class MediaController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/media/index', [
-            'media' => $this->library($request)->paginate(24)->withQueryString(),
+            'media' => $this->library($request)->paginate(42)->withQueryString(),
             'filters' => [
                 'search' => trim((string) $request->query('search', '')),
                 'type' => $this->typeFilter($request),

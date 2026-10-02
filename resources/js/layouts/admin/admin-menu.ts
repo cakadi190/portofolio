@@ -3,8 +3,10 @@ import Coffee from '@lucide/svelte/icons/coffee';
 import FolderKanban from '@lucide/svelte/icons/folder-kanban';
 import GraduationCap from '@lucide/svelte/icons/graduation-cap';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+import Contact from '@lucide/svelte/icons/contact';
 import Images from '@lucide/svelte/icons/images';
 import Newspaper from '@lucide/svelte/icons/newspaper';
+import Settings from '@lucide/svelte/icons/settings';
 import User from '@lucide/svelte/icons/user';
 import type { AdminSidebarEntry } from '@/types/admin-sidebar';
 
@@ -74,6 +76,13 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
     },
 
     {
+      label: 'Kontak',
+      icon: Contact,
+      children: [
+        link('Pesan Masuk', '/admin/contact-messages'),
+      ],
+    },
+    {
       label: 'Pustaka Media',
       icon: Images,
       href: '/admin/media',
@@ -86,6 +95,14 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
       icon: User,
       href: '/admin/users',
       active: isActive('/admin/users'),
+    },
+
+    { type: 'header', label: 'Sistem' },
+    {
+      label: 'Pengaturan Sistem',
+      icon: Settings,
+      href: '/admin/system-settings',
+      active: isActive('/admin/system-settings'),
     },
   ];
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CafeFacility;
 use App\Enums\CafePriceTier;
 use App\Enums\WifiSpeed;
 use App\Http\Controllers\Concerns\PaginatesTables;
@@ -21,7 +22,7 @@ class CoffeePlaceController extends Controller
     {
         return Inertia::render('admin/coffee-places/index', [
             'coffeePlaces' => $this->paginateTable(
-                CoffeePlace::query()->orderBy('name'),
+                CoffeePlace::query()->with('galleries:id,coffee_place_id,image_url,description')->orderBy('name'),
                 $request,
                 ['name', 'address'],
                 ['name', 'address', 'price_tier', 'is_recommended'],
@@ -29,14 +30,15 @@ class CoffeePlaceController extends Controller
             'filters' => $this->tableFilters($request, ['name', 'address', 'price_tier', 'is_recommended']),
             'wifiSpeeds' => WifiSpeed::options(),
             'priceTiers' => CafePriceTier::options(),
+            'facilities' => CafeFacility::options(),
+            'regions' => CoffeePlace::query()->whereNotNull('region')->distinct()->orderBy('region')->pluck('region'),
         ]);
     }
 
     public function store(CoffeePlaceRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-
-        CoffeePlace::query()->create($data);
+        $coffeePlace = CoffeePlace::query()->create($request->safe()->except('galleries'));
+        $this->syncGalleries($coffeePlace, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil ditambahkan.']);
 
@@ -45,9 +47,8 @@ class CoffeePlaceController extends Controller
 
     public function update(CoffeePlaceRequest $request, CoffeePlace $coffeePlace): RedirectResponse
     {
-        $data = $request->validated();
-
-        $coffeePlace->update($data);
+        $coffeePlace->update($request->safe()->except('galleries'));
+        $this->syncGalleries($coffeePlace, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil diperbarui.']);
 
@@ -61,5 +62,11 @@ class CoffeePlaceController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil dihapus.']);
 
         return to_route('admin.coffee-places.index');
+    }
+
+    private function syncGalleries(CoffeePlace $coffeePlace, CoffeePlaceRequest $request): void
+    {
+        $coffeePlace->galleries()->delete();
+        $coffeePlace->galleries()->createMany(array_values($request->validated('galleries', [])));
     }
 }

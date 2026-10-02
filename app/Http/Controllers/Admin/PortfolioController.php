@@ -31,32 +31,47 @@ class PortfolioController extends Controller
                 ['name', 'is_private'],
             ),
             'filters' => $this->tableFilters($request, ['name', 'is_private']),
+        ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('admin/portfolios/form', [
+            'portfolio' => null,
+            ...$this->options(),
+        ]);
+    }
+
+    public function edit(Portfolio $portfolio): Response
+    {
+        return Inertia::render('admin/portfolios/form', [
+            'portfolio' => $portfolio->load(['technologies:id', 'categories:id', 'careers:id', 'galleries:id,portfolio_id,image_url,description']),
             ...$this->options(),
         ]);
     }
 
     public function store(PortfolioRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except(['technologies', 'categories', 'careers']);
+        $data = $request->safe()->except(['technologies', 'categories', 'careers', 'galleries']);
 
         $portfolio = Portfolio::query()->create($data);
         $this->syncRelations($portfolio, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Portofolio berhasil ditambahkan.']);
 
-        return to_route('admin.portfolios.index');
+        return to_route('admin.portfolios.edit', $portfolio);
     }
 
     public function update(PortfolioRequest $request, Portfolio $portfolio): RedirectResponse
     {
-        $data = $request->safe()->except(['technologies', 'categories', 'careers']);
+        $data = $request->safe()->except(['technologies', 'categories', 'careers', 'galleries']);
 
         $portfolio->update($data);
         $this->syncRelations($portfolio, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Portofolio berhasil diperbarui.']);
 
-        return to_route('admin.portfolios.index');
+        return to_route('admin.portfolios.edit', $portfolio);
     }
 
     public function destroy(Portfolio $portfolio): RedirectResponse
@@ -73,6 +88,9 @@ class PortfolioController extends Controller
         $portfolio->technologies()->sync($request->validated('technologies', []));
         $portfolio->categories()->sync($request->validated('categories', []));
         $portfolio->careers()->sync($request->validated('careers', []));
+
+        $portfolio->galleries()->delete();
+        $portfolio->galleries()->createMany(array_values($request->validated('galleries', [])));
     }
 
     /**

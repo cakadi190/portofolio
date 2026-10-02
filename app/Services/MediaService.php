@@ -26,6 +26,7 @@ class MediaService
         'educations' => ['exact' => ['logo'], 'like' => []],
         'certifications' => ['exact' => ['file'], 'like' => []],
         'coffee_places' => ['exact' => ['image'], 'like' => []],
+        'coffee_place_galleries' => ['exact' => ['image_url'], 'like' => []],
         'portfolios' => ['exact' => ['image'], 'like' => ['description']],
         'portfolio_galleries' => ['exact' => ['image_url'], 'like' => []],
         'posts' => ['exact' => ['cover_image'], 'like' => ['content']],
@@ -66,6 +67,19 @@ class MediaService
             'width' => $width,
             'height' => $height,
         ]);
+    }
+
+    /**
+     * Register an existing file from the `public/` directory (e.g. a seeded
+     * `/images/...` asset) in the media library and return its stored path.
+     */
+    public function storeFromPublicPath(string $publicPath, ?int $userId = null): Media
+    {
+        $absolutePath = public_path(ltrim($publicPath, '/'));
+
+        $file = new UploadedFile($absolutePath, basename($absolutePath), mime_content_type($absolutePath) ?: null, null, true);
+
+        return $this->store($file, $userId);
     }
 
     /**

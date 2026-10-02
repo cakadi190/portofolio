@@ -23,13 +23,58 @@ test('a portfolio can be created with technologies and categories', function () 
         'categories' => [$category->id],
     ]);
 
-    $response->assertRedirect(route('admin.portfolios.index'));
-
     $portfolio = Portfolio::query()->firstOrFail();
+
+    $response->assertRedirect(route('admin.portfolios.edit', $portfolio));
+
     expect($portfolio->slug)->toBe('sistem-informasi');
     expect($portfolio->technologies)->toHaveCount(1);
     expect($portfolio->categories)->toHaveCount(1);
     expect($portfolio->image)->toBe($media->path);
+});
+
+test('the editor pages render', function () {
+    $portfolio = Portfolio::factory()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->get(route('admin.portfolios.create'))->assertOk();
+    $this->actingAs($user)->get(route('admin.portfolios.edit', $portfolio))->assertOk();
+});
+
+test('multiple gallery images are saved and replaced on update', function () {
+    $cover = Media::factory()->create();
+    [$a, $b, $c] = Media::factory()->count(3)->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->post(route('admin.portfolios.store'), [
+        'name' => 'Galeri',
+        'image' => $cover->path,
+        'galleries' => [
+            ['image_url' => $a->path, 'description' => 'Depan'],
+            ['image_url' => $b->path, 'description' => null],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $portfolio = Portfolio::query()->firstOrFail();
+    expect($portfolio->galleries()->pluck('image_url')->all())->toBe([$a->path, $b->path]);
+
+    $this->actingAs($user)->put(route('admin.portfolios.update', $portfolio), [
+        'name' => 'Galeri',
+        'image' => $cover->path,
+        'galleries' => [['image_url' => $c->path]],
+    ])->assertSessionHasNoErrors();
+
+    expect($portfolio->galleries()->pluck('image_url')->all())->toBe([$c->path]);
+});
+
+test('gallery images must exist in the media library', function () {
+    $cover = Media::factory()->create();
+
+    $this->actingAs(User::factory()->create())->post(route('admin.portfolios.store'), [
+        'name' => 'Galeri',
+        'image' => $cover->path,
+        'galleries' => [['image_url' => 'media/tidak-ada.webp']],
+    ])->assertSessionHasErrors('galleries.0.image_url');
 });
 
 test('creating a portfolio requires a name and image', function () {
@@ -51,7 +96,7 @@ test('updating a portfolio syncs its technologies', function () {
         'technologies' => [$technologyB->id],
     ]);
 
-    $response->assertRedirect(route('admin.portfolios.index'));
+    $response->assertRedirect(route('admin.portfolios.edit', $portfolio));
 
     expect($portfolio->technologies()->pluck('technologies.id')->all())->toBe([$technologyB->id]);
 });

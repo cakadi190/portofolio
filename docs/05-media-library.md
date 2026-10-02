@@ -55,3 +55,7 @@ Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**:
 - Belum ada folder/kategori media, versi/ganti berkas, atau varian ukuran (thumbnail).
 - Pelacakan pemakaian berbasis pemindaian kolom, bukan relasi; kolom tak terdaftar tidak terlindungi.
 - Belum ada pembersihan media yatim otomatis.
+
+## Seeder
+
+Seeder yang membawa gambar (`EducationSeeder`, `CoffeePlaceSeeder`, `PortfolioSeeder`) mendaftarkan berkas bawaan `public/images/...` lewat `MediaService::storeFromPublicPath()`, sehingga gambar tampil di Pustaka Media dan kolom modelnya menyimpan `media.path` hasilnya (diproses WebP seperti unggahan biasa).

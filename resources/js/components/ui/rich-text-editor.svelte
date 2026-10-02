@@ -41,11 +41,14 @@
     value = '',
     placeholder = 'Mulai menulis cerita Anda...',
     invalid = false,
+    minimal = false,
   }: {
     name: string;
     value?: string | null;
     placeholder?: string;
     invalid?: boolean;
+    /** Public-safe mode: basic formatting only, no images, links, headings or HTML tab. */
+    minimal?: boolean;
   } = $props();
 
   let element = $state<HTMLDivElement>();
@@ -68,7 +71,11 @@
 
   function insertImage(media: MediaItem): void {
     if (media.url) {
-      editor?.chain().focus().setImage({ src: media.url, alt: media.alt ?? media.name }).run();
+      editor
+        ?.chain()
+        .focus()
+        .setImage({ src: media.url, alt: media.alt ?? media.name })
+        .run();
     }
   }
 
@@ -80,7 +87,11 @@
     try {
       insertImage(await uploadMedia(file));
     } catch (exception) {
-      window.alert(exception instanceof Error ? exception.message : 'Gambar gagal diunggah.');
+      window.alert(
+        exception instanceof Error
+          ? exception.message
+          : 'Gambar gagal diunggah.',
+      );
     } finally {
       uploading = false;
     }
@@ -125,10 +136,22 @@
       element,
       content: value ?? '',
       extensions: [
-        StarterKit.configure({ link: { openOnClick: false } }),
-        Image,
+        StarterKit.configure(
+          minimal
+            ? {
+                link: false,
+                heading: false,
+                code: false,
+                codeBlock: false,
+                horizontalRule: false,
+              }
+            : { link: { openOnClick: false } },
+        ),
+        ...(minimal ? [] : [Image]),
         Placeholder.configure({ placeholder }),
-        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        ...(minimal
+          ? []
+          : [TextAlign.configure({ types: ['heading', 'paragraph'] })]),
         CharacterCount,
       ],
       editorProps: {
@@ -164,40 +187,42 @@
   });
 </script>
 
-<div class="rte" class:is-invalid={invalid}>
+<div class="rte" class:is-invalid={invalid} class:rte-minimal={minimal}>
   <input type="hidden" {name} value={html} />
 
   <div class="rte-top">
     <div class="rte-toolbar" role="toolbar" aria-label="Pemformatan teks">
       {#if mode === 'visual' && editor}
-        <select
-          class="form-select form-select-sm rte-select"
-          aria-label="Gaya paragraf"
-          onchange={(event) => {
-            const level = Number(event.currentTarget.value);
-            if (level === 0) editor?.chain().focus().setParagraph().run();
-            else
-              editor
-                ?.chain()
-                .focus()
-                .toggleHeading({ level: level as 1 | 2 | 3 })
-                .run();
-          }}
-          value={active('heading', { level: 1 })
-            ? 1
-            : active('heading', { level: 2 })
-              ? 2
-              : active('heading', { level: 3 })
-                ? 3
-                : 0}
-        >
-          <option value="0">Paragraf</option>
-          <option value="1">Judul 1</option>
-          <option value="2">Judul 2</option>
-          <option value="3">Judul 3</option>
-        </select>
+        {#if !minimal}
+          <select
+            class="form-select form-select-sm rte-select"
+            aria-label="Gaya paragraf"
+            onchange={(event) => {
+              const level = Number(event.currentTarget.value);
+              if (level === 0) editor?.chain().focus().setParagraph().run();
+              else
+                editor
+                  ?.chain()
+                  .focus()
+                  .toggleHeading({ level: level as 1 | 2 | 3 })
+                  .run();
+            }}
+            value={active('heading', { level: 1 })
+              ? 1
+              : active('heading', { level: 2 })
+                ? 2
+                : active('heading', { level: 3 })
+                  ? 3
+                  : 0}
+          >
+            <option value="0">Paragraf</option>
+            <option value="1">Judul 1</option>
+            <option value="2">Judul 2</option>
+            <option value="3">Judul 3</option>
+          </select>
 
-        <span class="rte-sep"></span>
+          <span class="rte-sep"></span>
+        {/if}
 
         <button
           type="button"
@@ -231,45 +256,50 @@
           onclick={() => editor?.chain().focus().toggleStrike().run()}
           ><Strikethrough size={16} /></button
         >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('code')}
-          title="Kode inline"
-          onclick={() => editor?.chain().focus().toggleCode().run()}
-          ><Code size={16} /></button
-        >
+        {#if !minimal}
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active('code')}
+            title="Kode inline"
+            onclick={() => editor?.chain().focus().toggleCode().run()}
+            ><Code size={16} /></button
+          >
+        {/if}
 
-        <span class="rte-sep"></span>
+        {#if !minimal}
+          <span class="rte-sep"></span>
 
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('heading', { level: 1 })}
-          title="Judul 1"
-          onclick={() =>
-            editor?.chain().focus().toggleHeading({ level: 1 }).run()}
-          ><Heading1 size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('heading', { level: 2 })}
-          title="Judul 2"
-          onclick={() =>
-            editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-          ><Heading2 size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('heading', { level: 3 })}
-          title="Judul 3"
-          onclick={() =>
-            editor?.chain().focus().toggleHeading({ level: 3 }).run()}
-          ><Heading3 size={16} /></button
-        >
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active('heading', { level: 1 })}
+            title="Judul 1"
+            onclick={() =>
+              editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+            ><Heading1 size={16} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active('heading', { level: 2 })}
+            title="Judul 2"
+            onclick={() =>
+              editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+            ><Heading2 size={16} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active('heading', { level: 3 })}
+            title="Judul 3"
+            onclick={() =>
+              editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+            ><Heading3 size={16} /></button
+          >
 
+          <span class="rte-sep"></span>
+        {/if}
         <span class="rte-sep"></span>
 
         <button
@@ -296,66 +326,67 @@
           onclick={() => editor?.chain().focus().toggleBlockquote().run()}
           ><Quote size={16} /></button
         >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('codeBlock')}
-          title="Blok kode"
-          onclick={() => editor?.chain().focus().toggleCodeBlock().run()}
-          ><SquareCode size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          title="Garis pemisah"
-          onclick={() => editor?.chain().focus().setHorizontalRule().run()}
-          ><Minus size={16} /></button
-        >
+        {#if !minimal}
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active('codeBlock')}
+            title="Blok kode"
+            onclick={() => editor?.chain().focus().toggleCodeBlock().run()}
+            ><SquareCode size={16} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn"
+            title="Garis pemisah"
+            onclick={() => editor?.chain().focus().setHorizontalRule().run()}
+            ><Minus size={16} /></button
+          >
 
-        <span class="rte-sep"></span>
+          <span class="rte-sep"></span>
 
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active({ textAlign: 'left' })}
-          title="Rata kiri"
-          onclick={() => editor?.chain().focus().setTextAlign('left').run()}
-          ><AlignLeft size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active({ textAlign: 'center' })}
-          title="Rata tengah"
-          onclick={() => editor?.chain().focus().setTextAlign('center').run()}
-          ><AlignCenter size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active({ textAlign: 'right' })}
-          title="Rata kanan"
-          onclick={() => editor?.chain().focus().setTextAlign('right').run()}
-          ><AlignRight size={16} /></button
-        >
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active({ textAlign: 'left' })}
+            title="Rata kiri"
+            onclick={() => editor?.chain().focus().setTextAlign('left').run()}
+            ><AlignLeft size={16} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active({ textAlign: 'center' })}
+            title="Rata tengah"
+            onclick={() => editor?.chain().focus().setTextAlign('center').run()}
+            ><AlignCenter size={16} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active({ textAlign: 'right' })}
+            title="Rata kanan"
+            onclick={() => editor?.chain().focus().setTextAlign('right').run()}
+            ><AlignRight size={16} /></button
+          >
 
-        <span class="rte-sep"></span>
+          <span class="rte-sep"></span>
 
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('link')}
-          title="Tautan"
-          onclick={setLink}><Link size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          title="Sisipkan gambar dari pustaka media"
-          disabled={uploading}
-          onclick={() => (pickerOpen = true)}><ImageIcon size={16} /></button
-        >
-
+          <button
+            type="button"
+            class="rte-btn"
+            class:on={active('link')}
+            title="Tautan"
+            onclick={setLink}><Link size={16} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn"
+            title="Sisipkan gambar dari pustaka media"
+            disabled={uploading}
+            onclick={() => (pickerOpen = true)}><ImageIcon size={16} /></button
+          >
+        {/if}
         <span class="rte-sep"></span>
 
         <button
@@ -377,24 +408,26 @@
       {/if}
     </div>
 
-    <div class="rte-tabs" role="tablist">
-      <button
-        type="button"
-        role="tab"
-        aria-selected={mode === 'visual'}
-        class="rte-tab"
-        class:on={mode === 'visual'}
-        onclick={() => setMode('visual')}>Visual</button
-      >
-      <button
-        type="button"
-        role="tab"
-        aria-selected={mode === 'html'}
-        class="rte-tab"
-        class:on={mode === 'html'}
-        onclick={() => setMode('html')}>HTML</button
-      >
-    </div>
+    {#if !minimal}
+      <div class="rte-tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'visual'}
+          class="rte-tab"
+          class:on={mode === 'visual'}
+          onclick={() => setMode('visual')}>Visual</button
+        >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'html'}
+          class="rte-tab"
+          class:on={mode === 'html'}
+          onclick={() => setMode('html')}>HTML</button
+        >
+      </div>
+    {/if}
   </div>
 
   <div class="rte-body" hidden={mode !== 'visual'} bind:this={element}></div>
@@ -413,12 +446,14 @@
   </div>
 </div>
 
-<MediaPickerModal
-  bind:open={pickerOpen}
-  accept="image"
-  title="Sisipkan Gambar"
-  onSelect={insertImage}
-/>
+{#if !minimal}
+  <MediaPickerModal
+    bind:open={pickerOpen}
+    accept="image"
+    title="Sisipkan Gambar"
+    onSelect={insertImage}
+  />
+{/if}
 
 <style>
   .rte {
@@ -499,6 +534,10 @@
   }
   .rte-body {
     min-height: 26rem;
+  }
+  .rte-minimal .rte-body,
+  .rte-minimal .rte-body :global(.rte-content) {
+    min-height: 9rem;
   }
   .rte-body :global(.rte-content) {
     min-height: 26rem;

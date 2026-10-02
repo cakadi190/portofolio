@@ -14,6 +14,7 @@
     DESKTOP_BREAKPOINT,
     useAdminSidebarState,
   } from './sidebar-state.svelte';
+  import AppBrand from '@/components/app-brand.svelte';
 
   let {
     menu,
@@ -132,7 +133,9 @@
             <AppLogoIcon height={32} />
           </div>
         </div>
-        <div class="sidebar-logo">Catatan Cak Adi</div>
+        <div class="sidebar-logo">
+          <AppBrand height={32} variant="white" />
+        </div>
       </Link>
 
       <button
@@ -174,7 +177,11 @@
       <div class="userinfo">
         <div class="userinfo-avatar">
           {#if avatarUrl}
-            <img src={avatarUrl} alt={userName ?? ''} class="w-100 h-100 object-fit-cover rounded" />
+            <img
+              src={avatarUrl}
+              alt={userName ?? ''}
+              class="w-100 h-100 object-fit-cover rounded"
+            />
           {:else}
             <AppLogoIcon height={20} />
           {/if}

@@ -2,12 +2,19 @@
 
 namespace App\Models;
 
+use Database\Factories\PortfolioRatingFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PortfolioRating extends Model
 {
-    protected $fillable = ['portfolio_id', 'rating', 'comment'];
+    /** @use HasFactory<PortfolioRatingFactory> */
+    use HasFactory;
+
+    protected $fillable = [
+        'portfolio_id', 'reviewer_name', 'reviewer_email', 'reviewer_company', 'title', 'rating', 'comment', 'is_approved',
+    ];
 
     /**
      * @return array<string, string>
@@ -16,6 +23,7 @@ class PortfolioRating extends Model
     {
         return [
             'rating' => 'integer',
+            'is_approved' => 'boolean',
         ];
     }
 

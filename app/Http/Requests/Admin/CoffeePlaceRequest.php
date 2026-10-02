@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\CafeFacility;
 use App\Enums\CafePriceTier;
 use App\Enums\WifiSpeed;
 use App\Rules\MediaPath;
@@ -35,6 +36,11 @@ class CoffeePlaceRequest extends FormRequest
             'opens_at' => ['nullable', 'date_format:H:i'],
             'closes_at' => ['nullable', 'date_format:H:i'],
             'region' => ['nullable', 'string', 'max:255'],
+            'facilities' => ['nullable', 'array'],
+            'facilities.*' => ['string', 'distinct', new Enum(CafeFacility::class)],
+            'galleries' => ['nullable', 'array'],
+            'galleries.*.image_url' => ['required', 'string', new MediaPath($this->route('coffeePlace')?->galleries()->pluck('image_url')->all())],
+            'galleries.*.description' => ['nullable', 'string', 'max:255'],
             'is_recommended' => ['boolean'],
         ];
     }

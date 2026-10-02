@@ -15,13 +15,17 @@
     open = $bindable(false),
     accept = 'all',
     title = 'Pilih Media',
+    multiple = false,
     onSelect,
   }: {
     open?: boolean;
     accept?: MediaAccept;
     title?: string;
+    multiple?: boolean;
     onSelect: (media: MediaItem) => void;
   } = $props();
+
+  let selected = $state<MediaItem[]>([]);
 
   let items = $state<MediaItem[]>([]);
   let page = $state(1);
@@ -65,6 +69,7 @@
 
   $effect(() => {
     if (open) {
+      selected = [];
       page = 1;
       error = null;
       void load();
@@ -115,7 +120,20 @@
   }
 
   function choose(media: MediaItem): void {
+    if (multiple) {
+      selected = selected.some((item) => item.id === media.id)
+        ? selected.filter((item) => item.id !== media.id)
+        : [...selected, media];
+
+      return;
+    }
+
     onSelect(media);
+    open = false;
+  }
+
+  function confirmSelection(): void {
+    selected.forEach(onSelect);
     open = false;
   }
 </script>
@@ -181,6 +199,7 @@
             <button
               type="button"
               class="media-picker-item"
+              class:is-selected={selected.some((item) => item.id === media.id)}
               title={media.name}
               onclick={() => choose(media)}
             >
@@ -212,6 +231,19 @@
             >
           </div>
         {/if}
+      {/if}
+
+      {#if multiple}
+        <div class="d-flex justify-content-end mt-3">
+          <button
+            type="button"
+            class="btn btn-primary"
+            disabled={selected.length === 0}
+            onclick={confirmSelection}
+          >
+            Tambahkan {selected.length} berkas
+          </button>
+        </div>
       {/if}
     </div>
   {/snippet}
@@ -249,6 +281,11 @@
     background: none;
     border: 1px solid var(--neo-border-color);
     border-radius: 0.5rem;
+  }
+
+  .media-picker-item.is-selected {
+    border-color: var(--neo-primary);
+    box-shadow: 0 0 0 2px var(--neo-primary);
   }
 
   .media-picker-item:hover,

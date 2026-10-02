@@ -47,6 +47,20 @@
             } catch (error) {}
         </script>
 
+        {{--
+            Anti-FOUC: fetch the brand artwork with the document (so the sidebar
+            logo/icon don't pop in after JS boots) and keep overlays that are
+            only revealed by Bootstrap JS hidden until the stylesheet arrives.
+        --}}
+        <link rel="preload" as="image" href="/images/brands/logo-white.svg" type="image/svg+xml">
+        <link rel="preload" as="image" href="/images/brands/icon-color.svg" type="image/svg+xml">
+        <link rel="preload" as="image" href="/images/brands/logo-color.svg" type="image/svg+xml">
+        <style>
+            .offcanvas:not(.show):not(.showing):not(.hiding),
+            .modal:not(.show),
+            .dropdown-menu:not(.show) { display: none; }
+        </style>
+
         @vite(['resources/css/app.scss', 'resources/js/app.ts'])
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>

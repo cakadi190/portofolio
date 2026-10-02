@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Portfolio;
+use App\Models\PortfolioGallery;
+use App\Models\PortfolioRating;
 use App\Services\ImageService;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -41,7 +43,9 @@ class PortfolioController extends Controller
      */
     public function show(Portfolio $portfolio): Response
     {
-        $portfolio->load('technologies:id,name');
+        $portfolio->load(['technologies:id,name', 'galleries:id,portfolio_id,image_url,description']);
+
+        $approvedRatings = $portfolio->ratings()->where('is_approved', true);
 
         return Inertia::render('portfolio/show', [
             'portfolio' => [
@@ -53,6 +57,24 @@ class PortfolioController extends Controller
                 'sourceCode' => $portfolio->source_code,
                 'isPrivate' => $portfolio->is_private,
                 'technologies' => $portfolio->technologies->pluck('name'),
+                'slug' => $portfolio->slug,
+                'galleries' => $portfolio->galleries->map(fn (PortfolioGallery $gallery): array => [
+                    'url' => ImageService::url($gallery->image_url),
+                    'title' => $gallery->description,
+                ]),
+            ],
+            'reviews' => (clone $approvedRatings)->latest()->get()->map(fn (PortfolioRating $review): array => [
+                'id' => $review->id,
+                'name' => $review->reviewer_name,
+                'company' => $review->reviewer_company,
+                'title' => $review->title,
+                'rating' => $review->rating,
+                'comment' => $review->comment,
+                'createdAt' => $review->created_at?->translatedFormat('d F Y'),
+            ]),
+            'reviewSummary' => [
+                'average' => round((float) $approvedRatings->avg('rating'), 1),
+                'count' => $approvedRatings->count(),
             ],
         ]);
     }

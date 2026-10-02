@@ -2,6 +2,8 @@
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
+  import SettingsAccountNav from '@/components/admin/settings-account-nav.svelte';
+  import SettingsLayout from '@/components/admin/settings-layout.svelte';
   import MediaField from '@/components/media/media-field.svelte';
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
@@ -28,11 +30,16 @@
 
 <AppHead title="Profil Saya" />
 
-<div id="profile-settings-page" style="max-width: 720px;">
+<div id="profile-settings-page">
   <AdminPageHeader
     title="Profil Saya"
     subtitle="Perbarui informasi akun dan foto profil Anda."
   />
+
+  <SettingsLayout>
+    {#snippet nav()}
+      <SettingsAccountNav current="profile" />
+    {/snippet}
 
   <div class="card mb-4">
     <div class="card-body">
@@ -129,4 +136,5 @@
       </Form>
     </div>
   </div>
+  </SettingsLayout>
 </div>

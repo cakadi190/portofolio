@@ -33,6 +33,9 @@ class PortfolioRequest extends FormRequest
             'categories.*' => ['integer', 'exists:portfolio_categories,id'],
             'careers' => ['nullable', 'array'],
             'careers.*' => ['integer', 'exists:careers,id'],
+            'galleries' => ['nullable', 'array'],
+            'galleries.*.image_url' => ['required', 'string', new MediaPath($this->route('portfolio')?->galleries()->pluck('image_url')->all())],
+            'galleries.*.description' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
