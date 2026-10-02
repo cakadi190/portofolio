@@ -31,6 +31,7 @@
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
     "flag-icons": "^7.5.0",
+    "fontaine": "^1.0.0",
     "laravel-vite-plugin": "^3.2.0",
     "leaflet": "^1.9.4",
     "simplebar": "^6.3.3",
