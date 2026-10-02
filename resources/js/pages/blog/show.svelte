@@ -48,7 +48,7 @@
           {/if}
 
           <div
-            class="pt-5 pb-4 flex-column border-bottom mb-5 align-items-start d-flex gap-3"
+            class="py-4 flex-column border-bottom mb-5 align-items-start d-flex gap-3"
           >
             <div class="d-flex flex-wrap align-items-center gap-2">
               <div class="d-flex align-items-center gap-2 opacity-75">

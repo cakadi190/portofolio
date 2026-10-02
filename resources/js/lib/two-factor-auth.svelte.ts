@@ -80,9 +80,7 @@ export function twoFactorAuthState(): TwoFactorAuthStateApi {
   const fetchRecoveryCodes = async (): Promise<void> => {
     try {
       clearErrors();
-      state.recoveryCodesList = await http.get<string[]>(
-        recoveryCodes.url(),
-      );
+      state.recoveryCodesList = await http.get<string[]>(recoveryCodes.url());
     } catch {
       state.errors = [...state.errors, 'Gagal mengambil kode pemulihan'];
       state.recoveryCodesList = [];

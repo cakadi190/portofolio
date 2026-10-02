@@ -182,9 +182,17 @@ export class AdminSidebarState {
     this.openBranches = next;
   }
 
-  private closeSiblings(branches: Set<string>, id: string, groupId: string): void {
+  private closeSiblings(
+    branches: Set<string>,
+    id: string,
+    groupId: string,
+  ): void {
     for (const openId of branches) {
-      if (openId.startsWith(`${groupId}-`) && openId !== id && !openId.startsWith(`${id}-`)) {
+      if (
+        openId.startsWith(`${groupId}-`) &&
+        openId !== id &&
+        !openId.startsWith(`${id}-`)
+      ) {
         branches.delete(openId);
       }
     }

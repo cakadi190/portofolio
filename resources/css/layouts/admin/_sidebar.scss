@@ -471,7 +471,8 @@
         height: 100%;
         position: absolute;
         z-index: 1;
-        border-inline-start: 1px solid rgba(var(--neo-sidebar-fg-rgb, 255 255 255) / 0.25);
+        border-inline-start: 1px solid
+          rgba(var(--neo-sidebar-fg-rgb, 255 255 255) / 0.25);
       }
     }
 

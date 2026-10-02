@@ -15,7 +15,9 @@ import type { AdminSidebarEntry } from '@/types/admin-sidebar';
  */
 export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
   const isActive = (href: string): boolean =>
-    currentUrl === href || currentUrl.startsWith(`${href}/`) || currentUrl.startsWith(`${href}?`);
+    currentUrl === href ||
+    currentUrl.startsWith(`${href}/`) ||
+    currentUrl.startsWith(`${href}?`);
   const link = (label: string, href: string): AdminSidebarEntry => ({
     label,
     href,
@@ -78,9 +80,7 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
     {
       label: 'Kontak',
       icon: Contact,
-      children: [
-        link('Pesan Masuk', '/admin/contact-messages'),
-      ],
+      children: [link('Pesan Masuk', '/admin/contact-messages')],
     },
     {
       label: 'Pustaka Media',

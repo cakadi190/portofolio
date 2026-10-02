@@ -20,15 +20,16 @@ function pick<T extends string>(
 
 /** Only web, mail, phone, relative and anchor links may live in a button. */
 export function safeHref(href: unknown): string {
-  const value = String(href ?? '').trim();
+  const value = typeof href === 'string' ? href.trim() : '';
 
   return /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(value) ? value : '#';
 }
 
 function alignFromClass(element: Element): BlockAlign {
   return (
-    ALIGNMENTS.find((align) => element.classList.contains(`is-align-${align}`)) ??
-    'center'
+    ALIGNMENTS.find((align) =>
+      element.classList.contains(`is-align-${align}`),
+    ) ?? 'center'
   );
 }
 
