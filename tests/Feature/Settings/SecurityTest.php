@@ -22,7 +22,7 @@ test('security page is displayed', function () {
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route('security.edit'))
         ->assertInertia(fn (Assert $page) => $page
-            ->component('settings/Security')
+            ->component('admin/settings/Security')
             ->where('canManagePasskeys', true)
             ->where('passkeys', [])
             ->where('canManageTwoFactor', true)
@@ -58,7 +58,7 @@ test('security page renders without two factor when feature is disabled', functi
         ->get(route('security.edit'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('settings/Security')
+            ->component('admin/settings/Security')
             ->where('canManagePasskeys', false)
             ->where('passkeys', [])
             ->where('canManageTwoFactor', false)
@@ -101,4 +101,35 @@ test('correct password must be provided to update password', function () {
     $response
         ->assertSessionHasErrors('current_password')
         ->assertRedirect(route('security.edit'));
+});
+
+test('a passkey can be renamed by its owner', function () {
+    $user = User::factory()->create();
+    $passkey = $user->passkeys()->create([
+        'name' => 'Old',
+        'credential_id' => 'abc',
+        'credential' => ['id' => 'abc'],
+    ]);
+
+    $this->actingAs($user)
+        ->withSession(['auth.password_confirmed_at' => time()])
+        ->patch(route('settings.passkeys.update', $passkey->id), ['name' => 'Laptop'])
+        ->assertSessionHasNoErrors();
+
+    expect($passkey->refresh()->name)->toBe('Laptop');
+});
+
+test('a passkey of another user cannot be renamed', function () {
+    $owner = User::factory()->create();
+    $passkey = $owner->passkeys()->create([
+        'name' => 'Old',
+        'credential_id' => 'xyz',
+        'credential' => ['id' => 'xyz'],
+    ]);
+
+    $this->actingAs(User::factory()->create())
+        ->patch(route('settings.passkeys.update', $passkey->id), ['name' => 'Hacked'])
+        ->assertNotFound();
+
+    expect($passkey->refresh()->name)->toBe('Old');
 });

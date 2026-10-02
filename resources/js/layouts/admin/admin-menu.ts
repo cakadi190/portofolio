@@ -5,6 +5,7 @@ import GraduationCap from '@lucide/svelte/icons/graduation-cap';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import Images from '@lucide/svelte/icons/images';
 import Newspaper from '@lucide/svelte/icons/newspaper';
+import KeyRound from '@lucide/svelte/icons/key-round';
 import User from '@lucide/svelte/icons/user';
 import type { AdminSidebarEntry } from '@/types/admin-sidebar';
 
@@ -86,6 +87,20 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
       icon: User,
       href: '/admin/users',
       active: isActive('/admin/users'),
+    },
+
+    { type: 'header', label: 'Akun Saya' },
+    {
+      label: 'Profil Saya',
+      icon: User,
+      href: '/settings/profile',
+      active: isActive('/settings/profile'),
+    },
+    {
+      label: 'Keamanan',
+      icon: KeyRound,
+      href: '/settings/security',
+      active: isActive('/settings/security'),
     },
   ];
 }

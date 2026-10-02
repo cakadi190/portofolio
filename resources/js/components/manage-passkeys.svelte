@@ -2,10 +2,12 @@
   import { usePasskeyRegister } from '@laravel/passkeys/svelte';
   import { router } from '@inertiajs/svelte';
   import KeyRound from '@lucide/svelte/icons/key-round';
+  import Pencil from '@lucide/svelte/icons/pencil';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import ModalConfirmation from '@/components/modal-confirmation.svelte';
   import { Field } from '@/components/ui/field';
   import { destroy } from '@/wayfinder/routes/passkey';
+  import { update } from '@/wayfinder/routes/settings/passkeys';
   import type { Passkey } from '@/types/auth';
 
   let {
@@ -21,6 +23,42 @@
   let deleting = $state<Passkey | null>(null);
   let showDeleteModal = $state(false);
   let isDeleting = $state(false);
+  let renamingId = $state<number | string | null>(null);
+  let renameValue = $state('');
+  let renameError = $state<string | undefined>(undefined);
+  let isRenaming = $state(false);
+
+  function startRename(passkey: Passkey) {
+    renamingId = passkey.id;
+    renameValue = passkey.name;
+    renameError = undefined;
+  }
+
+  function cancelRename() {
+    renamingId = null;
+    renameError = undefined;
+  }
+
+  function submitRename(event: SubmitEvent) {
+    event.preventDefault();
+
+    if (renamingId === null || !renameValue.trim()) {
+      return;
+    }
+
+    isRenaming = true;
+
+    router.patch(
+      update.url(Number(renamingId)),
+      { name: renameValue.trim() },
+      {
+        preserveScroll: true,
+        onSuccess: () => cancelRename(),
+        onError: (errors) => (renameError = errors.name),
+        onFinish: () => (isRenaming = false),
+      },
+    );
+  }
 
   const passkeyRegister = usePasskeyRegister({
     onSuccess: () => {
@@ -83,32 +121,70 @@
                 >
                   <KeyRound size={20} />
                 </div>
-                <div>
-                  <div class="d-flex align-items-center gap-2">
-                    <span class="fw-medium">{passkey.name}</span>
-                    {#if passkey.authenticator}
-                      <span class="badge text-bg-secondary text-uppercase">
-                        {passkey.authenticator}
-                      </span>
-                    {/if}
+                {#if renamingId === passkey.id}
+                  <form onsubmit={submitRename} class="d-flex flex-column gap-1">
+                    <div class="d-flex gap-2">
+                      <Field.Input
+                        id={`passkey-rename-${passkey.id}`}
+                        bind:value={renameValue}
+                        invalid={!!renameError}
+                        autofocus
+                      />
+                      <button
+                        type="submit"
+                        class="btn btn-primary btn-sm"
+                        disabled={isRenaming || !renameValue.trim()}
+                      >
+                        Simpan
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-link btn-sm"
+                        onclick={cancelRename}
+                      >
+                        Batal
+                      </button>
+                    </div>
+                    <Field.Feedback message={renameError} />
+                  </form>
+                {:else}
+                  <div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="fw-medium">{passkey.name}</span>
+                      {#if passkey.authenticator}
+                        <span class="badge text-bg-secondary text-uppercase">
+                          {passkey.authenticator}
+                        </span>
+                      {/if}
+                    </div>
+                    <p class="text-muted small mb-0">
+                      Ditambahkan {passkey.created_at_diff}
+                      {#if passkey.last_used_at_diff}
+                        &middot; Terakhir digunakan {passkey.last_used_at_diff}
+                      {/if}
+                    </p>
                   </div>
-                  <p class="text-muted small mb-0">
-                    Ditambahkan {passkey.created_at_diff}
-                    {#if passkey.last_used_at_diff}
-                      &middot; Terakhir digunakan {passkey.last_used_at_diff}
-                    {/if}
-                  </p>
-                </div>
+                {/if}
               </div>
 
-              <button
-                type="button"
-                class="btn btn-link text-danger"
-                onclick={() => openDeleteModal(passkey)}
-                aria-label="Hapus passkey"
-              >
-                <Trash2 size={16} />
-              </button>
+              <div class="d-flex align-items-center">
+                <button
+                  type="button"
+                  class="btn btn-link text-body-secondary"
+                  onclick={() => startRename(passkey)}
+                  aria-label="Ubah nama passkey"
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-link text-danger"
+                  onclick={() => openDeleteModal(passkey)}
+                  aria-label="Hapus passkey"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           {/each}
         {:else}

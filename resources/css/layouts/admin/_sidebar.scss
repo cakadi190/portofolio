@@ -105,7 +105,7 @@
       position: relative;
       display: block;
       margin-bottom: 0;
-      color: rgba(var(--neo-white-rgb), 0.6);
+      color: rgba(var(--neo-white-rgb), 0.85);
 
       > svg {
         position: absolute;
@@ -125,7 +125,7 @@
       box-shadow: none !important;
 
       &::placeholder {
-        color: rgba(var(--neo-white-rgb), 0.5);
+        color: rgba(var(--neo-white-rgb), 0.7);
       }
 
       &:focus {
@@ -139,7 +139,7 @@
   .sidebar-search-empty {
     margin: 0;
     padding: 0.5rem var(--neo-sidebar-link-inline-padding);
-    color: rgba(var(--neo-white-rgb), 0.6);
+    color: rgba(var(--neo-white-rgb), 0.85);
     font-size: 0.875rem;
   }
 
@@ -233,7 +233,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1rem var(--neo-sidebar-link-inline-padding) 0.5rem;
-    color: rgba(var(--neo-white-rgb), 0.55);
+    color: rgba(var(--neo-white-rgb), 0.8);
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -243,7 +243,7 @@
   .sm-link {
     width: 100%;
     text-decoration: none;
-    color: var(--neo-sm-link-color, rgba(var(--neo-white-rgb), 0.75));
+    color: var(--neo-sm-link-color, rgba(var(--neo-white-rgb), 0.95));
     background: var(--neo-sm-link-bg, transparent);
     display: flex;
     gap: 0.75rem;
@@ -425,7 +425,7 @@
 
       &-email {
         font-size: 0.875rem;
-        opacity: 0.75;
+        opacity: 0.9;
         margin-bottom: 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -655,5 +655,18 @@
 
   @media (width >= 992px) {
     display: none;
+  }
+}
+
+// These boxes are always a white tile (`--neo-white`), so the dark-mode white
+// icon would vanish on them — always show the colored icon here.
+.sidebar-icon-box,
+.userinfo-avatar {
+  .logo-light {
+    display: inline-block !important;
+  }
+
+  .logo-dark {
+    display: none !important;
   }
 }

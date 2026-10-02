@@ -25,7 +25,7 @@ Status: ✅ ada di kode saat ini. ID dipakai untuk rujukan di PR/tes.
 | AUTH-01 | Login, registrasi, lupa/reset password, verifikasi email. ✅ |
 | AUTH-02 | 2FA TOTP dengan konfirmasi + kode pemulihan; konfirmasi password untuk aksi sensitif. ✅ |
 | AUTH-03 | Passkey (WebAuthn) sebagai login/konfirmasi. ✅ |
-| AUTH-04 | Halaman keamanan akun di `/settings/profile` dan `/settings/security` (profil, password, 2FA, passkey). ✅ |
+| AUTH-04 | Halaman akun di dalam layout admin: `/settings/profile` (nama, email, telepon, jenis kelamin, foto profil via Media Library) dan `/settings/security` (password, 2FA, passkey: tambah, ubah nama, hapus). Page Inertia: `admin/settings/Profile` dan `admin/settings/Security`; tersedia di sidebar admin (grup "Akun Saya"). ✅ |
 
 Seluruh `/admin/*` memakai middleware `auth` + `verified`.
 

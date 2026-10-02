@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Fortify\Features;
+use Laravel\Passkeys\Passkey;
 
 class SecurityController extends Controller
 {
@@ -47,7 +49,7 @@ class SecurityController extends Controller
             $props['requiresConfirmation'] = Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm');
         }
 
-        return Inertia::render('settings/Security', $props);
+        return Inertia::render('admin/settings/Security', $props);
     }
 
     /**
@@ -60,6 +62,24 @@ class SecurityController extends Controller
         ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
+
+        return back();
+    }
+
+    /**
+     * Rename one of the user's passkeys.
+     */
+    public function updatePasskey(Request $request, Passkey $passkey): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        abort_unless($passkey->user_id === $request->user()->id, 404);
+
+        $passkey->update($validated);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Nama passkey berhasil diperbarui.']);
 
         return back();
     }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Link } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
   import LogoutAction from '@/components/logout-action.svelte';
@@ -30,7 +31,7 @@
 
   <ul class="dropdown-menu dropdown-menu-end">
     <li class="userinfo-badge">
-      <div class="dropdown-item">
+      <Link href="/settings/profile" class="dropdown-item">
         <div class="avatar">
           <AppLogoIcon height={20} aria-hidden="true" />
         </div>
@@ -38,7 +39,7 @@
           <strong>{userName ?? '—'}</strong>
           <p class="mb-0">Lihat Profil</p>
         </div>
-      </div>
+      </Link>
     </li>
 
     <li><hr class="dropdown-divider" /></li>

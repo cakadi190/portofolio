@@ -82,7 +82,7 @@
         <Icon icon={award.icon} width={28} height={28} />
       </td>
       <td>{award.title}</td>
-      <td>{typeLabels[award.type] ?? award.type}</td>
+      <td class="text-nowrap">{typeLabels[award.type] ?? award.type}</td>
       <td>{award.event_name}</td>
       <td>{award.year}</td>
       <td>{award.rank ?? '—'}</td>

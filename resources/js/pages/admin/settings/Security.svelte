@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import HeaderPage from '@/components/header-page.svelte';
+  import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import ManagePasskeys from '@/components/manage-passkeys.svelte';
   import ManageTwoFactor from '@/components/manage-two-factor.svelte';
   import { Field } from '@/components/ui/field';
@@ -27,14 +27,12 @@
 
 <AppHead title="Keamanan Akun" />
 
-<div id="security-settings-page">
-  <HeaderPage
+<div id="security-settings-page" style="max-width: 720px;">
+  <AdminPageHeader
     title="Keamanan Akun"
     subtitle="Kelola kata sandi, autentikasi dua faktor, dan passkey Anda."
   />
 
-  <section class="need-space pt-0">
-    <div class="container" style="max-width: 720px;">
       <div class="card mb-4">
         <div class="card-body">
           <h2 class="h5 mb-1">Perbarui kata sandi</h2>
@@ -100,6 +98,4 @@
       />
 
       <ManagePasskeys {canManagePasskeys} {passkeys} />
-    </div>
-  </section>
 </div>

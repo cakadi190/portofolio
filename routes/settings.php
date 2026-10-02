@@ -22,6 +22,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')
         ->name('user-password.update');
+
+    Route::patch('settings/passkeys/{passkey}', [SecurityController::class, 'updatePasskey'])
+        ->middleware('throttle:6,1')
+        ->name('settings.passkeys.update');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

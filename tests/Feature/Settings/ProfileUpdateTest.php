@@ -83,3 +83,42 @@ test('correct password must be provided to delete account', function () {
 
     expect($user->fresh())->not->toBeNull();
 });
+
+test('profile page uses the admin layout page and exposes profile data', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertInertia(fn ($page) => $page
+            ->component('admin/settings/Profile')
+            ->where('profile.email', $user->email)
+            ->has('genders'));
+});
+
+test('phone and gender can be updated from the profile page', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->patch(route('profile.update'), [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => '08123456789',
+            'gender' => 'male',
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($user->refresh()->phone)->toBe('08123456789')
+        ->and($user->gender->value ?? $user->gender)->toBe('male');
+});
+
+test('invalid gender is rejected', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->patch(route('profile.update'), [
+            'name' => $user->name,
+            'email' => $user->email,
+            'gender' => 'invalid',
+        ])
+        ->assertSessionHasErrors('gender');
+});
