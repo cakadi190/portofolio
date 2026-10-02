@@ -31,8 +31,8 @@
 <div id="blog-detail">
   <HeaderPage
     backTo="/blog"
-    title="Detail Artikel"
-    subtitle="Berikut saya tampilkan detail artikel yang saya tulis ini."
+    title={post.title}
+    subtitle={post.excerpt ?? publishedLabel}
   />
 
   <section class="need-space pt-0">
@@ -50,29 +50,21 @@
           <div
             class="pt-5 pb-4 flex-column border-bottom mb-5 align-items-start d-flex gap-3"
           >
-            {#if post.categories.length}
-              <div class="d-flex flex-wrap gap-2">
-                {#each post.categories as category (category.name)}
-                  <span
-                    class="badge"
-                    style={`background-color: ${category.color ?? '#6c757d'}`}
-                  >
-                    {category.name}
-                  </span>
-                {/each}
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <div class="d-flex align-items-center gap-2 opacity-75">
+                <Calendar size={16} />
+                <span>{publishedLabel}</span>
               </div>
-            {/if}
 
-            <h1 class="h3 mb-0">{post.title}</h1>
-
-            <div class="d-flex align-items-center gap-2 opacity-75">
-              <Calendar size={16} />
-              <span>{publishedLabel}</span>
+              {#each post.categories as category (category.name)}
+                <span
+                  class="badge"
+                  style={`background-color: ${category.color ?? '#6c757d'}`}
+                >
+                  {category.name}
+                </span>
+              {/each}
             </div>
-
-            {#if post.excerpt}
-              <p class="opacity-75 mb-0">{post.excerpt}</p>
-            {/if}
           </div>
 
           <div class="row flex-column-reverse flex-md-row gy-5">
