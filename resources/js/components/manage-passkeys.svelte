@@ -1,6 +1,8 @@
 <script lang="ts">
   import { usePasskeyRegister } from '@laravel/passkeys/svelte';
   import { router } from '@inertiajs/svelte';
+  import Check from '@lucide/svelte/icons/check';
+  import X from '@lucide/svelte/icons/x';
   import KeyRound from '@lucide/svelte/icons/key-round';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Trash2 from '@lucide/svelte/icons/trash-2';
@@ -114,37 +116,25 @@
             <div
               class="d-flex align-items-center justify-content-between p-3 border-bottom"
             >
-              <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-center gap-3 flex-grow-1">
                 <div
-                  class="d-flex align-items-center justify-content-center bg-body-secondary rounded-3"
+                  class="d-flex align-items-center justify-content-center bg-body-secondary rounded-3 flex-shrink-0"
                   style="width: 2.5rem; height: 2.5rem;"
                 >
                   <KeyRound size={20} />
                 </div>
                 {#if renamingId === passkey.id}
-                  <form onsubmit={submitRename} class="d-flex flex-column gap-1">
-                    <div class="d-flex gap-2">
-                      <Field.Input
-                        id={`passkey-rename-${passkey.id}`}
-                        bind:value={renameValue}
-                        invalid={!!renameError}
-                        autofocus
-                      />
-                      <button
-                        type="submit"
-                        class="btn btn-primary btn-sm"
-                        disabled={isRenaming || !renameValue.trim()}
-                      >
-                        Simpan
-                      </button>
-                      <button
-                        type="button"
-                        class="btn btn-link btn-sm"
-                        onclick={cancelRename}
-                      >
-                        Batal
-                      </button>
-                    </div>
+                  <form
+                    id={`passkey-rename-form-${passkey.id}`}
+                    onsubmit={submitRename}
+                    class="flex-grow-1"
+                  >
+                    <Field.Input
+                      id={`passkey-rename-${passkey.id}`}
+                      bind:value={renameValue}
+                      invalid={!!renameError}
+                      autofocus
+                    />
                     <Field.Feedback message={renameError} />
                   </form>
                 {:else}
@@ -167,18 +157,38 @@
                 {/if}
               </div>
 
-              <div class="d-flex align-items-center">
+              <div class="btn-group ms-3 flex-shrink-0" role="group">
+                {#if renamingId === passkey.id}
+                  <button
+                    type="submit"
+                    form={`passkey-rename-form-${passkey.id}`}
+                    class="btn btn-square btn-outline-primary btn-sm"
+                    disabled={isRenaming || !renameValue.trim()}
+                    aria-label="Simpan nama passkey"
+                  >
+                    <Check size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-square btn-outline-secondary btn-sm"
+                    onclick={cancelRename}
+                    aria-label="Batal ubah nama"
+                  >
+                    <X size={16} />
+                  </button>
+                {:else}
+                  <button
+                    type="button"
+                    class="btn btn-square btn-outline-secondary btn-sm"
+                    onclick={() => startRename(passkey)}
+                    aria-label="Ubah nama passkey"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                {/if}
                 <button
                   type="button"
-                  class="btn btn-link text-body-secondary"
-                  onclick={() => startRename(passkey)}
-                  aria-label="Ubah nama passkey"
-                >
-                  <Pencil size={16} />
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-link text-danger"
+                  class="btn btn-square btn-outline-danger btn-sm"
                   onclick={() => openDeleteModal(passkey)}
                   aria-label="Hapus passkey"
                 >
@@ -223,7 +233,7 @@
               placeholder="mis. MacBook Pro, iPhone"
               autofocus
             />
-            <Field.Feedback message={passkeyRegister.error} />
+            <Field.Feedback message={passkeyRegister.error ?? undefined} />
           </Field.Group>
 
           <div class="d-flex gap-2 mt-3">
