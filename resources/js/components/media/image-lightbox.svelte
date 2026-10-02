@@ -6,6 +6,8 @@
   import X from '@lucide/svelte/icons/x';
   import ZoomIn from '@lucide/svelte/icons/zoom-in';
   import ZoomOut from '@lucide/svelte/icons/zoom-out';
+  import { cubicOut } from 'svelte/easing';
+  import { fade, fly, scale as scaleTransition } from 'svelte/transition';
 
   type LightboxImage = { url: string; title?: string | null };
 
@@ -44,13 +46,16 @@
 
   const current = $derived(images[index]);
 
+  const prefersReducedMotion =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motion = (duration: number): number => (prefersReducedMotion ? 0 : duration);
+
   function portal(node: HTMLElement) {
     document.body.appendChild(node);
     document.body.style.overflow = 'hidden';
 
     return {
       destroy() {
-        node.remove();
         document.body.style.overflow = '';
       },
     };
@@ -242,8 +247,8 @@
 <svelte:window onkeydowncapture={onKeydown} />
 
 {#if open && current}
-  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || 'Pratinjau gambar'} use:portal>
-    <div class="lightbox-bar">
+  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || 'Pratinjau gambar'} use:portal transition:fade={{ duration: motion(220) }}>
+    <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
       <div class="lightbox-start">
         <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
           <X size={20} />
@@ -294,6 +299,8 @@
       onwheel={onWheel}
       ondblclick={onDoubleClick}
       onclick={onStageClick}
+      in:scaleTransition|global={{ start: 0.94, duration: motion(260), easing: cubicOut }}
+      out:scaleTransition|global={{ start: 0.96, duration: motion(180), easing: cubicOut }}
     >
       {#if failed}
         <p class="lightbox-message" role="alert">Gambar gagal dimuat.</p>
