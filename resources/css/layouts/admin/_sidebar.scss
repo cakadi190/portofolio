@@ -373,6 +373,13 @@
 
     &--open {
       grid-template-rows: 1fr;
+
+      // Room for the active item's 20px corner notches, which would
+      // otherwise be clipped by the inner's `overflow: hidden`.
+      > .sm-submenu-inner {
+        padding-block: 20px;
+        margin-block: -20px;
+      }
     }
   }
 
