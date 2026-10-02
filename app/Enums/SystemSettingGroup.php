@@ -73,6 +73,10 @@ enum SystemSettingGroup: string
                 ['key' => 'bing_site_verification', 'label' => 'Verifikasi Bing Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta msvalidate.01'],
                 ['key' => 'yandex_site_verification', 'label' => 'Verifikasi Yandex Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta yandex-verification'],
                 ['key' => 'baidu_site_verification', 'label' => 'Verifikasi Baidu Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta baidu-site-verification'],
+                ['key' => 'facebook_domain_verification', 'label' => 'Verifikasi Domain Facebook', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta facebook-domain-verification'],
+                ['key' => 'pinterest_site_verification', 'label' => 'Verifikasi Pinterest', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta p:domain_verify'],
+                ['key' => 'tiktok_site_verification', 'label' => 'Verifikasi TikTok', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta tiktok-developers-site-verification'],
+                ['key' => 'naver_site_verification', 'label' => 'Verifikasi Naver Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta naver-site-verification'],
             ],
         };
     }

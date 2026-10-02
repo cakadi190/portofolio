@@ -103,6 +103,8 @@ test('seo system settings drive keywords, verification tags, author and social p
     SystemSetting::factory()->create(['key' => 'seo_author', 'value' => 'Cak Adi Test']);
     SystemSetting::factory()->create(['key' => 'google_site_verification', 'value' => 'tokengoogle']);
     SystemSetting::factory()->create(['key' => 'bing_site_verification', 'value' => 'tokenbing']);
+    SystemSetting::factory()->create(['key' => 'facebook_domain_verification', 'value' => 'tokenfb']);
+    SystemSetting::factory()->create(['key' => 'pinterest_site_verification', 'value' => 'tokenpin']);
     SystemSetting::factory()->create(['key' => 'social_instagram', 'value' => 'https://instagram.com/db-profile']);
 
     $this->get(route('home'))
@@ -110,6 +112,8 @@ test('seo system settings drive keywords, verification tags, author and social p
         ->assertSee('<meta name="author" content="Cak Adi Test">', escape: false)
         ->assertSee('<meta name="google-site-verification" content="tokengoogle">', escape: false)
         ->assertSee('<meta name="msvalidate.01" content="tokenbing">', escape: false)
+        ->assertSee('<meta name="facebook-domain-verification" content="tokenfb">', escape: false)
+        ->assertSee('<meta name="p:domain_verify" content="tokenpin">', escape: false)
         ->assertSee('hreflang="x-default"', escape: false)
         ->assertSee('instagram.com/db-profile', escape: false);
 });

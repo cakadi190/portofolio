@@ -17,6 +17,18 @@
 @if ($seo['baiduVerification'])
     <meta name="baidu-site-verification" content="{{ $seo['baiduVerification'] }}">
 @endif
+@if ($seo['facebookDomainVerification'])
+    <meta name="facebook-domain-verification" content="{{ $seo['facebookDomainVerification'] }}">
+@endif
+@if ($seo['pinterestVerification'])
+    <meta name="p:domain_verify" content="{{ $seo['pinterestVerification'] }}">
+@endif
+@if ($seo['tiktokVerification'])
+    <meta name="tiktok-developers-site-verification" content="{{ $seo['tiktokVerification'] }}">
+@endif
+@if ($seo['naverVerification'])
+    <meta name="naver-site-verification" content="{{ $seo['naverVerification'] }}">
+@endif
 @if ($seo['facebookAppId'])
     <meta property="fb:app_id" content="{{ $seo['facebookAppId'] }}">
 @endif

@@ -36,6 +36,7 @@
   let dragging = $state(false);
   let animating = $state(false);
   let failed = $state(false);
+  let direction = 1;
   let stage = $state<HTMLElement | null>(null);
   let image = $state<HTMLImageElement | null>(null);
 
@@ -105,6 +106,7 @@
       return;
     }
 
+    direction = delta > 0 ? 1 : -1;
     index = next;
   }
 
@@ -307,6 +309,8 @@
       {:else}
         {#key current.url}
           <img
+            in:fly|global={{ x: direction * 72, duration: motion(280), easing: cubicOut }}
+            out:fade|global={{ duration: motion(140) }}
             bind:this={image}
             class="lightbox-image"
             class:is-animating={animating}
@@ -442,6 +446,7 @@
   }
 
   .lightbox-image {
+    position: absolute;
     max-width: 100%;
     max-height: 100%;
     user-select: none;
