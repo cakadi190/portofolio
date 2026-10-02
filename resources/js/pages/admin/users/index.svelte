@@ -2,16 +2,20 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
-  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { storageUrl } from '@/lib/utils';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/users';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/users';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -29,7 +33,13 @@
     users,
     accountTypes,
     genders,
-  }: { users: Paginated<UserRow>; accountTypes: Option[]; genders: Option[] } = $props();
+    filters,
+  }: {
+    filters: TableFilters;
+    users: Paginated<UserRow>;
+    accountTypes: Option[];
+    genders: Option[];
+  } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -49,69 +59,62 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if users.data.length === 0}
-  <EmptyState title="Belum ada pengguna" text="Tambahkan pengguna pertama Anda." />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Avatar</th>
-          <th>Nama</th>
-          <th>Email</th>
-          <th>Peran</th>
-          <th>Telepon</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each users.data as user (user.id)}
-          <tr>
-            <td>
-              {#if user.avatar}
-                <img
-                  src={storageUrl(user.avatar) ?? ''}
-                  alt={user.name}
-                  style="width:2.5rem;height:2.5rem;object-fit:cover;border-radius:50%;"
-                />
-              {:else}
-                <span class="text-muted">&mdash;</span>
-              {/if}
-            </td>
-            <td>{user.name}</td>
-            <td>{user.email}</td>
-            <td>{user.account_type}</td>
-            <td>{user.phone ?? '—'}</td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(user)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(user.id).url}
-                  label={`Hapus pengguna "${user.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+<DataTable
+  data={users}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Avatar' },
+    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Email', key: 'email', sortable: true },
+    { label: 'Peran', key: 'account_type', sortable: true },
+    { label: 'Telepon', key: 'phone', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada pengguna"
+  emptyText="Tambahkan pengguna pertama Anda."
+>
+  {#snippet row(user)}
+    <tr>
+      <td>
+        {#if user.avatar}
+          <img
+            src={storageUrl(user.avatar) ?? ''}
+            alt={user.name}
+            style="width:2.5rem;height:2.5rem;object-fit:cover;border-radius:50%;"
+          />
+        {:else}
+          <span class="text-muted">&mdash;</span>
+        {/if}
+      </td>
+      <td>{user.name}</td>
+      <td>{user.email}</td>
+      <td>{user.account_type}</td>
+      <td>{user.phone ?? '—'}</td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(user)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(user.id).url}
+            label={`Hapus pengguna "${user.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
-  <SimplePaginator
-    currentPage={users.current_page}
-    lastPage={users.last_page}
-    prevPageUrl={users.prev_page_url}
-    nextPageUrl={users.next_page_url}
-  />
-{/if}
-
-<FormModal bind:open={createOpen} title="Tambah Pengguna" subtitle="Buat akun pengguna atau admin baru.">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Pengguna"
+  subtitle="Buat akun pengguna atau admin baru."
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -122,7 +125,12 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input id="create-name" name="name" required invalid={!!errors.name} />
+          <Field.Input
+            id="create-name"
+            name="name"
+            required
+            invalid={!!errors.name}
+          />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
@@ -166,7 +174,11 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-phone">Telepon</Field.Label>
-              <Field.Input id="create-phone" name="phone" invalid={!!errors.phone} />
+              <Field.Input
+                id="create-phone"
+                name="phone"
+                invalid={!!errors.phone}
+              />
               <Field.Feedback message={errors.phone} />
             </Field.Group>
           </div>
@@ -187,7 +199,7 @@
 
         <Field.Group>
           <Field.Label for="create-avatar">Foto Profil</Field.Label>
-          <FileDropzone name="avatar" invalid={!!errors.avatar} />
+          <MediaField name="avatar" invalid={!!errors.avatar} />
           <Field.Feedback message={errors.avatar} />
         </Field.Group>
 
@@ -199,14 +211,20 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Pengguna" subtitle={editingUser?.name ?? ''}>
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Pengguna"
+  subtitle={editingUser?.name ?? ''}
+>
   {#snippet children()}
     {#if editingUser}
       <Form
@@ -297,9 +315,9 @@
 
           <Field.Group>
             <Field.Label for="edit-avatar">Foto Profil</Field.Label>
-            <FileDropzone
+            <MediaField
               name="avatar"
-              existingUrl={editingUser.avatar}
+              value={editingUser.avatar}
               invalid={!!errors.avatar}
             />
             <Field.Feedback message={errors.avatar} />
@@ -313,7 +331,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Traits\Models\AutoGenerateSlug;
+use Database\Factories\PostFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Post extends Model
 {
-    use AutoGenerateSlug;
+    /** @use HasFactory<PostFactory> */
+    use AutoGenerateSlug, HasFactory;
 
     protected string $slugSource = 'title';
 

@@ -211,3 +211,12 @@ When working on Wayfinder itself — generating types, wiring the Vite plugin, c
 - IMPORTANT: Activate `inertia-svelte-development` when working with Inertia Svelte client-side patterns.
 
 </laravel-boost-guidelines>
+
+<product-requirements>
+## Product Requirements (PRD)
+
+- This project has a reverse-engineered PRD in `docs/`. You MUST read `docs/README.md` first, then `docs/01-product-overview.md` and every document relevant to your task (`02` features, `03` data model, `04` architecture, `05` media library, `06` known gaps) before planning or changing code.
+- When your change alters product behavior, data schema, business rules, or the media/upload flow, update the matching file in `docs/` in the same change.
+- Never create `alter table` migrations; edit the existing `create_*` migration so `migrate:fresh` works in production.
+- Never handle file uploads inside controllers; use the Media Library (`MediaService`, `MediaField`, `MediaPath` rule) as described in `docs/05-media-library.md`.
+</product-requirements>

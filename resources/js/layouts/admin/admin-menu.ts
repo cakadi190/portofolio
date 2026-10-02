@@ -3,6 +3,7 @@ import Coffee from '@lucide/svelte/icons/coffee';
 import FolderKanban from '@lucide/svelte/icons/folder-kanban';
 import GraduationCap from '@lucide/svelte/icons/graduation-cap';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+import Images from '@lucide/svelte/icons/images';
 import Newspaper from '@lucide/svelte/icons/newspaper';
 import User from '@lucide/svelte/icons/user';
 import type { AdminSidebarEntry } from '@/types/admin-sidebar';
@@ -70,6 +71,13 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
       icon: Coffee,
       href: '/admin/coffee-places',
       active: isActive('/admin/coffee-places'),
+    },
+
+    {
+      label: 'Pustaka Media',
+      icon: Images,
+      href: '/admin/media',
+      active: isActive('/admin/media'),
     },
 
     { type: 'header', label: 'Pengguna & Akses' },

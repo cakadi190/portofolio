@@ -138,7 +138,8 @@
         .hr {
           height: 6px;
           border-radius: 90rem;
-          background: var(--neo-gray-300);
+          background: var(--neo-border-color-translucent);
+          border: 1px solid var(--neo-border-color);
           width: 9rem;
 
           @media (width <= 768px) {
@@ -148,7 +149,7 @@
         }
 
         span {
-          background: var(--neo-white);
+          background: var(--neo-body-bg);
           font-size: 4rem;
           margin: 0 2rem;
           display: flex;

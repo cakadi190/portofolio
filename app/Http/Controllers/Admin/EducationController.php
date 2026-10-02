@@ -4,22 +4,29 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\AcademicScoreType;
 use App\Enums\EducationLevel;
-use App\Http\Controllers\Concerns\HandlesUploads;
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EducationRequest;
 use App\Models\Education;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class EducationController extends Controller
 {
-    use HandlesUploads;
+    use PaginatesTables;
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/educations/index', [
-            'educations' => Education::query()->orderByDesc('start_date')->paginate(20),
+            'educations' => $this->paginateTable(
+                Education::query()->orderByDesc('start_date'),
+                $request,
+                ['name', 'place'],
+                ['name', 'level', 'place', 'start_date'],
+            ),
+            'filters' => $this->tableFilters($request, ['name', 'level', 'place', 'start_date']),
             'levels' => EducationLevel::options(),
             'scoreTypes' => AcademicScoreType::options(),
         ]);
@@ -27,11 +34,7 @@ class EducationController extends Controller
 
     public function store(EducationRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except('logo');
-
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $this->storeImage('logo', 'educations', 512, 512, 100);
-        }
+        $data = $request->validated();
 
         Education::query()->create($data);
 
@@ -42,12 +45,7 @@ class EducationController extends Controller
 
     public function update(EducationRequest $request, Education $education): RedirectResponse
     {
-        $data = $request->safe()->except('logo');
-
-        if ($request->hasFile('logo')) {
-            $this->deleteUpload($education->logo);
-            $data['logo'] = $this->storeImage('logo', 'educations', 512, 512, 100);
-        }
+        $data = $request->validated();
 
         $education->update($data);
 
@@ -58,7 +56,6 @@ class EducationController extends Controller
 
     public function destroy(Education $education): RedirectResponse
     {
-        $this->deleteUpload($education->logo);
         $education->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Riwayat pendidikan berhasil dihapus.']);

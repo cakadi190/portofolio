@@ -2,19 +2,29 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PostCategoryRequest;
 use App\Models\PostCategory;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PostCategoryController extends Controller
 {
-    public function index(): Response
+    use PaginatesTables;
+
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/post-categories/index', [
-            'postCategories' => PostCategory::query()->withCount('posts')->orderBy('name')->paginate(20),
+            'postCategories' => $this->paginateTable(
+                PostCategory::query()->withCount('posts')->orderBy('name'),
+                $request,
+                ['name', 'color'],
+                ['name', 'color', 'posts_count'],
+            ),
+            'filters' => $this->tableFilters($request, ['name', 'color', 'posts_count']),
         ]);
     }
 

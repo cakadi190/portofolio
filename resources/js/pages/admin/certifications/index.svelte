@@ -3,11 +3,10 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
-  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { formatDate, storageUrl } from '@/lib/utils';
   import {
@@ -15,7 +14,7 @@
     store,
     update,
   } from '@/wayfinder/routes/admin/certifications';
-  import type { Paginated } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Certification = {
     id: number;
@@ -29,7 +28,10 @@
     is_pdf: boolean;
   };
 
-  let { certifications }: { certifications: Paginated<Certification> } =
+  let {
+    certifications,
+    filters,
+  }: { filters: TableFilters; certifications: Paginated<Certification> } =
     $props();
 
   let createOpen = $state(false);
@@ -50,66 +52,52 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if certifications.data.length === 0}
-  <EmptyState
-    title="Belum ada sertifikasi"
-    text="Unggah sertifikasi pertama Anda."
-  />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Judul</th>
-          <th>Penerbit</th>
-          <th>Terbit</th>
-          <th>Berkas</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each certifications.data as certification (certification.id)}
-          <tr>
-            <td>{certification.title}</td>
-            <td>{certification.issuer}</td>
-            <td>{formatDate(certification.issued_at)}</td>
-            <td>
-              <a
-                href={storageUrl(certification.file) ?? '#'}
-                target="_blank"
-                rel="noopener"
-              >
-                {certification.is_pdf ? 'PDF' : 'Gambar'}
-              </a>
-            </td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(certification)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(certification.id).url}
-                  label={`Hapus sertifikasi "${certification.title}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-
-  <SimplePaginator
-    currentPage={certifications.current_page}
-    lastPage={certifications.last_page}
-    prevPageUrl={certifications.prev_page_url}
-    nextPageUrl={certifications.next_page_url}
-  />
-{/if}
+<DataTable
+  data={certifications}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Judul', key: 'title', sortable: true },
+    { label: 'Penerbit', key: 'issuer', sortable: true },
+    { label: 'Terbit', key: 'issued_at', sortable: true },
+    { label: 'Berkas' },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada sertifikasi"
+  emptyText="Unggah sertifikasi pertama Anda."
+>
+  {#snippet row(certification)}
+    <tr>
+      <td>{certification.title}</td>
+      <td>{certification.issuer}</td>
+      <td>{formatDate(certification.issued_at)}</td>
+      <td>
+        <a
+          href={storageUrl(certification.file) ?? '#'}
+          target="_blank"
+          rel="noopener"
+        >
+          {certification.is_pdf ? 'PDF' : 'Gambar'}
+        </a>
+      </td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(certification)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(certification.id).url}
+            label={`Hapus sertifikasi "${certification.title}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
 <FormModal
   bind:open={createOpen}
@@ -205,10 +193,9 @@
           <Field.Label for="create-file"
             >Berkas Sertifikat (PDF atau gambar)</Field.Label
           >
-          <FileDropzone
+          <MediaField
             name="file"
-            accept="application/pdf,image/*"
-            maxSizeMb="5"
+            accept="all"
             required
             invalid={!!errors.file}
           />
@@ -333,11 +320,11 @@
             <Field.Label for="edit-file"
               >Berkas Sertifikat (PDF atau gambar)</Field.Label
             >
-            <FileDropzone
+            <MediaField
               name="file"
-              accept="application/pdf,image/*"
-              maxSizeMb="5"
-              existingUrl={editingCertification.file}
+              accept="all"
+              required
+              value={editingCertification.file}
               invalid={!!errors.file}
             />
             <Field.Feedback message={errors.file} />

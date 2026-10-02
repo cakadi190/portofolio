@@ -118,7 +118,7 @@
     }
   }
 
-  :global(.auth-layout-logo-icon) {
+  :global(.auth-layout-logo-icon img) {
     width: 2.25rem;
     height: 2.25rem;
     color: var(--neo-body-color);

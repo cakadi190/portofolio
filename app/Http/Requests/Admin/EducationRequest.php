@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\AcademicScoreType;
 use App\Enums\EducationLevel;
+use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -21,7 +22,7 @@ class EducationRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'logo' => ['nullable', 'image', 'max:2048'],
+            'logo' => ['nullable', 'string', new MediaPath($this->route('education')?->logo)],
             'website' => ['nullable', 'url', 'max:255'],
             'level' => ['required', new Enum(EducationLevel::class)],
             'grade' => ['nullable', 'string', 'max:255'],

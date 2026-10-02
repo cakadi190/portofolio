@@ -4,22 +4,29 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\CafePriceTier;
 use App\Enums\WifiSpeed;
-use App\Http\Controllers\Concerns\HandlesUploads;
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CoffeePlaceRequest;
 use App\Models\CoffeePlace;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CoffeePlaceController extends Controller
 {
-    use HandlesUploads;
+    use PaginatesTables;
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/coffee-places/index', [
-            'coffeePlaces' => CoffeePlace::query()->orderBy('name')->paginate(20),
+            'coffeePlaces' => $this->paginateTable(
+                CoffeePlace::query()->orderBy('name'),
+                $request,
+                ['name', 'address'],
+                ['name', 'address', 'price_tier', 'is_recommended'],
+            ),
+            'filters' => $this->tableFilters($request, ['name', 'address', 'price_tier', 'is_recommended']),
             'wifiSpeeds' => WifiSpeed::options(),
             'priceTiers' => CafePriceTier::options(),
         ]);
@@ -27,11 +34,7 @@ class CoffeePlaceController extends Controller
 
     public function store(CoffeePlaceRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except('image');
-
-        if ($request->hasFile('image')) {
-            $data['image'] = $this->storeImage('image', 'coffee-places');
-        }
+        $data = $request->validated();
 
         CoffeePlace::query()->create($data);
 
@@ -42,12 +45,7 @@ class CoffeePlaceController extends Controller
 
     public function update(CoffeePlaceRequest $request, CoffeePlace $coffeePlace): RedirectResponse
     {
-        $data = $request->safe()->except('image');
-
-        if ($request->hasFile('image')) {
-            $this->deleteUpload($coffeePlace->image);
-            $data['image'] = $this->storeImage('image', 'coffee-places');
-        }
+        $data = $request->validated();
 
         $coffeePlace->update($data);
 
@@ -58,7 +56,6 @@ class CoffeePlaceController extends Controller
 
     public function destroy(CoffeePlace $coffeePlace): RedirectResponse
     {
-        $this->deleteUpload($coffeePlace->image);
         $coffeePlace->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil dihapus.']);

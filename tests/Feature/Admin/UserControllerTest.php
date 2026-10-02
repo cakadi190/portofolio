@@ -1,33 +1,29 @@
 <?php
 
+use App\Models\Media;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-
-beforeEach(function () {
-    Storage::fake('public');
-});
 
 test('guests are redirected to the login page', function () {
     $this->get(route('admin.users.index'))->assertRedirect(route('login'));
 });
 
-test('a user can be created with an avatar upload', function () {
+test('a user can be created with a library avatar', function () {
+    $media = Media::factory()->create();
+
     $response = $this->actingAs(User::factory()->create())->post(route('admin.users.store'), [
         'name' => 'Jane Doe',
         'email' => 'jane@example.com',
         'password' => 'password123',
         'account_type' => 'user',
-        'avatar' => UploadedFile::fake()->image('avatar.png'),
+        'avatar' => $media->path,
     ]);
 
     $response->assertRedirect(route('admin.users.index'));
 
     $user = User::query()->where('email', 'jane@example.com')->firstOrFail();
-    expect($user->avatar)->not->toBeNull();
+    expect($user->avatar)->toBe($media->path);
     expect(Hash::check('password123', $user->password))->toBeTrue();
-    Storage::disk('public')->assertExists($user->avatar);
 });
 
 test('creating a user requires a name, email, password and account type', function () {
@@ -54,32 +50,28 @@ test('updating a user without a password keeps the previous password', function 
     expect($user->password)->toBe($originalPassword);
 });
 
-test('updating a user replaces the previous avatar', function () {
+test('updating a user swaps the avatar', function () {
     $user = User::factory()->create(['avatar' => 'avatars/old.png']);
-    Storage::disk('public')->put('avatars/old.png', 'fake-content');
+    $media = Media::factory()->create();
 
     $response = $this->actingAs(User::factory()->create())->put(route('admin.users.update', $user), [
         'name' => $user->name,
         'email' => $user->email,
         'account_type' => 'user',
-        'avatar' => UploadedFile::fake()->image('new.png'),
+        'avatar' => $media->path,
     ]);
 
     $response->assertRedirect(route('admin.users.index'));
 
-    $user->refresh();
-    Storage::disk('public')->assertMissing('avatars/old.png');
-    Storage::disk('public')->assertExists($user->avatar);
+    expect($user->refresh()->avatar)->toBe($media->path);
 });
 
-test('a user can be deleted along with its avatar', function () {
+test('a user can be deleted', function () {
     $user = User::factory()->create(['avatar' => 'avatars/avatar.png']);
-    Storage::disk('public')->put('avatars/avatar.png', 'fake-content');
 
     $response = $this->actingAs(User::factory()->create())
         ->delete(route('admin.users.destroy', $user));
 
     $response->assertRedirect(route('admin.users.index'));
     $this->assertDatabaseMissing('users', ['id' => $user->id]);
-    Storage::disk('public')->assertMissing('avatars/avatar.png');
 });

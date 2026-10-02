@@ -2,19 +2,29 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OrganizationRequest;
 use App\Models\Organization;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OrganizationController extends Controller
 {
-    public function index(): Response
+    use PaginatesTables;
+
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/organizations/index', [
-            'organizations' => Organization::query()->orderByDesc('start_date')->paginate(20),
+            'organizations' => $this->paginateTable(
+                Organization::query()->orderByDesc('start_date'),
+                $request,
+                ['name'],
+                ['name', 'start_date'],
+            ),
+            'filters' => $this->tableFilters($request, ['name', 'start_date']),
         ]);
     }
 

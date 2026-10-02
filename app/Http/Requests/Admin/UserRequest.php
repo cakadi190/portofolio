@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\Gender;
 use App\Enums\UserRole;
+use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -30,7 +31,7 @@ class UserRequest extends FormRequest
             'account_type' => ['required', new Enum(UserRole::class)],
             'phone' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', new Enum(Gender::class)],
-            'avatar' => ['nullable', 'image', 'max:2048'],
+            'avatar' => ['nullable', 'string', new MediaPath($this->route('user')?->avatar)],
         ];
     }
 }

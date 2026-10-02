@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,7 +23,7 @@ class PostRequest extends FormRequest
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($this->route('post'))],
             'excerpt' => ['nullable', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'cover_image' => ['nullable', 'image', 'max:4096'],
+            'cover_image' => ['nullable', 'string', new MediaPath($this->route('post')?->cover_image)],
             'is_published' => ['boolean'],
             'published_at' => ['nullable', 'date'],
             'tags' => ['nullable', 'array'],

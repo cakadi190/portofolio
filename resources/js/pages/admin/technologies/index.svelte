@@ -2,17 +2,24 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import { Form } from '@inertiajs/svelte';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/technologies';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/technologies';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Technology = { id: number; name: string };
 
-  let { technologies }: { technologies: Paginated<Technology> } = $props();
+  let {
+    technologies,
+    filters,
+  }: { filters: TableFilters; technologies: Paginated<Technology> } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -32,52 +39,38 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if technologies.data.length === 0}
-  <EmptyState
-    title="Belum ada teknologi"
-    text="Tambahkan teknologi pertama untuk portofolio Anda."
-  />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each technologies.data as technology (technology.id)}
-          <tr>
-            <td>{technology.name}</td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(technology)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(technology.id).url}
-                  label={`Hapus teknologi "${technology.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-
-  <SimplePaginator
-    currentPage={technologies.current_page}
-    lastPage={technologies.last_page}
-    prevPageUrl={technologies.prev_page_url}
-    nextPageUrl={technologies.next_page_url}
-  />
-{/if}
+<DataTable
+  data={technologies}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada teknologi"
+  emptyText="Tambahkan teknologi pertama untuk portofolio Anda."
+>
+  {#snippet row(technology)}
+    <tr>
+      <td>{technology.name}</td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(technology)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(technology.id).url}
+            label={`Hapus teknologi "${technology.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
 <FormModal
   bind:open={createOpen}
@@ -94,7 +87,12 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input id="create-name" name="name" required invalid={!!errors.name} />
+          <Field.Input
+            id="create-name"
+            name="name"
+            required
+            invalid={!!errors.name}
+          />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
@@ -106,14 +104,20 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Teknologi" subtitle={editingTechnology?.name ?? ''}>
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Teknologi"
+  subtitle={editingTechnology?.name ?? ''}
+>
   {#snippet children()}
     {#if editingTechnology}
       <Form
@@ -143,7 +147,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

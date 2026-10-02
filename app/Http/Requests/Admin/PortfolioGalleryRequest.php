@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PortfolioGalleryRequest extends FormRequest
@@ -16,11 +17,9 @@ class PortfolioGalleryRequest extends FormRequest
      */
     public function rules(): array
     {
-        $isCreate = $this->isMethod('post');
-
         return [
             'portfolio_id' => ['required', 'integer', 'exists:portfolios,id'],
-            'image' => [$isCreate ? 'required' : 'nullable', 'image', 'max:5120'],
+            'image_url' => ['required', 'string', new MediaPath($this->route('portfolioGallery')?->image_url)],
             'description' => ['nullable', 'string', 'max:255'],
         ];
     }

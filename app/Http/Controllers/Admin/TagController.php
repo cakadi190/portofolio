@@ -2,19 +2,29 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\TagRequest;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TagController extends Controller
 {
-    public function index(): Response
+    use PaginatesTables;
+
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/tags/index', [
-            'tags' => Tag::query()->orderBy('name')->paginate(20),
+            'tags' => $this->paginateTable(
+                Tag::query()->orderBy('name'),
+                $request,
+                ['name'],
+                ['name'],
+            ),
+            'filters' => $this->tableFilters($request, ['name']),
         ]);
     }
 

@@ -2,16 +2,20 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
-  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { storageUrl } from '@/lib/utils';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-galleries';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    index,
+    store,
+    update,
+  } from '@/wayfinder/routes/admin/portfolio-galleries';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type PortfolioOption = { id: number; name: string };
 
@@ -26,7 +30,12 @@
   let {
     portfolioGalleries,
     portfolios,
-  }: { portfolioGalleries: Paginated<Gallery>; portfolios: PortfolioOption[] } = $props();
+    filters,
+  }: {
+    portfolioGalleries: Paginated<Gallery>;
+    portfolios: PortfolioOption[];
+    filters: TableFilters;
+  } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -46,52 +55,50 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if portfolioGalleries.data.length === 0}
-  <EmptyState title="Belum ada galeri" text="Tambahkan foto galeri pertama Anda." />
-{:else}
-  <div class="row g-3">
-    {#each portfolioGalleries.data as gallery (gallery.id)}
-      <div class="col-sm-6 col-lg-4">
-        <div class="card h-100">
-          <img
-            src={storageUrl(gallery.image_url)}
-            alt={gallery.description ?? gallery.portfolio.name}
-            class="card-img-top"
-            style="height: 10rem; object-fit: cover;"
-          />
-          <div class="card-body">
-            <p class="fw-semibold mb-1">{gallery.portfolio.name}</p>
-            <p class="text-muted small mb-3">{gallery.description ?? '—'}</p>
-            <div class="d-flex gap-2">
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
-                onclick={() => openEdit(gallery)}
-              >
-                Ubah
-              </button>
-              <AdminDeleteButton
-                href={destroy(gallery.id).url}
-                label={`Hapus foto galeri "${gallery.portfolio.name}"?`}
-              />
-            </div>
+<DataTable
+  data={portfolioGalleries}
+  {filters}
+  url={index().url}
+  variant="grid"
+  emptyTitle="Belum ada galeri"
+  emptyText="Tambahkan foto galeri pertama Anda."
+>
+  {#snippet row(gallery)}
+    <div class="col-sm-6 col-lg-4">
+      <div class="card h-100">
+        <img
+          src={storageUrl(gallery.image_url)}
+          alt={gallery.description ?? gallery.portfolio.name}
+          class="card-img-top"
+          style="height: 10rem; object-fit: cover;"
+        />
+        <div class="card-body">
+          <p class="fw-semibold mb-1">{gallery.portfolio.name}</p>
+          <p class="text-muted small mb-3">{gallery.description ?? '—'}</p>
+          <div class="d-flex gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              onclick={() => openEdit(gallery)}
+            >
+              Ubah
+            </button>
+            <AdminDeleteButton
+              href={destroy(gallery.id).url}
+              label={`Hapus foto galeri "${gallery.portfolio.name}"?`}
+            />
           </div>
         </div>
       </div>
-    {/each}
-  </div>
+    </div>
+  {/snippet}
+</DataTable>
 
-  <div class="mt-3">
-    <SimplePaginator
-      currentPage={portfolioGalleries.current_page}
-      lastPage={portfolioGalleries.last_page}
-      prevPageUrl={portfolioGalleries.prev_page_url}
-      nextPageUrl={portfolioGalleries.next_page_url}
-    />
-  </div>
-{/if}
-
-<FormModal bind:open={createOpen} title="Tambah Galeri Portofolio" subtitle="Unggah foto galeri baru.">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Galeri Portofolio"
+  subtitle="Unggah foto galeri baru."
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -105,7 +112,10 @@
           <Select
             id="create-portfolio_id"
             name="portfolio_id"
-            items={portfolios.map((option) => ({ value: option.id, label: option.name }))}
+            items={portfolios.map((option) => ({
+              value: option.id,
+              label: option.name,
+            }))}
             required
             invalid={!!errors.portfolio_id}
           />
@@ -114,8 +124,8 @@
 
         <Field.Group>
           <Field.Label for="create-image">Foto</Field.Label>
-          <FileDropzone name="image" required invalid={!!errors.image} />
-          <Field.Feedback message={errors.image} />
+          <MediaField name="image_url" required invalid={!!errors.image_url} />
+          <Field.Feedback message={errors.image_url} />
         </Field.Group>
 
         <Field.Group>
@@ -136,7 +146,9 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
@@ -162,7 +174,10 @@
             <Select
               id="edit-portfolio_id"
               name="portfolio_id"
-              items={portfolios.map((option) => ({ value: option.id, label: option.name }))}
+              items={portfolios.map((option) => ({
+                value: option.id,
+                label: option.name,
+              }))}
               value={editingGallery.portfolio_id}
               required
               invalid={!!errors.portfolio_id}
@@ -172,12 +187,13 @@
 
           <Field.Group>
             <Field.Label for="edit-image">Foto</Field.Label>
-            <FileDropzone
-              name="image"
-              existingUrl={editingGallery.image_url}
-              invalid={!!errors.image}
+            <MediaField
+              name="image_url"
+              required
+              value={editingGallery.image_url}
+              invalid={!!errors.image_url}
             />
-            <Field.Feedback message={errors.image} />
+            <Field.Feedback message={errors.image_url} />
           </Field.Group>
 
           <Field.Group>
@@ -199,7 +215,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

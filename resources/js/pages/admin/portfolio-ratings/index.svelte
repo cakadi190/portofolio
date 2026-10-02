@@ -2,14 +2,18 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
   import { Form } from '@inertiajs/svelte';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-ratings';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/portfolio-ratings';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type PortfolioOption = { id: number; name: string };
 
@@ -24,7 +28,12 @@
   let {
     portfolioRatings,
     portfolios,
-  }: { portfolioRatings: Paginated<Rating>; portfolios: PortfolioOption[] } = $props();
+    filters,
+  }: {
+    filters: TableFilters;
+    portfolioRatings: Paginated<Rating>;
+    portfolios: PortfolioOption[];
+  } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -44,55 +53,48 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if portfolioRatings.data.length === 0}
-  <EmptyState title="Belum ada ulasan" text="Ulasan portofolio akan muncul di sini." />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Portofolio</th>
-          <th>Rating</th>
-          <th>Komentar</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each portfolioRatings.data as rating (rating.id)}
-          <tr>
-            <td>{rating.portfolio.name}</td>
-            <td>{rating.rating} / 5</td>
-            <td>{rating.comment ?? '—'}</td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(rating)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(rating.id).url}
-                  label={`Hapus ulasan untuk "${rating.portfolio.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+<DataTable
+  data={portfolioRatings}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Portofolio' },
+    { label: 'Rating', key: 'rating', sortable: true },
+    { label: 'Komentar' },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada ulasan"
+  emptyText="Ulasan portofolio akan muncul di sini."
+>
+  {#snippet row(rating)}
+    <tr>
+      <td>{rating.portfolio.name}</td>
+      <td>{rating.rating} / 5</td>
+      <td>{rating.comment ?? '—'}</td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(rating)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(rating.id).url}
+            label={`Hapus ulasan untuk "${rating.portfolio.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
-  <SimplePaginator
-    currentPage={portfolioRatings.current_page}
-    lastPage={portfolioRatings.last_page}
-    prevPageUrl={portfolioRatings.prev_page_url}
-    nextPageUrl={portfolioRatings.next_page_url}
-  />
-{/if}
-
-<FormModal bind:open={createOpen} title="Tambah Ulasan Portofolio" subtitle="Catat ulasan baru.">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Ulasan Portofolio"
+  subtitle="Catat ulasan baru."
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -106,7 +108,10 @@
           <Select
             id="create-portfolio_id"
             name="portfolio_id"
-            items={portfolios.map((option) => ({ value: option.id, label: option.name }))}
+            items={portfolios.map((option) => ({
+              value: option.id,
+              label: option.name,
+            }))}
             required
             invalid={!!errors.portfolio_id}
           />
@@ -118,7 +123,10 @@
           <Select
             id="create-rating"
             name="rating"
-            items={[1, 2, 3, 4, 5].map((value) => ({ value, label: String(value) }))}
+            items={[1, 2, 3, 4, 5].map((value) => ({
+              value,
+              label: String(value),
+            }))}
             required
             invalid={!!errors.rating}
             searchable={false}
@@ -133,8 +141,7 @@
             name="comment"
             class="form-control"
             class:is-invalid={!!errors.comment}
-            rows="3"
-          ></textarea>
+            rows="3"></textarea>
           <Field.Feedback message={errors.comment} />
         </Field.Group>
 
@@ -146,7 +153,9 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
@@ -172,7 +181,10 @@
             <Select
               id="edit-portfolio_id"
               name="portfolio_id"
-              items={portfolios.map((option) => ({ value: option.id, label: option.name }))}
+              items={portfolios.map((option) => ({
+                value: option.id,
+                label: option.name,
+              }))}
               value={editingRating.portfolio_id}
               required
               invalid={!!errors.portfolio_id}
@@ -185,7 +197,10 @@
             <Select
               id="edit-rating"
               name="rating"
-              items={[1, 2, 3, 4, 5].map((value) => ({ value, label: String(value) }))}
+              items={[1, 2, 3, 4, 5].map((value) => ({
+                value,
+                label: String(value),
+              }))}
               value={editingRating.rating}
               required
               invalid={!!errors.rating}
@@ -214,7 +229,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

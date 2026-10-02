@@ -3,15 +3,19 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import MultiCheck from '@/components/ui/multi-check.svelte';
   import { Form } from '@inertiajs/svelte';
   import { formatDate } from '@/lib/utils';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/careers';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/careers';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type PortfolioOption = { id: number; name: string };
 
@@ -28,7 +32,12 @@
   let {
     careers,
     portfolios,
-  }: { careers: Paginated<Career>; portfolios: PortfolioOption[] } = $props();
+    filters,
+  }: {
+    filters: TableFilters;
+    careers: Paginated<Career>;
+    portfolios: PortfolioOption[];
+  } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -51,62 +60,48 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if careers.data.length === 0}
-  <EmptyState
-    title="Belum ada karier"
-    text="Tambahkan riwayat karier pertama Anda."
-  />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Posisi</th>
-          <th>Perusahaan</th>
-          <th>Lokasi</th>
-          <th>Periode</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each careers.data as career (career.id)}
-          <tr>
-            <td>{career.position}</td>
-            <td>{career.company}</td>
-            <td>{career.location}</td>
-            <td
-              >{formatDate(career.start_date)} &ndash; {career.end_date
-                ? formatDate(career.end_date)
-                : 'Sekarang'}</td
-            >
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(career)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(career.id).url}
-                  label={`Hapus karier "${career.position}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-
-  <SimplePaginator
-    currentPage={careers.current_page}
-    lastPage={careers.last_page}
-    prevPageUrl={careers.prev_page_url}
-    nextPageUrl={careers.next_page_url}
-  />
-{/if}
+<DataTable
+  data={careers}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Posisi', key: 'position', sortable: true },
+    { label: 'Perusahaan', key: 'company', sortable: true },
+    { label: 'Lokasi', key: 'location', sortable: true },
+    { label: 'Periode', key: 'start_date', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada karier"
+  emptyText="Tambahkan riwayat karier pertama Anda."
+>
+  {#snippet row(career)}
+    <tr>
+      <td>{career.position}</td>
+      <td>{career.company}</td>
+      <td>{career.location}</td>
+      <td
+        >{formatDate(career.start_date)} &ndash; {career.end_date
+          ? formatDate(career.end_date)
+          : 'Sekarang'}</td
+      >
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(career)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(career.id).url}
+            label={`Hapus karier "${career.position}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
 <FormModal
   bind:open={createOpen}

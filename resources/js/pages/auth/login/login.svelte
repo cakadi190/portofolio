@@ -101,6 +101,21 @@
         width: 100%;
         border-radius: 99rem;
         text-align: center;
+        color: var(--bs-secondary-color, inherit);
+        background: transparent;
+        transition:
+          background-color 0.2s ease,
+          color 0.2s ease;
+
+        &:hover:not(.active) {
+          background: rgba(var(--neo-primary-rgb), 0.1);
+        }
+
+        &.active {
+          color: #fff;
+          background: rgb(var(--neo-primary-rgb));
+          font-weight: 600;
+        }
       }
     }
   }

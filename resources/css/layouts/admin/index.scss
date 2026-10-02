@@ -9,11 +9,7 @@
 // than `body` directly, so this layout's flex/height rules never leak onto
 // non-admin pages sharing the same Blade root (resources/views/app.blade.php).
 .admin-shell {
-  --neo-admin-layout-bg: var(--neo-light);
-
-  // Batamtix's brand accent (its `$primary` is `$orange`); scoped to the admin
-  // shell so the auth pages keep catatancakadi's own primary.
-  --neo-primary-rgb: var(--neo-orange-rgb);
+  --neo-admin-layout-bg: var(--neo-surface-bg);
 
   height: 100svh;
   display: flex;
@@ -30,7 +26,7 @@
     flex-direction: column;
     border-radius: 1rem;
     border: 1px solid var(--neo-border-color);
-    background: var(--neo-white);
+    background: var(--neo-surface-raised);
     position: relative;
     z-index: 1;
     overscroll-behavior-y: contain;
@@ -42,7 +38,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: rgba(var(--neo-dark-rgb), 0.2);
+      background: rgba(var(--neo-body-color-rgb), 0.25);
       border-radius: 99rem;
     }
 

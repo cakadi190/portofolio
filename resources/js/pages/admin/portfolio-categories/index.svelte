@@ -2,17 +2,30 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import { Form } from '@inertiajs/svelte';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/portfolio-categories';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/portfolio-categories';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
-  type Category = { id: number; name: string; color: string | null; portfolios_count: number };
+  type Category = {
+    id: number;
+    name: string;
+    color: string | null;
+    portfolios_count: number;
+  };
 
-  let { portfolioCategories }: { portfolioCategories: Paginated<Category> } = $props();
+  let {
+    portfolioCategories,
+    filters,
+  }: { filters: TableFilters; portfolioCategories: Paginated<Category> } =
+    $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -32,63 +45,56 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if portfolioCategories.data.length === 0}
-  <EmptyState title="Belum ada kategori" text="Tambahkan kategori portofolio pertama Anda." />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>Warna</th>
-          <th>Portofolio</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each portfolioCategories.data as category (category.id)}
-          <tr>
-            <td>{category.name}</td>
-            <td>
-              {#if category.color}
-                <span class="badge" style={`background-color:${category.color}`}
-                  >{category.color}</span
-                >
-              {:else}
-                <span class="text-muted">&mdash;</span>
-              {/if}
-            </td>
-            <td>{category.portfolios_count}</td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(category)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(category.id).url}
-                  label={`Hapus kategori "${category.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+<DataTable
+  data={portfolioCategories}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Warna', key: 'color', sortable: true },
+    { label: 'Portofolio', key: 'portfolios_count', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada kategori"
+  emptyText="Tambahkan kategori portofolio pertama Anda."
+>
+  {#snippet row(category)}
+    <tr>
+      <td>{category.name}</td>
+      <td>
+        {#if category.color}
+          <span class="badge" style={`background-color:${category.color}`}
+            >{category.color}</span
+          >
+        {:else}
+          <span class="text-muted">&mdash;</span>
+        {/if}
+      </td>
+      <td>{category.portfolios_count}</td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(category)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(category.id).url}
+            label={`Hapus kategori "${category.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
-  <SimplePaginator
-    currentPage={portfolioCategories.current_page}
-    lastPage={portfolioCategories.last_page}
-    prevPageUrl={portfolioCategories.prev_page_url}
-    nextPageUrl={portfolioCategories.next_page_url}
-  />
-{/if}
-
-<FormModal bind:open={createOpen} title="Tambah Kategori Portofolio" subtitle="Buat kategori portofolio baru.">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Kategori Portofolio"
+  subtitle="Buat kategori portofolio baru."
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -99,13 +105,23 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input id="create-name" name="name" required invalid={!!errors.name} />
+          <Field.Input
+            id="create-name"
+            name="name"
+            required
+            invalid={!!errors.name}
+          />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-color">Warna (opsional)</Field.Label>
-          <Field.Input id="create-color" name="color" type="color" invalid={!!errors.color} />
+          <Field.Input
+            id="create-color"
+            name="color"
+            type="color"
+            invalid={!!errors.color}
+          />
           <Field.Feedback message={errors.color} />
         </Field.Group>
 
@@ -117,14 +133,20 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Kategori Portofolio" subtitle={editingCategory?.name ?? ''}>
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Kategori Portofolio"
+  subtitle={editingCategory?.name ?? ''}
+>
   {#snippet children()}
     {#if editingCategory}
       <Form
@@ -166,7 +188,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

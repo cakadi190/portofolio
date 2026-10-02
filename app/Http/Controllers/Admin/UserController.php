@@ -4,23 +4,30 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\Gender;
 use App\Enums\UserRole;
-use App\Http\Controllers\Concerns\HandlesUploads;
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends Controller
 {
-    use HandlesUploads;
+    use PaginatesTables;
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/users/index', [
-            'users' => User::query()->orderBy('name')->paginate(20),
+            'users' => $this->paginateTable(
+                User::query()->orderBy('name'),
+                $request,
+                ['name', 'email', 'phone'],
+                ['name', 'email', 'account_type', 'phone'],
+            ),
+            'filters' => $this->tableFilters($request, ['name', 'email', 'account_type', 'phone']),
             'accountTypes' => UserRole::options(),
             'genders' => Gender::options(),
         ]);
@@ -28,12 +35,8 @@ class UserController extends Controller
 
     public function store(UserRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except('avatar');
+        $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
-
-        if ($request->hasFile('avatar')) {
-            $data['avatar'] = $this->storeImage('avatar', 'avatars', 512, 512, 100);
-        }
 
         User::query()->create($data);
 
@@ -44,17 +47,12 @@ class UserController extends Controller
 
     public function update(UserRequest $request, User $user): RedirectResponse
     {
-        $data = $request->safe()->except('avatar');
+        $data = $request->validated();
 
         if (filled($data['password'] ?? null)) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
-        }
-
-        if ($request->hasFile('avatar')) {
-            $this->deleteUpload($user->avatar);
-            $data['avatar'] = $this->storeImage('avatar', 'avatars', 512, 512, 100);
         }
 
         $user->update($data);
@@ -66,7 +64,6 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-        $this->deleteUpload($user->avatar);
         $user->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengguna berhasil dihapus.']);

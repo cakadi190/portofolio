@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AwardType;
 use Database\Factories\AwardFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ class Award extends Model
     /** @use HasFactory<AwardFactory> */
     use HasFactory;
 
-    protected $fillable = ['event_name', 'title', 'year', 'rank', 'awarded_at'];
+    protected $fillable = ['event_name', 'title', 'type', 'year', 'rank', 'awarded_at'];
 
     protected $appends = ['icon'];
 
@@ -23,6 +24,7 @@ class Award extends Model
     protected function casts(): array
     {
         return [
+            'type' => AwardType::class,
             'year' => 'integer',
             'rank' => 'integer',
             'awarded_at' => 'date:Y-m-d',
@@ -38,7 +40,7 @@ class Award extends Model
     protected function icon(): Attribute
     {
         return Attribute::get(function (): string {
-            if ($this->rank === null || Str::contains(Str::lower($this->title), ['certif', 'sertif'])) {
+            if ($this->type === AwardType::Certification || $this->rank === null || Str::contains(Str::lower($this->title), ['certif', 'sertif'])) {
                 return 'mdi:certificate';
             }
 

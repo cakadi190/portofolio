@@ -3,9 +3,8 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import { Form } from '@inertiajs/svelte';
   import { formatDate } from '@/lib/utils';
@@ -14,7 +13,7 @@
     store,
     update,
   } from '@/wayfinder/routes/admin/organizations';
-  import type { Paginated } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Organization = {
     id: number;
@@ -24,7 +23,11 @@
     end_date: string | null;
   };
 
-  let { organizations }: { organizations: Paginated<Organization> } = $props();
+  let {
+    organizations,
+    filters,
+  }: { filters: TableFilters; organizations: Paginated<Organization> } =
+    $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -44,58 +47,44 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if organizations.data.length === 0}
-  <EmptyState
-    title="Belum ada organisasi"
-    text="Tambahkan pengalaman organisasi pertama Anda."
-  />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>Periode</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each organizations.data as organization (organization.id)}
-          <tr>
-            <td>{organization.name}</td>
-            <td
-              >{formatDate(organization.start_date)} &ndash; {organization.end_date
-                ? formatDate(organization.end_date)
-                : 'Sekarang'}</td
-            >
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(organization)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(organization.id).url}
-                  label={`Hapus organisasi "${organization.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-
-  <SimplePaginator
-    currentPage={organizations.current_page}
-    lastPage={organizations.last_page}
-    prevPageUrl={organizations.prev_page_url}
-    nextPageUrl={organizations.next_page_url}
-  />
-{/if}
+<DataTable
+  data={organizations}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Periode', key: 'start_date', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada organisasi"
+  emptyText="Tambahkan pengalaman organisasi pertama Anda."
+>
+  {#snippet row(organization)}
+    <tr>
+      <td>{organization.name}</td>
+      <td
+        >{formatDate(organization.start_date)} &ndash; {organization.end_date
+          ? formatDate(organization.end_date)
+          : 'Sekarang'}</td
+      >
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(organization)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(organization.id).url}
+            label={`Hapus organisasi "${organization.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
 <FormModal
   bind:open={createOpen}

@@ -3,26 +3,44 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
+  import Select from '@/components/ui/select.svelte';
   import Icon from '@iconify/svelte';
   import { Form } from '@inertiajs/svelte';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/awards';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/awards';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Award = {
     id: number;
     event_name: string;
     title: string;
+    type: string;
     icon: string;
     year: number;
     rank: number | null;
     awarded_at: string | null;
   };
 
-  let { awards }: { awards: Paginated<Award> } = $props();
+  let {
+    awards,
+    types,
+    filters,
+  }: {
+    filters: TableFilters;
+    awards: Paginated<Award>;
+    types: { value: string; label: string }[];
+  } = $props();
+
+  const typeLabels = $derived(
+    Object.fromEntries(types.map((type) => [type.value, type.label])),
+  );
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -42,62 +60,50 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if awards.data.length === 0}
-  <EmptyState
-    title="Belum ada penghargaan"
-    text="Tambahkan penghargaan pertama Anda."
-  />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Ikon</th>
-          <th>Judul</th>
-          <th>Acara</th>
-          <th>Tahun</th>
-          <th>Peringkat</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each awards.data as award (award.id)}
-          <tr>
-            <td>
-              <Icon icon={award.icon} width={28} height={28} />
-            </td>
-            <td>{award.title}</td>
-            <td>{award.event_name}</td>
-            <td>{award.year}</td>
-            <td>{award.rank ?? '—'}</td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(award)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(award.id).url}
-                  label={`Hapus penghargaan "${award.title}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-
-  <SimplePaginator
-    currentPage={awards.current_page}
-    lastPage={awards.last_page}
-    prevPageUrl={awards.prev_page_url}
-    nextPageUrl={awards.next_page_url}
-  />
-{/if}
+<DataTable
+  data={awards}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Ikon' },
+    { label: 'Judul', key: 'title', sortable: true },
+    { label: 'Jenis', key: 'type', sortable: true },
+    { label: 'Acara', key: 'event_name', sortable: true },
+    { label: 'Tahun', key: 'year', sortable: true },
+    { label: 'Peringkat', key: 'rank', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada penghargaan"
+  emptyText="Tambahkan penghargaan pertama Anda."
+>
+  {#snippet row(award)}
+    <tr>
+      <td>
+        <Icon icon={award.icon} width={28} height={28} />
+      </td>
+      <td>{award.title}</td>
+      <td>{typeLabels[award.type] ?? award.type}</td>
+      <td>{award.event_name}</td>
+      <td>{award.year}</td>
+      <td>{award.rank ?? '—'}</td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(award)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(award.id).url}
+            label={`Hapus penghargaan "${award.title}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
 <FormModal
   bind:open={createOpen}
@@ -121,6 +127,18 @@
             invalid={!!errors.title}
           />
           <Field.Feedback message={errors.title} />
+        </Field.Group>
+
+        <Field.Group>
+          <Field.Label for="create-type">Jenis Penghargaan</Field.Label>
+          <Select
+            id="create-type"
+            name="type"
+            items={types}
+            required
+            invalid={!!errors.type}
+          />
+          <Field.Feedback message={errors.type} />
         </Field.Group>
 
         <Field.Group>
@@ -213,6 +231,19 @@
               invalid={!!errors.title}
             />
             <Field.Feedback message={errors.title} />
+          </Field.Group>
+
+          <Field.Group>
+            <Field.Label for="edit-type">Jenis Penghargaan</Field.Label>
+            <Select
+              id="edit-type"
+              name="type"
+              items={types}
+              required
+              value={editingAward.type}
+              invalid={!!errors.type}
+            />
+            <Field.Feedback message={errors.type} />
           </Field.Group>
 
           <Field.Group>

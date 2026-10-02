@@ -3,16 +3,20 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
-  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { formatDate } from '@/lib/utils';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/educations';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/educations';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -38,7 +42,9 @@
     educations,
     levels,
     scoreTypes,
+    filters,
   }: {
+    filters: TableFilters;
     educations: Paginated<Education>;
     levels: Option[];
     scoreTypes: Option[];
@@ -66,62 +72,48 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if educations.data.length === 0}
-  <EmptyState
-    title="Belum ada riwayat pendidikan"
-    text="Tambahkan riwayat pendidikan pertama Anda."
-  />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>Jenjang</th>
-          <th>Tempat</th>
-          <th>Periode</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each educations.data as education (education.id)}
-          <tr>
-            <td>{education.name}</td>
-            <td>{levelLabels[education.level] ?? education.level}</td>
-            <td>{education.place}</td>
-            <td
-              >{formatDate(education.start_date)} &ndash; {education.end_date
-                ? formatDate(education.end_date)
-                : 'Sekarang'}</td
-            >
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(education)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(education.id).url}
-                  label={`Hapus riwayat pendidikan "${education.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-
-  <SimplePaginator
-    currentPage={educations.current_page}
-    lastPage={educations.last_page}
-    prevPageUrl={educations.prev_page_url}
-    nextPageUrl={educations.next_page_url}
-  />
-{/if}
+<DataTable
+  data={educations}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Jenjang', key: 'level', sortable: true },
+    { label: 'Tempat', key: 'place', sortable: true },
+    { label: 'Periode', key: 'start_date', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada riwayat pendidikan"
+  emptyText="Tambahkan riwayat pendidikan pertama Anda."
+>
+  {#snippet row(education)}
+    <tr>
+      <td>{education.name}</td>
+      <td>{levelLabels[education.level] ?? education.level}</td>
+      <td>{education.place}</td>
+      <td
+        >{formatDate(education.start_date)} &ndash; {education.end_date
+          ? formatDate(education.end_date)
+          : 'Sekarang'}</td
+      >
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(education)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(education.id).url}
+            label={`Hapus riwayat pendidikan "${education.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
 <FormModal
   bind:open={createOpen}
@@ -150,7 +142,7 @@
 
         <Field.Group>
           <Field.Label for="create-logo">Logo</Field.Label>
-          <FileDropzone name="logo" invalid={!!errors.logo} />
+          <MediaField name="logo" invalid={!!errors.logo} />
           <Field.Feedback message={errors.logo} />
         </Field.Group>
 
@@ -361,9 +353,9 @@
 
           <Field.Group>
             <Field.Label for="edit-logo">Logo</Field.Label>
-            <FileDropzone
+            <MediaField
               name="logo"
-              existingUrl={editingEducation.logo}
+              value={editingEducation.logo}
               invalid={!!errors.logo}
             />
             <Field.Feedback message={errors.logo} />

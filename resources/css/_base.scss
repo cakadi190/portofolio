@@ -14,12 +14,48 @@ $prefix: 'neo';
 // Tokens that don't map to a Bootstrap variable are kept as CSS custom
 // properties so components can reference them directly.
 :root {
-  --#{$prefix}-muted: hsl(0 0% 96.1%);
-  --#{$prefix}-muted-foreground: hsl(0 0% 45.1%);
-  --#{$prefix}-accent: hsl(0 0% 96.1%);
-  --#{$prefix}-accent-foreground: hsl(0 0% 9%);
+  --#{$prefix}-muted: hsl(215 25% 96%);
+  --#{$prefix}-muted-foreground: hsl(215 14% 40%);
+  --#{$prefix}-accent: hsl(215 25% 94%);
+  --#{$prefix}-accent-foreground: hsl(215 40% 12%);
+
+  // Semantic surface tokens. Bootstrap's `--neo-white` / `--neo-light` are
+  // constants that never change with `data-bs-theme`, so layout chrome must
+  // read these instead; each one is redefined for dark mode below.
+  --#{$prefix}-surface-bg: #f3f5f8; // page behind the panels
+  --#{$prefix}-surface-raised: #ffffff; // navbar, panels, popovers
+  --#{$prefix}-surface-inset: #eef1f6; // chips and blocks inside a panel
+  --#{$prefix}-surface-hover: rgba(0, 0, 0, 0.05);
+  --#{$prefix}-scrim: rgba(9, 14, 24, 0.5);
+  --#{$prefix}-sidebar-bg: #15803d; // 5.0:1 against white text
+  --#{$prefix}-sidebar-fg: #ffffff;
+  --#{$prefix}-sidebar-accent: #15803d;
+  --#{$prefix}-sidebar-active-fg: #15803d; // text on the active pill
   --#{$prefix}-font-serif:
     'Roboto Slab', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+[data-bs-theme='dark'] {
+  --#{$prefix}-muted: hsl(217 28% 15%);
+  --#{$prefix}-muted-foreground: hsl(215 16% 68%);
+  --#{$prefix}-accent: hsl(217 28% 18%);
+  --#{$prefix}-accent-foreground: hsl(210 40% 96%);
+
+  --#{$prefix}-surface-bg: #04070d;
+  --#{$prefix}-surface-raised: #0e1522;
+  --#{$prefix}-surface-inset: #172033;
+  --#{$prefix}-surface-hover: rgba(255, 255, 255, 0.07);
+  --#{$prefix}-scrim: rgba(0, 0, 0, 0.65);
+  --#{$prefix}-sidebar-bg: #14532d;
+  --#{$prefix}-sidebar-fg: #f0fdf4;
+  --#{$prefix}-sidebar-accent: #14532d;
+  --#{$prefix}-sidebar-active-fg: #86efac;
+
+  color-scheme: dark;
+}
+
+[data-bs-theme='light'] {
+  color-scheme: light;
 }
 
 body,
@@ -89,6 +125,34 @@ body {
 .form-select {
   &:focus {
     border-color: var(--neo-primary);
+  }
+
+  // Dark mode: Bootstrap's input background equals the page background, so
+  // fields vanish. Use the raised surface plus a visible border instead.
+  [data-bs-theme='dark'] & {
+    --#{$prefix}-form-bg: var(--#{$prefix}-surface-inset);
+    --#{$prefix}-form-border: rgba(255, 255, 255, 0.22);
+
+    color: var(--neo-body-color);
+    background-color: var(--#{$prefix}-form-bg);
+    border-color: var(--#{$prefix}-form-border);
+
+    &::placeholder {
+      color: var(--#{$prefix}-muted-foreground);
+      opacity: 1;
+    }
+
+    &:focus {
+      background-color: var(--#{$prefix}-form-bg);
+      border-color: var(--neo-primary);
+      box-shadow: 0 0 0 0.25rem rgba(var(--neo-primary-rgb), 0.25);
+    }
+
+    &:disabled,
+    &[readonly] {
+      background-color: var(--#{$prefix}-muted);
+      opacity: 0.7;
+    }
   }
 
   &.form-control-clean {
@@ -484,7 +548,7 @@ $btn-ghost-colors:
 // =============================================================================
 .userinfo {
   --#{$prefix}-userinfo-color: var(--neo-primary);
-  --#{$prefix}-userinfo-bg: rgba(var(--neo-white-rgb), 1);
+  --#{$prefix}-userinfo-bg: var(--neo-surface-raised);
 
   .dropdown-menu {
     min-width: unset;
@@ -580,7 +644,7 @@ $btn-ghost-colors:
   .userinfo-badge .dropdown-item {
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
-    background-color: var(--neo-light);
+    background-color: var(--neo-surface-inset);
     border-radius: var(--neo-border-radius-lg);
     display: flex;
     align-items: center;

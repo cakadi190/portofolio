@@ -2,19 +2,31 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\AwardType;
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AwardRequest;
 use App\Models\Award;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AwardController extends Controller
 {
-    public function index(): Response
+    use PaginatesTables;
+
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/awards/index', [
-            'awards' => Award::query()->orderByDesc('awarded_at')->orderByDesc('year')->paginate(20),
+            'awards' => $this->paginateTable(
+                Award::query()->orderByDesc('awarded_at')->orderByDesc('year'),
+                $request,
+                ['title', 'event_name', 'year', 'rank'],
+                ['title', 'event_name', 'type', 'year', 'rank'],
+            ),
+            'filters' => $this->tableFilters($request, ['title', 'event_name', 'type', 'year', 'rank']),
+            'types' => AwardType::options(),
         ]);
     }
 

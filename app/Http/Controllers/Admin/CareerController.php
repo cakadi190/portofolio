@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CareerRequest;
 use App\Models\Career;
 use App\Models\Portfolio;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CareerController extends Controller
 {
-    public function index(): Response
+    use PaginatesTables;
+
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/careers/index', [
-            'careers' => Career::query()->with('portfolios:id')->orderByDesc('start_date')->paginate(20),
+            'careers' => $this->paginateTable(
+                Career::query()->with('portfolios:id')->orderByDesc('start_date'),
+                $request,
+                ['position', 'company', 'location'],
+                ['position', 'company', 'location', 'start_date'],
+            ),
+            'filters' => $this->tableFilters($request, ['position', 'company', 'location', 'start_date']),
             'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }

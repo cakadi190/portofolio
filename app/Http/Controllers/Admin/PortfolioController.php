@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Concerns\HandlesUploads;
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PortfolioRequest;
 use App\Models\Career;
@@ -10,29 +10,34 @@ use App\Models\Portfolio;
 use App\Models\PortfolioCategory;
 use App\Models\Technology;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PortfolioController extends Controller
 {
-    use HandlesUploads;
+    use PaginatesTables;
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/portfolios/index', [
-            'portfolios' => Portfolio::query()
-                ->with(['technologies:id,name', 'categories:id,name', 'careers:id'])
-                ->withCount(['technologies', 'categories', 'galleries', 'ratings'])
-                ->orderBy('name')
-                ->paginate(20),
+            'portfolios' => $this->paginateTable(
+                Portfolio::query()
+                    ->with(['technologies:id,name', 'categories:id,name', 'careers:id'])
+                    ->withCount(['technologies', 'categories', 'galleries', 'ratings'])
+                    ->orderBy('name'),
+                $request,
+                ['name'],
+                ['name', 'is_private'],
+            ),
+            'filters' => $this->tableFilters($request, ['name', 'is_private']),
             ...$this->options(),
         ]);
     }
 
     public function store(PortfolioRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except(['image', 'technologies', 'categories', 'careers']);
-        $data['image'] = $this->storeImage('image', 'portfolios');
+        $data = $request->safe()->except(['technologies', 'categories', 'careers']);
 
         $portfolio = Portfolio::query()->create($data);
         $this->syncRelations($portfolio, $request);
@@ -44,12 +49,7 @@ class PortfolioController extends Controller
 
     public function update(PortfolioRequest $request, Portfolio $portfolio): RedirectResponse
     {
-        $data = $request->safe()->except(['image', 'technologies', 'categories', 'careers']);
-
-        if ($request->hasFile('image')) {
-            $this->deleteUpload($portfolio->image);
-            $data['image'] = $this->storeImage('image', 'portfolios');
-        }
+        $data = $request->safe()->except(['technologies', 'categories', 'careers']);
 
         $portfolio->update($data);
         $this->syncRelations($portfolio, $request);
@@ -61,7 +61,6 @@ class PortfolioController extends Controller
 
     public function destroy(Portfolio $portfolio): RedirectResponse
     {
-        $this->deleteUpload($portfolio->image);
         $portfolio->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Portofolio berhasil dihapus.']);

@@ -37,6 +37,10 @@ export default defineConfig({
         wayfinder(),
       ] as any[],
   ),
+  server: {
+    port: 5175,
+    strictPort: true,
+  },
   optimizeDeps: {
     // Prebundling svelte-select serves its component <style> as raw file
     // text in dev, leaking global `input { position: absolute }` rules.

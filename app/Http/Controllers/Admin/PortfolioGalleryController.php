@@ -2,34 +2,39 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Concerns\HandlesUploads;
+use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PortfolioGalleryRequest;
 use App\Models\Portfolio;
 use App\Models\PortfolioGallery;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PortfolioGalleryController extends Controller
 {
-    use HandlesUploads;
+    use PaginatesTables;
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/portfolio-galleries/index', [
-            'portfolioGalleries' => PortfolioGallery::query()
-                ->with('portfolio:id,name')
-                ->orderByDesc('created_at')
-                ->paginate(20),
+            'portfolioGalleries' => $this->paginateTable(
+                PortfolioGallery::query()
+                    ->with('portfolio:id,name')
+                    ->orderByDesc('created_at'),
+                $request,
+                ['description', 'portfolio.name'],
+                ['created_at'],
+            ),
+            'filters' => $this->tableFilters($request, ['created_at']),
             'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
     public function store(PortfolioGalleryRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except('image');
-        $data['image_url'] = $this->storeImage('image', 'portfolio-galleries');
+        $data = $request->validated();
 
         PortfolioGallery::query()->create($data);
 
@@ -40,12 +45,7 @@ class PortfolioGalleryController extends Controller
 
     public function update(PortfolioGalleryRequest $request, PortfolioGallery $portfolioGallery): RedirectResponse
     {
-        $data = $request->safe()->except('image');
-
-        if ($request->hasFile('image')) {
-            $this->deleteUpload($portfolioGallery->image_url);
-            $data['image_url'] = $this->storeImage('image', 'portfolio-galleries');
-        }
+        $data = $request->validated();
 
         $portfolioGallery->update($data);
 
@@ -56,7 +56,6 @@ class PortfolioGalleryController extends Controller
 
     public function destroy(PortfolioGallery $portfolioGallery): RedirectResponse
     {
-        $this->deleteUpload($portfolioGallery->image_url);
         $portfolioGallery->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Galeri portofolio berhasil dihapus.']);

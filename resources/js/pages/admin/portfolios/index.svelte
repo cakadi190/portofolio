@@ -2,16 +2,20 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
-  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import MediaField from '@/components/media/media-field.svelte';
   import MultiCheck from '@/components/ui/multi-check.svelte';
   import { Form } from '@inertiajs/svelte';
   import { storageUrl } from '@/lib/utils';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/portfolios';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/portfolios';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Portfolio = {
     id: number;
@@ -35,7 +39,9 @@
     technologies,
     categories,
     careers,
+    filters,
   }: {
+    filters: TableFilters;
     portfolios: Paginated<Portfolio>;
     technologies: { id: number; name: string }[];
     categories: { id: number; name: string }[];
@@ -48,8 +54,12 @@
   const editingSelectedTechnologies = $derived(
     editingPortfolio?.technologies.map((t) => t.id) ?? [],
   );
-  const editingSelectedCategories = $derived(editingPortfolio?.categories.map((c) => c.id) ?? []);
-  const editingSelectedCareers = $derived(editingPortfolio?.careers.map((c) => c.id) ?? []);
+  const editingSelectedCategories = $derived(
+    editingPortfolio?.categories.map((c) => c.id) ?? [],
+  );
+  const editingSelectedCareers = $derived(
+    editingPortfolio?.careers.map((c) => c.id) ?? [],
+  );
 
   function openEdit(portfolio: Portfolio): void {
     editingPortfolio = portfolio;
@@ -65,78 +75,76 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if portfolios.data.length === 0}
-  <EmptyState title="Belum ada portofolio" text="Tambahkan portofolio pertama Anda." />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Sampul</th>
-          <th>Nama</th>
-          <th>Teknologi</th>
-          <th>Kategori</th>
-          <th>Privat</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each portfolios.data as portfolio (portfolio.id)}
-          <tr>
-            <td>
-              <img
-                src={storageUrl(portfolio.image) ?? ''}
-                alt={portfolio.name}
-                loading="lazy"
-                style="width:3.5rem;height:2.5rem;object-fit:cover;border-radius:0.5rem;"
-              />
-            </td>
-            <td>{portfolio.name}</td>
-            <td><div class="d-flex flex-wrap gap-1">
-                {#each portfolio.technologies as item (item.id)}
-                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
-                {:else}
-                  <span class="text-muted">&mdash;</span>
-                {/each}
-              </div></td>
-            <td><div class="d-flex flex-wrap gap-1">
-                {#each portfolio.categories as item (item.id)}
-                  <span class="badge text-bg-secondary fw-normal">{item.name}</span>
-                {:else}
-                  <span class="text-muted">&mdash;</span>
-                {/each}
-              </div></td>
-            <td>{portfolio.is_private ? 'Ya' : 'Tidak'}</td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(portfolio)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(portfolio.id).url}
-                  label={`Hapus portofolio "${portfolio.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+<DataTable
+  data={portfolios}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Sampul' },
+    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Teknologi' },
+    { label: 'Kategori' },
+    { label: 'Privat', key: 'is_private', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada portofolio"
+  emptyText="Tambahkan portofolio pertama Anda."
+>
+  {#snippet row(portfolio)}
+    <tr>
+      <td>
+        <img
+          src={storageUrl(portfolio.image) ?? ''}
+          alt={portfolio.name}
+          loading="lazy"
+          style="width:3.5rem;height:2.5rem;object-fit:cover;border-radius:0.5rem;"
+        />
+      </td>
+      <td>{portfolio.name}</td>
+      <td
+        ><div class="d-flex flex-wrap gap-1">
+          {#each portfolio.technologies as item (item.id)}
+            <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+          {:else}
+            <span class="text-muted">&mdash;</span>
+          {/each}
+        </div></td
+      >
+      <td
+        ><div class="d-flex flex-wrap gap-1">
+          {#each portfolio.categories as item (item.id)}
+            <span class="badge text-bg-secondary fw-normal">{item.name}</span>
+          {:else}
+            <span class="text-muted">&mdash;</span>
+          {/each}
+        </div></td
+      >
+      <td>{portfolio.is_private ? 'Ya' : 'Tidak'}</td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(portfolio)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(portfolio.id).url}
+            label={`Hapus portofolio "${portfolio.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
-  <SimplePaginator
-    currentPage={portfolios.current_page}
-    lastPage={portfolios.last_page}
-    prevPageUrl={portfolios.prev_page_url}
-    nextPageUrl={portfolios.next_page_url}
-  />
-{/if}
-
-<FormModal bind:open={createOpen} title="Tambah Portofolio" subtitle="Buat entri portofolio baru." size="lg">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Portofolio"
+  subtitle="Buat entri portofolio baru."
+  size="lg"
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -147,7 +155,12 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input id="create-name" name="name" required invalid={!!errors.name} />
+          <Field.Input
+            id="create-name"
+            name="name"
+            required
+            invalid={!!errors.name}
+          />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
@@ -164,13 +177,17 @@
 
         <Field.Group>
           <Field.Label for="create-image">Gambar Sampul</Field.Label>
-          <FileDropzone name="image" required invalid={!!errors.image} />
+          <MediaField name="image" required invalid={!!errors.image} />
           <Field.Feedback message={errors.image} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-short_desc">Deskripsi Singkat</Field.Label>
-          <Field.Input id="create-short_desc" name="short_desc" invalid={!!errors.short_desc} />
+          <Field.Input
+            id="create-short_desc"
+            name="short_desc"
+            invalid={!!errors.short_desc}
+          />
           <Field.Feedback message={errors.short_desc} />
         </Field.Group>
 
@@ -181,8 +198,7 @@
             name="description"
             class="form-control"
             class:is-invalid={!!errors.description}
-            rows="5"
-          ></textarea>
+            rows="5"></textarea>
           <Field.Feedback message={errors.description} />
         </Field.Group>
 
@@ -238,7 +254,10 @@
           <Field.Label for="create-careers">Karier terkait</Field.Label>
           <MultiCheck
             name="careers"
-            options={careers.map((c) => ({ value: c.id, label: `${c.position} — ${c.company}` }))}
+            options={careers.map((c) => ({
+              value: c.id,
+              label: `${c.position} — ${c.company}`,
+            }))}
           />
         </Field.Group>
 
@@ -250,14 +269,21 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Portofolio" subtitle={editingPortfolio?.name ?? ''} size="lg">
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Portofolio"
+  subtitle={editingPortfolio?.name ?? ''}
+  size="lg"
+>
   {#snippet children()}
     {#if editingPortfolio}
       <Form
@@ -292,9 +318,10 @@
 
           <Field.Group>
             <Field.Label for="edit-image">Gambar Sampul</Field.Label>
-            <FileDropzone
+            <MediaField
               name="image"
-              existingUrl={editingPortfolio.image}
+              required
+              value={editingPortfolio.image}
               invalid={!!errors.image}
             />
             <Field.Feedback message={errors.image} />
@@ -366,7 +393,10 @@
             <Field.Label for="edit-technologies">Teknologi</Field.Label>
             <MultiCheck
               name="technologies"
-              options={technologies.map((t) => ({ value: t.id, label: t.name }))}
+              options={technologies.map((t) => ({
+                value: t.id,
+                label: t.name,
+              }))}
               selected={editingSelectedTechnologies}
             />
           </Field.Group>
@@ -400,7 +430,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>

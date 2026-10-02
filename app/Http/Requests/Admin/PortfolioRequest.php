@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,12 +18,10 @@ class PortfolioRequest extends FormRequest
      */
     public function rules(): array
     {
-        $isCreate = $this->isMethod('post');
-
         return [
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('portfolios', 'slug')->ignore($this->route('portfolio'))],
-            'image' => [$isCreate ? 'required' : 'nullable', 'image', 'max:4096'],
+            'image' => ['required', 'string', new MediaPath($this->route('portfolio')?->image)],
             'short_desc' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'demo_link' => ['nullable', 'url', 'max:255'],

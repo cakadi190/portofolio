@@ -2,17 +2,21 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import EmptyState from '@/components/empty-state.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
-  import FileDropzone from '@/components/ui/file-dropzone.svelte';
+  import MediaField from '@/components/media/media-field.svelte';
   import MapPicker from '@/components/ui/map-picker.svelte';
   import { Form } from '@inertiajs/svelte';
   import { storageUrl } from '@/lib/utils';
-  import { destroy, store, update } from '@/wayfinder/routes/admin/coffee-places';
-  import type { Paginated } from '@/types/pagination';
+  import {
+    destroy,
+    store,
+    update,
+    index,
+  } from '@/wayfinder/routes/admin/coffee-places';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -39,8 +43,13 @@
     coffeePlaces,
     wifiSpeeds,
     priceTiers,
-  }: { coffeePlaces: Paginated<CoffeePlace>; wifiSpeeds: Option[]; priceTiers: Option[] } =
-    $props();
+    filters,
+  }: {
+    filters: TableFilters;
+    coffeePlaces: Paginated<CoffeePlace>;
+    wifiSpeeds: Option[];
+    priceTiers: Option[];
+  } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -64,70 +73,64 @@
   onCreate={() => (createOpen = true)}
 />
 
-{#if coffeePlaces.data.length === 0}
-  <EmptyState title="Belum ada kedai kopi" text="Tambahkan kedai kopi pertama Anda." />
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Foto</th>
-          <th>Nama</th>
-          <th>Alamat</th>
-          <th>Tingkat Harga</th>
-          <th>Rekomendasi</th>
-          <th class="text-end">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each coffeePlaces.data as place (place.id)}
-          <tr>
-            <td>
-              {#if place.image}
-                <img
-                  src={storageUrl(place.image) ?? ''}
-                  alt={place.name}
-                  loading="lazy"
-                  style="width:3.5rem;height:2.5rem;object-fit:cover;border-radius:0.5rem;"
-                />
-              {:else}
-                <span class="text-muted">&mdash;</span>
-              {/if}
-            </td>
-            <td>{place.name}</td>
-            <td>{place.address}</td>
-            <td>{priceTierLabel(place.price_tier)}</td>
-            <td>{place.is_recommended ? 'Ya' : 'Tidak'}</td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary"
-                  onclick={() => openEdit(place)}
-                >
-                  Ubah
-                </button>
-                <AdminDeleteButton
-                  href={destroy(place.id).url}
-                  label={`Hapus kedai kopi "${place.name}"?`}
-                />
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+<DataTable
+  data={coffeePlaces}
+  {filters}
+  url={index().url}
+  columns={[
+    { label: 'Foto' },
+    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Alamat', key: 'address', sortable: true },
+    { label: 'Tingkat Harga', key: 'price_tier', sortable: true },
+    { label: 'Rekomendasi', key: 'is_recommended', sortable: true },
+    { label: 'Aksi', align: 'end' },
+  ]}
+  emptyTitle="Belum ada kedai kopi"
+  emptyText="Tambahkan kedai kopi pertama Anda."
+>
+  {#snippet row(place)}
+    <tr>
+      <td>
+        {#if place.image}
+          <img
+            src={storageUrl(place.image) ?? ''}
+            alt={place.name}
+            loading="lazy"
+            style="width:3.5rem;height:2.5rem;object-fit:cover;border-radius:0.5rem;"
+          />
+        {:else}
+          <span class="text-muted">&mdash;</span>
+        {/if}
+      </td>
+      <td>{place.name}</td>
+      <td>{place.address}</td>
+      <td>{priceTierLabel(place.price_tier)}</td>
+      <td>{place.is_recommended ? 'Ya' : 'Tidak'}</td>
+      <td class="text-end">
+        <div class="d-inline-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={() => openEdit(place)}
+          >
+            Ubah
+          </button>
+          <AdminDeleteButton
+            href={destroy(place.id).url}
+            label={`Hapus kedai kopi "${place.name}"?`}
+          />
+        </div>
+      </td>
+    </tr>
+  {/snippet}
+</DataTable>
 
-  <SimplePaginator
-    currentPage={coffeePlaces.current_page}
-    lastPage={coffeePlaces.last_page}
-    prevPageUrl={coffeePlaces.prev_page_url}
-    nextPageUrl={coffeePlaces.next_page_url}
-  />
-{/if}
-
-<FormModal bind:open={createOpen} title="Tambah Kedai Kopi" subtitle="Catat tempat ngopi baru." size="lg">
+<FormModal
+  bind:open={createOpen}
+  title="Tambah Kedai Kopi"
+  subtitle="Catat tempat ngopi baru."
+  size="lg"
+>
   {#snippet children()}
     <Form
       {...store.form()}
@@ -138,13 +141,23 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input id="create-name" name="name" required invalid={!!errors.name} />
+          <Field.Input
+            id="create-name"
+            name="name"
+            required
+            invalid={!!errors.name}
+          />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-address">Alamat</Field.Label>
-          <Field.Input id="create-address" name="address" required invalid={!!errors.address} />
+          <Field.Input
+            id="create-address"
+            name="address"
+            required
+            invalid={!!errors.address}
+          />
           <Field.Feedback message={errors.address} />
         </Field.Group>
 
@@ -155,14 +168,13 @@
             name="description"
             class="form-control"
             class:is-invalid={!!errors.description}
-            rows="3"
-          ></textarea>
+            rows="3"></textarea>
           <Field.Feedback message={errors.description} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="create-image">Foto</Field.Label>
-          <FileDropzone name="image" invalid={!!errors.image} />
+          <MediaField name="image" invalid={!!errors.image} />
           <Field.Feedback message={errors.image} />
         </Field.Group>
 
@@ -174,7 +186,12 @@
 
         <Field.Group>
           <Field.Label for="create-map_url">Tautan Peta</Field.Label>
-          <Field.Input id="create-map_url" name="map_url" type="url" invalid={!!errors.map_url} />
+          <Field.Input
+            id="create-map_url"
+            name="map_url"
+            type="url"
+            invalid={!!errors.map_url}
+          />
           <Field.Feedback message={errors.map_url} />
         </Field.Group>
 
@@ -258,12 +275,20 @@
 
         <Field.Group>
           <Field.Label for="create-region">Wilayah</Field.Label>
-          <Field.Input id="create-region" name="region" invalid={!!errors.region} />
+          <Field.Input
+            id="create-region"
+            name="region"
+            invalid={!!errors.region}
+          />
           <Field.Feedback message={errors.region} />
         </Field.Group>
 
         <input type="hidden" name="is_recommended" value="0" />
-        <Field.Input.Check id="create-is_recommended" name="is_recommended" value="1">
+        <Field.Input.Check
+          id="create-is_recommended"
+          name="is_recommended"
+          value="1"
+        >
           Rekomendasikan tempat ini
         </Field.Input.Check>
 
@@ -275,14 +300,21 @@
           >
             Batal
           </button>
-          <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+          <button type="submit" class="btn btn-primary" disabled={processing}
+            >Simpan</button
+          >
         </div>
       {/snippet}
     </Form>
   {/snippet}
 </FormModal>
 
-<FormModal bind:open={editOpen} title="Ubah Kedai Kopi" subtitle={editingPlace?.name ?? ''} size="lg">
+<FormModal
+  bind:open={editOpen}
+  title="Ubah Kedai Kopi"
+  subtitle={editingPlace?.name ?? ''}
+  size="lg"
+>
   {#snippet children()}
     {#if editingPlace}
       <Form
@@ -330,9 +362,9 @@
 
           <Field.Group>
             <Field.Label for="edit-image">Foto</Field.Label>
-            <FileDropzone
+            <MediaField
               name="image"
-              existingUrl={editingPlace.image}
+              value={editingPlace.image}
               invalid={!!errors.image}
             />
             <Field.Feedback message={errors.image} />
@@ -471,7 +503,9 @@
             >
               Batal
             </button>
-            <button type="submit" class="btn btn-primary" disabled={processing}>Simpan</button>
+            <button type="submit" class="btn btn-primary" disabled={processing}
+              >Simpan</button
+            >
           </div>
         {/snippet}
       </Form>
