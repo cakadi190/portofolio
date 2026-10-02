@@ -3,10 +3,15 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\SystemSettingGroup;
+use App\Models\SystemSetting;
+use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSystemSettingRequest extends FormRequest
 {
+    /** Google tag / measurement ID formats (GA4, Google Ads, GTM, legacy UA). */
+    public const string GTAG_PATTERN = '/^(G|GT|GTM|AW|UA)-[A-Z0-9]+(-[A-Z0-9]+)?$/i';
+
     public function authorize(): bool
     {
         return true;
@@ -24,6 +29,9 @@ class UpdateSystemSettingRequest extends FormRequest
                 'email' => ['email'],
                 'url' => ['url:http,https'],
                 'tel' => ['regex:/^[0-9+\-\s()]+$/'],
+                'gtag' => ['regex:'.self::GTAG_PATTERN],
+                'digits' => ['regex:/^[0-9]+$/'],
+                'image' => [new MediaPath(SystemSetting::query()->where('key', $field['key'])->value('value'))],
                 default => [],
             }];
         }
@@ -44,7 +52,11 @@ class UpdateSystemSettingRequest extends FormRequest
      */
     public function messages(): array
     {
-        return ['*.regex' => ':attribute hanya boleh berisi angka, spasi, +, - dan tanda kurung.'];
+        return [
+            'google_analytics_id.regex' => 'Google Analytics ID harus berformat seperti G-XXXXXXX, GTM-XXXXXXX, atau AW-XXXXXXX.',
+            'facebook_app_id.regex' => 'Facebook App ID hanya boleh berisi angka.',
+            '*.regex' => ':attribute hanya boleh berisi angka, spasi, +, - dan tanda kurung.',
+        ];
     }
 
     /**

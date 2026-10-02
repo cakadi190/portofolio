@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 class SystemSettingSeeder extends Seeder
 {
     /**
-     * Seed the contact details and mail settings managed from the admin panel.
+     * Seed the contact details, mail, SEO and analytics settings managed from the admin panel.
      */
     public function run(): void
     {
@@ -24,6 +24,12 @@ class SystemSettingSeeder extends Seeder
             'social_youtube' => 'https://youtube.com/@catatancakadi',
             'social_linkedin' => 'https://linkedin.com/in/cakadi190',
             'social_tiktok' => 'https://tiktok.com/@cakadi190',
+            'seo_description' => config('seo.description'),
+            'seo_keywords' => 'fullstack web developer, laravel, svelte, inertia, web developer ngawi, portofolio, cak adi',
+            'seo_author' => config('seo.author'),
+            'seo_twitter' => config('seo.twitter'),
+            'seo_image' => config('seo.image'),
+            'google_analytics_id' => 'G-DY3NMX1ZWY',
             SystemSetting::CONTACT_RECIPIENT_EMAIL => 'cakadi190@gmail.com',
         ];
 

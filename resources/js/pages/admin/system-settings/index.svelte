@@ -2,9 +2,11 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import SettingsLayout from '@/components/admin/settings-layout.svelte';
+  import MediaField from '@/components/media/media-field.svelte';
   import { Field } from '@/components/ui/field';
   import AtSign from '@lucide/svelte/icons/at-sign';
   import Mail from '@lucide/svelte/icons/mail';
+  import Search from '@lucide/svelte/icons/search';
   import Share2 from '@lucide/svelte/icons/share-2';
   import { Form } from '@inertiajs/svelte';
   import { update } from '@/wayfinder/routes/admin/system-settings';
@@ -32,7 +34,7 @@
     values: Record<string, string | null>;
   } = $props();
 
-  const icons = { information: AtSign, social_media: Share2, mail: Mail } as const;
+  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search } as const;
 
   function initialTab(): string {
     const tab =
@@ -59,7 +61,7 @@
 <div id="system-settings-page">
   <AdminPageHeader
     title="Pengaturan Sistem"
-    subtitle="Kelola informasi kontak, sosial media, dan email penerima pesan kontak."
+    subtitle="Kelola informasi kontak, sosial media, email penerima pesan, serta SEO dan analitik."
   />
 
   <Form {...update.form()} novalidate options={{ preserveScroll: true }}>
@@ -107,14 +109,23 @@
                     {#each group.fields as field (field.key)}
                       <Field.Group>
                         <Field.Label for={`setting-${field.key}`}>{field.label}</Field.Label>
-                        <Field.Input
-                          id={`setting-${field.key}`}
-                          name={field.key}
-                          type={field.type}
-                          placeholder={field.placeholder}
-                          value={values[field.key]}
-                          invalid={!!errors[field.key]}
-                        />
+                        {#if field.type === 'image'}
+                          <MediaField
+                            name={field.key}
+                            value={values[field.key]}
+                            accept="image"
+                            invalid={!!errors[field.key]}
+                          />
+                        {:else}
+                          <Field.Input
+                            id={`setting-${field.key}`}
+                            name={field.key}
+                            type={field.type === 'gtag' || field.type === 'digits' ? 'text' : field.type}
+                            placeholder={field.placeholder}
+                            value={values[field.key]}
+                            invalid={!!errors[field.key]}
+                          />
+                        {/if}
                         <Field.Feedback message={errors[field.key]} />
                         {#if field.note}
                           <p class="text-muted small mb-0">{field.note}</p>

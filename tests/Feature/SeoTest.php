@@ -3,6 +3,7 @@
 use App\Models\Portfolio;
 use App\Models\PortfolioGallery;
 use App\Models\Post;
+use App\Models\SystemSetting;
 
 test('the sitemap index lists every child sitemap', function () {
     $response = $this->get(route('sitemaps.index'))->assertOk();
@@ -96,3 +97,31 @@ test('the sitemap stylesheet renders into an html page with the project logo', f
 
     expect($html)->toContain('XML Sitemap')->toContain('Hubungi Saya');
 })->skip(! class_exists(XSLTProcessor::class), 'ext-xsl is not installed');
+
+test('seo system settings drive keywords, verification tags, author and social profiles', function () {
+    SystemSetting::factory()->create(['key' => 'seo_keywords', 'value' => 'laravel, svelte']);
+    SystemSetting::factory()->create(['key' => 'seo_author', 'value' => 'Cak Adi Test']);
+    SystemSetting::factory()->create(['key' => 'google_site_verification', 'value' => 'tokengoogle']);
+    SystemSetting::factory()->create(['key' => 'bing_site_verification', 'value' => 'tokenbing']);
+    SystemSetting::factory()->create(['key' => 'social_instagram', 'value' => 'https://instagram.com/db-profile']);
+
+    $this->get(route('home'))
+        ->assertSee('<meta name="keywords" content="laravel, svelte">', escape: false)
+        ->assertSee('<meta name="author" content="Cak Adi Test">', escape: false)
+        ->assertSee('<meta name="google-site-verification" content="tokengoogle">', escape: false)
+        ->assertSee('<meta name="msvalidate.01" content="tokenbing">', escape: false)
+        ->assertSee('hreflang="x-default"', escape: false)
+        ->assertSee('instagram.com/db-profile', escape: false);
+});
+
+test('inner static pages expose a breadcrumb trail', function () {
+    $this->get(route('blog.index'))
+        ->assertSee('"@type":"BreadcrumbList"', escape: false)
+        ->assertSee('"name":"Artikel"', escape: false);
+});
+
+test('dotted route names resolve their own title and description', function () {
+    $this->get(route('blog.index'))
+        ->assertSee('<title>Artikel • '.config('app.name').'</title>', escape: false)
+        ->assertSee('Kumpulan artikel Cak Adi', escape: false);
+});

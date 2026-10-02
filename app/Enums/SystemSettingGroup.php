@@ -12,6 +12,7 @@ enum SystemSettingGroup: string
     case Information = 'information';
     case SocialMedia = 'social_media';
     case Mail = 'mail';
+    case Seo = 'seo';
 
     public function label(): string
     {
@@ -19,6 +20,7 @@ enum SystemSettingGroup: string
             self::Information => 'Informasi Kontak',
             self::SocialMedia => 'Sosial Media',
             self::Mail => 'Surel & Notifikasi',
+            self::Seo => 'SEO & Analitik',
         };
     }
 
@@ -28,12 +30,13 @@ enum SystemSettingGroup: string
             self::Information => 'Detail kontak yang ditampilkan pada halaman Hubungi Saya.',
             self::SocialMedia => 'Tautan akun sosial media yang ditampilkan pada halaman Hubungi Saya.',
             self::Mail => 'Alamat tujuan pesan dari formulir kontak.',
+            self::Seo => 'Metadata mesin pencari, verifikasi kepemilikan situs, dan Google Analytics. Kosongkan untuk memakai nilai bawaan.',
         };
     }
 
     /**
      * The fixed set of setting keys managed under this group. Input `type` is
-     * one of text, email, tel or url and drives both validation and the form.
+     * one of text, email, tel, url, image (media library path), gtag (Google tag ID) or digits and drives both validation and the form.
      *
      * @return list<array{key: string, label: string, type: string, placeholder: string, note?: string}>
      */
@@ -57,6 +60,19 @@ enum SystemSettingGroup: string
             ],
             self::Mail => [
                 ['key' => 'contact_recipient_email', 'label' => 'Email Penerima Pesan Kontak', 'type' => 'email', 'placeholder' => 'nama@contoh.com', 'note' => 'Pesan dari formulir kontak dikirim ke alamat ini.'],
+            ],
+            self::Seo => [
+                ['key' => 'seo_image', 'label' => 'Gambar Bawaan (Open Graph)', 'type' => 'image', 'placeholder' => '', 'note' => 'Dipakai saat dibagikan ke sosial media jika halaman tidak punya gambar sendiri. Disarankan 1200×630 px.'],
+                ['key' => 'seo_description', 'label' => 'Deskripsi Situs', 'type' => 'text', 'placeholder' => 'Ringkasan situs (maks. 160 karakter ideal)', 'note' => 'Dipakai pada halaman yang tidak punya deskripsi sendiri.'],
+                ['key' => 'seo_keywords', 'label' => 'Kata Kunci', 'type' => 'text', 'placeholder' => 'web developer, laravel, ngawi', 'note' => 'Dipisahkan koma.'],
+                ['key' => 'seo_author', 'label' => 'Nama Penulis', 'type' => 'text', 'placeholder' => 'Mis: Amir Zuhdi Wibowo'],
+                ['key' => 'seo_twitter', 'label' => 'Akun Twitter/X', 'type' => 'text', 'placeholder' => '@namaakun'],
+                ['key' => 'google_analytics_id', 'label' => 'Google Analytics ID', 'type' => 'gtag', 'placeholder' => 'G-XXXXXXXXXX', 'note' => 'Format G-XXXXXXX, GTM-XXXXXXX, atau AW-XXXXXXX.'],
+                ['key' => 'facebook_app_id', 'label' => 'Facebook App ID', 'type' => 'digits', 'placeholder' => '1234567890'],
+                ['key' => 'google_site_verification', 'label' => 'Verifikasi Google Search Console', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta google-site-verification'],
+                ['key' => 'bing_site_verification', 'label' => 'Verifikasi Bing Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta msvalidate.01'],
+                ['key' => 'yandex_site_verification', 'label' => 'Verifikasi Yandex Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta yandex-verification'],
+                ['key' => 'baidu_site_verification', 'label' => 'Verifikasi Baidu Webmaster', 'type' => 'text', 'placeholder' => 'Isi atribut content dari meta baidu-site-verification'],
             ],
         };
     }

@@ -64,7 +64,7 @@ class PortfolioController extends Controller
                 'dateModified' => $portfolio->updated_at?->toAtomString(),
                 'keywords' => $portfolio->technologies->pluck('name')->implode(', '),
                 'inLanguage' => 'id-ID',
-                'author' => ['@type' => 'Person', 'name' => config('seo.author'), 'url' => url('/')],
+                'author' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],
             ]],
         ]);
 

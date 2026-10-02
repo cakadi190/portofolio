@@ -5,7 +5,27 @@
 <meta name="description" content="{{ $seo['description'] }}">
 <meta name="robots" content="{{ $seo['robots'] }}">
 <meta name="author" content="{{ $seo['author'] }}">
+@if ($seo['keywords'])
+    <meta name="keywords" content="{{ $seo['keywords'] }}">
+@endif
+@if ($seo['googleVerification'])
+    <meta name="google-site-verification" content="{{ $seo['googleVerification'] }}">
+@endif
+@if ($seo['yandexVerification'])
+    <meta name="yandex-verification" content="{{ $seo['yandexVerification'] }}">
+@endif
+@if ($seo['baiduVerification'])
+    <meta name="baidu-site-verification" content="{{ $seo['baiduVerification'] }}">
+@endif
+@if ($seo['facebookAppId'])
+    <meta property="fb:app_id" content="{{ $seo['facebookAppId'] }}">
+@endif
+@if ($seo['bingVerification'])
+    <meta name="msvalidate.01" content="{{ $seo['bingVerification'] }}">
+@endif
 <link rel="canonical" href="{{ $seo['canonical'] }}">
+<link rel="alternate" hreflang="id" href="{{ $seo['canonical'] }}">
+<link rel="alternate" hreflang="x-default" href="{{ $seo['canonical'] }}">
 
 <meta property="og:site_name" content="{{ $seo['siteName'] }}">
 <meta property="og:locale" content="{{ $seo['locale'] }}">

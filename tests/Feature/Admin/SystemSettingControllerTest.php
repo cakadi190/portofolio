@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Media;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Services\SystemSettingService;
@@ -18,7 +19,7 @@ test('the settings page lists groups and decrypted values', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('admin/system-settings/index')
-            ->has('groups', 3)
+            ->has('groups', 4)
             ->where('values.contact_email', 'halo@example.com'));
 });
 
@@ -66,4 +67,30 @@ test('unmanaged keys are ignored', function () {
         ->put(route('admin.system-settings.update'), ['contact_email' => 'a@example.com', 'rogue_key' => 'x']);
 
     $this->assertDatabaseMissing('system_settings', ['key' => 'rogue_key']);
+});
+
+test('seo settings are created with a media library image and validated formats', function () {
+    $media = Media::factory()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->put(route('admin.system-settings.update'), [
+            'seo_image' => $media->path,
+            'google_analytics_id' => 'G-DY3NMX1ZWY',
+            'facebook_app_id' => '123456',
+            'yandex_site_verification' => 'yandex-token',
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(SystemSetting::query()->where('key', 'seo_image')->value('value'))->toBe($media->path)
+        ->and(SystemSetting::query()->where('key', 'google_analytics_id')->value('value'))->toBe('G-DY3NMX1ZWY');
+});
+
+test('seo settings reject malformed ids and unknown media', function () {
+    $this->actingAs(User::factory()->create())
+        ->put(route('admin.system-settings.update'), [
+            'seo_image' => 'media/tidak-ada.webp',
+            'google_analytics_id' => 'bukan-id',
+            'facebook_app_id' => 'abc',
+        ])
+        ->assertSessionHasErrors(['seo_image', 'google_analytics_id', 'facebook_app_id']);
 });

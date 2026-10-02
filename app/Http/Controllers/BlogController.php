@@ -70,8 +70,8 @@ class BlogController extends Controller
                 'inLanguage' => 'id-ID',
                 'mainEntityOfPage' => route('blog.show', $post),
                 'keywords' => $post->tags->pluck('name')->implode(', '),
-                'author' => ['@type' => 'Person', 'name' => config('seo.author'), 'url' => url('/')],
-                'publisher' => ['@type' => 'Person', 'name' => config('seo.author'), 'url' => url('/')],
+                'author' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],
+                'publisher' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],
             ]],
         ]);
 

@@ -2,6 +2,7 @@ import { createInertiaApp } from '@inertiajs/svelte';
 import AdminLayout from '@/layouts/admin-layout.svelte';
 import AppLayout from '@/layouts/app-layout.svelte';
 import AuthLayout from '@/layouts/auth-layout.svelte';
+import { initializeAnalytics } from '@/lib/analytics';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
 import 'flag-icons/css/flag-icons.min.css';
@@ -37,4 +38,7 @@ if (typeof document !== 'undefined') {
 
   // This will listen for flash toast data from the server...
   initializeFlashToast();
+
+  // Google Analytics: SPA page views plus click, form and scroll events.
+  initializeAnalytics();
 }

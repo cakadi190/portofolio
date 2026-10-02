@@ -28,6 +28,7 @@
   type="button"
   class="btn btn-link nav-link theme-toggle-btn d-flex align-items-center justify-content-center p-2 rounded-circle"
   onclick={toggleTheme}
+  data-track="theme_toggle"
   aria-label={`Ubah ke mode ${isDark ? 'terang' : 'gelap'}`}
   title="Ubah Tema"
 >

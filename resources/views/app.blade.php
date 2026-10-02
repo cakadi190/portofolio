@@ -69,6 +69,8 @@
             .dropdown-menu:not(.show) { display: none; }
         </style>
 
+        <x-analytics />
+
         @vite(['resources/css/app.scss', 'resources/js/app.ts'])
         <x-seo />
         <x-inertia::head />
