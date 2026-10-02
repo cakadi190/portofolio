@@ -122,8 +122,10 @@
               <div class="mb-5">
                 <h3 id="description">Deskripsi Proyek</h3>
                 {#if portfolio.description}
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                  {@html portfolio.description}
+                  <div class="wysiwyg-content-wrapper">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                    {@html portfolio.description}
+                  </div>
                 {:else}
                   <p class="opacity-75">Belum ditambahkan deskripsi.</p>
                 {/if}
@@ -154,17 +156,22 @@
                         >
                           <img
                             src={gallery.url}
-                            alt={gallery.title ?? `${portfolio.name} ${position + 1}`}
+                            alt={gallery.title ??
+                              `${portfolio.name} ${position + 1}`}
                             loading="lazy"
                             class="w-100"
                             style="aspect-ratio: 4 / 3; object-fit: cover;"
                           />
-                          <span class="position-absolute bottom-0 end-0 m-2 badge text-bg-dark">
+                          <span
+                            class="position-absolute bottom-0 end-0 m-2 badge text-bg-dark"
+                          >
                             <Expand size={14} />
                           </span>
                         </button>
                         {#if gallery.title}
-                          <small class="d-block mt-1 opacity-75">{gallery.title}</small>
+                          <small class="d-block mt-1 opacity-75"
+                            >{gallery.title}</small
+                          >
                         {/if}
                       </div>
                     {/each}

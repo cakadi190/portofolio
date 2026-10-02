@@ -5,7 +5,7 @@
 | Lapisan | Teknologi |
 | --- | --- |
 | Backend | PHP 8.4, Laravel 13, Laravel Fortify (auth, 2FA, passkey), Inertia Laravel 3 |
-| Frontend | Svelte 5 + Inertia Svelte 3, Bootstrap 5.3, Tiptap (WYSIWYG), Leaflet (peta), svelte-select, Iconify/Lucide |
+| Frontend | Svelte 5 + Inertia Svelte 3, Bootstrap 5.3, Tiptap (WYSIWYG: blok ala Gutenberg — gambar berposisi, `callout`, `buttonBlock` — diedit lewat block bar; klik kanan membuka menu konteks (salin/tempel, format, ubah blok, duplikat/pindah/hapus); mode `minimal` tanpa blok; toolbar sticky, toggler di mobile, penyisip blok via `/` atau tombol `+`; gaya konten dibagi lewat `.wysiwyg-content-wrapper` di editor dan halaman publik), Leaflet (peta), svelte-select, Iconify/Lucide |
 | Tipe terhubung | Laravel Wayfinder → `resources/js/wayfinder/*` (**generated, jangan diedit**; jalankan `php artisan wayfinder:generate`) |
 | Gambar | Intervention Image lewat `App\Services\ImageService` (WebP, kompresi ke target KB) |
 | Build | Vite+ (`bun run build`, `bun run dev`) |
@@ -61,3 +61,7 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 2. Jalankan Pint untuk file PHP yang berubah dan tes yang terdampak sebelum selesai.
 3. Perubahan perilaku produk → perbarui `docs/*` yang relevan.
 4. Jangan menambah dependensi atau folder dasar baru tanpa persetujuan.
+
+## Minifikasi HTML
+
+Middleware `MinifyHtmlResponse` (grup `web`) memadatkan spasi dan menghapus komentar pada respons HTML **hanya di production**. Blok `pre`, `textarea`, `script`, `style`, dan atribut Inertia `data-page` tidak diubah.

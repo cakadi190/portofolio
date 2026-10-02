@@ -29,21 +29,34 @@
 <AppHead title={post.title} />
 
 <div id="blog-detail">
-  <HeaderPage backTo="/blog" title="Detail Artikel" subtitle="Berikut saya tampilkan detail artikel yang saya tulis ini." />
+  <HeaderPage
+    backTo="/blog"
+    title="Detail Artikel"
+    subtitle="Berikut saya tampilkan detail artikel yang saya tulis ini."
+  />
 
   <section class="need-space pt-0">
     <div class="container">
       <div class="row">
         <div class="col-md-12">
           {#if post.coverImage}
-            <img src={post.coverImage} class="w-100 rounded-4 border overflow-hidden" alt={post.title} />
+            <img
+              src={post.coverImage}
+              class="w-100 rounded-4 border overflow-hidden"
+              alt={post.title}
+            />
           {/if}
 
-          <div class="pt-5 pb-4 flex-column border-bottom mb-5 align-items-start d-flex gap-3">
+          <div
+            class="pt-5 pb-4 flex-column border-bottom mb-5 align-items-start d-flex gap-3"
+          >
             {#if post.categories.length}
               <div class="d-flex flex-wrap gap-2">
                 {#each post.categories as category (category.name)}
-                  <span class="badge" style={`background-color: ${category.color ?? '#6c757d'}`}>
+                  <span
+                    class="badge"
+                    style={`background-color: ${category.color ?? '#6c757d'}`}
+                  >
                     {category.name}
                   </span>
                 {/each}
@@ -64,8 +77,10 @@
 
           <div class="row flex-column-reverse flex-md-row gy-5">
             <div class="col-md-8">
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-              {@html post.content}
+              <div class="wysiwyg-content-wrapper">
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                {@html post.content}
+              </div>
             </div>
             <div class="col-md-4">
               <div class="card sticky-top rounded-4">
@@ -79,7 +94,9 @@
                     {/each}
                   </div>
                 {:else}
-                  <div class="card-body opacity-75">Belum ada tag untuk artikel ini.</div>
+                  <div class="card-body opacity-75">
+                    Belum ada tag untuk artikel ini.
+                  </div>
                 {/if}
               </div>
             </div>

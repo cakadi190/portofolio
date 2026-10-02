@@ -7,6 +7,7 @@
   import HeaderPage from '@/components/header-page.svelte';
   import { Field } from '@/components/ui/field';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+  import Select from '@/components/ui/select.svelte';
   import { store } from '@/wayfinder/routes/contact';
 
   type ContactItem = {
@@ -181,11 +182,14 @@
 
                   <Field.Group>
                     <Field.Label for="contactReason">Ada Perlu Apa?</Field.Label>
-                    <select id="contactReason" name="reason" class="form-select" class:is-invalid={!!errors.reason}>
-                      {#each reasons as reason (reason.value)}
-                        <option value={reason.value}>{reason.label}</option>
-                      {/each}
-                    </select>
+                    <Select
+                      id="contactReason"
+                      name="reason"
+                      items={reasons}
+                      required
+                      searchable={false}
+                      invalid={!!errors.reason}
+                    />
                     <Field.Feedback message={errors.reason} />
                   </Field.Group>
 

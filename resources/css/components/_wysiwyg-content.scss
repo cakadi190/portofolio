@@ -1,0 +1,326 @@
+// Shared typography for WYSIWYG (Tiptap) HTML. Applied to both the editor
+// surface and the public pages rendering `{@html ...}`, so an article looks
+// identical while writing and when published. Resets the surrounding page
+// styles first, then defines every block explicitly.
+.wysiwyg-content-wrapper {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  display: flow-root;
+  hyphens: auto;
+  text-wrap: pretty;
+
+  > * + * {
+    margin-top: 0.7em;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  p,
+  ul,
+  ol,
+  blockquote,
+  pre,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  hr,
+  table,
+  figure {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    scroll-margin-top: 5rem;
+  }
+
+  h1 {
+    font-size: 2.1rem;
+  }
+
+  h2 {
+    font-size: 1.65rem;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid var(--neo-border-color);
+  }
+
+  h3 {
+    font-size: 1.35rem;
+  }
+
+  h4 {
+    font-size: 1.15rem;
+  }
+
+  h5,
+  h6 {
+    font-size: 1rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 1em;
+
+    + * {
+      margin-top: 0.35em;
+    }
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  mark {
+    padding: 0.05em 0.25em;
+    border-radius: 0.2rem;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.75rem;
+
+    li > p {
+      margin: 0;
+    }
+
+    li + li {
+      margin-top: 0.15em;
+    }
+
+    ul,
+    ol {
+      margin-top: 0.4em;
+    }
+
+    li::marker {
+      color: var(--neo-secondary-color);
+    }
+  }
+
+  ul {
+    list-style: disc;
+
+    ul {
+      list-style: circle;
+    }
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  img,
+  video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+    border-radius: 0.5rem;
+  }
+
+  img,
+  figure {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  figcaption {
+    margin-top: 0.5em;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--neo-secondary-color);
+  }
+
+  blockquote {
+    margin-left: 0;
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    border-left: 4px solid var(--neo-border-color);
+    color: var(--neo-secondary-color);
+    font-style: italic;
+
+    p + p {
+      margin-top: 0.5em;
+    }
+  }
+
+  pre {
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    background: var(--neo-tertiary-bg);
+    font-family: var(--neo-font-monospace);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    hyphens: none;
+  }
+
+  code {
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.25rem;
+    background: var(--neo-tertiary-bg);
+    font-family: var(--neo-font-monospace);
+    font-size: 0.875em;
+    hyphens: none;
+  }
+
+  pre code {
+    padding: 0;
+    background: none;
+    font-size: inherit;
+  }
+
+  a {
+    color: var(--neo-link-color);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    hyphens: none;
+
+    th,
+    td {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--neo-border-color);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--neo-tertiary-bg);
+      font-weight: 600;
+    }
+  }
+
+  hr {
+    margin: 1.25em 0;
+    border: 0;
+    border-top: 1px solid var(--neo-border-color);
+    opacity: 1;
+  }
+
+  figure.wp-block-image {
+    max-width: 100%;
+
+    img {
+      margin: 0;
+      width: 100%;
+    }
+
+    &.is-align-center {
+      margin-inline: auto;
+    }
+
+    &.is-align-left {
+      float: left;
+      max-width: 60%;
+      margin: 0.25em 1.5rem 1em 0;
+    }
+
+    &.is-align-right {
+      float: right;
+      max-width: 60%;
+      margin: 0.25em 0 1em 1.5rem;
+    }
+
+    @media (max-width: 575.98px) {
+      &.is-align-left,
+      &.is-align-right {
+        float: none;
+        max-width: 100%;
+        margin-inline: auto;
+      }
+    }
+  }
+
+  .wp-block-callout {
+    --callout-color: var(--neo-primary);
+
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding: 0.9rem 1.15rem;
+    border: 1px solid var(--neo-border-color);
+    border-left: 4px solid var(--callout-color);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--callout-color) 10%, transparent);
+
+    > * + * {
+      margin-top: 0.5em;
+    }
+
+    &.is-success {
+      --callout-color: #198754;
+    }
+
+    &.is-warning {
+      --callout-color: #e0a800;
+    }
+
+    &.is-danger {
+      --callout-color: #dc3545;
+    }
+  }
+
+  .wp-block-button {
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    &.is-align-center {
+      text-align: center;
+    }
+
+    &.is-align-right {
+      text-align: right;
+    }
+  }
+
+  .wp-block-button__link {
+    display: inline-block;
+    padding: 0.55rem 1.25rem;
+    border: 2px solid var(--neo-primary);
+    border-radius: 0.5rem;
+    background: var(--neo-primary);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+      opacity: 0.9;
+    }
+  }
+
+  .wp-block-button.is-outline .wp-block-button__link {
+    background: transparent;
+    color: var(--neo-primary);
+  }
+}

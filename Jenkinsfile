@@ -200,7 +200,7 @@ pipeline {
     booleanParam(
       name: 'SHOULD_MIGRATE_FRESH',
       defaultValue: false,
-      description: 'DESTRUCTIVE. Runs `migrate:fresh --seed` on the newly deployed colour before the smoke test, dropping and recreating every production table. Leave unchecked unless you explicitly intend to wipe production data.'
+      description: 'DESTRUCTIVE. Runs `migrate:fresh --seed` on the newly deployed colour before the smoke test, dropping and recreating every production table. Also triggered automatically when the head commit message contains `refresh-db`. Leave unchecked unless you explicitly intend to wipe production data.'
     )
   }
 
@@ -224,6 +224,13 @@ pipeline {
     stage('Checkout') {
       steps {
         checkout scm
+        script {
+          // A `refresh-db` token in the head commit message opts this build
+          // into migrate:fresh, same as ticking SHOULD_MIGRATE_FRESH.
+          String commitMessage = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
+          env.RUN_MIGRATE_FRESH = (params.SHOULD_MIGRATE_FRESH || commitMessage.contains('refresh-db')) ? 'true' : 'false'
+          echo "migrate:fresh on this build: ${env.RUN_MIGRATE_FRESH}"
+        }
       }
     }
 
@@ -266,7 +273,7 @@ pipeline {
     // Opt-in and destructive: wipes and recreates the schema on the new
     // colour, before it's smoke tested and before it's ever live.
     stage('Migrate Fresh') {
-      when { expression { params.DEPLOY && params.SHOULD_MIGRATE_FRESH } }
+      when { expression { params.DEPLOY && env.RUN_MIGRATE_FRESH == 'true' } }
       steps {
         script {
           migrateFresh()

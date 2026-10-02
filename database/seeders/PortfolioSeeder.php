@@ -6,6 +6,7 @@ use App\Models\Portfolio;
 use App\Models\PortfolioCategory;
 use App\Models\Technology;
 use App\Models\User;
+use App\Services\ImageService;
 use App\Services\MediaService;
 use Illuminate\Database\Seeder;
 
@@ -91,6 +92,26 @@ class PortfolioSeeder extends Seeder
     }
 
     /**
+     * Enrich a plain HTML description with editor blocks: a captioned
+     * screenshot after the intro, a callout, and a demo button when available.
+     */
+    protected function withBlocks(string $html, string $name, string $image, ?string $demoLink): string
+    {
+        $alt = e($name);
+        $figure = '<figure class="wp-block-image is-align-center" style="width: 75%"><img src="'.ImageService::url($image).'" alt="Tampilan '.$alt.'"><figcaption>Tampilan antarmuka '.$alt.'.</figcaption></figure>';
+
+        $html = preg_replace('#</p>#', '</p>'.$figure, $html, 1) ?? $html;
+
+        $html .= '<div class="wp-block-callout is-info" data-type="info"><p>Deskripsi ini disusun dari catatan pengembangan proyek. Hubungi saya lewat halaman kontak untuk detail teknis lebih lanjut.</p></div>';
+
+        if ($demoLink) {
+            $html .= '<div class="wp-block-button is-solid is-align-left"><a class="wp-block-button__link" href="'.e($demoLink).'" rel="noopener">Lihat demo</a></div>';
+        }
+
+        return $html;
+    }
+
+    /**
      * Seed the portfolio items, ported from the Nuxt app's seed_portofolio.ts.
      */
     public function run(): void
@@ -130,12 +151,14 @@ class PortfolioSeeder extends Seeder
         $userId = User::query()->value('id');
 
         foreach ($items as $item) {
+            $image = $media->storeFromPublicPath($item['image'], $userId)->path;
+
             $portfolio = Portfolio::query()->create([
                 'name' => $item['name'],
                 'slug' => $item['slug'],
-                'image' => $media->storeFromPublicPath($item['image'], $userId)->path,
+                'image' => $image,
                 'short_desc' => $item['short_desc'],
-                'description' => $descriptions[$item['slug']],
+                'description' => $this->withBlocks($descriptions[$item['slug']], $item['name'], $image, $item['demo_link']),
                 'demo_link' => $item['demo_link'],
                 'source_code' => $item['source_code'],
                 'is_private' => false,

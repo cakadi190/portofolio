@@ -30,7 +30,7 @@ Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**:
 | UI perpustakaan | `resources/js/pages/admin/media/index.svelte` (grid, cari, filter jenis, unggah multi/drag-drop, ubah detail, salin URL, hapus) |
 | UI picker | `components/media/media-picker-modal.svelte` (cari, paginasi, unggah, pilih) |
 | UI field | `components/media/media-field.svelte` (ganti `FileDropzone`, mendukung `accept="image" \| "all"`, `required`) |
-| WYSIWYG | `components/ui/rich-text-editor.svelte`: tombol gambar membuka picker; tempel/seret gambar mengunggah ke pustaka |
+| WYSIWYG | `components/ui/rich-text-editor.svelte`: tombol gambar membuka picker; tempel/seret gambar mengunggah ke pustaka; gambar disimpan sebagai `<figure class="wp-block-image is-align-*">` (posisi kiri/tengah/kanan, lebar %, alt, keterangan) yang diatur lewat block bar; ekstensi blok di `resources/js/lib/editor-blocks.ts` |
 | Klien | `resources/js/lib/media.ts` (`uploadMedia`, `formatBytes`), tipe `resources/js/types/media.ts` |
 
 ## Rute
