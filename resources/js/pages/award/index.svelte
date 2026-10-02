@@ -27,9 +27,7 @@
   }
 </script>
 
-<AppHead title="Penghargaan">
-  <meta name="description" content="Berikut beberapa daftar penghargaan yang sudah saya raih dan capai." />
-</AppHead>
+<AppHead title="Penghargaan" />
 
 <div id="achievements-page">
   <HeaderPage title="Penghargaan Saya" subtitle="Biar gak dikira gak punya pencapaian apa-apa" />

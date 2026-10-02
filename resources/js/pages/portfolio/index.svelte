@@ -18,12 +18,7 @@
   let { portfolios }: { portfolios: Paginated<Portfolio> } = $props();
 </script>
 
-<AppHead title="Portofolio">
-  <meta
-    name="description"
-    content="Berikut daftar portofolio yang sudah saya kerjakan dan selesaikan akhir-akhir ini."
-  />
-</AppHead>
+<AppHead title="Portofolio" />
 
 <div id="porto-page">
   <HeaderPage

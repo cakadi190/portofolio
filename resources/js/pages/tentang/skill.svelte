@@ -3,12 +3,7 @@
   import HeaderPage from '@/components/header-page.svelte';
 </script>
 
-<AppHead title="Keahlian">
-  <meta
-    name="description"
-    content="Jelajahi keahlian Cak Adi dalam pengembangan frontend, backend, basis data, desain, dan berbagai teknologi web modern."
-  />
-</AppHead>
+<AppHead title="Keahlian" />
 
 <div>
   <HeaderPage backTo="/tentang/saya" title="Keahlian" subtitle="Daftar perkakas dan keahlian yang saya kuasai." />

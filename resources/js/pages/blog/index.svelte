@@ -17,12 +17,7 @@
   let { posts }: { posts: Paginated<Post> } = $props();
 </script>
 
-<AppHead title="Artikel">
-  <meta
-    name="description"
-    content="Kumpulan artikel Cak Adi tentang pengembangan web, teknologi, desain, dan pengalaman membangun produk digital."
-  />
-</AppHead>
+<AppHead title="Artikel" />
 
 <div id="articles-page">
   <HeaderPage title="Artikel" subtitle="Berikut daftar artikel yang saya tulis." />

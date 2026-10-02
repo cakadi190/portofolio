@@ -11,9 +11,19 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PortfolioReviewController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::name('sitemaps.')->controller(SitemapController::class)->group(function () {
+    Route::get('sitemap.xml', 'index')->name('index');
+    Route::get('sitemap-pages.xml', 'pages')->name('pages');
+    Route::get('sitemap-posts.xml', 'posts')->name('posts');
+    Route::get('sitemap-portfolios.xml', 'portfolios')->name('portfolios');
+    Route::get('sitemap.xsl', 'style')->name('style');
+});
+Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 Route::get('karir', [CareerController::class, 'index'])->name('career.index');
 Route::get('pendidikan', [EducationController::class, 'index'])->name('education.index');

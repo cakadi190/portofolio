@@ -29,12 +29,7 @@
   let formKey = $state(0);
 </script>
 
-<AppHead title="Hubungi Saya">
-  <meta
-    name="description"
-    content="Berikut kontak yang dapat dihubungi apabila anda tertarik dengan skill saya maupun ingin bekerjasama dengan saya."
-  />
-</AppHead>
+<AppHead title="Hubungi Saya" />
 
 <div id="contact-page">
   <HeaderPage

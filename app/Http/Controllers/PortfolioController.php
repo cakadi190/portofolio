@@ -6,6 +6,7 @@ use App\Models\Portfolio;
 use App\Models\PortfolioGallery;
 use App\Models\PortfolioRating;
 use App\Services\ImageService;
+use App\Services\SeoService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,9 +42,31 @@ class PortfolioController extends Controller
     /**
      * Show a single portfolio.
      */
-    public function show(Portfolio $portfolio): Response
+    public function show(Portfolio $portfolio, SeoService $seo): Response
     {
         $portfolio->load(['technologies:id,name', 'galleries:id,portfolio_id,image_url,description']);
+
+        $image = ImageService::url($portfolio->image);
+
+        $seo->set([
+            'title' => $portfolio->name,
+            'description' => $portfolio->short_desc ?: $portfolio->name,
+            'image' => $image ?? ImageService::url($portfolio->galleries->first()?->image_url),
+            'image_alt' => $portfolio->name,
+            'json_ld' => [[
+                '@context' => 'https://schema.org',
+                '@type' => 'CreativeWork',
+                'name' => $portfolio->name,
+                'description' => $portfolio->short_desc ?: $portfolio->name,
+                'image' => $image ? url($image) : url(config('seo.image')),
+                'url' => route('portfolios.show', $portfolio),
+                'dateCreated' => $portfolio->created_at?->toAtomString(),
+                'dateModified' => $portfolio->updated_at?->toAtomString(),
+                'keywords' => $portfolio->technologies->pluck('name')->implode(', '),
+                'inLanguage' => 'id-ID',
+                'author' => ['@type' => 'Person', 'name' => config('seo.author'), 'url' => url('/')],
+            ]],
+        ]);
 
         $approvedRatings = $portfolio->ratings()->where('is_approved', true);
 

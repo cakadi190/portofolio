@@ -26,12 +26,7 @@
   let { portfolios = [], posts = [] }: { portfolios?: Portfolio[]; posts?: Post[] } = $props();
 </script>
 
-<AppHead title="Beranda">
-  <meta
-    name="description"
-    content="Seorang Fullstack Web Developer yang berbasis di Kabupaten Ngawi yang suka sekali dengan desain dan juga hal yang berbau teknologi."
-  />
-</AppHead>
+<AppHead title="Beranda" />
 
 <div id="homepage">
   <HeaderHome />

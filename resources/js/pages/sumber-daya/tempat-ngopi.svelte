@@ -64,12 +64,7 @@
   }
 </script>
 
-<AppHead title="Tempat Ngopi">
-  <meta
-    name="description"
-    content="Berikut daftar tempat ngopi yang saya rekomendasikan."
-  />
-</AppHead>
+<AppHead title="Tempat Ngopi" />
 
 <div id="coffee-page">
   <HeaderPage

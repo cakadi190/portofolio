@@ -69,12 +69,7 @@
   ];
 </script>
 
-<AppHead title="Tentang Saya">
-  <meta
-    name="description"
-    content="Kenali Amir Zuhdi Wibowo, fullstack web developer asal Ngawi, beserta pengalaman, perjalanan karir, dan teknologi yang dikuasainya."
-  />
-</AppHead>
+<AppHead title="Tentang Saya" />
 
 <div id="about-me">
   <HeaderPage title="Tentang Saya" subtitle="Berikut sekilas tentang diri saya pribadi" />

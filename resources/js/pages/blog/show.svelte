@@ -26,9 +26,7 @@
   );
 </script>
 
-<AppHead title={post.title}>
-  <meta name="description" content={post.excerpt ?? post.title} />
-</AppHead>
+<AppHead title={post.title} />
 
 <div id="blog-detail">
   <HeaderPage backTo="/blog" title="Detail Artikel" subtitle="Berikut saya tampilkan detail artikel yang saya tulis ini." />

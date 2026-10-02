@@ -18,12 +18,7 @@
   }
 </script>
 
-<AppHead title="Karir Saya">
-  <meta
-    name="description"
-    content="Berikut daftar riwayat karir saya yang mana saya sudah berkarir di berbagai tempat."
-  />
-</AppHead>
+<AppHead title="Karir Saya" />
 
 <div id="career-page">
   <HeaderPage title="Karir" subtitle="Biar gak dikira pengangguran sama orang lain." />

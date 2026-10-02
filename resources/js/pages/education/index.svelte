@@ -47,12 +47,7 @@
   }
 </script>
 
-<AppHead title="Pendidikan dan Organisasi">
-  <meta
-    name="description"
-    content="Daftar riwayat pendidikan saya, yang mana saya tampilkan daftar tempat saya bersekolah dan menempuh pendidikan. Serta saya telah mengikuti kegiatan apa saja."
-  />
-</AppHead>
+<AppHead title="Pendidikan dan Organisasi" />
 
 <div id="education">
   <HeaderPage

@@ -3,9 +3,7 @@
   import HeaderPage from '@/components/header-page.svelte';
 </script>
 
-<AppHead title="Layanan Saya">
-  <meta name="description" content="Berikut layanan yang bisa saya berikan dan layani untuk anda." />
-</AppHead>
+<AppHead title="Layanan Saya" />
 
 <div>
   <HeaderPage title="Layanan Saya" subtitle="Berikut layanan yang bisa saya berikan dan layani untuk anda." />

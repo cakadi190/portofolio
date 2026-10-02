@@ -3,12 +3,7 @@
   import HeaderPage from '@/components/header-page.svelte';
 </script>
 
-<AppHead title="Tentang Situs">
-  <meta
-    name="description"
-    content="Informasi tentang situs pribadi Cak Adi, tujuan pembuatannya, serta teknologi yang digunakan untuk membangunnya."
-  />
-</AppHead>
+<AppHead title="Tentang Situs" />
 
 <div>
   <HeaderPage title="Tentang Situs" subtitle="Informasi seputar situs pribadi ini." />

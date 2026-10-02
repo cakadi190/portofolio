@@ -63,9 +63,7 @@
   }
 </script>
 
-<AppHead title={portfolio.name}>
-  <meta name="description" content={portfolio.shortDesc ?? portfolio.name} />
-</AppHead>
+<AppHead title={portfolio.name} />
 
 <div id="project-detail">
   <HeaderPage
