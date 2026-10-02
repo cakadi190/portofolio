@@ -42,7 +42,7 @@
           {#if post.coverImage}
             <img
               src={post.coverImage}
-              class="w-100 rounded-4 border overflow-hidden"
+              class="w-100 rounded-4 border overflow-hidden mt-4 mt-md-0"
               alt={post.title}
             />
           {/if}

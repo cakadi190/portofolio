@@ -33,13 +33,16 @@ const hasSetupData = (): boolean =>
   state.qrCodeSvg !== null && state.manualSetupKey !== null;
 
 export function twoFactorAuthState(): TwoFactorAuthStateApi {
-  const http = useHttp();
+  const qrCodeHttp = useHttp<
+    Record<string, never>,
+    { svg: string; url: string }
+  >();
+  const secretKeyHttp = useHttp<Record<string, never>, { secretKey: string }>();
+  const recoveryCodesHttp = useHttp<Record<string, never>, string[]>();
 
   const fetchQrCode = async (): Promise<void> => {
     try {
-      const { svg } = await http.get<{ svg: string; url: string }>(
-        qrCode.url(),
-      );
+      const { svg } = await qrCodeHttp.get(qrCode.url());
 
       state.qrCodeSvg = svg;
     } catch {
@@ -50,9 +53,7 @@ export function twoFactorAuthState(): TwoFactorAuthStateApi {
 
   const fetchSetupKey = async (): Promise<void> => {
     try {
-      const { secretKey: key } = await http.get<{ secretKey: string }>(
-        secretKey.url(),
-      );
+      const { secretKey: key } = await secretKeyHttp.get(secretKey.url());
 
       state.manualSetupKey = key;
     } catch {
@@ -80,7 +81,9 @@ export function twoFactorAuthState(): TwoFactorAuthStateApi {
   const fetchRecoveryCodes = async (): Promise<void> => {
     try {
       clearErrors();
-      state.recoveryCodesList = await http.get<string[]>(recoveryCodes.url());
+      state.recoveryCodesList = await recoveryCodesHttp.get(
+        recoveryCodes.url(),
+      );
     } catch {
       state.errors = [...state.errors, 'Gagal mengambil kode pemulihan'];
       state.recoveryCodesList = [];

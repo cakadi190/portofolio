@@ -1,3 +1,4 @@
+import { toast } from '@/lib/toast';
 import { store } from '@/wayfinder/routes/admin/media';
 import type { MediaItem } from '@/types/media';
 
@@ -27,11 +28,16 @@ export async function uploadMedia(file: File): Promise<MediaItem> {
       errors?: Record<string, string[]>;
     } | null;
 
-    throw new Error(
+    const message =
       payload?.errors?.file?.[0] ??
-        'Unggahan gagal. Gunakan JPG, PNG, WebP, GIF, atau PDF maksimal 10 MB.',
-    );
+      'Unggahan gagal. Gunakan JPG, PNG, WebP, GIF, atau PDF maksimal 10 MB.';
+
+    toast.error(message);
+
+    throw new Error(message);
   }
+
+  toast.success(`${file.name} berhasil diunggah.`);
 
   return (await response.json()) as MediaItem;
 }

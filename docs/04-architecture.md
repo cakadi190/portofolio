@@ -5,7 +5,7 @@
 | Lapisan | Teknologi |
 | --- | --- |
 | Backend | PHP 8.4, Laravel 13, Laravel Fortify (auth, 2FA, passkey), Inertia Laravel 3 |
-| Frontend | Svelte 5 + Inertia Svelte 3, Bootstrap 5.3, Tiptap (WYSIWYG: blok ala Gutenberg — gambar berposisi, `callout`, `buttonBlock` — diedit lewat block bar; klik kanan membuka menu konteks (salin/tempel, format, ubah blok, duplikat/pindah/hapus); mode `minimal` tanpa blok; toolbar sticky, toggler di mobile, penyisip blok via `/` atau tombol `+`; gaya konten dibagi lewat `.wysiwyg-content-wrapper` di editor dan halaman publik), Leaflet (peta), svelte-select, Iconify/Lucide |
+| Frontend | Svelte 5 + Inertia Svelte 3, Bootstrap 5.3, Tiptap (WYSIWYG: blok ala Gutenberg — gambar berposisi, `callout`, `buttonBlock` — diedit lewat block bar; klik kanan membuka menu konteks (salin/tempel, format, ubah blok, duplikat/pindah/hapus); mode `minimal` tanpa blok; toolbar sticky, toggler di mobile, penyisip blok via `/` atau tombol `+`; gaya konten dibagi lewat `.wysiwyg-content-wrapper` di editor dan halaman publik), Leaflet (peta), svelte-select, SweetAlert2 (toast), Iconify/Lucide |
 | Tipe terhubung | Laravel Wayfinder → `resources/js/wayfinder/*` (**generated, jangan diedit**; jalankan `php artisan wayfinder:generate`) |
 | Gambar | Intervention Image lewat `App\Services\ImageService` (WebP, kompresi ke target KB) |
 | Build | Vite+ (`bun run build`, `bun run dev`) |
@@ -37,7 +37,7 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 
 ## Pola backend
 
-- Controller admin: `index` (Inertia + `paginateTable` + `tableFilters`), `store`, `update`, `destroy`; respons berupa redirect dengan `Inertia::flash('toast', [...])`. Rute lewat `Route::resource(...)->only([...])` di `routes/admin.php`.
+- Controller admin: `index` (Inertia + `paginateTable` + `tableFilters`), `store`, `update`, `destroy`; respons berupa redirect dengan `Inertia::flash('toast', ['type' => success|info|warning|error, 'message' => ...])`. Rute lewat `Route::resource(...)->only([...])` di `routes/admin.php`.
 - Validasi di `FormRequest`; enum divalidasi dengan `Rule\Enum`; opsi enum dikirim ke halaman lewat `Enum::options()`.
 - Query pencarian memakai `like` dengan escape; pengurutan dibatasi daftar kolom yang diizinkan.
 - Tipe PHP eksplisit, constructor promotion, kurung kurawal selalu dipakai (lihat `CLAUDE.md`).
@@ -65,3 +65,9 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 ## Minifikasi HTML
 
 Middleware `MinifyHtmlResponse` (grup `web`) memadatkan spasi dan menghapus komentar pada respons HTML **hanya di production**. Blok `pre`, `textarea`, `script`, `style`, dan atribut Inertia `data-page` tidak diubah.
+
+## Notifikasi (toast)
+
+- `resources/js/lib/toast.ts` membungkus SweetAlert2 (`toast.success/error/warning/info/cancelled`); gunakan helper ini, jangan memanggil SweetAlert2 langsung.
+- `resources/js/lib/flash-toast.ts` (dipasang di `app.ts`) menampilkan toast otomatis untuk: flash `toast` dari server, validasi gagal (`error`), error HTTP 419/403/429/lainnya (`httpException`), dan koneksi putus (`networkError`).
+- Aksi non-Inertia (`fetch`, mis. upload media, salin tautan, muat pustaka media) memanggil `toast` secara eksplisit.

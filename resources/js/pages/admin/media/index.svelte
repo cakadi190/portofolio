@@ -17,6 +17,7 @@
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import { Field } from '@/components/ui/field';
   import { formatBytes, uploadMedia } from '@/lib/media';
+  import { toast } from '@/lib/toast';
   import { formatDate } from '@/lib/utils';
   import { Form, router } from '@inertiajs/svelte';
   import { destroy, index, update } from '@/wayfinder/routes/admin/media';
@@ -157,9 +158,17 @@
   }
 
   async function copyUrl(item: MediaItem): Promise<void> {
-    await navigator.clipboard.writeText(
-      new URL(item.url ?? '', window.location.origin).href,
-    );
+    try {
+      await navigator.clipboard.writeText(
+        new URL(item.url ?? '', window.location.origin).href,
+      );
+    } catch {
+      toast.error('Tautan gagal disalin.');
+
+      return;
+    }
+
+    toast.success('Tautan berhasil disalin.');
     copiedId = item.id;
     setTimeout(() => (copiedId = null), 1500);
   }

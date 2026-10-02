@@ -4,6 +4,7 @@
   import Upload from '@lucide/svelte/icons/upload';
   import FormModal from '@/components/form-modal.svelte';
   import { formatBytes, uploadMedia } from '@/lib/media';
+  import { toast } from '@/lib/toast';
   import { browse } from '@/wayfinder/routes/admin/media';
   import type { Paginated } from '@/types/pagination';
   import type { MediaAccept, MediaItem } from '@/types/media';
@@ -63,6 +64,7 @@
       lastPage = payload.last_page;
     } catch {
       error = 'Pustaka media gagal dimuat.';
+      toast.error(error);
     } finally {
       loading = false;
     }
