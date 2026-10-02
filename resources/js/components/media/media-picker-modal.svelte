@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import FileText from '@lucide/svelte/icons/file-text';
   import Upload from '@lucide/svelte/icons/upload';
   import FormModal from '@/components/form-modal.svelte';
@@ -69,10 +70,12 @@
 
   $effect(() => {
     if (open) {
-      selected = [];
-      page = 1;
-      error = null;
-      void load();
+      untrack(() => {
+        selected = [];
+        page = 1;
+        error = null;
+        void load();
+      });
     }
   });
 
@@ -268,11 +271,24 @@
 
   .media-picker-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
   }
 
+  @media (min-width: 576px) {
+    .media-picker-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .media-picker-grid {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+  }
+
   .media-picker-item {
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -299,6 +315,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+    height: auto;
     aspect-ratio: 1;
     object-fit: cover;
     border-radius: 0.375rem;

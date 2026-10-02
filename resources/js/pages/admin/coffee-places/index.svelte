@@ -151,6 +151,7 @@
       {...store.form()}
       class="d-flex flex-column gap-3"
       novalidate
+      options={{ preserveScroll: true, only: ['coffeePlaces', 'regions'] }}
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
@@ -351,6 +352,7 @@
         {...update.form(editingPlace.id)}
         class="d-flex flex-column gap-3"
         novalidate
+        options={{ preserveScroll: true, only: ['coffeePlaces', 'regions'] }}
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}

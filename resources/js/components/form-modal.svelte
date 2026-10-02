@@ -33,6 +33,13 @@
       open = false;
     };
 
+    const onHide = (): void => {
+      if (node.contains(document.activeElement)) {
+        (document.activeElement as HTMLElement).blur();
+      }
+    };
+
+    node.addEventListener('hide.bs.modal', onHide);
     node.addEventListener('hidden.bs.modal', onHidden);
 
     void import('bootstrap').then(({ Modal }) => {
@@ -49,6 +56,7 @@
 
     return () => {
       disposed = true;
+      node.removeEventListener('hide.bs.modal', onHide);
       node.removeEventListener('hidden.bs.modal', onHidden);
       modal = undefined;
     };

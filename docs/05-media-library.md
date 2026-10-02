@@ -58,4 +58,4 @@ Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**:
 
 ## Seeder
 
-Seeder yang membawa gambar (`EducationSeeder`, `CoffeePlaceSeeder`, `PortfolioSeeder`) mendaftarkan berkas bawaan `public/images/...` lewat `MediaService::storeFromPublicPath()`, sehingga gambar tampil di Pustaka Media dan kolom modelnya menyimpan `media.path` hasilnya (diproses WebP seperti unggahan biasa).
+Seeder yang membawa gambar (`EducationSeeder`, `CoffeePlaceSeeder`, `PortfolioSeeder`, `PostSeeder` dengan sampel `public/images/posts/*.webp`) mendaftarkan berkas bawaan `public/images/...` lewat `MediaService::storeFromPublicPath()`, sehingga gambar tampil di Pustaka Media dan kolom modelnya menyimpan `media.path` hasilnya (diproses WebP seperti unggahan biasa).

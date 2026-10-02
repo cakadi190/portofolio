@@ -36,7 +36,7 @@ class MediaController extends Controller
      */
     public function browse(Request $request): JsonResponse
     {
-        return response()->json($this->library($request)->paginate(18)->withQueryString());
+        return response()->json($this->library($request)->paginate(28)->withQueryString());
     }
 
     public function store(MediaRequest $request): JsonResponse
