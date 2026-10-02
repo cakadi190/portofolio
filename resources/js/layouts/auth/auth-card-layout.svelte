@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Link } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
+  import ThemeToggler from '@/components/theme-toggler.svelte';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
   import { home } from '@/wayfinder/routes';
 
@@ -16,6 +17,9 @@
 </script>
 
 <div class="auth-layout auth-layout-card">
+  <div class="auth-layout-theme-toggler">
+    <ThemeToggler />
+  </div>
   <div class="auth-layout-container">
     <div class="auth-layout-body">
       <div class="auth-layout-header">
@@ -116,6 +120,12 @@
       text-align: center;
       font-size: 0.875rem;
       color: var(--neo-secondary-color);
+    }
+
+    &-theme-toggler {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
     }
 
     &-footer {

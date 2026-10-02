@@ -136,7 +136,7 @@
 
         <Field.Group>
           <Field.Label for="create-comment">Komentar</Field.Label>
-          <textarea
+          <textarea placeholder="Masukkan komentar"
             id="create-comment"
             name="comment"
             class="form-control"
@@ -211,7 +211,7 @@
 
           <Field.Group>
             <Field.Label for="edit-comment">Komentar</Field.Label>
-            <textarea
+            <textarea placeholder="Masukkan komentar"
               id="edit-comment"
               name="comment"
               class="form-control"

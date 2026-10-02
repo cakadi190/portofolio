@@ -7,6 +7,7 @@
   import Search from '@lucide/svelte/icons/search';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
   import LogoutAction from '@/components/logout-action.svelte';
+  import { storageUrl } from '@/lib/utils';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import AdminSidebarMenu from './admin-sidebar-menu.svelte';
   import {
@@ -18,15 +19,18 @@
     menu,
     userName,
     userEmail,
+    userAvatar,
     logoutHref = '/logout',
   }: {
     menu: AdminSidebarEntry[];
     userName?: string;
     userEmail?: string;
+    userAvatar?: string | null;
     logoutHref?: string;
   } = $props();
 
   const sidebar = useAdminSidebarState();
+  const avatarUrl = $derived(storageUrl(userAvatar));
 
   let searchInput = $state<HTMLInputElement>();
 
@@ -169,7 +173,11 @@
     <div class="sidebar-footer">
       <div class="userinfo">
         <div class="userinfo-avatar">
-          <AppLogoIcon height={20} />
+          {#if avatarUrl}
+            <img src={avatarUrl} alt={userName ?? ''} class="w-100 h-100 object-fit-cover rounded" />
+          {:else}
+            <AppLogoIcon height={20} />
+          {/if}
         </div>
         <div class="userinfo-detail">
           <strong class="userinfo-detail-title">{userName ?? '—'}</strong>

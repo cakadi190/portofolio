@@ -87,7 +87,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan nama"
             id="create-name"
             name="name"
             required
@@ -129,7 +129,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama"
               id="edit-name"
               name="name"
               required

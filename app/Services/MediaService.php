@@ -6,6 +6,7 @@ use App\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Central entry point for the media library: every uploaded file is stored
@@ -40,16 +41,17 @@ class MediaService
     {
         $originalName = $file->getClientOriginalName();
         $directory = $directory.'/'.now()->format('Y/m');
+        $filename = $this->kebabFilename($originalName);
 
         if (str_starts_with((string) $file->getMimeType(), 'image/') && $file->getMimeType() !== 'image/svg+xml') {
             $image = $this->images->fromContents($file->getContent())->scaleDown(1920, 1920);
-            $path = $image->save($directory, 'webp', 80, 400);
+            $path = $image->save($directory, 'webp', 80, 400, $filename);
             $width = $image->get()?->width();
             $height = $image->get()?->height();
             $mime = 'image/webp';
             $size = Storage::disk('public')->size($path);
         } else {
-            $path = $file->store($directory, 'public');
+            $path = $file->storeAs($directory, $filename.'.'.strtolower($file->getClientOriginalExtension() ?: $file->extension()), 'public');
             $width = $height = null;
             $mime = (string) $file->getMimeType();
             $size = $file->getSize();
@@ -64,6 +66,17 @@ class MediaService
             'width' => $width,
             'height' => $height,
         ]);
+    }
+
+    /**
+     * Build a kebab-case, collision-safe filename (without extension) from the
+     * original upload name, e.g. "Foto Profil 2024.JPG" => "foto-profil-2024-a1b2c3d4".
+     */
+    protected function kebabFilename(string $originalName): string
+    {
+        $base = Str::slug(Str::limit(pathinfo($originalName, PATHINFO_FILENAME), 80, ''));
+
+        return ($base !== '' ? $base : 'file').'-'.Str::lower(Str::random(8));
     }
 
     /**

@@ -120,7 +120,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-title">Judul</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan judul"
             id="create-title"
             name="title"
             required
@@ -143,7 +143,7 @@
 
         <Field.Group>
           <Field.Label for="create-event_name">Nama Acara</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan nama acara"
             id="create-event_name"
             name="event_name"
             required
@@ -156,7 +156,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-year">Tahun</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="0"
                 id="create-year"
                 name="year"
                 type="number"
@@ -169,7 +169,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-rank">Peringkat</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="0"
                 id="create-rank"
                 name="rank"
                 type="number"
@@ -223,7 +223,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-title">Judul</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan judul"
               id="edit-title"
               name="title"
               required
@@ -248,7 +248,7 @@
 
           <Field.Group>
             <Field.Label for="edit-event_name">Nama Acara</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama acara"
               id="edit-event_name"
               name="event_name"
               required
@@ -262,7 +262,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-year">Tahun</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="0"
                   id="edit-year"
                   name="year"
                   type="number"
@@ -276,7 +276,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-rank">Peringkat</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="0"
                   id="edit-rank"
                   name="rank"
                   type="number"

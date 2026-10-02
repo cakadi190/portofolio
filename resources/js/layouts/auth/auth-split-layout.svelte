@@ -1,5 +1,6 @@
 <script lang="ts">
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
+  import ThemeToggler from '@/components/theme-toggler.svelte';
   import LanguageSwitcher from '@/components/language-switcher.svelte';
   import { Link } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
@@ -28,7 +29,10 @@
           <AppLogoIcon height={32} />
         </Link>
 
-        <LanguageSwitcher />
+        <div class="panel-actions">
+          <ThemeToggler />
+          <LanguageSwitcher />
+        </div>
       </div>
       <div class="panel-body">
         <div class="panel-content">
@@ -83,6 +87,13 @@
       }
 
       :global(.auth-panel-branding-logo) {
+        aspect-ratio: 1;
+        padding: 1rem;
+        background: var(--#{$prefix}-body-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--#{$prefix}-border-radius);
         color: rgba(255, 255, 255, 0.95);
       }
     }
@@ -116,6 +127,12 @@
           justify-content: space-between;
           gap: 0.5rem;
           width: 100%;
+        }
+
+        .panel-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
         }
 
         .panel-body {

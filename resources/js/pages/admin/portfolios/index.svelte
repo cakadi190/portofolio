@@ -155,7 +155,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan nama"
             id="create-name"
             name="name"
             required
@@ -183,7 +183,7 @@
 
         <Field.Group>
           <Field.Label for="create-short_desc">Deskripsi Singkat</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan deskripsi singkat"
             id="create-short_desc"
             name="short_desc"
             invalid={!!errors.short_desc}
@@ -193,7 +193,7 @@
 
         <Field.Group>
           <Field.Label for="create-description">Deskripsi</Field.Label>
-          <textarea
+          <textarea placeholder="Masukkan deskripsi"
             id="create-description"
             name="description"
             class="form-control"
@@ -206,7 +206,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-demo_link">Tautan Demo</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="https://contoh.com"
                 id="create-demo_link"
                 name="demo_link"
                 type="url"
@@ -218,7 +218,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-source_code">Kode Sumber</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="https://contoh.com"
                 id="create-source_code"
                 name="source_code"
                 type="url"
@@ -295,7 +295,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama"
               id="edit-name"
               name="name"
               required
@@ -307,7 +307,7 @@
 
           <Field.Group>
             <Field.Label for="edit-slug">Slug</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan slug"
               id="edit-slug"
               name="slug"
               value={editingPortfolio.slug}
@@ -329,7 +329,7 @@
 
           <Field.Group>
             <Field.Label for="edit-short_desc">Deskripsi Singkat</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan deskripsi singkat"
               id="edit-short_desc"
               name="short_desc"
               value={editingPortfolio.short_desc}
@@ -340,7 +340,7 @@
 
           <Field.Group>
             <Field.Label for="edit-description">Deskripsi</Field.Label>
-            <textarea
+            <textarea placeholder="Masukkan deskripsi"
               id="edit-description"
               name="description"
               class="form-control"
@@ -354,7 +354,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-demo_link">Tautan Demo</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="https://contoh.com"
                   id="edit-demo_link"
                   name="demo_link"
                   type="url"
@@ -367,7 +367,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-source_code">Kode Sumber</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="https://contoh.com"
                   id="edit-source_code"
                   name="source_code"
                   type="url"

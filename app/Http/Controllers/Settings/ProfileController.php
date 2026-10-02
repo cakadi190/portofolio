@@ -20,7 +20,7 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        return Inertia::render('admin/settings/Profile', [
+        return Inertia::render('admin/settings/profile', [
             'genders' => Gender::options(),
             'profile' => $request->user()->only(['name', 'email', 'phone', 'gender', 'avatar']),
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,

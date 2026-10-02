@@ -125,6 +125,7 @@
           <div class="card-body">
             <textarea
               name="excerpt"
+              aria-label="Ringkasan artikel"
               class="form-control"
               class:is-invalid={!!errors.excerpt}
               rows="3"

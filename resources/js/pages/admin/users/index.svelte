@@ -125,7 +125,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan nama"
             id="create-name"
             name="name"
             required
@@ -136,7 +136,7 @@
 
         <Field.Group>
           <Field.Label for="create-email">Email</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="nama@contoh.com"
             id="create-email"
             name="email"
             type="email"
@@ -148,7 +148,7 @@
 
         <Field.Group>
           <Field.Label for="create-password">Kata Sandi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="••••••••"
             id="create-password"
             name="password"
             type="password"
@@ -174,7 +174,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-phone">Telepon</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="08xxxxxxxxxx"
                 id="create-phone"
                 name="phone"
                 invalid={!!errors.phone}
@@ -236,7 +236,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama"
               id="edit-name"
               name="name"
               required
@@ -248,7 +248,7 @@
 
           <Field.Group>
             <Field.Label for="edit-email">Email</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="nama@contoh.com"
               id="edit-email"
               name="email"
               type="email"
@@ -288,7 +288,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-phone">Telepon</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="08xxxxxxxxxx"
                   id="edit-phone"
                   name="phone"
                   value={editingUser.phone}

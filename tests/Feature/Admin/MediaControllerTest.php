@@ -87,3 +87,18 @@ test('media in use by a record or embedded in post content is kept', function ()
     $this->assertModelExists($cover);
     $this->assertModelExists($inline);
 });
+
+test('stored files get a kebab-case name derived from the original name', function () {
+    $this->actingAs(User::factory()->create())
+        ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('Foto Profil_2024.JPG', 100, 100)])
+        ->assertCreated();
+
+    $this->actingAs(User::factory()->create())
+        ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->create('Surat Lamaran Kerja.PDF', 10, 'application/pdf')])
+        ->assertCreated();
+
+    $paths = Media::query()->orderBy('id')->pluck('path');
+
+    expect($paths[0])->toMatch('#^media/\d{4}/\d{2}/foto-profil-2024-[a-z0-9]{8}\.webp$#')
+        ->and($paths[1])->toMatch('#^media/\d{4}/\d{2}/surat-lamaran-kerja-[a-z0-9]{8}\.pdf$#');
+});

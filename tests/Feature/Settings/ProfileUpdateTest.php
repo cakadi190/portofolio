@@ -90,7 +90,7 @@ test('profile page uses the admin layout page and exposes profile data', functio
     $this->actingAs($user)
         ->get(route('profile.edit'))
         ->assertInertia(fn ($page) => $page
-            ->component('admin/settings/Profile')
+            ->component('admin/settings/profile')
             ->where('profile.email', $user->email)
             ->has('genders'));
 });

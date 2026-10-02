@@ -141,7 +141,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan nama"
             id="create-name"
             name="name"
             required
@@ -152,7 +152,7 @@
 
         <Field.Group>
           <Field.Label for="create-address">Alamat</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan alamat"
             id="create-address"
             name="address"
             required
@@ -163,7 +163,7 @@
 
         <Field.Group>
           <Field.Label for="create-description">Deskripsi</Field.Label>
-          <textarea
+          <textarea placeholder="Masukkan deskripsi"
             id="create-description"
             name="description"
             class="form-control"
@@ -186,7 +186,7 @@
 
         <Field.Group>
           <Field.Label for="create-map_url">Tautan Peta</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="https://contoh.com"
             id="create-map_url"
             name="map_url"
             type="url"
@@ -197,7 +197,7 @@
 
         <Field.Group>
           <Field.Label for="create-wifi_provider">Penyedia WiFi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan penyedia WiFi"
             id="create-wifi_provider"
             name="wifi_provider"
             invalid={!!errors.wifi_provider}
@@ -238,7 +238,7 @@
           <div class="col-sm-4">
             <Field.Group>
               <Field.Label for="create-park_fee">Biaya Parkir</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="0"
                 id="create-park_fee"
                 name="park_fee"
                 type="number"
@@ -275,7 +275,7 @@
 
         <Field.Group>
           <Field.Label for="create-region">Wilayah</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan wilayah"
             id="create-region"
             name="region"
             invalid={!!errors.region}
@@ -326,7 +326,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama"
               id="edit-name"
               name="name"
               required
@@ -338,7 +338,7 @@
 
           <Field.Group>
             <Field.Label for="edit-address">Alamat</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan alamat"
               id="edit-address"
               name="address"
               required
@@ -350,7 +350,7 @@
 
           <Field.Group>
             <Field.Label for="edit-description">Deskripsi</Field.Label>
-            <textarea
+            <textarea placeholder="Masukkan deskripsi"
               id="edit-description"
               name="description"
               class="form-control"
@@ -380,7 +380,7 @@
 
           <Field.Group>
             <Field.Label for="edit-map_url">Tautan Peta</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="https://contoh.com"
               id="edit-map_url"
               name="map_url"
               type="url"
@@ -392,7 +392,7 @@
 
           <Field.Group>
             <Field.Label for="edit-wifi_provider">Penyedia WiFi</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan penyedia WiFi"
               id="edit-wifi_provider"
               name="wifi_provider"
               value={editingPlace.wifi_provider}
@@ -436,7 +436,7 @@
             <div class="col-sm-4">
               <Field.Group>
                 <Field.Label for="edit-park_fee">Biaya Parkir</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="0"
                   id="edit-park_fee"
                   name="park_fee"
                   type="number"
@@ -476,7 +476,7 @@
 
           <Field.Group>
             <Field.Label for="edit-region">Wilayah</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan wilayah"
               id="edit-region"
               name="region"
               value={editingPlace.region}

@@ -6,6 +6,7 @@
   import AdminFullscreenToggle from './admin-fullscreen-toggle.svelte';
   import AdminLanguageSwitcher from './admin-language-switcher.svelte';
   import AdminNotificationBell from './admin-notification-bell.svelte';
+  import ThemeToggler from '@/components/theme-toggler.svelte';
   import AdminUserMenu from './admin-user-menu.svelte';
   import { useAdminSidebarState } from './sidebar-state.svelte';
 
@@ -22,6 +23,7 @@
       class:sidebar-toggling--visible={sidebar.isDesktop && sidebar.collapsed}
     >
       <button
+        type="button"
         class="sidebar-toggler me-2"
         aria-label="Buka/tutup sidebar"
         aria-controls="appSidebar"
@@ -46,10 +48,14 @@
     </li>
 
     <li class="nav-item">
+      <ThemeToggler />
+    </li>
+
+    <li class="nav-item">
       <AdminLanguageSwitcher />
     </li>
 
-    <AdminUserMenu userName={user.name} userEmail={user.email} />
+    <AdminUserMenu userName={user.name} userEmail={user.email} userAvatar={user.avatar} />
 
     {#if actions}
       {@render actions()}

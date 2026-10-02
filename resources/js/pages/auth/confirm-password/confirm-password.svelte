@@ -20,7 +20,7 @@
     <div class="d-flex flex-column gap-3">
       <Field.Group>
         <Field.Label for="password">Kata sandi</Field.Label>
-        <Field.Input.Password
+        <Field.Input.Password placeholder="••••••••"
           id="password"
           name="password"
           autocomplete="current-password"

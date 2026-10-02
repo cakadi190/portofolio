@@ -29,6 +29,12 @@ resources/js/lib/             utils.ts (storageUrl, formatDate), media.ts (uploa
 tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Support/)
 ```
 
+## Konvensi penamaan berkas
+
+- **PHP**: PascalCase untuk class (`MediaService.php`, `MediaController.php`), mengikuti konvensi Laravel.
+- **Frontend** (`resources/js`: halaman, komponen, layout, lib, tipe): semua berkas dan folder **kebab-case** (`media-picker-modal.svelte`, `admin/settings/profile.svelte`). Nama halaman di `Inertia::render()` dan tes (`->component(...)`) harus sama persis dengan path berkas. Nama komponen yang diimpor di dalam kode tetap PascalCase.
+- **Berkas hasil unggah** (Pustaka Media): kebab-case, lihat `05-media-library.md`.
+
 ## Pola backend
 
 - Controller admin: `index` (Inertia + `paginateTable` + `tableFilters`), `store`, `update`, `destroy`; respons berupa redirect dengan `Inertia::flash('toast', [...])`. Rute lewat `Route::resource(...)->only([...])` di `routes/admin.php`.

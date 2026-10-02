@@ -38,7 +38,7 @@
       {#if useRecoveryCode}
         <Field.Group>
           <Field.Label for="recovery_code">Kode pemulihan</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan kode pemulihan"
             id="recovery_code"
             type="text"
             name="recovery_code"
@@ -51,7 +51,7 @@
       {:else}
         <Field.Group>
           <Field.Label for="code">Kode autentikasi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan kode autentikasi"
             id="code"
             type="text"
             inputmode="numeric"

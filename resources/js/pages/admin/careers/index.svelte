@@ -119,7 +119,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-position">Posisi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan posisi"
             id="create-position"
             name="position"
             required
@@ -130,7 +130,7 @@
 
         <Field.Group>
           <Field.Label for="create-company">Perusahaan</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan perusahaan"
             id="create-company"
             name="company"
             required
@@ -141,7 +141,7 @@
 
         <Field.Group>
           <Field.Label for="create-location">Lokasi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan lokasi"
             id="create-location"
             name="location"
             required
@@ -217,7 +217,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-position">Posisi</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan posisi"
               id="edit-position"
               name="position"
               required
@@ -229,7 +229,7 @@
 
           <Field.Group>
             <Field.Label for="edit-company">Perusahaan</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan perusahaan"
               id="edit-company"
               name="company"
               required
@@ -241,7 +241,7 @@
 
           <Field.Group>
             <Field.Label for="edit-location">Lokasi</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan lokasi"
               id="edit-location"
               name="location"
               required

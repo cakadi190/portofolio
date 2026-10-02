@@ -53,7 +53,7 @@
                   <Field.Label for="current_password">
                     Kata sandi saat ini
                   </Field.Label>
-                  <Field.Input.Password
+                  <Field.Input.Password placeholder="••••••••"
                     id="current_password"
                     name="current_password"
                     autocomplete="current-password"
@@ -64,7 +64,7 @@
 
                 <Field.Group>
                   <Field.Label for="password">Kata sandi baru</Field.Label>
-                  <Field.Input.Password
+                  <Field.Input.Password placeholder="••••••••"
                     confirmed="password_confirmation"
                     id="password"
                     name="password"

@@ -140,6 +140,7 @@
       <div class="d-flex flex-wrap gap-2 mb-3">
         <input
           type="search"
+          aria-label="Cari media"
           class="form-control w-auto flex-grow-1"
           placeholder="Cari media…"
           bind:value={search}

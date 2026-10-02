@@ -55,7 +55,7 @@
 
           <Field.Group>
             <Field.Label for="profile-name">Nama</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama"
               id="profile-name"
               name="name"
               required
@@ -68,7 +68,7 @@
 
           <Field.Group>
             <Field.Label for="profile-email">Email</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="nama@contoh.com"
               id="profile-email"
               name="email"
               type="email"
@@ -89,7 +89,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="profile-phone">Telepon</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="08xxxxxxxxxx"
                   id="profile-phone"
                   name="phone"
                   autocomplete="tel"

@@ -11,6 +11,7 @@
   import { formatDate, storageUrl } from '@/lib/utils';
   import {
     destroy,
+    index,
     store,
     update,
   } from '@/wayfinder/routes/admin/certifications';
@@ -115,7 +116,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-title">Judul Sertifikasi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan judul sertifikasi"
             id="create-title"
             name="title"
             required
@@ -126,7 +127,7 @@
 
         <Field.Group>
           <Field.Label for="create-issuer">Penerbit</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan penerbit"
             id="create-issuer"
             name="issuer"
             required
@@ -165,7 +166,7 @@
             <Field.Group>
               <Field.Label for="create-credential_id">ID Kredensial</Field.Label
               >
-              <Field.Input
+              <Field.Input placeholder="Masukkan ID kredensial"
                 id="create-credential_id"
                 name="credential_id"
                 invalid={!!errors.credential_id}
@@ -178,7 +179,7 @@
               <Field.Label for="create-credential_url"
                 >URL Verifikasi</Field.Label
               >
-              <Field.Input
+              <Field.Input placeholder="https://contoh.com"
                 id="create-credential_url"
                 name="credential_url"
                 type="url"
@@ -236,7 +237,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-title">Judul Sertifikasi</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan judul sertifikasi"
               id="edit-title"
               name="title"
               required
@@ -248,7 +249,7 @@
 
           <Field.Group>
             <Field.Label for="edit-issuer">Penerbit</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan penerbit"
               id="edit-issuer"
               name="issuer"
               required
@@ -290,7 +291,7 @@
               <Field.Group>
                 <Field.Label for="edit-credential_id">ID Kredensial</Field.Label
                 >
-                <Field.Input
+                <Field.Input placeholder="Masukkan ID kredensial"
                   id="edit-credential_id"
                   name="credential_id"
                   value={editingCertification.credential_id}
@@ -304,7 +305,7 @@
                 <Field.Label for="edit-credential_url"
                   >URL Verifikasi</Field.Label
                 >
-                <Field.Input
+                <Field.Input placeholder="https://contoh.com"
                   id="edit-credential_url"
                   name="credential_url"
                   type="url"

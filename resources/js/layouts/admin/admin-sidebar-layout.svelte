@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import AdminBackToTop from './admin-back-to-top.svelte';
@@ -35,7 +36,7 @@
     >Langsung ke konten utama</a
   >
 
-  <AdminSidebar {menu} {userName} {userEmail} />
+  <AdminSidebar {menu} {userName} {userEmail} userAvatar={page.props.auth.user?.avatar} />
 
   <main id="admin-main-content" data-main-scroll bind:this={mainElement}>
     <AdminPullToRefresh scroller={mainElement} />

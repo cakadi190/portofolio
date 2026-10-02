@@ -17,14 +17,14 @@ Terinspirasi pola "centralized file model" (satu model/tabel untuk semua berkas)
 | PDF | Disimpan apa adanya. |
 | Lainnya | Ditolak (validasi `mimes:jpg,jpeg,png,webp,gif,pdf`, maks 10 MB). |
 
-Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama acak. URL publik `/storage/<path>` via `ImageService::url()`.
+Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**: slug nama asli + akhiran acak 8 karakter huruf kecil/angka (contoh `Foto Profil 2024.JPG` → `media/2026/10/foto-profil-2024-a1b2c3d4.webp`; nama kosong/tak valid → `file-<acak>`). Ekstensi huruf kecil; gambar selalu `.webp`. Nama asli tetap disimpan di kolom `media.name`. URL publik `/storage/<path>` via `ImageService::url()`.
 
 ## Komponen
 
 | Bagian | Berkas |
 | --- | --- |
 | Model/tabel | `app/Models/Media.php`, migrasi `create_media_table`, `MediaFactory` |
-| Service | `app/Services/MediaService.php` (`store`, `usageCount`, `delete`, peta `USAGES`) |
+| Service | `app/Services/MediaService.php` (`store`, `kebabFilename`, `usageCount`, `delete`, peta `USAGES`) |
 | Controller | `Admin/MediaController` — `index` (Inertia), `browse` (JSON picker), `store` (JSON), `update` (nama/alt), `destroy` |
 | Validasi | `Admin/MediaRequest`, `App\Rules\MediaPath` |
 | UI perpustakaan | `resources/js/pages/admin/media/index.svelte` (grid, cari, filter jenis, unggah multi/drag-drop, ubah detail, salin URL, hapus) |

@@ -10,6 +10,7 @@
   import { formatDate } from '@/lib/utils';
   import {
     destroy,
+    index,
     store,
     update,
   } from '@/wayfinder/routes/admin/organizations';
@@ -101,7 +102,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama Organisasi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan nama organisasi"
             id="create-name"
             name="name"
             required
@@ -112,7 +113,7 @@
 
         <Field.Group>
           <Field.Label for="create-description">Deskripsi</Field.Label>
-          <textarea
+          <textarea placeholder="Masukkan deskripsi"
             id="create-description"
             name="description"
             class="form-control"
@@ -179,7 +180,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-name">Nama Organisasi</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama organisasi"
               id="edit-name"
               name="name"
               required
@@ -191,7 +192,7 @@
 
           <Field.Group>
             <Field.Label for="edit-description">Deskripsi</Field.Label>
-            <textarea
+            <textarea placeholder="Masukkan deskripsi"
               id="edit-description"
               name="description"
               class="form-control"

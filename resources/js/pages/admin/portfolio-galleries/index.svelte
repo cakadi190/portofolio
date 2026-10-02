@@ -130,7 +130,7 @@
 
         <Field.Group>
           <Field.Label for="create-description">Deskripsi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan deskripsi"
             id="create-description"
             name="description"
             invalid={!!errors.description}
@@ -198,7 +198,7 @@
 
           <Field.Group>
             <Field.Label for="edit-description">Deskripsi</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan deskripsi"
               id="edit-description"
               name="description"
               value={editingGallery.description}

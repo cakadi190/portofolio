@@ -131,7 +131,7 @@
       {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="create-name">Nama Institusi</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan nama institusi"
             id="create-name"
             name="name"
             required
@@ -148,7 +148,7 @@
 
         <Field.Group>
           <Field.Label for="create-website">Website</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="https://contoh.com"
             id="create-website"
             name="website"
             type="url"
@@ -174,7 +174,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-grade">Kelas/Angkatan</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="Masukkan kelas/angkatan"
                 id="create-grade"
                 name="grade"
                 invalid={!!errors.grade}
@@ -188,7 +188,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-department">Jurusan</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="Masukkan jurusan"
                 id="create-department"
                 name="department"
                 invalid={!!errors.department}
@@ -200,7 +200,7 @@
             <Field.Group>
               <Field.Label for="create-study_program">Program Studi</Field.Label
               >
-              <Field.Input
+              <Field.Input placeholder="Masukkan program studi"
                 id="create-study_program"
                 name="study_program"
                 invalid={!!errors.study_program}
@@ -212,7 +212,7 @@
 
         <Field.Group>
           <Field.Label for="create-place">Tempat</Field.Label>
-          <Field.Input
+          <Field.Input placeholder="Masukkan tempat"
             id="create-place"
             name="place"
             required
@@ -282,7 +282,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-academic_score_value">Nilai</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="0"
                 id="create-academic_score_value"
                 name="academic_score_value"
                 type="number"
@@ -295,7 +295,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-academic_score_scale">Skala</Field.Label>
-              <Field.Input
+              <Field.Input placeholder="0"
                 id="create-academic_score_scale"
                 name="academic_score_scale"
                 type="number"
@@ -341,7 +341,7 @@
         {#snippet children({ errors, processing })}
           <Field.Group>
             <Field.Label for="edit-name">Nama Institusi</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan nama institusi"
               id="edit-name"
               name="name"
               required
@@ -363,7 +363,7 @@
 
           <Field.Group>
             <Field.Label for="edit-website">Website</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="https://contoh.com"
               id="edit-website"
               name="website"
               type="url"
@@ -391,7 +391,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-grade">Kelas/Angkatan</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="Masukkan kelas/angkatan"
                   id="edit-grade"
                   name="grade"
                   value={editingEducation.grade}
@@ -406,7 +406,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-department">Jurusan</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="Masukkan jurusan"
                   id="edit-department"
                   name="department"
                   value={editingEducation.department}
@@ -419,7 +419,7 @@
               <Field.Group>
                 <Field.Label for="edit-study_program">Program Studi</Field.Label
                 >
-                <Field.Input
+                <Field.Input placeholder="Masukkan program studi"
                   id="edit-study_program"
                   name="study_program"
                   value={editingEducation.study_program}
@@ -432,7 +432,7 @@
 
           <Field.Group>
             <Field.Label for="edit-place">Tempat</Field.Label>
-            <Field.Input
+            <Field.Input placeholder="Masukkan tempat"
               id="edit-place"
               name="place"
               required
@@ -475,7 +475,7 @@
                 <Field.Label for="edit-academic_score_label"
                   >Label Nilai</Field.Label
                 >
-                <Field.Input
+                <Field.Input placeholder="Masukkan label nilai"
                   id="edit-academic_score_label"
                   name="academic_score_label"
                   value={editingEducation.academic_score_label}
@@ -506,7 +506,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-academic_score_value">Nilai</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="0"
                   id="edit-academic_score_value"
                   name="academic_score_value"
                   type="number"
@@ -520,7 +520,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-academic_score_scale">Skala</Field.Label>
-                <Field.Input
+                <Field.Input placeholder="0"
                   id="edit-academic_score_scale"
                   name="academic_score_scale"
                   type="number"

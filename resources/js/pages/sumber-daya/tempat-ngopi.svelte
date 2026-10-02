@@ -117,6 +117,7 @@
             bind:value={searchQuery}
             type="text"
             class="form-control"
+            aria-label="Cari kafe atau lokasi"
             placeholder="Cari kafe atau lokasi"
           />
           <button class="btn btn-primary" type="submit" aria-label="Cari">
