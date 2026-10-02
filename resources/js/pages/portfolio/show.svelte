@@ -78,7 +78,7 @@
         <div class="col-md-12">
           <img
             src={portfolio.image}
-            class="w-100 rounded-4 border overflow-hidden mt-4 mt-md-0"
+            class="w-100 rounded-4 border overflow-hidden"
             alt={portfolio.name}
           />
 
