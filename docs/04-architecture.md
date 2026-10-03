@@ -52,7 +52,7 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 ## Konfigurasi & lingkungan
 
 - `.env.example`: SQLite, session/queue/cache berbasis `database`.
-- Produksi: MySQL native di host, `.env` penuh disuplai sebagai Jenkins secret file; Nginx tidak disentuh pipeline.
+- Produksi: SQLite (`/www/dk_project/cakadi.web.id/storage/database/database.sqlite`, bind mount `./storage/database` → `/app/storage/database`, WAL, dibagi blue/green dan bisa diedit langsung dari folder host); seluruh path deploy di `/www/dk_project/cakadi.web.id`; `.env` penuh disuplai sebagai Jenkins secret file; Nginx tidak disentuh pipeline.
 - CI: `.github/workflows/tests.yml` (PHP 8.5) menjalankan tes pada `push` ke `main` dan PR.
 
 ## Aturan proses

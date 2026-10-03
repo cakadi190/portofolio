@@ -1,6 +1,6 @@
 # 03 — Model Data
 
-Database: SQLite (dev/test), MySQL (produksi). Semua tabel konten memakai `id` auto-increment + `timestamps`. Skema dibangun dari migrasi `create_*` saja (tanpa `alter`), sehingga `php artisan migrate:fresh --seed` adalah jalur resmi pembuatan ulang.
+Database: SQLite (dev/test dan produksi; file di bind mount host). Semua tabel konten memakai `id` auto-increment + `timestamps`. Skema dibangun dari migrasi `create_*` saja (tanpa `alter`), sehingga `php artisan migrate:fresh --seed` adalah jalur resmi pembuatan ulang.
 
 ## Tabel
 

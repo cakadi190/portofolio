@@ -187,17 +187,18 @@ chmod 600 "$APP_KEY_FILE"
 # (172.20.0.0/24) — check `docker network ls` if this ever needs to change.
 # --gateway is pinned explicitly (not left to Docker's default-first-address
 # behaviour) so 172.22.0.1 is guaranteed stable across recreations — the
-# compose file's DB_HOST and extra_hosts entries hardcode that address.
+# compose file's REDIS_HOST and extra_hosts entries hardcode that address.
 docker network inspect catatancakadi-net >/dev/null 2>&1 || \
   docker network create catatancakadi-net --subnet 172.22.0.0/16 --gateway 172.22.0.1
 
-# Uploads must survive both the container and the colour switch. Owned by
+# Uploads and the SQLite database must survive both the container and the
+# colour switch (storage/database is bind-mounted and editable from the host). Owned by
 # 1000:1000 to match the container's unprivileged user (the Dockerfile's
 # default UID/GID) — Docker would otherwise create these root-owned on first
 # run (this script runs as root over SSH), and the container user could never
 # write to them.
-mkdir -p storage/app storage/logs
-chown -R 1000:1000 storage/app storage/logs
+mkdir -p storage/app storage/logs storage/database
+chown -R 1000:1000 storage/app storage/logs storage/database
 
 docker compose -f "$COMPOSE_FILE" --profile "$new_color" up -d --force-recreate
 

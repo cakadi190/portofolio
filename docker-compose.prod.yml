@@ -10,14 +10,15 @@
 #
 # cakadi.web.id is currently served by a DIFFERENT app (the Nuxt "lombacv" CV
 # site, deployed from /www/lombacv on this same host). This app deploys to
-# its own path (/www/catatancakadi) and its own ports (5020/5021) so it can
+# its own path (/www/dk_project/cakadi.web.id) and its own ports (5020/5021) so it can
 # run and be verified independently before the shared Nginx vhost is cut over
 # to it by hand — see the header of deploy-bluegreen.sh for that one-time step.
 #
-# The database is a native MySQL server on the host, not a container here —
-# reached through the bridge gateway, same as lombacv reaches its native
-# Postgres/Redis. MySQL must accept connections from the Docker bridge
-# gateway (172.22.0.1 with the subnet created below), not loopback only.
+# The database is a SQLite file, bind-mounted from ./storage/database on the
+# host (i.e. /www/dk_project/cakadi.web.id/storage/database/database.sqlite)
+# so it survives deploys, is shared by blue and green, and can be inspected
+# or edited directly from the host folder. Redis is still a native server on
+# the host, reached through the bridge gateway.
 #
 # The gateway is named by address (172.22.0.1), NOT via the `host-gateway`
 # magic value. Docker resolves `host-gateway` from the *default* bridge, not
@@ -34,7 +35,7 @@ x-app-common: &app-common
   restart: unless-stopped
   extra_hosts:
     # Mapped to the address explicitly, NOT to the `host-gateway` magic value
-    # — see the DB_HOST comment above. 172.22.0.1 is the gateway of the
+    # — see the gateway comment at the top of this file. 172.22.0.1 is the gateway of the
     # 172.22.0.0/16 subnet catatancakadi-net is created with in
     # scripts/deploy-bluegreen.sh (Docker assigns the first usable address as
     # gateway when none is given explicitly).
@@ -44,15 +45,17 @@ x-app-common: &app-common
   environment:
     APP_ENV: production
     APP_DEBUG: "false"
-    # Overrides whatever DB_HOST the .env file has: 127.0.0.1 inside this
-    # container is the container itself, not the host's MySQL. Named by
-    # address, not host.docker.internal — see comment above.
-    DB_HOST: 172.22.0.1
-    # Same reasoning as DB_HOST above: 127.0.0.1 inside this container is the
+    # Pinned here so a stale MySQL-era DB_* block in the Jenkins .env secret
+    # can't override it. The file lives on the ./storage/database bind mount.
+    DB_CONNECTION: sqlite
+    DB_DATABASE: /app/storage/database/database.sqlite
+    # WAL + a busy timeout let blue and green share the file during a flip.
+    DB_JOURNAL_MODE: WAL
+    DB_BUSY_TIMEOUT: "5000"
+    # 127.0.0.1 inside this container is the
     # container itself, not the host's Redis. Native Redis on the host must
     # also accept connections from the Docker bridge gateway (172.22.0.1),
-    # not loopback only — check its bind address / firewall the same way
-    # MySQL was fixed for this.
+    # not loopback only — check its bind address / firewall.
     REDIS_HOST: 172.22.0.1
     # nginx is the only thing that can reach this container (it is only
     # published on 127.0.0.1), so trusting the forwarding headers it sets is
@@ -106,6 +109,7 @@ services:
     volumes:
       - ./storage/app:/app/storage/app
       - ./storage/logs:/app/storage/logs
+      - ./storage/database:/app/storage/database
 
   catatancakadi-green:
     <<: *app-common
@@ -119,3 +123,4 @@ services:
     volumes:
       - ./storage/app:/app/storage/app
       - ./storage/logs:/app/storage/logs
+      - ./storage/database:/app/storage/database

@@ -217,7 +217,7 @@ pipeline {
     DEPLOY_HOST = 'root@103.235.72.17'
     // Folder BARU di server, terpisah dari /www/lombacv, sampai cutover
     // manual (lihat header scripts/deploy-bluegreen.sh) dilakukan.
-    DEPLOY_PATH = '/www/catatancakadi'
+    DEPLOY_PATH = '/www/dk_project/cakadi.web.id'
   }
 
   stages {

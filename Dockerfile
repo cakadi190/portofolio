@@ -56,14 +56,12 @@ RUN apk add --no-cache bash curl
 # gd        — Intervention Image's fallback driver (app/Providers/AppServiceProvider.php
 #             uses imagick only if it happens to be loaded, otherwise gd)
 # intl      — Laravel locale/number formatting
-# pdo_mysql — production database (a native MySQL server outside Docker)
 # bcmath, exif, zip, pcntl — framework defaults / signal handling
 # redis     — cache/session/rate-limiter store (REDIS_CLIENT=phpredis)
-# sodium, opcache, pdo_sqlite, posix are already in the FrankenPHP base image.
+# sodium, opcache, pdo_sqlite (production database), posix are already in the FrankenPHP base image.
 RUN install-php-extensions \
     gd \
     intl \
-    pdo_mysql \
     bcmath \
     exif \
     zip \
@@ -226,8 +224,8 @@ COPY --from=vendor-production --chown=${UID}:${GID} /app/vendor ./vendor
 COPY --from=assets --chown=${UID}:${GID} /app/public/build ./public/build
 COPY --from=assets --chown=${UID}:${GID} /app/bootstrap/ssr ./bootstrap/ssr
 
-# storage/app is bind-mounted at run time (uploads must survive a deploy and
-# be shared by both blue and green); everything else is per-container and
+# storage/app and storage/database are bind-mounted at run time (uploads and
+# the SQLite file must survive a deploy and be shared by both blue and green); everything else is per-container and
 # recreated empty here — Laravel expects these directories to exist and will
 # not create them itself.
 #
@@ -270,6 +268,12 @@ fi
 php artisan config:cache
 php artisan route:cache
 php artisan storage:link || true
+# SQLite creates the file but not its directory; touch makes a first deploy
+# (empty bind mount) work.
+if [ "${DB_CONNECTION:-}" = "sqlite" ] && [ -n "${DB_DATABASE:-}" ]; then
+    mkdir -p "$(dirname "$DB_DATABASE")"
+    touch "$DB_DATABASE"
+fi
 php artisan migrate --force
 
 # Inertia SSR: `inertia:start-ssr` runs bun against bootstrap/ssr and blocks
