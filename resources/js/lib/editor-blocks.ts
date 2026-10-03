@@ -1,5 +1,9 @@
-import { Node } from '@tiptap/core';
+import { Extension, Node } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
+import type { Node as ProseNode } from '@tiptap/pm/model';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { highlightSource } from '@/lib/highlight';
 
 export const ALIGNMENTS = ['left', 'center', 'right'] as const;
 export type BlockAlign = (typeof ALIGNMENTS)[number];
@@ -181,6 +185,123 @@ export const ButtonBlock = Node.create({
         },
         node.attrs.text || 'Klik di sini',
       ],
+    ];
+  },
+});
+
+/**
+ * Appends the offsets of every scoped span in a highlighted fragment as inline
+ * decorations, so code blocks are coloured live without changing the document.
+ */
+function collectDecorations(
+  node: globalThis.Node,
+  base: number,
+  offset: number,
+  into: Decoration[],
+): number {
+  let cursor = offset;
+
+  node.childNodes.forEach((child) => {
+    if (child.nodeType === globalThis.Node.TEXT_NODE) {
+      cursor += (child as Text).data.length;
+
+      return;
+    }
+
+    const start = cursor;
+
+    cursor = collectDecorations(child, base, cursor, into);
+
+    if (cursor > start) {
+      into.push(
+        Decoration.inline(base + start, base + cursor, {
+          class: (child as Element).className,
+        }),
+      );
+    }
+  });
+
+  return cursor;
+}
+
+function buildCodeDecorations(doc: ProseNode): DecorationSet {
+  const decorations: Decoration[] = [];
+
+  doc.descendants((node, pos) => {
+    if (node.type.name !== 'codeBlock') return;
+
+    const result = highlightSource(node.textContent, node.attrs.language);
+
+    if (result) {
+      collectDecorations(result.fragment, pos + 1, 0, decorations);
+    }
+
+    return false;
+  });
+
+  return DecorationSet.create(doc, decorations);
+}
+
+/** Colour schemes for code blocks (ported highlight.js themes); empty follows the site theme. */
+export const CODE_THEMES = [
+  { value: '', label: 'Otomatis (GitHub)' },
+  { value: 'atom-one-dark', label: 'Atom One Dark' },
+  { value: 'atom-one-light', label: 'Atom One Light' },
+  { value: 'monokai', label: 'Monokai' },
+  { value: 'nord', label: 'Nord' },
+  { value: 'dracula', label: 'Dracula' },
+  { value: 'solarized-light', label: 'Solarized Light' },
+  { value: 'solarized-dark', label: 'Solarized Dark' },
+  { value: 'tokyo-night-dark', label: 'Tokyo Night' },
+  { value: 'night-owl', label: 'Night Owl' },
+  { value: 'vs2015', label: 'Visual Studio 2015' },
+] as const;
+
+function validCodeTheme(value: unknown): string | null {
+  return CODE_THEMES.some((theme) => theme.value && theme.value === value)
+    ? (value as string)
+    : null;
+}
+
+/** Live syntax colouring for code blocks inside the editor. */
+export const CodeBlockHighlight = Extension.create({
+  name: 'codeBlockHighlight',
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ['codeBlock'],
+        attributes: {
+          theme: {
+            default: null,
+            parseHTML: (element) =>
+              validCodeTheme(element.getAttribute('data-code-theme')),
+            renderHTML: (attributes) => {
+              const theme = validCodeTheme(attributes.theme);
+
+              return theme ? { 'data-code-theme': theme } : {};
+            },
+          },
+        },
+      },
+    ];
+  },
+
+  addProseMirrorPlugins() {
+    const key = new PluginKey<DecorationSet>('codeBlockHighlight');
+
+    return [
+      new Plugin<DecorationSet>({
+        key,
+        state: {
+          init: (_config, state) => buildCodeDecorations(state.doc),
+          apply: (tr, previous) =>
+            tr.docChanged ? buildCodeDecorations(tr.doc) : previous,
+        },
+        props: {
+          decorations: (state) => key.getState(state),
+        },
+      }),
     ];
   },
 });

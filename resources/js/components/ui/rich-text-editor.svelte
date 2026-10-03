@@ -25,6 +25,7 @@
   import ListOrdered from '@lucide/svelte/icons/list-ordered';
   import Minus from '@lucide/svelte/icons/minus';
   import Pilcrow from '@lucide/svelte/icons/pilcrow';
+  import Palette from '@lucide/svelte/icons/palette';
   import Plus from '@lucide/svelte/icons/plus';
   import Quote from '@lucide/svelte/icons/quote';
   import Redo2 from '@lucide/svelte/icons/redo-2';
@@ -44,9 +45,12 @@
     ButtonBlock,
     CALLOUT_TYPES,
     Callout,
+    CODE_THEMES,
+    CodeBlockHighlight,
     FigureImage,
     safeHref,
   } from '@/lib/editor-blocks';
+  import { highlightSource, languageNames } from '@/lib/highlight';
   import { uploadMedia } from '@/lib/media';
   import type { MediaItem } from '@/types/media';
 
@@ -86,6 +90,8 @@
   let toolbarOpen = $state(false);
   let host = $state<HTMLDivElement>();
   let blockInfo = $state.raw<BlockInfo | null>(null);
+  // Floating language picker anchored to the code block under the caret.
+  let codeBadge = $state({ visible: false, top: 0, right: 0 });
   let pickerMode = $state<'insert' | 'replace'>('insert');
   let ctx = $state({ open: false, x: 0, y: 0 });
   let ctxEl = $state<HTMLDivElement>();
@@ -100,7 +106,7 @@
     action?: () => void;
   };
 
-  type BlockKind = 'image' | 'buttonBlock' | 'callout';
+  type BlockKind = 'image' | 'buttonBlock' | 'callout' | 'codeBlock';
   type BlockInfo = {
     kind: BlockKind;
     pos: number;
@@ -236,6 +242,36 @@
   }
 
   /** Tracks the caret line to place the "+" inserter and the "/" command menu. */
+  function syncCodeBadge(): void {
+    const target = blockInfo;
+
+    if (!editor || !host || mode !== 'visual' || target?.kind !== 'codeBlock') {
+      codeBadge.visible = false;
+
+      return;
+    }
+
+    const dom = editor.view.nodeDOM(target.pos);
+
+    if (!(dom instanceof HTMLElement)) {
+      codeBadge.visible = false;
+
+      return;
+    }
+
+    const bounds = host.getBoundingClientRect();
+    const rect = dom.getBoundingClientRect();
+
+    codeBadge.visible = true;
+    codeBadge.top = rect.top - bounds.top + 6;
+    codeBadge.right = bounds.right - rect.right + 10;
+  }
+
+  function setCodeLanguage(language: string): void {
+    patchBlock({ language: language || null });
+    editor?.commands.focus();
+  }
+
   function syncBlockUi(): void {
     if (minimal || !editor || !host || mode !== 'visual') return;
 
@@ -332,9 +368,9 @@
     for (let depth = selection.$from.depth; depth > 0; depth--) {
       const node = selection.$from.node(depth);
 
-      if (node.type.name === 'callout') {
+      if (node.type.name === 'callout' || node.type.name === 'codeBlock') {
         return {
-          kind: 'callout',
+          kind: node.type.name as BlockKind,
           pos: selection.$from.before(depth),
           attrs: node.attrs,
         };
@@ -342,6 +378,23 @@
     }
 
     return null;
+  }
+
+  /** Renders the highlighted preview of the code block under the caret. */
+  function codePreview(
+    node: HTMLElement,
+    params: { source: string; language: string | null },
+  ) {
+    const render = ({ source, language }: typeof params): void => {
+      const result = highlightSource(source, language);
+
+      node.className = result ? 'hljs' : '';
+      node.replaceChildren(result ? result.fragment : source);
+    };
+
+    render(params);
+
+    return { update: render };
   }
 
   function patchBlock(patch: Record<string, unknown>): void {
@@ -587,9 +640,11 @@
     if (blockInfo?.kind === 'image') {
       groups.push([
         ...(['left', 'center', 'right'] as const).map<ContextItem>((align) => ({
-          label: { left: 'Rata kiri', center: 'Rata tengah', right: 'Rata kanan' }[
-            align
-          ],
+          label: {
+            left: 'Rata kiri',
+            center: 'Rata tengah',
+            right: 'Rata kanan',
+          }[align],
           icon: { left: AlignLeft, center: AlignCenter, right: AlignRight }[
             align
           ],
@@ -602,6 +657,37 @@
           action: () => openPicker('replace'),
         },
       ]);
+    }
+
+    if (blockInfo?.kind === 'codeBlock') {
+      const current = blockInfo.attrs.language ?? '';
+
+      groups.push(
+        [
+          { label: 'Bahasa: Otomatis', value: '' },
+          ...languageNames().map((name) => ({
+            label: `Bahasa: ${name}`,
+            value: name,
+          })),
+          { label: 'Bahasa: Teks biasa', value: 'plaintext' },
+        ].map<ContextItem>(({ label, value }) => ({
+          label,
+          icon: SquareCode,
+          on: current === value,
+          action: () => patchBlock({ language: value || null }),
+        })),
+      );
+    }
+
+    if (blockInfo?.kind === 'codeBlock') {
+      groups.push(
+        CODE_THEMES.map<ContextItem>((theme) => ({
+          label: `Tema: ${theme.label}`,
+          icon: Palette,
+          on: (blockInfo?.attrs.theme ?? '') === theme.value,
+          action: () => patchBlock({ theme: theme.value || null }),
+        })),
+      );
     }
 
     groups.push([
@@ -640,7 +726,10 @@
     if (!ctx.open || !ctxEl) return;
 
     const bounds = ctxEl.getBoundingClientRect();
-    const x = Math.max(8, Math.min(ctx.x, window.innerWidth - bounds.width - 8));
+    const x = Math.max(
+      8,
+      Math.min(ctx.x, window.innerWidth - bounds.width - 8),
+    );
     const y = Math.max(
       8,
       Math.min(ctx.y, window.innerHeight - bounds.height - 8),
@@ -765,7 +854,9 @@
               }
             : { link: { openOnClick: false } },
         ),
-        ...(minimal ? [] : [FigureImage, Callout, ButtonBlock]),
+        ...(minimal
+          ? []
+          : [FigureImage, Callout, ButtonBlock, CodeBlockHighlight]),
         Placeholder.configure({ placeholder }),
         ...(minimal
           ? []
@@ -807,6 +898,7 @@
       onTransaction: () => {
         tick++;
         blockInfo = readBlock();
+        syncCodeBadge();
         syncBlockUi();
       },
       onBlur: () => {
@@ -1177,7 +1269,8 @@
             class="form-select form-select-sm rte-select"
             aria-label="Gaya tombol"
             value={blockInfo.attrs.variant}
-            onchange={(event) => patchBlock({ variant: event.currentTarget.value })}
+            onchange={(event) =>
+              patchBlock({ variant: event.currentTarget.value })}
           >
             <option value="solid">Solid</option>
             <option value="outline">Garis tepi</option>
@@ -1192,6 +1285,41 @@
               ><option.icon size={16} /></button
             >
           {/each}
+        {:else if blockInfo.kind === 'codeBlock'}
+          <span class="rte-bar-title">Kode</span>
+          <select
+            class="form-select form-select-sm rte-select"
+            aria-label="Bahasa pemrograman"
+            value={blockInfo.attrs.language ?? ''}
+            onchange={(event) =>
+              patchBlock({ language: event.currentTarget.value || null })}
+          >
+            <option value="">Otomatis</option>
+            {#each languageNames() as language (language)}
+              <option value={language}>{language}</option>
+            {/each}
+            <option value="plaintext">Teks biasa</option>
+          </select>
+          <select
+            class="form-select form-select-sm rte-select"
+            aria-label="Tema kode"
+            value={blockInfo.attrs.theme ?? ''}
+            onchange={(event) =>
+              patchBlock({ theme: event.currentTarget.value || null })}
+          >
+            {#each CODE_THEMES as theme (theme.value)}
+              <option value={theme.value}>Tema: {theme.label}</option>
+            {/each}
+          </select>
+          <div class="rte-code-preview wysiwyg-content-wrapper">
+            <span class="rte-code-preview-label">Pratinjau</span>
+            <pre data-code-theme={blockInfo.attrs.theme ?? undefined}><code
+                use:codePreview={{
+                  source:
+                    editor?.state.doc.nodeAt(blockInfo.pos)?.textContent ?? '',
+                  language: blockInfo.attrs.language ?? null,
+                }}></code></pre>
+          </div>
         {:else}
           <span class="rte-bar-title">Callout</span>
           {#each CALLOUT_TYPES as type (type)}
@@ -1226,6 +1354,41 @@
   </div>
 
   <div class="rte-body" hidden={mode !== 'visual'} bind:this={element}></div>
+
+  {#if codeBadge.visible}
+    <div
+      class="rte-code-badge"
+      style="top: {codeBadge.top}px; right: {codeBadge.right}px"
+    >
+      <select
+        class="form-select form-select-sm"
+        aria-label="Ubah bahasa blok kode"
+        title="Bahasa blok kode"
+        value={blockInfo?.attrs.language ?? ''}
+        onchange={(event) => setCodeLanguage(event.currentTarget.value)}
+      >
+        <option value="">Otomatis</option>
+        {#each languageNames() as language (language)}
+          <option value={language}>{language}</option>
+        {/each}
+        <option value="plaintext">Teks biasa</option>
+      </select>
+      <select
+        class="form-select form-select-sm"
+        aria-label="Ubah tema blok kode"
+        title="Tema blok kode"
+        value={blockInfo?.attrs.theme ?? ''}
+        onchange={(event) => {
+          patchBlock({ theme: event.currentTarget.value || null });
+          editor?.commands.focus();
+        }}
+      >
+        {#each CODE_THEMES as theme (theme.value)}
+          <option value={theme.value}>Tema: {theme.label}</option>
+        {/each}
+      </select>
+    </div>
+  {/if}
 
   {#if !minimal && mode === 'visual'}
     {#if inserter.visible && !menu.open}
@@ -1366,6 +1529,39 @@
   }
   .rte-field {
     width: 11rem;
+  }
+  .rte-code-badge {
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    gap: 0.25rem;
+  }
+  .rte-code-badge select {
+    width: auto;
+    min-width: 7.5rem;
+    padding-block: 0.125rem;
+    font-size: 0.75rem;
+  }
+  .rte-code-preview {
+    flex: 0 0 100%;
+    order: 9;
+    position: relative;
+  }
+  .rte-code-preview pre {
+    max-height: 12rem;
+    margin: 0;
+    overflow: auto;
+    white-space: pre;
+  }
+  .rte-code-preview-label {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.5rem;
+    z-index: 1;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--neo-secondary-color);
   }
   .rte-bar-delete {
     margin-left: auto;

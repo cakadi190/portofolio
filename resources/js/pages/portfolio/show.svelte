@@ -5,6 +5,7 @@
   import Link2 from '@lucide/svelte/icons/link-2';
   import { techIcon } from '@/lib/tech-icon';
   import AppHead from '@/components/app-head.svelte';
+  import { highlightCode } from '@/lib/highlight/action';
   import HeaderPage from '@/components/header-page.svelte';
   import ImageLightbox from '@/components/media/image-lightbox.svelte';
   import { Field } from '@/components/ui/field';
@@ -123,7 +124,10 @@
               <div class="mb-5">
                 <h3 id="description">Deskripsi Proyek</h3>
                 {#if portfolio.description}
-                  <div class="wysiwyg-content-wrapper">
+                  <div
+                    class="wysiwyg-content-wrapper"
+                    use:highlightCode={portfolio.description}
+                  >
                     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                     {@html portfolio.description}
                   </div>

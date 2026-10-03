@@ -1,6 +1,7 @@
 <script lang="ts">
   import Calendar from '@lucide/svelte/icons/calendar';
   import AppHead from '@/components/app-head.svelte';
+  import { highlightCode } from '@/lib/highlight/action';
   import HeaderPage from '@/components/header-page.svelte';
 
   type Post = {
@@ -69,7 +70,7 @@
 
           <div class="row flex-column-reverse flex-md-row gy-5">
             <div class="col-md-8">
-              <div class="wysiwyg-content-wrapper">
+              <div class="wysiwyg-content-wrapper" use:highlightCode={post.content}>
                 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 {@html post.content}
               </div>
