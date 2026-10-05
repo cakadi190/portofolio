@@ -63,7 +63,6 @@ export default defineConfig({
           'import',
           'color-functions',
           'global-builtin',
-          'mixed-decls',
         ],
       },
     },

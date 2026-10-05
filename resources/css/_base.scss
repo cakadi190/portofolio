@@ -1,3 +1,11 @@
+@function pick($condition, $when-true, $when-false) {
+  @if $condition {
+    @return $when-true;
+  }
+
+  @return $when-false;
+}
+
 // This file is a plain `@import` target (see `app.scss`), so it has no
 // access to Bootstrap's `@use`d Sass variables/maps ($primary, $theme-colors,
 // $grid-breakpoints, …) — everything below reads Bootstrap's generated
@@ -396,7 +404,7 @@ $btn-ghost-colors:
       dark
     {
       $is-light: $variant ==light;
-      $on-variant: if($is-light, var(--neo-dark), var(--neo-white));
+      $on-variant: pick($is-light, var(--neo-dark), var(--neo-white));
       $variant-color: var(--neo-#{$variant});
 
       &.btn-#{$variant} {
@@ -411,33 +419,33 @@ $btn-ghost-colors:
           --#{$prefix}-capsule-active-bg
         );
 
-        --#{$prefix}-capsule-active-color: #{if(
+        --#{$prefix}-capsule-active-color: #{pick(
             $is-light,
             var(--neo-white),
             var(--neo-dark)
           )};
-        --#{$prefix}-capsule-active-bg: #{if(
+        --#{$prefix}-capsule-active-bg: #{pick(
             $is-light,
             var(--neo-dark),
             var(--neo-white)
           )};
-        --#{$prefix}-capsule-icon-color: #{if(
+        --#{$prefix}-capsule-icon-color: #{pick(
             $is-light,
             var(--neo-white),
             var(--neo-dark)
           )};
-        --#{$prefix}-capsule-icon-bg: #{if(
+        --#{$prefix}-capsule-icon-bg: #{pick(
             $is-light,
             var(--neo-dark),
             var(--neo-white)
           )};
-        --#{$prefix}-capsule-active-icon-color: #{if(
+        --#{$prefix}-capsule-active-icon-color: #{pick(
             $is-light,
             var(--neo-dark),
             var(--neo-white)
           )};
         --#{$prefix}-capsule-active-icon-bg: var(
-          --neo-#{if($is-light, 'white', $variant)}
+          --neo-#{pick($is-light, 'white', $variant)}
         );
       }
 
@@ -456,12 +464,12 @@ $btn-ghost-colors:
         --#{$prefix}-capsule-active-bg: #{$variant-color};
         --#{$prefix}-capsule-icon-color: #{$on-variant};
         --#{$prefix}-capsule-icon-bg: #{$variant-color};
-        --#{$prefix}-capsule-active-icon-color: #{if(
+        --#{$prefix}-capsule-active-icon-color: #{pick(
             $is-light,
             var(--neo-white),
             $variant-color
           )};
-        --#{$prefix}-capsule-active-icon-bg: #{if(
+        --#{$prefix}-capsule-active-icon-bg: #{pick(
             $is-light,
             var(--neo-dark),
             var(--neo-white)

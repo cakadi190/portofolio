@@ -36,7 +36,7 @@
   let dragging = $state(false);
   let animating = $state(false);
   let failed = $state(false);
-  let direction = 1;
+  let direction = $state(1);
   let stage = $state<HTMLElement | null>(null);
   let image = $state<HTMLImageElement | null>(null);
 

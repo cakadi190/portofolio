@@ -44,7 +44,11 @@ ACTION="${2:?usage: deploy-bluegreen.sh <deploy_path> <deploy|rotate|rollback>}"
 STATE_FILE="$DEPLOY_PATH/.active_color"
 PENDING_FILE="$DEPLOY_PATH/.pending_color"
 NGINX_MANAGED_MARKER="$DEPLOY_PATH/.nginx_managed"
-NGINX_SITE_FILE="${NGINX_SITE_FILE:-/etc/nginx/sites-available/cakadi.web.id}"
+# Live vhost is managed by aaPanel; its proxy file name carries a hash, so the
+# default is a glob resolved at rotate time. Override NGINX_SITE_FILE for a
+# plain Nginx install (e.g. /etc/nginx/sites-available/cakadi.web.id).
+NGINX_SITE_FILE="${NGINX_SITE_FILE:-/www/server/panel/vhost/nginx/proxy/www.cakadi.web.id/*_www.cakadi.web.id.conf}"
+NGINX_UPSTREAM_RE="proxy_pass[[:space:]]+http://(127\.0\.0\.1|localhost):"
 COMPOSE_FILE="docker-compose.prod.yml"
 HEALTH_RETRIES=30
 HEALTH_INTERVAL=2
@@ -100,17 +104,24 @@ fi
 
 if [ "$ACTION" = "rotate" ]; then
   if [ -f "$NGINX_MANAGED_MARKER" ]; then
-    if [ -f "$NGINX_SITE_FILE" ]; then
-      echo "==> Updating Nginx port to $app_port ($new_color)."
-      sed -i -E "s#(proxy_pass[[:space:]]+http://127\.0\.0\.1:)[0-9]+([[:space:]]*;)#\1${app_port}\2#" "$NGINX_SITE_FILE"
-      if ! grep -qE "proxy_pass[[:space:]]+http://127\.0\.0\.1:${app_port}[[:space:]]*;" "$NGINX_SITE_FILE"; then
-        echo "!! sed did not update proxy_pass to port ${app_port} in ${NGINX_SITE_FILE} — refusing to reload Nginx." >&2
+    # shellcheck disable=SC2086 # intentional glob expansion
+    site_file="$(ls -1 $NGINX_SITE_FILE 2>/dev/null | head -n1 || true)"
+    if [ -n "$site_file" ] && [ -f "$site_file" ]; then
+      echo "==> Updating Nginx port to $app_port ($new_color) in $site_file."
+      sed -i -E "s#(${NGINX_UPSTREAM_RE})[0-9]+([[:space:]]*;)#\1${app_port}\3#" "$site_file"
+      if ! grep -qE "${NGINX_UPSTREAM_RE}${app_port}[[:space:]]*;" "$site_file"; then
+        echo "!! sed did not update proxy_pass to port ${app_port} in ${site_file} — refusing to reload Nginx." >&2
         exit 1
       fi
-      nginx -t
-      systemctl reload nginx
+      nginx_bin="$(command -v nginx || echo /www/server/nginx/sbin/nginx)"
+      "$nginx_bin" -t
+      if command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet nginx; then
+        systemctl reload nginx
+      else
+        "$nginx_bin" -s reload
+      fi
     else
-      echo "!! ${NGINX_MANAGED_MARKER} exists but ${NGINX_SITE_FILE} is missing — skipping Nginx flip." >&2
+      echo "!! ${NGINX_MANAGED_MARKER} exists but no file matches ${NGINX_SITE_FILE} — skipping Nginx flip." >&2
     fi
   else
     echo "==> ${NGINX_MANAGED_MARKER} not present — this app does not own the shared Nginx vhost yet."

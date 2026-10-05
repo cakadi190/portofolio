@@ -1407,6 +1407,7 @@
       <div
         class="rte-menu"
         role="listbox"
+        tabindex="-1"
         aria-label="Sisipkan blok"
         style="top: {menu.top}px; left: {menu.left}px"
         onmousedown={(event) => event.preventDefault()}
@@ -1443,6 +1444,7 @@
     <div
       class="rte-context"
       role="menu"
+      tabindex="-1"
       aria-label="Menu konteks editor"
       style="top: {ctx.y}px; left: {ctx.x}px"
       bind:this={ctxEl}
