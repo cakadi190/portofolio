@@ -205,6 +205,9 @@ pipeline {
   }
 
   environment {
+    // Dockerfile uses RUN --mount=type=cache, which needs BuildKit.
+    DOCKER_BUILDKIT = '1'
+
     IMAGE_NAME    = 'catatancakadi'
     IMAGE_TAG     = 'latest'
     IMAGE_ARCHIVE = "${IMAGE_NAME}-${env.BUILD_NUMBER}.tar.gz"
