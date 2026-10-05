@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\SeoService;
 use Carbon\CarbonImmutable;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
@@ -45,6 +46,8 @@ class AppServiceProvider extends ServiceProvider
 
         if (app()->isProduction()) {
             URL::forceHttps();
+
+            Paginator::currentPathResolver(fn (): string => URL::current());
         }
 
         DB::prohibitDestructiveCommands(
