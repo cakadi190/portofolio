@@ -301,6 +301,7 @@
 
 {#if open && current}
   <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || (isPdf ? 'Pratinjau PDF' : 'Pratinjau gambar')} use:portal transition:fade={{ duration: motion(220) }}>
+    {#if !isPdf}
     <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
       <div class="lightbox-start">
         <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
@@ -343,6 +344,8 @@
       </div>
     </div>
 
+    {/if}
+
     {#if isPdf}
       {#key current.url}
         <div
@@ -353,6 +356,7 @@
             bind:zoom={pdfZoom}
             url={current.url}
             title={current.title || 'Pratinjau PDF'}
+            onclose={close}
           />
         </div>
       {/key}
@@ -394,7 +398,7 @@
     </div>
     {/if}
 
-    {#if images.length > 1}
+    {#if images.length > 1 && !isPdf}
       <button type="button" class="lightbox-nav lightbox-nav-prev" aria-label="Sebelumnya" disabled={index === 0} onclick={() => go(-1)}>
         <ChevronLeft size={28} />
       </button>
@@ -413,7 +417,8 @@
     display: flex;
     flex-direction: column;
     color: #fff;
-    background: rgba(18, 18, 18, 0.94);
+    background: rgba(18, 18, 18, 0.55);
+    backdrop-filter: blur(16px);
   }
 
   .lightbox-bar {
@@ -453,7 +458,7 @@
     gap: 0.25rem;
     padding: 0.125rem 0.5rem;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
   }
 
   .lightbox-label {

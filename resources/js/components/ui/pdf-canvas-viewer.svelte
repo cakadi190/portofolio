@@ -20,6 +20,7 @@
   import Plus from '@lucide/svelte/icons/plus';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
   import RotateCw from '@lucide/svelte/icons/rotate-cw';
+  import X from '@lucide/svelte/icons/x';
   import Search from '@lucide/svelte/icons/search';
   import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
   import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist';
@@ -38,10 +39,12 @@
     url,
     title = 'Pratinjau PDF',
     zoom = $bindable(1),
+    onclose,
   }: {
     url: string;
     title?: string;
     zoom?: number;
+    onclose?: () => void;
   } = $props();
 
   let root = $state<HTMLElement | null>(null);
@@ -58,9 +61,6 @@
   let menu = $state<'main' | 'settings' | 'zoom' | null>(null);
   let panTool = $state(true);
   let panning = $state(false);
-  let pagerVisible = $state(false);
-  let pagerEngaged = false;
-  let pagerTimer: number | undefined;
 
   let query = $state('');
   let caseSensitive = $state(false);
@@ -265,20 +265,6 @@
     };
   }
 
-  function revealPager(): void {
-    pagerVisible = true;
-    window.clearTimeout(pagerTimer);
-
-    if (!pagerEngaged) {
-      pagerTimer = window.setTimeout(() => (pagerVisible = false), 1500);
-    }
-  }
-
-  function engagePager(engaged: boolean): void {
-    pagerEngaged = engaged;
-    revealPager();
-  }
-
   function updateCurrentPage(): void {
     if (!scroller || slots.size === 0) {
       return;
@@ -384,7 +370,6 @@
     return () => {
       cancelled = true;
       window.clearTimeout(renderTimer);
-      window.clearTimeout(pagerTimer);
       observer?.disconnect();
       thumbObserver?.disconnect();
       slots.forEach((slot) => slot.task?.cancel());
@@ -611,6 +596,14 @@
 
 <div class="pdf-root" bind:this={root}>
   <div class="pdf-toolbar">
+    {#if onclose}
+      <div class="pdf-group pdf-heading-group">
+        <button type="button" class="pdf-button" aria-label="Tutup pratinjau" onclick={onclose}>
+          <X size={20} />
+        </button>
+        <h2 class="pdf-title" title={title}>{title}</h2>
+      </div>
+    {/if}
     <div class="pdf-group">
       <div class="pdf-anchor">
         <button type="button" class="pdf-button" aria-label="Menu" aria-expanded={menu === 'main'} onclick={() => (menu = menu === 'main' ? null : 'main')}>
@@ -716,10 +709,7 @@
       class:is-panning={panning}
       aria-busy={status === 'loading'}
       bind:this={scroller}
-      onscroll={() => {
-        updateCurrentPage();
-        revealPager();
-      }}
+      onscroll={updateCurrentPage}
       onwheel={onWheel}
       onpointerdown={onPointerDown}
       onpointermove={onPointerMove}
@@ -748,34 +738,6 @@
       {/if}
     </div>
 
-    {#if pageCount > 0}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div
-        class="pdf-pager"
-        class:is-visible={pagerVisible}
-        onmouseenter={() => engagePager(true)}
-        onmouseleave={() => engagePager(false)}
-        onfocusin={() => engagePager(true)}
-        onfocusout={() => engagePager(false)}
-      >
-        <button type="button" class="pdf-button" aria-label="Halaman sebelumnya" disabled={page <= 1} onclick={() => scrollToPage(page - 1)}>
-          <ChevronLeft size={18} />
-        </button>
-        <input
-          class="pdf-page-input"
-          type="number"
-          min="1"
-          max={pageCount}
-          aria-label="Nomor halaman"
-          value={page}
-          onchange={(event) => scrollToPage(Number(event.currentTarget.value))}
-        />
-        <span>/ {pageCount}</span>
-        <button type="button" class="pdf-button" aria-label="Halaman berikutnya" disabled={page >= pageCount} onclick={() => scrollToPage(page + 1)}>
-          <ChevronRight size={18} />
-        </button>
-      </div>
-    {/if}
     </div>
 
     {#if showSearch}
@@ -820,10 +782,8 @@
     flex: 1;
     flex-direction: column;
     min-height: 0;
-    margin: 0 0.75rem 0.75rem;
     overflow: hidden;
-    border-radius: 0.5rem;
-    background: #1c1c1e;
+    background: transparent;
   }
 
   .pdf-toolbar {
@@ -833,6 +793,21 @@
     gap: 0.5rem 0.75rem;
     padding: 0.375rem 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .pdf-heading-group {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 0.5rem;
+  }
+
+  .pdf-title {
+    margin: 0;
+    overflow: hidden;
+    font-size: 1rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .pdf-group {
@@ -848,7 +823,8 @@
   }
 
   .pdf-end {
-    margin-left: auto;
+    flex: 1 1 0;
+    justify-content: flex-end;
   }
 
   .pdf-divider {
@@ -894,45 +870,6 @@
     display: flex;
     flex: 1;
     min-width: 0;
-  }
-
-  .pdf-pager {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    font-variant-numeric: tabular-nums;
-    background: rgba(24, 24, 26, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0.625rem;
-    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(-50%, 0.5rem);
-    transition:
-      opacity 0.2s ease,
-      transform 0.2s ease;
-  }
-
-  .pdf-pager.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, 0);
-  }
-
-  .pdf-page-input {
-    width: 3rem;
-    padding: 0.125rem 0.25rem;
-    color: inherit;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 0.25rem;
   }
 
   .pdf-anchor {
