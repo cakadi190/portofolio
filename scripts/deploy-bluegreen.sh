@@ -103,9 +103,10 @@ if [ "$ACTION" = "rollback" ]; then
 fi
 
 if [ "$ACTION" = "rotate" ]; then
-  if [ -f "$NGINX_MANAGED_MARKER" ]; then
-    # shellcheck disable=SC2086 # intentional glob expansion
-    site_file="$(ls -1 $NGINX_SITE_FILE 2>/dev/null | head -n1 || true)"
+  # shellcheck disable=SC2086 # intentional glob expansion
+  site_file="$(ls -1 $NGINX_SITE_FILE 2>/dev/null | head -n1 || true)"
+  # Managed once the marker exists OR the aaPanel proxy vhost is present.
+  if [ -f "$NGINX_MANAGED_MARKER" ] || [ -n "$site_file" ]; then
     if [ -n "$site_file" ] && [ -f "$site_file" ]; then
       echo "==> Updating Nginx port to $app_port ($new_color) in $site_file."
       sed -i -E "s#(${NGINX_UPSTREAM_RE})[0-9]+([[:space:]]*;)#\1${app_port}\3#" "$site_file"
