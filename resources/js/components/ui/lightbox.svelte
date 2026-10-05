@@ -3,11 +3,15 @@
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import Download from '@lucide/svelte/icons/download';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
-  import ExternalLink from '@lucide/svelte/icons/external-link';
   import X from '@lucide/svelte/icons/x';
   import ZoomIn from '@lucide/svelte/icons/zoom-in';
   import ZoomOut from '@lucide/svelte/icons/zoom-out';
   import { cubicOut } from 'svelte/easing';
+  import PdfCanvasViewer, {
+    PDF_ZOOM_MAX,
+    PDF_ZOOM_MIN,
+    PDF_ZOOM_STEP,
+  } from '@/components/ui/pdf-canvas-viewer.svelte';
   import { fade, fly, scale as scaleTransition } from 'svelte/transition';
 
   type LightboxImage = { url: string; title?: string | null; type?: 'image' | 'pdf' };
@@ -18,21 +22,28 @@
   const DOUBLE_CLICK_ZOOM = 2.5;
 
   /**
-   * Google-Drive-style file preview (images and PDFs): full-screen overlay with header bar,
+   * Google-Drive-style file preview (images and PDFs; PDFs are drawn on canvas via pdf.js): full-screen overlay with header bar,
    * zoom (buttons, wheel, pinch, double-click), drag-to-pan, prev/next paging
    * and keyboard shortcuts. Ported from the BatamTix lightbox.
    */
   let {
     open = $bindable(false),
-    images,
+    images: gallery,
+    src,
+    alt = 'Pratinjau',
     index = $bindable(0),
   }: {
     open?: boolean;
-    images: LightboxImage[];
+    images?: LightboxImage[];
+    src?: string;
+    alt?: string;
     index?: number;
   } = $props();
 
+  const images = $derived<LightboxImage[]>(gallery ?? (src ? [{ url: src, title: alt }] : []));
+
   let scale = $state(1);
+  let pdfZoom = $state(1);
   let offset = $state({ x: 0, y: 0 });
   let dragging = $state(false);
   let animating = $state(false);
@@ -112,6 +123,38 @@
 
     direction = delta > 0 ? 1 : -1;
     index = next;
+  }
+
+  const zoomValue = $derived(isPdf ? pdfZoom : scale);
+  const zoomMin = $derived(isPdf ? PDF_ZOOM_MIN : ZOOM_MIN);
+  const zoomMax = $derived(isPdf ? PDF_ZOOM_MAX : ZOOM_MAX);
+
+  function zoomIn(): void {
+    if (isPdf) {
+      pdfZoom = Math.min(PDF_ZOOM_MAX, pdfZoom + PDF_ZOOM_STEP);
+      return;
+    }
+
+    zoomTo(scale + ZOOM_STEP, undefined, true);
+  }
+
+  function zoomOut(): void {
+    if (isPdf) {
+      pdfZoom = Math.max(PDF_ZOOM_MIN, pdfZoom - PDF_ZOOM_STEP);
+      return;
+    }
+
+    zoomTo(scale - ZOOM_STEP, undefined, true);
+  }
+
+  function resetZoom(): void {
+    if (isPdf) {
+      pdfZoom = 1;
+      return;
+    }
+
+    animating = true;
+    reset();
   }
 
   function close(): void {
@@ -212,14 +255,12 @@
     }
   }
 
-  function onPdfStageClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
-      close();
-    }
-  }
-
   function onKeydown(event: KeyboardEvent): void {
     if (!open) {
+      return;
+    }
+
+    if (event.key !== 'Escape' && event.target instanceof HTMLInputElement) {
       return;
     }
 
@@ -236,26 +277,14 @@
         break;
       case '+':
       case '=':
-        if (isPdf) {
-          break;
-        }
-
-        zoomTo(scale + ZOOM_STEP, undefined, true);
+        zoomIn();
         break;
       case '-':
       case '_':
-        if (isPdf) {
-          break;
-        }
-
-        zoomTo(scale - ZOOM_STEP, undefined, true);
+        zoomOut();
         break;
       case '0':
-        if (isPdf) {
-          break;
-        }
-        animating = true;
-        reset();
+        resetZoom();
         break;
     }
   }
@@ -263,6 +292,7 @@
   $effect(() => {
     void current?.url;
     reset();
+    pdfZoom = 1;
     failed = false;
   });
 </script>
@@ -291,48 +321,41 @@
           <span class="lightbox-divider" aria-hidden="true"></span>
         {/if}
         {#if !isPdf}
-        <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={scale <= ZOOM_MIN} onclick={() => zoomTo(scale - ZOOM_STEP, undefined, true)}>
+        <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={zoomValue <= zoomMin} onclick={zoomOut}>
           <ZoomOut size={20} />
         </button>
-        <span class="lightbox-label">{Math.round(scale * 100)}%</span>
-        <button type="button" class="lightbox-button" aria-label="Perbesar" disabled={scale >= ZOOM_MAX} onclick={() => zoomTo(scale + ZOOM_STEP, undefined, true)}>
+        <span class="lightbox-label">{Math.round(zoomValue * 100)}%</span>
+        <button type="button" class="lightbox-button" aria-label="Perbesar" disabled={zoomValue >= zoomMax} onclick={zoomIn}>
           <ZoomIn size={20} />
         </button>
-        <button type="button" class="lightbox-button" aria-label="Reset zoom" disabled={scale === 1} onclick={() => { animating = true; reset(); }}>
+        <button type="button" class="lightbox-button" aria-label="Reset zoom" disabled={zoomValue === 1} onclick={resetZoom}>
           <RotateCcw size={20} />
         </button>
         {/if}
       </div>
 
       <div class="lightbox-end">
-        {#if isPdf}
-          <a class="lightbox-button" href={current.url} target="_blank" rel="noopener" aria-label="Buka di tab baru" title="Buka di tab baru">
-            <ExternalLink size={20} />
-          </a>
-        {/if}
+        {#if !isPdf}
         <a class="lightbox-button" href={current.url} download={current.title ?? ''} aria-label={isPdf ? 'Unduh PDF' : 'Unduh gambar'} title={isPdf ? 'Unduh PDF' : 'Unduh gambar'}>
           <Download size={20} />
         </a>
+        {/if}
       </div>
     </div>
 
     {#if isPdf}
-      <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
-      <div
-        class="lightbox-pdf-stage"
-        onclick={onPdfStageClick}
-        in:scaleTransition|global={{ start: 0.94, duration: motion(260), easing: cubicOut }}
-        out:scaleTransition|global={{ start: 0.96, duration: motion(180), easing: cubicOut }}
-      >
-        {#key current.url}
-          <iframe
-            class="lightbox-pdf"
-            src={`${current.url}#toolbar=1&navpanes=0`}
+      {#key current.url}
+        <div
+          class="lightbox-pdf-stage"
+          in:fly|global={{ x: direction * 72, duration: motion(280), easing: cubicOut }}
+        >
+          <PdfCanvasViewer
+            bind:zoom={pdfZoom}
+            url={current.url}
             title={current.title || 'Pratinjau PDF'}
-            in:fly|global={{ x: direction * 72, duration: motion(280), easing: cubicOut }}
-          ></iframe>
-        {/key}
-      </div>
+          />
+        </div>
+      {/key}
     {:else}
     <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
     <div
@@ -495,18 +518,8 @@
   .lightbox-pdf-stage {
     display: flex;
     flex: 1;
-    align-items: stretch;
-    justify-content: center;
+    flex-direction: column;
     min-height: 0;
-    padding: 0 1rem 1rem;
-  }
-
-  .lightbox-pdf {
-    width: min(100%, 64rem);
-    height: 100%;
-    background: #fff;
-    border: none;
-    border-radius: 0.5rem;
   }
 
   .lightbox-image {

@@ -7,7 +7,7 @@
   import AppHead from '@/components/app-head.svelte';
   import FileText from '@lucide/svelte/icons/file-text';
   import HeaderPage from '@/components/header-page.svelte';
-  import ImageLightbox from '@/components/media/image-lightbox.svelte';
+  import Lightbox from '@/components/ui/lightbox.svelte';
   import { formatDate } from '@/lib/utils';
 
   type Certification = {
@@ -300,4 +300,4 @@
   </section>
 </div>
 
-<ImageLightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
+<Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />

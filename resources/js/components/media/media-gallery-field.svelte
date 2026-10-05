@@ -1,7 +1,7 @@
 <script lang="ts">
   import ImagePlus from '@lucide/svelte/icons/image-plus';
   import X from '@lucide/svelte/icons/x';
-  import ImageLightbox from '@/components/media/image-lightbox.svelte';
+  import Lightbox from '@/components/ui/lightbox.svelte';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
   import { storageUrl } from '@/lib/utils';
   import type { MediaItem } from '@/types/media';
@@ -111,7 +111,7 @@
   </div>
 </div>
 
-<ImageLightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
+<Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
 
 <MediaPickerModal bind:open={pickerOpen} accept="image" multiple title="Pilih Gambar Galeri" {onSelect} />
 

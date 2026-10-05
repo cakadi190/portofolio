@@ -6,7 +6,7 @@
   import FormModal from '@/components/form-modal.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
-  import ImageLightbox from '@/components/media/image-lightbox.svelte';
+  import Lightbox from '@/components/ui/lightbox.svelte';
   import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { formatDate, storageUrl } from '@/lib/utils';
@@ -373,4 +373,4 @@
   {/snippet}
 </FormModal>
 
-<ImageLightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
+<Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />

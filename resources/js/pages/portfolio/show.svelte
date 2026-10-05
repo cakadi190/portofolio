@@ -7,7 +7,7 @@
   import AppHead from '@/components/app-head.svelte';
   import { highlightCode } from '@/lib/highlight/action';
   import HeaderPage from '@/components/header-page.svelte';
-  import ImageLightbox from '@/components/media/image-lightbox.svelte';
+  import Lightbox from '@/components/ui/lightbox.svelte';
   import { Field } from '@/components/ui/field';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import { Form } from '@inertiajs/svelte';
@@ -182,7 +182,7 @@
                     {/each}
                   </div>
 
-                  <ImageLightbox
+                  <Lightbox
                     bind:open={lightboxOpen}
                     bind:index={lightboxIndex}
                     images={lightboxImages}

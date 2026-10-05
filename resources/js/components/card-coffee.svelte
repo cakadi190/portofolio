@@ -3,7 +3,7 @@
   import ThumbsUp from '@lucide/svelte/icons/thumbs-up';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import CoffeeMap from '@/components/coffee-map.svelte';
-  import ImageLightbox from '@/components/media/image-lightbox.svelte';
+  import Lightbox from '@/components/ui/lightbox.svelte';
 
   type Props = {
     id: number;
@@ -163,7 +163,7 @@
             {/each}
           </div>
 
-          <ImageLightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
+          <Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
         {/if}
 
         <div class="row mt-2 g-2">
