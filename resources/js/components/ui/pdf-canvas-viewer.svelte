@@ -23,7 +23,7 @@
   import X from '@lucide/svelte/icons/x';
   import Search from '@lucide/svelte/icons/search';
   import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
-  import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist';
+  import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist';
 
   type PageLayout = 'single' | 'odd' | 'even';
   type Rect = [number, number, number, number];
@@ -293,6 +293,7 @@
 
     let cancelled = false;
     let doc: PDFDocumentProxy | null = null;
+    let loadingTask: PDFDocumentLoadingTask | null = null;
 
     status = 'loading';
     pdfPages = [];
@@ -346,8 +347,8 @@
         throw new Error(`HTTP ${response.status}`);
       }
 
-      doc = await pdfjs.getDocument({ data: new Uint8Array(await response.arrayBuffer()) })
-        .promise;
+      loadingTask = pdfjs.getDocument({ data: new Uint8Array(await response.arrayBuffer()) });
+      doc = await loadingTask.promise;
 
       const loaded: PDFPageProxy[] = [];
 
@@ -373,7 +374,7 @@
       observer?.disconnect();
       thumbObserver?.disconnect();
       slots.forEach((slot) => slot.task?.cancel());
-      void doc?.destroy();
+      void loadingTask?.destroy();
     };
   });
 
