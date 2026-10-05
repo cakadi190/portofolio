@@ -6,6 +6,7 @@ use App\Services\SeoService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
@@ -41,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        if (app()->isProduction()) {
+            URL::forceHttps();
+        }
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
