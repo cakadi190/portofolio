@@ -3,13 +3,14 @@
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import Download from '@lucide/svelte/icons/download';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+  import ExternalLink from '@lucide/svelte/icons/external-link';
   import X from '@lucide/svelte/icons/x';
   import ZoomIn from '@lucide/svelte/icons/zoom-in';
   import ZoomOut from '@lucide/svelte/icons/zoom-out';
   import { cubicOut } from 'svelte/easing';
   import { fade, fly, scale as scaleTransition } from 'svelte/transition';
 
-  type LightboxImage = { url: string; title?: string | null };
+  type LightboxImage = { url: string; title?: string | null; type?: 'image' | 'pdf' };
 
   const ZOOM_MIN = 1;
   const ZOOM_MAX = 8;
@@ -17,7 +18,7 @@
   const DOUBLE_CLICK_ZOOM = 2.5;
 
   /**
-   * Google-Drive-style image preview: full-screen overlay with header bar,
+   * Google-Drive-style file preview (images and PDFs): full-screen overlay with header bar,
    * zoom (buttons, wheel, pinch, double-click), drag-to-pan, prev/next paging
    * and keyboard shortcuts. Ported from the BatamTix lightbox.
    */
@@ -46,6 +47,9 @@
   let moved = false;
 
   const current = $derived(images[index]);
+  const isPdf = $derived(
+    current?.type === 'pdf' || (!current?.type && /\.pdf($|[?#])/i.test(current?.url ?? '')),
+  );
 
   const prefersReducedMotion =
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -208,6 +212,12 @@
     }
   }
 
+  function onPdfStageClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      close();
+    }
+  }
+
   function onKeydown(event: KeyboardEvent): void {
     if (!open) {
       return;
@@ -226,13 +236,24 @@
         break;
       case '+':
       case '=':
+        if (isPdf) {
+          break;
+        }
+
         zoomTo(scale + ZOOM_STEP, undefined, true);
         break;
       case '-':
       case '_':
+        if (isPdf) {
+          break;
+        }
+
         zoomTo(scale - ZOOM_STEP, undefined, true);
         break;
       case '0':
+        if (isPdf) {
+          break;
+        }
         animating = true;
         reset();
         break;
@@ -249,13 +270,13 @@
 <svelte:window onkeydowncapture={onKeydown} />
 
 {#if open && current}
-  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || 'Pratinjau gambar'} use:portal transition:fade={{ duration: motion(220) }}>
+  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || (isPdf ? 'Pratinjau PDF' : 'Pratinjau gambar')} use:portal transition:fade={{ duration: motion(220) }}>
     <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
       <div class="lightbox-start">
         <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
           <X size={20} />
         </button>
-        <h2 class="lightbox-title" title={current.title ?? ''}>{current.title || 'Pratinjau gambar'}</h2>
+        <h2 class="lightbox-title" title={current.title ?? ''}>{current.title || (isPdf ? 'Pratinjau PDF' : 'Pratinjau gambar')}</h2>
       </div>
 
       <div class="lightbox-controls">
@@ -269,6 +290,7 @@
           </button>
           <span class="lightbox-divider" aria-hidden="true"></span>
         {/if}
+        {#if !isPdf}
         <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={scale <= ZOOM_MIN} onclick={() => zoomTo(scale - ZOOM_STEP, undefined, true)}>
           <ZoomOut size={20} />
         </button>
@@ -279,15 +301,39 @@
         <button type="button" class="lightbox-button" aria-label="Reset zoom" disabled={scale === 1} onclick={() => { animating = true; reset(); }}>
           <RotateCcw size={20} />
         </button>
+        {/if}
       </div>
 
       <div class="lightbox-end">
-        <a class="lightbox-button" href={current.url} download={current.title ?? ''} aria-label="Unduh gambar" title="Unduh gambar">
+        {#if isPdf}
+          <a class="lightbox-button" href={current.url} target="_blank" rel="noopener" aria-label="Buka di tab baru" title="Buka di tab baru">
+            <ExternalLink size={20} />
+          </a>
+        {/if}
+        <a class="lightbox-button" href={current.url} download={current.title ?? ''} aria-label={isPdf ? 'Unduh PDF' : 'Unduh gambar'} title={isPdf ? 'Unduh PDF' : 'Unduh gambar'}>
           <Download size={20} />
         </a>
       </div>
     </div>
 
+    {#if isPdf}
+      <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+      <div
+        class="lightbox-pdf-stage"
+        onclick={onPdfStageClick}
+        in:scaleTransition|global={{ start: 0.94, duration: motion(260), easing: cubicOut }}
+        out:scaleTransition|global={{ start: 0.96, duration: motion(180), easing: cubicOut }}
+      >
+        {#key current.url}
+          <iframe
+            class="lightbox-pdf"
+            src={`${current.url}#toolbar=1&navpanes=0`}
+            title={current.title || 'Pratinjau PDF'}
+            in:fly|global={{ x: direction * 72, duration: motion(280), easing: cubicOut }}
+          ></iframe>
+        {/key}
+      </div>
+    {:else}
     <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
     <div
       class="lightbox-stage"
@@ -323,6 +369,7 @@
         {/key}
       {/if}
     </div>
+    {/if}
 
     {#if images.length > 1}
       <button type="button" class="lightbox-nav lightbox-nav-prev" aria-label="Sebelumnya" disabled={index === 0} onclick={() => go(-1)}>
@@ -443,6 +490,23 @@
 
   .lightbox-stage.is-dragging {
     cursor: grabbing;
+  }
+
+  .lightbox-pdf-stage {
+    display: flex;
+    flex: 1;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 0;
+    padding: 0 1rem 1rem;
+  }
+
+  .lightbox-pdf {
+    width: min(100%, 64rem);
+    height: 100%;
+    background: #fff;
+    border: none;
+    border-radius: 0.5rem;
   }
 
   .lightbox-image {

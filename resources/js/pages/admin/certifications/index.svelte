@@ -6,6 +6,7 @@
   import FormModal from '@/components/form-modal.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { Field } from '@/components/ui/field';
+  import ImageLightbox from '@/components/media/image-lightbox.svelte';
   import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { formatDate, storageUrl } from '@/lib/utils';
@@ -38,6 +39,25 @@
   let createOpen = $state(false);
   let editOpen = $state(false);
   let editingCertification = $state<Certification | null>(null);
+
+  let lightboxOpen = $state(false);
+  let lightboxIndex = $state(0);
+
+  const lightboxImages = $derived(
+    certifications.data
+      .map((certification) => ({
+        url: storageUrl(certification.file) ?? '',
+        title: certification.title,
+        type: certification.is_pdf ? ('pdf' as const) : ('image' as const),
+      })),
+  );
+
+  function openLightbox(certification: Certification): void {
+    lightboxIndex = lightboxImages.findIndex(
+      (image) => image.url === storageUrl(certification.file),
+    );
+    lightboxOpen = true;
+  }
 
   function openEdit(certification: Certification): void {
     editingCertification = certification;
@@ -77,6 +97,10 @@
           href={storageUrl(certification.file) ?? '#'}
           target="_blank"
           rel="noopener"
+          onclick={(event) => {
+            event.preventDefault();
+            openLightbox(certification);
+          }}
         >
           {certification.is_pdf ? 'PDF' : 'Gambar'}
         </a>
@@ -348,3 +372,5 @@
     {/if}
   {/snippet}
 </FormModal>
+
+<ImageLightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />

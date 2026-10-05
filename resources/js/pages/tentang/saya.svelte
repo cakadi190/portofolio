@@ -7,6 +7,7 @@
   import AppHead from '@/components/app-head.svelte';
   import FileText from '@lucide/svelte/icons/file-text';
   import HeaderPage from '@/components/header-page.svelte';
+  import ImageLightbox from '@/components/media/image-lightbox.svelte';
   import { formatDate } from '@/lib/utils';
 
   type Certification = {
@@ -32,6 +33,22 @@
     totalProjects: number;
     certifications: Certification[];
   } = $props();
+
+  let lightboxOpen = $state(false);
+  let lightboxIndex = $state(0);
+
+  const lightboxImages = $derived(
+    certifications
+      .filter((certification) => certification.file)
+      .map((certification) => ({ url: certification.file as string, title: certification.title,
+        type: certification.isPdf ? ('pdf' as const) : ('image' as const),
+      })),
+  );
+
+  function openLightbox(certification: Certification): void {
+    lightboxIndex = lightboxImages.findIndex((image) => image.url === certification.file);
+    lightboxOpen = true;
+  }
 
   const skillset = [
     { icon: 'devicon:laravel', name: 'Laravel' },
@@ -201,6 +218,10 @@
                           target="_blank"
                           rel="noopener"
                           class="d-block text-center bg-body-tertiary"
+                          onclick={(event) => {
+                            event.preventDefault();
+                            openLightbox(certification);
+                          }}
                         >
                           {#if certification.isPdf}
                             <div class="py-5 d-flex flex-column align-items-center gap-2">
@@ -278,3 +299,5 @@
     </div>
   </section>
 </div>
+
+<ImageLightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
