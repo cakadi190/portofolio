@@ -34,7 +34,7 @@ void withDeploySsh(Closure body) {
 // Shared SSH options, redeclared inside each sh block since Jenkins sh steps
 // don't share shell state with each other.
 String sshOptsSnippet() {
-  return 'SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 -o ConnectionAttempts=3 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -i "$SSH_KEY")'
+  return "SSH_OPTS=(-o Port=${env.DEPLOY_SSH_PORT} -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 -o ConnectionAttempts=3 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -i \"\$SSH_KEY\")"
 }
 
 void deployImage() {
@@ -216,6 +216,8 @@ pipeline {
     DEPLOY_SSH_CRED_ID = 'catatancakadi-deploy-ssh'
     // Kredensial file .env produksi (Jenkins: "Secret file")
     ENV_FILE_CRED_ID = 'catatancakadi-env'
+    // Port SSH server tujuan (dipakai ssh dan scp lewat -o Port=)
+    DEPLOY_SSH_PORT = '22026'
     // Server tujuan — sama dengan lombacv/vettrak (satu VPS)
     DEPLOY_HOST = 'root@103.235.72.17'
     // Folder BARU di server, terpisah dari /www/lombacv, sampai cutover
