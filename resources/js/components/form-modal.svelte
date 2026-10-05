@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import { untrack, type Snippet } from 'svelte';
   import { portal } from '@/lib/dom';
 
   let {
@@ -18,6 +18,7 @@
 
   const labelId = `form-modal-${crypto.randomUUID()}`;
 
+  let session = $state(0);
   let element = $state<HTMLElement>();
   let modal: { show(): void; hide(): void } | undefined;
 
@@ -64,6 +65,7 @@
 
   $effect(() => {
     if (open) {
+      untrack(() => (session += 1));
       modal?.show();
     } else {
       modal?.hide();
@@ -91,7 +93,9 @@
         ></button>
       </div>
       <div class="modal-body">
-        {@render children()}
+        {#key session}
+          {@render children()}
+        {/key}
       </div>
     </div>
   </div>
