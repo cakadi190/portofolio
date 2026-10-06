@@ -1052,7 +1052,7 @@
           {#each hits as hit, index (index)}
             <li>
               <button type="button" class="pdf-result" class:is-active={index === activeHit} onclick={() => focusHit(index)}>
-                <span class="pdf-result-page">Hal. {hit.page}{hit.source === 'annotation' ? ' · Anotasi' : hit.source === 'ocr' ? ' · OCR' : ''}</span>
+                <span class="pdf-result-page">Hal. {hit.page}{hit.source === 'annotation' ? ' · Anotasi' : ''}</span>
                 <span class="pdf-result-text">{hit.snippet}</span>
               </button>
             </li>
@@ -1379,8 +1379,8 @@
     margin: 0;
     padding-top: 0.5rem;
     font-size: 0.8125rem;
-    color: rgba(255, 255, 255, 0.7);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .pdf-results {
@@ -1407,14 +1407,47 @@
     border-radius: 0.375rem;
   }
 
-  .pdf-result:hover,
-  .pdf-result.is-active {
+  .pdf-result:hover {
     background: rgba(255, 255, 255, 0.1);
+  }
+
+  .pdf-result.is-active {
+    background: rgba(138, 180, 248, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(138, 180, 248, 0.6);
   }
 
   .pdf-result-page {
     font-size: 0.75rem;
-    color: #8ab4f8;
+    color: #aecbfa;
+  }
+
+  .pdf-result-text {
+    color: #fff;
+  }
+
+  .pdf-search :global(.form-control) {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .pdf-search :global(.form-control::placeholder) {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .pdf-search :global(.form-control:focus) {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: #8ab4f8;
+    box-shadow: 0 0 0 0.2rem rgba(138, 180, 248, 0.25);
+  }
+
+  .pdf-search :global(.form-check-label) {
+    color: #fff;
+  }
+
+  .pdf-search :global(.form-check-input:not(:checked)) {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
   }
 
   .pdf-result-text {

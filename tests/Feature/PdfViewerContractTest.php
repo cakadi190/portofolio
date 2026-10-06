@@ -67,6 +67,7 @@ it('runs OCR only on pages without a text layer and keeps the scrollbar inside t
         ->toContain("import('tesseract.js')")
         ->toContain('const hasTextLayer')
         ->toContain('matchAll(pattern)')
+        ->not->toContain("' · OCR'")
         ->toContain("source: 'ocr'")
         ->toContain('max-height: 100%');
 });
