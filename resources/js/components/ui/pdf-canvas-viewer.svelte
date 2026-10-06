@@ -27,6 +27,7 @@
   import Ellipsis from '@lucide/svelte/icons/ellipsis';
   import { cubicOut } from 'svelte/easing';
   import { tick } from 'svelte';
+  import { perfectScrollbar } from '@/lib/perfect-scrollbar';
   import type { TransitionConfig } from 'svelte/transition';
   import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist';
 
@@ -95,6 +96,15 @@
       duration,
       easing: cubicOut,
       css: (t) => `opacity:${t};transform:scale(${0.95 + 0.05 * t})`,
+    };
+  }
+
+  /** Search sidebar motion: slides in from the right edge while its width opens up. */
+  function slideSidebar(_node: Element, { duration = 220 }: { duration?: number } = {}): TransitionConfig {
+    return {
+      duration,
+      easing: cubicOut,
+      css: (t) => `overflow:hidden;opacity:${t};flex-basis:${17 * t}rem;transform:translateX(${(1 - t) * 100}%)`,
     };
   }
 
@@ -856,7 +866,7 @@
 
   <div class="pdf-body">
     {#if showThumbs}
-      <div class="pdf-thumbs" bind:this={thumbList} aria-label="Daftar halaman">
+      <div class="pdf-thumbs" use:perfectScrollbar bind:this={thumbList} aria-label="Daftar halaman">
         {#each pdfPages as _, index (index)}
           {@const number = index + 1}
           {@const thumb = viewOf(number)}
@@ -875,6 +885,7 @@
       class:is-pan={panTool}
       class:is-panning={panning}
       aria-busy={status === 'loading'}
+      use:perfectScrollbar
       bind:this={scroller}
       onscroll={updateCurrentPage}
       onwheel={onWheel}
@@ -908,7 +919,7 @@
     </div>
 
     {#if showSearch}
-      <div class="pdf-search" data-bs-theme="dark">
+      <div class="pdf-search" data-bs-theme="dark" transition:slideSidebar>
         <div class="input-group input-group-sm">
           <input bind:this={searchInput} bind:value={query} class="form-control" type="search" placeholder="Cari teks atau anotasi" aria-label="Cari dalam dokumen" onkeydown={onSearchKeydown} />
           <button type="button" class="btn btn-outline-secondary" aria-label="Hasil sebelumnya" disabled={hits.length === 0} onclick={() => stepHit(-1)}><ChevronUp size={16} /></button>
@@ -935,7 +946,7 @@
           </p>
         {/if}
 
-        <ul class="pdf-results">
+        <ul class="pdf-results" use:perfectScrollbar>
           {#each hits as hit, index (index)}
             <li>
               <button type="button" class="pdf-result" class:is-active={index === activeHit} onclick={() => focusHit(index)}>
@@ -1326,5 +1337,25 @@
     .pdf-body {
       position: relative;
     }
+  }
+
+  .pdf-root :global(.ps__rail-x),
+  .pdf-root :global(.ps__rail-y) {
+    z-index: 2;
+    background: transparent !important;
+  }
+
+  .pdf-root :global(.ps__thumb-x),
+  .pdf-root :global(.ps__thumb-y),
+  .pdf-root :global(.ps__rail-x:hover > .ps__thumb-x),
+  .pdf-root :global(.ps__rail-y:hover > .ps__thumb-y) {
+    background-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .pdf-root :global(.ps--focus > .ps__rail-x > .ps__thumb-x),
+  .pdf-root :global(.ps--focus > .ps__rail-y > .ps__thumb-y),
+  .pdf-root :global(.ps--scrolling-x > .ps__rail-x > .ps__thumb-x),
+  .pdf-root :global(.ps--scrolling-y > .ps__rail-y > .ps__thumb-y) {
+    background-color: rgba(255, 255, 255, 0.55);
   }
 </style>
