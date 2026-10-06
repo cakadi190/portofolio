@@ -36,6 +36,7 @@
   type TextRun = { str: string; transform: number[]; width: number; height: number };
   type SearchHit = { page: number; rect: Rect; snippet: string; source: 'text' | 'annotation' | 'ocr' };
   type OcrWord = { text: string; rect: Rect };
+  type OcrLine = OcrWord[];
   type Slot = { node: HTMLElement; key: string; task: RenderTask | null };
 
   const ZOOM_PRESETS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
@@ -82,7 +83,7 @@
   const thumbs = new Map<number, { node: HTMLCanvasElement; key: string }>();
   const thumbVisible = new Set<number>();
   const textCache = new Map<number, TextRun[]>();
-  const ocrCache = new Map<number, OcrWord[]>();
+  const ocrCache = new Map<number, OcrLine[]>();
   let ocrWorker: Promise<import('tesseract.js').Worker> | null = null;
   const annotationCache = new Map<number, { rect: Rect; text: string }[]>();
   let observer: IntersectionObserver | null = null;
@@ -513,7 +514,7 @@
   }
 
   /** Recognizes a page without a text layer (scanned PDF) in the browser and returns word boxes in PDF units. */
-  async function ocrPage(number: number): Promise<OcrWord[]> {
+  async function ocrPage(number: number): Promise<OcrLine[]> {
     const cached = ocrCache.get(number);
 
     if (cached) {
@@ -531,29 +532,29 @@
     ocrWorker ??= import('tesseract.js').then(({ createWorker }) => createWorker('eng+ind'));
     const { data } = await (await ocrWorker).recognize(buffer, {}, { blocks: true });
     const [left, , , top] = source.view;
-    const words: OcrWord[] = [];
+    const lines: OcrLine[] = [];
 
     for (const block of data.blocks ?? []) {
       for (const paragraph of block.paragraphs) {
         for (const line of paragraph.lines) {
-          for (const word of line.words) {
-            words.push({
+          lines.push(
+            line.words.map((word) => ({
               text: word.text,
               rect: [
                 left + word.bbox.x0 / scale,
                 top - word.bbox.y1 / scale,
                 left + word.bbox.x1 / scale,
                 top - word.bbox.y0 / scale,
-              ],
-            });
-          }
+              ] as Rect,
+            })),
+          );
         }
       }
     }
 
-    ocrCache.set(number, words);
+    ocrCache.set(number, lines);
 
-    return words;
+    return lines;
   }
 
   async function runSearch(): Promise<void> {
@@ -605,16 +606,47 @@
         return;
       }
 
-      const hasTextLayer = runs.some((run) => run.str.trim() !== '');
-      const scanned = hasTextLayer ? [] : await ocrPage(number).catch(() => []);
+      const hasTextLayer = runs.reduce((total, run) => total + run.str.trim().length, 0) >= 30;
+      const scanned = hasTextLayer
+        ? []
+        : await ocrPage(number).catch((error: unknown) => {
+            console.error('OCR gagal', error);
+
+            return [] as OcrLine[];
+          });
 
       if (token !== searchToken) {
         return;
       }
 
-      for (const word of scanned) {
-        if (new RegExp(pattern.source, pattern.flags).test(word.text)) {
-          found.push({ page: number, rect: word.rect, snippet: word.text, source: 'ocr' });
+      for (const line of scanned) {
+        let text = '';
+        const spans = line.map((word) => {
+          const start = text.length;
+          text += (start > 0 ? ' ' : '') + word.text;
+
+          return { start: text.length - word.text.length, end: text.length, rect: word.rect };
+        });
+
+        for (const match of text.matchAll(pattern)) {
+          const end = match.index + match[0].length;
+          const covered = spans.filter((span) => span.start < end && span.end > match.index);
+
+          if (covered.length === 0) {
+            continue;
+          }
+
+          found.push({
+            page: number,
+            rect: [
+              Math.min(...covered.map((span) => span.rect[0])),
+              Math.min(...covered.map((span) => span.rect[1])),
+              Math.max(...covered.map((span) => span.rect[2])),
+              Math.max(...covered.map((span) => span.rect[3])),
+            ],
+            snippet: text.slice(Math.max(0, match.index - 24), end + 40).trim(),
+            source: 'ocr',
+          });
         }
       }
 
