@@ -161,7 +161,11 @@
 
   function hitStyle(number: number, rect: Rect): string {
     const view = viewOf(number);
-    const [x1, y1, x2, y2] = view.convertToViewportRectangle(rect);
+    const [a, b, c, d, e, f] = view.transform;
+    const x1 = a * rect[0] + c * rect[1] + e;
+    const y1 = b * rect[0] + d * rect[1] + f;
+    const x2 = a * rect[2] + c * rect[3] + e;
+    const y2 = b * rect[2] + d * rect[3] + f;
 
     return [
       `left:${(Math.min(x1, x2) / view.width) * 100}%`,
