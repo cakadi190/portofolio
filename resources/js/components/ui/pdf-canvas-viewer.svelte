@@ -23,6 +23,10 @@
   import X from '@lucide/svelte/icons/x';
   import Search from '@lucide/svelte/icons/search';
   import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
+  import Ellipsis from '@lucide/svelte/icons/ellipsis';
+  import { cubicOut } from 'svelte/easing';
+  import { tick } from 'svelte';
+  import type { TransitionConfig } from 'svelte/transition';
   import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist';
 
   type PageLayout = 'single' | 'odd' | 'even';
@@ -58,7 +62,7 @@
   let availWidth = $state(0);
   let showThumbs = $state(typeof window !== 'undefined' && window.innerWidth >= 768);
   let showSearch = $state(false);
-  let menu = $state<'main' | 'settings' | 'zoom' | null>(null);
+  let menu = $state<'main' | 'settings' | 'zoom' | 'mobile' | null>(null);
   let panTool = $state(true);
   let panning = $state(false);
 
@@ -80,6 +84,17 @@
   let renderTimer: number | undefined;
   let searchToken = 0;
   let panOrigin: { x: number; y: number; left: number; top: number } | null = null;
+  const touches = new Map<number, { x: number; y: number }>();
+  let pinch: { distance: number; zoom: number } | null = null;
+
+  /** shadcn-style dropdown motion: fade + scale from 95% anchored at the trigger corner. */
+  function pop(_node: Element, { duration = 150 }: { duration?: number } = {}): TransitionConfig {
+    return {
+      duration,
+      easing: cubicOut,
+      css: (t) => `opacity:${t};transform:scale(${0.95 + 0.05 * t})`,
+    };
+  }
 
   const pageCount = $derived(pdfPages.length);
   const columns = $derived(layout === 'single' ? 1 : 2);
@@ -285,7 +300,6 @@
   $effect(() => {
     const source = url;
     const host = scroller;
-    const rail = thumbList;
 
     if (!host) {
       return;
@@ -316,22 +330,6 @@
         }
       },
       { root: host, rootMargin: '100% 0px' },
-    );
-
-    thumbObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const number = Number((entry.target as HTMLElement).dataset.page);
-
-          if (entry.isIntersecting) {
-            thumbVisible.add(number);
-            void renderThumb(number);
-          } else {
-            thumbVisible.delete(number);
-          }
-        }
-      },
-      { root: rail, rootMargin: '50% 0px' },
     );
 
     (async () => {
@@ -372,9 +370,44 @@
       cancelled = true;
       window.clearTimeout(renderTimer);
       observer?.disconnect();
-      thumbObserver?.disconnect();
       slots.forEach((slot) => slot.task?.cancel());
       void loadingTask?.destroy();
+    };
+  });
+
+  /** Separate from the document loader so toggling the sidebar never reloads the PDF. */
+  $effect(() => {
+    const rail = thumbList;
+
+    if (!rail) {
+      return;
+    }
+
+    const watcher = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const number = Number((entry.target as HTMLElement).dataset.page);
+
+          if (entry.isIntersecting) {
+            thumbVisible.add(number);
+            void renderThumb(number);
+          } else {
+            thumbVisible.delete(number);
+          }
+        }
+      },
+      { root: rail, rootMargin: '50% 0px' },
+    );
+
+    thumbObserver = watcher;
+    thumbs.forEach((entry) => watcher.observe(entry.node));
+
+    return () => {
+      watcher.disconnect();
+
+      if (thumbObserver === watcher) {
+        thumbObserver = null;
+      }
     };
   });
 
@@ -557,7 +590,49 @@
     setZoom(zoom * Math.exp(-event.deltaY * 0.006));
   }
 
+  function touchDistance(): number {
+    const [a, b] = [...touches.values()];
+
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  async function applyPinch(distance: number): Promise<void> {
+    if (!pinch || !scroller) {
+      return;
+    }
+
+    const [a, b] = [...touches.values()];
+    const box = scroller.getBoundingClientRect();
+    const cx = (a.x + b.x) / 2 - box.left;
+    const cy = (a.y + b.y) / 2 - box.top;
+    const before = zoom;
+    const contentX = scroller.scrollLeft + cx;
+    const contentY = scroller.scrollTop + cy;
+
+    setZoom(pinch.zoom * (distance / pinch.distance));
+
+    if (zoom === before) {
+      return;
+    }
+
+    const ratio = zoom / before;
+
+    await tick();
+    scroller.scrollLeft = contentX * ratio - cx;
+    scroller.scrollTop = contentY * ratio - cy;
+  }
+
   function onPointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'touch' && scroller) {
+      touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (touches.size === 2) {
+        pinch = { distance: touchDistance() || 1, zoom };
+      }
+
+      return;
+    }
+
     if (event.pointerType !== 'mouse' || event.button !== 0 || !scroller || !panTool) {
       return;
     }
@@ -573,6 +648,16 @@
   }
 
   function onPointerMove(event: PointerEvent): void {
+    if (event.pointerType === 'touch' && touches.has(event.pointerId)) {
+      touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (pinch && touches.size === 2) {
+        void applyPinch(touchDistance());
+      }
+
+      return;
+    }
+
     if (!panOrigin || !scroller) {
       return;
     }
@@ -581,7 +666,13 @@
     scroller.scrollTop = panOrigin.top - (event.clientY - panOrigin.y);
   }
 
-  function onPointerEnd(): void {
+  function onPointerEnd(event: PointerEvent): void {
+    touches.delete(event.pointerId);
+
+    if (touches.size < 2) {
+      pinch = null;
+    }
+
     panOrigin = null;
     panning = false;
   }
@@ -605,13 +696,13 @@
         <h2 class="pdf-title" title={title}>{title}</h2>
       </div>
     {/if}
-    <div class="pdf-group">
+    <div class="pdf-group pdf-desktop">
       <div class="pdf-anchor">
         <button type="button" class="pdf-button" aria-label="Menu" aria-expanded={menu === 'main'} onclick={() => (menu = menu === 'main' ? null : 'main')}>
           <Menu size={18} />
         </button>
         {#if menu === 'main'}
-          <div class="pdf-popover" role="menu">
+          <div class="pdf-popover" role="menu" transition:pop>
             <a class="pdf-item" role="menuitem" href={url} download={title} onclick={() => (menu = null)}>
               <Download size={16} /> Unduh
             </a>
@@ -631,7 +722,7 @@
           <SlidersHorizontal size={18} />
         </button>
         {#if menu === 'settings'}
-          <div class="pdf-popover" role="menu">
+          <div class="pdf-popover" role="menu" transition:pop>
             <p class="pdf-heading">Orientasi halaman</p>
             <button type="button" class="pdf-item" role="menuitem" onclick={() => rotate(90)}>
               <RotateCw size={16} /> Putar searah jarum jam
@@ -654,13 +745,13 @@
       </div>
     </div>
 
-    <div class="pdf-group pdf-zoom">
+    <div class="pdf-group pdf-zoom pdf-desktop">
       <div class="pdf-anchor">
         <button type="button" class="pdf-button pdf-zoom-value" aria-label="Pilih zoom" aria-expanded={menu === 'zoom'} onclick={() => (menu = menu === 'zoom' ? null : 'zoom')}>
           {Math.round(zoom * 100)}% <ChevronDown size={14} />
         </button>
         {#if menu === 'zoom'}
-          <div class="pdf-popover pdf-popover-narrow" role="menu">
+          <div class="pdf-popover pdf-popover-narrow" role="menu" transition:pop>
             {#each ZOOM_PRESETS as preset (preset)}
               <button type="button" class="pdf-item" class:is-active={preset === zoom} role="menuitemradio" aria-checked={preset === zoom} onclick={() => { setZoom(preset); menu = null; }}>
                 {preset * 100}%
@@ -677,7 +768,7 @@
       </button>
     </div>
 
-    <div class="pdf-group pdf-end">
+    <div class="pdf-group pdf-end pdf-desktop">
       <button type="button" class="pdf-button" class:is-active={panTool} aria-label="Alat geser" aria-pressed={panTool} title="Alat geser" onclick={() => (panTool = !panTool)}>
         <Hand size={18} />
       </button>
@@ -685,6 +776,56 @@
       <button type="button" class="pdf-button" class:is-active={showSearch} aria-label="Cari" aria-pressed={showSearch} onclick={toggleSearch}>
         <Search size={18} />
       </button>
+    </div>
+
+    <div class="pdf-group pdf-mobile">
+      <div class="pdf-anchor">
+        <button type="button" class="pdf-button" aria-label="Opsi" aria-expanded={menu === 'mobile'} onclick={() => (menu = menu === 'mobile' ? null : 'mobile')}>
+          <Ellipsis size={20} />
+        </button>
+        {#if menu === 'mobile'}
+          <div class="pdf-popover pdf-popover-end" role="menu" transition:pop>
+            <a class="pdf-item" role="menuitem" href={url} download={title} onclick={() => (menu = null)}>
+              <Download size={16} /> Unduh
+            </a>
+            <button type="button" class="pdf-item" role="menuitem" onclick={toggleFullscreen}>
+              <Maximize size={16} /> Layar penuh
+            </button>
+            <button type="button" class="pdf-item" class:is-active={showThumbs} role="menuitemcheckbox" aria-checked={showThumbs} onclick={() => { showThumbs = !showThumbs; menu = null; }}>
+              <PanelLeft size={16} /> Panel halaman
+            </button>
+            <button type="button" class="pdf-item" class:is-active={showSearch} role="menuitemcheckbox" aria-checked={showSearch} onclick={() => { toggleSearch(); menu = null; }}>
+              <Search size={16} /> Cari
+            </button>
+            <p class="pdf-heading">Zoom {Math.round(zoom * 100)}%</p>
+            <div class="pdf-item-row">
+              <button type="button" class="pdf-item" role="menuitem" disabled={zoom <= PDF_ZOOM_MIN} onclick={() => setZoom(zoom - PDF_ZOOM_STEP)}>
+                <Minus size={16} /> Perkecil
+              </button>
+              <button type="button" class="pdf-item" role="menuitem" disabled={zoom >= PDF_ZOOM_MAX} onclick={() => setZoom(zoom + PDF_ZOOM_STEP)}>
+                <Plus size={16} /> Perbesar
+              </button>
+            </div>
+            <p class="pdf-heading">Orientasi halaman</p>
+            <button type="button" class="pdf-item" role="menuitem" onclick={() => rotate(90)}>
+              <RotateCw size={16} /> Putar searah jarum jam
+            </button>
+            <button type="button" class="pdf-item" role="menuitem" onclick={() => rotate(-90)}>
+              <RotateCcw size={16} /> Putar berlawanan arah jarum jam
+            </button>
+            <p class="pdf-heading">Tata letak halaman</p>
+            <button type="button" class="pdf-item" class:is-active={layout === 'single'} role="menuitemradio" aria-checked={layout === 'single'} onclick={() => setLayout('single')}>
+              <FileText size={16} /> Satu halaman
+            </button>
+            <button type="button" class="pdf-item" class:is-active={layout === 'odd'} role="menuitemradio" aria-checked={layout === 'odd'} onclick={() => setLayout('odd')}>
+              <BookOpen size={16} /> Halaman ganjil
+            </button>
+            <button type="button" class="pdf-item" class:is-active={layout === 'even'} role="menuitemradio" aria-checked={layout === 'even'} onclick={() => setLayout('even')}>
+              <Book size={16} /> Halaman genap
+            </button>
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
 
@@ -892,6 +1033,49 @@
     box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.5);
   }
 
+  .pdf-popover {
+    transform-origin: top left;
+  }
+
+  .pdf-popover-end {
+    right: 0;
+    left: auto;
+    max-height: 70vh;
+    overflow-y: auto;
+    transform-origin: top right;
+  }
+
+  .pdf-item-row {
+    display: flex;
+  }
+
+  .pdf-item-row .pdf-item {
+    flex: 1;
+  }
+
+  .pdf-item:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+
+  .pdf-mobile {
+    display: none;
+  }
+
+  @media (max-width: 639.98px) {
+    .pdf-desktop {
+      display: none;
+    }
+
+    .pdf-mobile {
+      display: flex;
+    }
+
+    .pdf-toolbar {
+      flex-wrap: nowrap;
+    }
+  }
+
   .pdf-popover-narrow {
     min-width: 6rem;
   }
@@ -972,6 +1156,7 @@
     min-width: 0;
     overflow: auto;
     padding: 0.5rem 1rem 1rem;
+    touch-action: pan-x pan-y;
   }
 
   .pdf-scroller.is-pan {
