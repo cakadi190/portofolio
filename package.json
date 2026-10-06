@@ -42,7 +42,8 @@
     "svelte-sonner": "^1.2.1",
     "svelte-toasts": "^1.1.2",
     "sweetalert2": "^11.26.25",
-    "tailwind-merge": "^3.7.0"
+    "tailwind-merge": "^3.7.0",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@laravel/vite-plugin-wayfinder": "^0.1.10",

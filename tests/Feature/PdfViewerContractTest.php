@@ -59,3 +59,13 @@ it('uses perfect-scrollbar on the canvas, page thumbnails and search results, an
         ->toContain('touch-action: pan-x pan-y');
     expect(file_get_contents(resource_path('js/lib/perfect-scrollbar.ts')))->toContain("from 'perfect-scrollbar'");
 });
+
+it('runs OCR only on pages without a text layer and keeps the scrollbar inside the viewer', function () {
+    $source = pdfViewerSource();
+
+    expect($source)
+        ->toContain("import('tesseract.js')")
+        ->toContain('const hasTextLayer')
+        ->toContain("source: 'ocr'")
+        ->toContain('max-height: 100%');
+});

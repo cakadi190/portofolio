@@ -34,7 +34,8 @@
   type PageLayout = 'single' | 'odd' | 'even';
   type Rect = [number, number, number, number];
   type TextRun = { str: string; transform: number[]; width: number; height: number };
-  type SearchHit = { page: number; rect: Rect; snippet: string; source: 'text' | 'annotation' };
+  type SearchHit = { page: number; rect: Rect; snippet: string; source: 'text' | 'annotation' | 'ocr' };
+  type OcrWord = { text: string; rect: Rect };
   type Slot = { node: HTMLElement; key: string; task: RenderTask | null };
 
   const ZOOM_PRESETS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
@@ -81,6 +82,8 @@
   const thumbs = new Map<number, { node: HTMLCanvasElement; key: string }>();
   const thumbVisible = new Set<number>();
   const textCache = new Map<number, TextRun[]>();
+  const ocrCache = new Map<number, OcrWord[]>();
+  let ocrWorker: Promise<import('tesseract.js').Worker> | null = null;
   const annotationCache = new Map<number, { rect: Rect; text: string }[]>();
   let observer: IntersectionObserver | null = null;
   let thumbObserver: IntersectionObserver | null = null;
@@ -328,6 +331,7 @@
     activeHit = -1;
     textCache.clear();
     annotationCache.clear();
+    ocrCache.clear();
 
     observer = new IntersectionObserver(
       (entries) => {
@@ -504,6 +508,50 @@
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
+  /** Recognizes a page without a text layer (scanned PDF) in the browser and returns word boxes in PDF units. */
+  async function ocrPage(number: number): Promise<OcrWord[]> {
+    const cached = ocrCache.get(number);
+
+    if (cached) {
+      return cached;
+    }
+
+    const source = pdfPages[number - 1];
+    const scale = 2;
+    const view = source.getViewport({ scale, rotation: 0 });
+    const buffer = document.createElement('canvas');
+    buffer.width = Math.ceil(view.width);
+    buffer.height = Math.ceil(view.height);
+    await source.render({ canvas: buffer, viewport: view }).promise;
+
+    ocrWorker ??= import('tesseract.js').then(({ createWorker }) => createWorker('eng+ind'));
+    const { data } = await (await ocrWorker).recognize(buffer, {}, { blocks: true });
+    const [left, , , top] = source.view;
+    const words: OcrWord[] = [];
+
+    for (const block of data.blocks ?? []) {
+      for (const paragraph of block.paragraphs) {
+        for (const line of paragraph.lines) {
+          for (const word of line.words) {
+            words.push({
+              text: word.text,
+              rect: [
+                left + word.bbox.x0 / scale,
+                top - word.bbox.y1 / scale,
+                left + word.bbox.x1 / scale,
+                top - word.bbox.y0 / scale,
+              ],
+            });
+          }
+        }
+      }
+    }
+
+    ocrCache.set(number, words);
+
+    return words;
+  }
+
   async function runSearch(): Promise<void> {
     const term = query.trim();
     const token = ++searchToken;
@@ -553,6 +601,19 @@
         return;
       }
 
+      const hasTextLayer = runs.some((run) => run.str.trim() !== '');
+      const scanned = hasTextLayer ? [] : await ocrPage(number).catch(() => []);
+
+      if (token !== searchToken) {
+        return;
+      }
+
+      for (const word of scanned) {
+        if (new RegExp(pattern.source, pattern.flags).test(word.text)) {
+          found.push({ page: number, rect: word.rect, snippet: word.text, source: 'ocr' });
+        }
+      }
+
       for (const run of runs) {
         for (const match of run.str.matchAll(pattern)) {
           const length = run.str.length;
@@ -582,6 +643,11 @@
     searching = false;
     focusHit(found.length > 0 ? 0 : -1);
   }
+
+  $effect(() => () => {
+    void ocrWorker?.then((worker) => worker.terminate());
+    ocrWorker = null;
+  });
 
   function focusHit(index: number): void {
     activeHit = index;
@@ -950,7 +1016,7 @@
           {#each hits as hit, index (index)}
             <li>
               <button type="button" class="pdf-result" class:is-active={index === activeHit} onclick={() => focusHit(index)}>
-                <span class="pdf-result-page">Hal. {hit.page}{hit.source === 'annotation' ? ' · Anotasi' : ''}</span>
+                <span class="pdf-result-page">Hal. {hit.page}{hit.source === 'annotation' ? ' · Anotasi' : hit.source === 'ocr' ? ' · OCR' : ''}</span>
                 <span class="pdf-result-text">{hit.snippet}</span>
               </button>
             </li>
@@ -1055,6 +1121,8 @@
     display: flex;
     flex: 1;
     min-width: 0;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .pdf-anchor {
@@ -1197,6 +1265,8 @@
   .pdf-scroller {
     flex: 1;
     min-width: 0;
+    min-height: 0;
+    max-height: 100%;
     overflow: auto;
     padding: 0.5rem 1rem 1rem;
     touch-action: pan-x pan-y;
