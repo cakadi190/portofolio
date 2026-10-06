@@ -115,7 +115,7 @@
       <p class="mb-2">
         <span class="badge text-bg-info">{viewing.reason_label}</span>
       </p>
-      <div class="border rounded-3 p-3 mb-3">
+      <div class="wysiwyg-content-wrapper border rounded-3 p-3 mb-3">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html viewing.message}
       </div>

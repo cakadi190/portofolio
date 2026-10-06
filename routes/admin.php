@@ -8,7 +8,6 @@ use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\EducationController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\OrganizationController;
-use App\Http\Controllers\Admin\PortfolioCategoryController;
 use App\Http\Controllers\Admin\PortfolioController;
 use App\Http\Controllers\Admin\PortfolioGalleryController;
 use App\Http\Controllers\Admin\PortfolioRatingController;
@@ -35,7 +34,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('media', MediaController::class)->parameters(['media' => 'media'])->only(['index', 'store', 'update', 'destroy']);
     Route::resource('organizations', OrganizationController::class)->parameters(['organizations' => 'organization'])->only($only);
     Route::resource('portfolios', PortfolioController::class)->parameters(['portfolios' => 'portfolio'])->only([...$only, 'create', 'edit']);
-    Route::resource('portfolio-categories', PortfolioCategoryController::class)->parameters(['portfolio-categories' => 'portfolioCategory'])->only($only);
     Route::resource('portfolio-galleries', PortfolioGalleryController::class)->parameters(['portfolio-galleries' => 'portfolioGallery'])->only($only);
     Route::resource('portfolio-ratings', PortfolioRatingController::class)->parameters(['portfolio-ratings' => 'portfolioRating'])->only($only);
     Route::resource('post-categories', PostCategoryController::class)->parameters(['post-categories' => 'postCategory'])->only($only);

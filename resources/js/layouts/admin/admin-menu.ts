@@ -55,7 +55,6 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
       icon: FolderKanban,
       children: [
         link('Semua Portofolio', '/admin/portfolios'),
-        link('Kategori Portofolio', '/admin/portfolio-categories'),
         link('Galeri Portofolio', '/admin/portfolio-galleries'),
         link('Ulasan Portofolio', '/admin/portfolio-ratings'),
         link('Teknologi', '/admin/technologies'),
@@ -78,9 +77,10 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
     },
 
     {
-      label: 'Kontak',
+      label: 'Pesan Masuk',
       icon: Contact,
-      children: [link('Pesan Masuk', '/admin/contact-messages')],
+      href: '/admin/contact-messages',
+      active: isActive('/admin/contact-messages'),
     },
     {
       label: 'Pustaka Media',
