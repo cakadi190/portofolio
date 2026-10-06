@@ -265,7 +265,7 @@
             <Field.Input
               id="edit-reviewer_name"
               name="reviewer_name"
-              value="editingRating.reviewer_name"
+              value={editingRating.reviewer_name}
               required
               invalid={!!errors.reviewer_name}
             />
@@ -278,7 +278,7 @@
               id="edit-reviewer_email"
               name="reviewer_email"
               type="email"
-              value="editingRating.reviewer_email"
+              value={editingRating.reviewer_email}
               required
               invalid={!!errors.reviewer_email}
             />
@@ -292,7 +292,7 @@
             <Field.Input
               id="edit-reviewer_company"
               name="reviewer_company"
-              value="editingRating.reviewer_company"
+              value={editingRating.reviewer_company}
               invalid={!!errors.reviewer_company}
             />
             <Field.Feedback message={errors.reviewer_company} />
@@ -303,7 +303,7 @@
             <Field.Input
               id="edit-title"
               name="title"
-              value="editingRating.title"
+              value={editingRating.title}
               required
               invalid={!!errors.title}
             />
