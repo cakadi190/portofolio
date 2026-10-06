@@ -64,11 +64,13 @@ it('runs OCR only on pages without a text layer and keeps the scrollbar inside t
     $source = pdfViewerSource();
 
     expect($source)
-        ->toContain("import('tesseract.js')")
         ->toContain('const hasTextLayer')
         ->toContain('matchAll(pattern)')
-        ->toContain('editDistance')
+        ->toContain('findOcrMatches')
         ->not->toContain("' · OCR'")
         ->toContain("source: 'ocr'")
         ->toContain('max-height: 100%');
+
+    expect(file_get_contents(resource_path('js/lib/ocr/worker.ts')))->toContain("import('tesseract.js')");
+    expect(file_get_contents(resource_path('js/lib/ocr/match.ts')))->toContain('editDistance');
 });
