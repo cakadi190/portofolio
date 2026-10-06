@@ -513,6 +513,22 @@
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
+  function editDistance(a: string, b: string): number {
+    let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+
+    for (let i = 1; i <= a.length; i++) {
+      const current = [i];
+
+      for (let j = 1; j <= b.length; j++) {
+        current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      }
+
+      previous = current;
+    }
+
+    return previous[b.length];
+  }
+
   /** Recognizes a page without a text layer (scanned PDF) in the browser and returns word boxes in PDF units. */
   async function ocrPage(number: number): Promise<OcrLine[]> {
     const cached = ocrCache.get(number);
@@ -522,15 +538,30 @@
     }
 
     const source = pdfPages[number - 1];
-    const scale = 2;
+    const base = source.getViewport({ scale: 1, rotation: 0 });
+    const scale = Math.min(3, 3600 / Math.max(base.width, base.height));
     const view = source.getViewport({ scale, rotation: 0 });
+    const raw = document.createElement('canvas');
+    raw.width = Math.ceil(view.width);
+    raw.height = Math.ceil(view.height);
+    await source.render({ canvas: raw, viewport: view }).promise;
+
     const buffer = document.createElement('canvas');
-    buffer.width = Math.ceil(view.width);
-    buffer.height = Math.ceil(view.height);
-    await source.render({ canvas: buffer, viewport: view }).promise;
+    buffer.width = raw.width;
+    buffer.height = raw.height;
+    const context = buffer.getContext('2d');
+
+    if (context) {
+      context.fillStyle = '#fff';
+      context.fillRect(0, 0, buffer.width, buffer.height);
+      context.filter = 'grayscale(1) contrast(1.6)';
+      context.drawImage(raw, 0, 0);
+    }
 
     ocrWorker ??= import('tesseract.js').then(({ createWorker }) => createWorker('eng+ind'));
-    const { data } = await (await ocrWorker).recognize(buffer, {}, { blocks: true });
+    const worker = await ocrWorker;
+    await worker.setParameters({ tessedit_pageseg_mode: '11' as never, preserve_interword_spaces: '1' });
+    const { data } = await worker.recognize(buffer, {}, { blocks: true });
     const [left, , , top] = source.view;
     const lines: OcrLine[] = [];
 
@@ -628,8 +659,30 @@
           return { start: text.length - word.text.length, end: text.length, rect: word.rect };
         });
 
-        for (const match of text.matchAll(pattern)) {
-          const end = match.index + match[0].length;
+        const exact = [...text.matchAll(pattern)];
+        const needle = caseSensitive ? term : term.toLowerCase();
+        const allowed = needle.length >= 9 ? 2 : needle.length >= 5 ? 1 : 0;
+        const size = needle.split(/\s+/).length;
+        const fuzzy: { index: number; length: number }[] = [];
+
+        if (exact.length === 0 && allowed > 0) {
+          for (let first = 0; first + size <= spans.length; first++) {
+            const window = spans.slice(first, first + size);
+            const candidate = text.slice(window[0].start, window[size - 1].end);
+
+            if (editDistance(caseSensitive ? candidate : candidate.toLowerCase(), needle) <= allowed) {
+              fuzzy.push({ index: window[0].start, length: candidate.length });
+            }
+          }
+        }
+
+        const matches = [
+          ...exact.map((match) => ({ index: match.index, length: match[0].length })),
+          ...fuzzy,
+        ];
+
+        for (const match of matches) {
+          const end = match.index + match.length;
           const covered = spans.filter((span) => span.start < end && span.end > match.index);
 
           if (covered.length === 0) {
