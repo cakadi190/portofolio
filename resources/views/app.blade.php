@@ -64,7 +64,7 @@
         <link rel="preload" as="image" href="/images/brands/icon-color.svg" type="image/svg+xml">
         <link rel="preload" as="image" href="/images/brands/logo-color.svg" type="image/svg+xml">
         <style>
-            .offcanvas:not(.show):not(.showing):not(.hiding),
+            .offcanvas:not(.show):not(.showing):not(.hiding) { visibility: hidden; }
             .modal:not(.show),
             .dropdown-menu:not(.show) { display: none; }
         </style>
