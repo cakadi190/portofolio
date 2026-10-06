@@ -28,15 +28,14 @@
   import { cubicOut } from 'svelte/easing';
   import { tick } from 'svelte';
   import { perfectScrollbar } from '@/lib/perfect-scrollbar';
+  import { createOcrCache, findOcrMatches, terminateOcrWorker } from '@/lib/ocr';
+  import type { OcrLine, Rect } from '@/lib/ocr';
   import type { TransitionConfig } from 'svelte/transition';
   import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist';
 
   type PageLayout = 'single' | 'odd' | 'even';
-  type Rect = [number, number, number, number];
   type TextRun = { str: string; transform: number[]; width: number; height: number };
   type SearchHit = { page: number; rect: Rect; snippet: string; source: 'text' | 'annotation' | 'ocr' };
-  type OcrWord = { text: string; rect: Rect };
-  type OcrLine = OcrWord[];
   type Slot = { node: HTMLElement; key: string; task: RenderTask | null };
 
   const ZOOM_PRESETS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
@@ -83,8 +82,7 @@
   const thumbs = new Map<number, { node: HTMLCanvasElement; key: string }>();
   const thumbVisible = new Set<number>();
   const textCache = new Map<number, TextRun[]>();
-  const ocrCache = new Map<number, OcrLine[]>();
-  let ocrWorker: Promise<import('tesseract.js').Worker> | null = null;
+  const ocrCache = createOcrCache();
   const annotationCache = new Map<number, { rect: Rect; text: string }[]>();
   let observer: IntersectionObserver | null = null;
   let thumbObserver: IntersectionObserver | null = null;
@@ -190,6 +188,28 @@
         scroller.getBoundingClientRect().top +
         scroller.scrollTop -
         8,
+    });
+  }
+
+  /** Scrolls so the given PDF-unit rectangle on a page sits in the middle of the viewport. */
+  function scrollToRect(number: number, rect: Rect): void {
+    const slot = slots.get(number);
+
+    if (!slot || !scroller) {
+      return;
+    }
+
+    const view = viewOf(number);
+    const [a, b, c, d, e, f] = view.transform;
+    const x = (a * rect[0] + c * rect[1] + e + a * rect[2] + c * rect[3] + e) / 2;
+    const y = (b * rect[0] + d * rect[1] + f + b * rect[2] + d * rect[3] + f) / 2;
+    const page = slot.node.getBoundingClientRect();
+    const box = scroller.getBoundingClientRect();
+
+    scroller.scrollTo({
+      top: page.top - box.top + scroller.scrollTop + (y / view.height) * page.height - box.height / 2,
+      left: page.left - box.left + scroller.scrollLeft + (x / view.width) * page.width - box.width / 2,
+      behavior: 'smooth',
     });
   }
 
@@ -513,81 +533,6 @@
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
-  function editDistance(a: string, b: string): number {
-    let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
-
-    for (let i = 1; i <= a.length; i++) {
-      const current = [i];
-
-      for (let j = 1; j <= b.length; j++) {
-        current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-      }
-
-      previous = current;
-    }
-
-    return previous[b.length];
-  }
-
-  /** Recognizes a page without a text layer (scanned PDF) in the browser and returns word boxes in PDF units. */
-  async function ocrPage(number: number): Promise<OcrLine[]> {
-    const cached = ocrCache.get(number);
-
-    if (cached) {
-      return cached;
-    }
-
-    const source = pdfPages[number - 1];
-    const base = source.getViewport({ scale: 1, rotation: 0 });
-    const scale = Math.min(3, 3600 / Math.max(base.width, base.height));
-    const view = source.getViewport({ scale, rotation: 0 });
-    const raw = document.createElement('canvas');
-    raw.width = Math.ceil(view.width);
-    raw.height = Math.ceil(view.height);
-    await source.render({ canvas: raw, viewport: view }).promise;
-
-    const buffer = document.createElement('canvas');
-    buffer.width = raw.width;
-    buffer.height = raw.height;
-    const context = buffer.getContext('2d');
-
-    if (context) {
-      context.fillStyle = '#fff';
-      context.fillRect(0, 0, buffer.width, buffer.height);
-      context.filter = 'grayscale(1) contrast(1.6)';
-      context.drawImage(raw, 0, 0);
-    }
-
-    ocrWorker ??= import('tesseract.js').then(({ createWorker }) => createWorker('eng+ind'));
-    const worker = await ocrWorker;
-    await worker.setParameters({ tessedit_pageseg_mode: '11' as never, preserve_interword_spaces: '1' });
-    const { data } = await worker.recognize(buffer, {}, { blocks: true });
-    const [left, , , top] = source.view;
-    const lines: OcrLine[] = [];
-
-    for (const block of data.blocks ?? []) {
-      for (const paragraph of block.paragraphs) {
-        for (const line of paragraph.lines) {
-          lines.push(
-            line.words.map((word) => ({
-              text: word.text,
-              rect: [
-                left + word.bbox.x0 / scale,
-                top - word.bbox.y1 / scale,
-                left + word.bbox.x1 / scale,
-                top - word.bbox.y0 / scale,
-              ] as Rect,
-            })),
-          );
-        }
-      }
-    }
-
-    ocrCache.set(number, lines);
-
-    return lines;
-  }
-
   async function runSearch(): Promise<void> {
     const term = query.trim();
     const token = ++searchToken;
@@ -640,7 +585,7 @@
       const hasTextLayer = runs.reduce((total, run) => total + run.str.trim().length, 0) >= 30;
       const scanned = hasTextLayer
         ? []
-        : await ocrPage(number).catch((error: unknown) => {
+        : await ocrCache.get(number, pdfPages[number - 1]).catch((error: unknown) => {
             console.error('OCR gagal', error);
 
             return [] as OcrLine[];
@@ -650,57 +595,8 @@
         return;
       }
 
-      for (const line of scanned) {
-        let text = '';
-        const spans = line.map((word) => {
-          const start = text.length;
-          text += (start > 0 ? ' ' : '') + word.text;
-
-          return { start: text.length - word.text.length, end: text.length, rect: word.rect };
-        });
-
-        const exact = [...text.matchAll(pattern)];
-        const needle = caseSensitive ? term : term.toLowerCase();
-        const allowed = needle.length >= 9 ? 2 : needle.length >= 5 ? 1 : 0;
-        const size = needle.split(/\s+/).length;
-        const fuzzy: { index: number; length: number }[] = [];
-
-        if (exact.length === 0 && allowed > 0) {
-          for (let first = 0; first + size <= spans.length; first++) {
-            const window = spans.slice(first, first + size);
-            const candidate = text.slice(window[0].start, window[size - 1].end);
-
-            if (editDistance(caseSensitive ? candidate : candidate.toLowerCase(), needle) <= allowed) {
-              fuzzy.push({ index: window[0].start, length: candidate.length });
-            }
-          }
-        }
-
-        const matches = [
-          ...exact.map((match) => ({ index: match.index, length: match[0].length })),
-          ...fuzzy,
-        ];
-
-        for (const match of matches) {
-          const end = match.index + match.length;
-          const covered = spans.filter((span) => span.start < end && span.end > match.index);
-
-          if (covered.length === 0) {
-            continue;
-          }
-
-          found.push({
-            page: number,
-            rect: [
-              Math.min(...covered.map((span) => span.rect[0])),
-              Math.min(...covered.map((span) => span.rect[1])),
-              Math.max(...covered.map((span) => span.rect[2])),
-              Math.max(...covered.map((span) => span.rect[3])),
-            ],
-            snippet: text.slice(Math.max(0, match.index - 24), end + 40).trim(),
-            source: 'ocr',
-          });
-        }
+      for (const match of findOcrMatches(scanned, term, pattern, caseSensitive)) {
+        found.push({ page: number, ...match, source: 'ocr' });
       }
 
       for (const run of runs) {
@@ -734,15 +630,14 @@
   }
 
   $effect(() => () => {
-    void ocrWorker?.then((worker) => worker.terminate());
-    ocrWorker = null;
+    terminateOcrWorker();
   });
 
   function focusHit(index: number): void {
     activeHit = index;
 
     if (index >= 0) {
-      scrollToPage(hits[index].page);
+      scrollToRect(hits[index].page, hits[index].rect);
     }
   }
 
@@ -1310,6 +1205,7 @@
     display: flex;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
   }
 
   .pdf-thumbs {
@@ -1356,6 +1252,7 @@
     min-width: 0;
     min-height: 0;
     max-height: 100%;
+    position: relative;
     overflow: auto;
     padding: 0.5rem 1rem 1rem;
     touch-action: pan-x pan-y;
@@ -1529,6 +1426,10 @@
     .pdf-body {
       position: relative;
     }
+  }
+
+  .pdf-root :global(.ps) {
+    position: relative;
   }
 
   .pdf-root :global(.ps__rail-x),
