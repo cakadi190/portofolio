@@ -38,3 +38,14 @@ it('supports two-finger pinch zoom on touch screens', function () {
         ->toContain('applyPinch')
         ->toContain('touch-action: pan-x pan-y');
 });
+
+it('uses bootstrap form controls and searches annotations in the search sidebar', function () {
+    $source = pdfViewerSource();
+
+    expect($source)
+        ->toContain('class="form-check-input" type="checkbox"')
+        ->toContain('class="form-control"')
+        ->toContain('data-bs-theme="dark"')
+        ->toContain('getAnnotations()')
+        ->toContain("source: 'annotation'");
+});

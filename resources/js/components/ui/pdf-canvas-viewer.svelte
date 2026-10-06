@@ -9,6 +9,7 @@
   import Book from '@lucide/svelte/icons/book';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
+  import ChevronUp from '@lucide/svelte/icons/chevron-up';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import Download from '@lucide/svelte/icons/download';
   import FileText from '@lucide/svelte/icons/file-text';
@@ -32,7 +33,7 @@
   type PageLayout = 'single' | 'odd' | 'even';
   type Rect = [number, number, number, number];
   type TextRun = { str: string; transform: number[]; width: number; height: number };
-  type SearchHit = { page: number; rect: Rect; snippet: string };
+  type SearchHit = { page: number; rect: Rect; snippet: string; source: 'text' | 'annotation' };
   type Slot = { node: HTMLElement; key: string; task: RenderTask | null };
 
   const ZOOM_PRESETS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
@@ -79,6 +80,7 @@
   const thumbs = new Map<number, { node: HTMLCanvasElement; key: string }>();
   const thumbVisible = new Set<number>();
   const textCache = new Map<number, TextRun[]>();
+  const annotationCache = new Map<number, { rect: Rect; text: string }[]>();
   let observer: IntersectionObserver | null = null;
   let thumbObserver: IntersectionObserver | null = null;
   let renderTimer: number | undefined;
@@ -315,6 +317,7 @@
     hits = [];
     activeHit = -1;
     textCache.clear();
+    annotationCache.clear();
 
     observer = new IntersectionObserver(
       (entries) => {
@@ -521,6 +524,21 @@
         textCache.set(number, runs);
       }
 
+      let notes = annotationCache.get(number);
+
+      if (!notes) {
+        const annotations = (await pdfPages[number - 1].getAnnotations()) as unknown[];
+        notes = annotations
+          .map((item) => item as { rect?: Rect; contents?: string; title?: string; url?: string })
+          .filter((item) => Array.isArray(item.rect))
+          .map((item) => ({
+            rect: item.rect as Rect,
+            text: [item.title, item.contents, item.url].filter(Boolean).join(' — '),
+          }))
+          .filter((item) => item.text !== '');
+        annotationCache.set(number, notes);
+      }
+
       if (token !== searchToken) {
         return;
       }
@@ -538,7 +556,14 @@
             page: number,
             rect: [left, bottom, left + width, bottom + height * 1.2],
             snippet: run.str.slice(from, match.index + match[0].length + 40).trim(),
+            source: 'text',
           });
+        }
+      }
+
+      for (const note of notes) {
+        if (new RegExp(pattern.source, pattern.flags).test(note.text)) {
+          found.push({ page: number, rect: note.rect, snippet: note.text.slice(0, 80), source: 'annotation' });
         }
       }
     }
@@ -883,13 +908,20 @@
     </div>
 
     {#if showSearch}
-      <div class="pdf-search">
-        <label class="pdf-search-field">
-          <Search size={16} />
-          <input bind:this={searchInput} bind:value={query} type="search" placeholder="Cari dalam dokumen" aria-label="Cari dalam dokumen" onkeydown={onSearchKeydown} />
-        </label>
-        <label class="pdf-check"><input type="checkbox" bind:checked={caseSensitive} /> Sesuai huruf besar/kecil</label>
-        <label class="pdf-check"><input type="checkbox" bind:checked={wholeWord} /> Kata utuh</label>
+      <div class="pdf-search" data-bs-theme="dark">
+        <div class="input-group input-group-sm">
+          <input bind:this={searchInput} bind:value={query} class="form-control" type="search" placeholder="Cari teks atau anotasi" aria-label="Cari dalam dokumen" onkeydown={onSearchKeydown} />
+          <button type="button" class="btn btn-outline-secondary" aria-label="Hasil sebelumnya" disabled={hits.length === 0} onclick={() => stepHit(-1)}><ChevronUp size={16} /></button>
+          <button type="button" class="btn btn-outline-secondary" aria-label="Hasil berikutnya" disabled={hits.length === 0} onclick={() => stepHit(1)}><ChevronDown size={16} /></button>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="pdf-case-sensitive" bind:checked={caseSensitive} />
+          <label class="form-check-label" for="pdf-case-sensitive">Sesuai huruf besar/kecil</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="pdf-whole-word" bind:checked={wholeWord} />
+          <label class="form-check-label" for="pdf-whole-word">Kata utuh</label>
+        </div>
 
         {#if query.trim()}
           <p class="pdf-count">
@@ -907,7 +939,7 @@
           {#each hits as hit, index (index)}
             <li>
               <button type="button" class="pdf-result" class:is-active={index === activeHit} onclick={() => focusHit(index)}>
-                <span class="pdf-result-page">Hal. {hit.page}</span>
+                <span class="pdf-result-page">Hal. {hit.page}{hit.source === 'annotation' ? ' · Anotasi' : ''}</span>
                 <span class="pdf-result-text">{hit.snippet}</span>
               </button>
             </li>
@@ -1224,34 +1256,6 @@
     min-height: 0;
     padding: 0.75rem;
     border-left: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .pdf-search-field {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0 0.625rem;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-  }
-
-  .pdf-search-field input {
-    flex: 1;
-    min-width: 0;
-    padding: 0.5rem 0;
-    color: inherit;
-    background: transparent;
-    border: none;
-    outline: none;
-  }
-
-  .pdf-check {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    cursor: pointer;
   }
 
   .pdf-count {
