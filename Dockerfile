@@ -187,6 +187,15 @@ RUN set -eux; \
 
 
 # ---------------------------------------------------------------------------
+# frontend-testing — Vitest on top of the assets stage (deps, source, .env,
+# Wayfinder types already in place). Built only by `--target frontend-testing`.
+# ---------------------------------------------------------------------------
+FROM assets AS frontend-testing
+
+RUN bun run test
+
+
+# ---------------------------------------------------------------------------
 # production — source baked in, no frontend runtime or dev dependencies
 # ---------------------------------------------------------------------------
 FROM base AS production

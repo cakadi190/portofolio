@@ -3,7 +3,10 @@ import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, lazyPlugins } from 'vite-plus';
+
+const isVitest = Boolean(process.env.VITEST);
 
 const isSsrBuild = process.argv.includes('--ssr');
 
@@ -19,27 +22,33 @@ export default defineConfig({
   plugins: lazyPlugins(
     () =>
       [
-        laravel({
-          input: ['resources/css/app.scss', 'resources/js/app.ts'],
-          refresh: true,
-          fonts: [
-            bunny('Signika', {
-              weights: [400, 500, 600, 700],
-            }),
-            bunny('Roboto Slab', {
-              weights: [400, 500, 600],
-            }),
-            bunny('JetBrains Mono', {
-              weights: [400, 500],
-            }),
-          ],
-        }),
+        // Vitest only needs the Svelte transform; the Laravel/Wayfinder
+        // plugins boot PHP and keep watchers alive, delaying exit.
+        ...(isVitest
+          ? []
+          : [
+              laravel({
+                input: ['resources/css/app.scss', 'resources/js/app.ts'],
+                refresh: true,
+                fonts: [
+                  bunny('Signika', {
+                    weights: [400, 500, 600, 700],
+                  }),
+                  bunny('Roboto Slab', {
+                    weights: [400, 500, 600],
+                  }),
+                  bunny('JetBrains Mono', {
+                    weights: [400, 500],
+                  }),
+                ],
+              }),
+            ]),
         inertia(),
         svelte(),
         // The client build already generated the Wayfinder types
         // (`build:ssr` runs it first); regenerating for SSR boots the
         // whole framework again for nothing.
-        ...(isSsrBuild ? [] : [wayfinder()]),
+        ...(isSsrBuild || isVitest ? [] : [wayfinder()]),
       ] as any[],
   ),
   optimizeDeps: {
@@ -74,6 +83,25 @@ export default defineConfig({
         '**/.junie/**',
         '**/vendor/**',
       ],
+    },
+  },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
+    },
+    // Svelte components must resolve to their browser build under Vitest.
+    conditions: process.env.VITEST ? ['browser'] : [],
+  },
+  test: {
+    environment: 'jsdom',
+    include: ['resources/js/**/*.{test,spec}.ts'],
+    setupFiles: ['resources/js/tests/setup.ts'],
+    clearMocks: true,
+    restoreMocks: true,
+    coverage: {
+      provider: 'v8',
+      include: ['resources/js/**/*.{ts,svelte}'],
+      exclude: ['resources/js/wayfinder/**', 'resources/js/components/ui/**'],
     },
   },
   lint: {

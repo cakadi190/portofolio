@@ -19,4 +19,5 @@ Dokumen ini adalah **PRD (Product Requirements Document)** hasil reverse enginee
 - Upload file: selalu lewat Pustaka Media (`MediaService`, `MediaField`), jangan menyimpan file langsung dari controller.
 - Enum baru: gunakan trait `HasEnumOptions`/`HasEnumValues` di `app/Enums`, label Bahasa Indonesia.
 - Teks antarmuka berbahasa Indonesia; kode, nama kolom, dan rute admin berbahasa Inggris.
+- Tes frontend memakai Vitest (`bun run test`); tes backend memakai Pest. Lihat `04-architecture.md`.
 - Ikuti `CLAUDE.md` / `AGENTS.md` (Laravel Boost guidelines) untuk konvensi kode dan pengujian.

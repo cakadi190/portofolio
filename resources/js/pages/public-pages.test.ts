@@ -1,0 +1,220 @@
+import { render, screen } from '@testing-library/svelte';
+import { describe, expect, it } from 'vitest';
+import AppIndex from '@/pages/app/index.svelte';
+import AwardPage from '@/pages/award/index.svelte';
+import BlogIndex from '@/pages/blog/index.svelte';
+import BlogShow from '@/pages/blog/show.svelte';
+import CareerPage from '@/pages/career/index.svelte';
+import Dashboard from '@/pages/dashboard/index.svelte';
+import PortfolioIndex from '@/pages/portfolio/index.svelte';
+import ServicePage from '@/pages/service/index.svelte';
+import AboutSite from '@/pages/tentang/situs.svelte';
+import SkillPage from '@/pages/tentang/skill.svelte';
+import { hrefOf } from '@/tests/helpers';
+
+const paginated = (data: unknown[], overrides = {}) => ({
+  data,
+  current_page: 1,
+  last_page: 1,
+  per_page: 9,
+  total: data.length,
+  from: 1,
+  to: data.length,
+  prev_page_url: null,
+  next_page_url: null,
+  ...overrides,
+});
+
+describe('Dashboard', () => {
+  it('renders the placeholder and sets the document title', () => {
+    render(Dashboard);
+
+    expect(screen.getByRole('heading', { name: 'Dasbor' })).toBeTruthy();
+    expect(document.title).toContain('Dasbor');
+  });
+});
+
+describe('static pages', () => {
+  it.each([
+    ['Layanan Saya', ServicePage],
+    ['Tentang Situs', AboutSite],
+    ['Skill', SkillPage],
+  ])('%s renders its header', (title, Page) => {
+    render(Page as never);
+
+    expect(
+      screen.getAllByRole('heading', { level: 1 })[0].textContent,
+    ).toBeTruthy();
+    expect(document.title).toContain(title === 'Skill' ? '' : title);
+  });
+});
+
+describe('AppIndex (home)', () => {
+  it('renders the home sections', () => {
+    render(AppIndex, { portfolios: [], posts: [] });
+
+    expect(document.getElementById('homepage')).not.toBeNull();
+    expect(document.title).toContain('Beranda');
+    expect(screen.getByText(/Belum ada artikel/)).toBeTruthy();
+    expect(screen.getByText(/Belum ada portofolio/)).toBeTruthy();
+  });
+});
+
+describe('AwardPage', () => {
+  const awards = [
+    {
+      eventName: 'Lomba A',
+      title: 'Juara 1',
+      icon: null,
+      year: 2024,
+      rank: 1,
+      awardedAt: new Date().toISOString(),
+    },
+    {
+      eventName: 'Lomba B',
+      title: 'Finalis',
+      icon: 'fa6-solid:medal',
+      year: 2020,
+      rank: null,
+      awardedAt: '2020-01-01',
+    },
+  ];
+
+  it('lists awards and flags only recent ones as new', () => {
+    render(AwardPage, { awards });
+
+    expect(screen.getByText('Lomba A')).toBeTruthy();
+    expect(screen.getByText('2020')).toBeTruthy();
+    expect(screen.getAllByText('Baru')).toHaveLength(1);
+  });
+});
+
+describe('CareerPage', () => {
+  it('formats the period and marks current jobs', () => {
+    render(CareerPage, {
+      careers: [
+        {
+          position: 'Dev',
+          company: 'Acme',
+          location: 'Ngawi',
+          startDate: '2022-03-01',
+          endDate: null,
+        },
+        {
+          position: 'Intern',
+          company: 'Beta',
+          location: 'Solo',
+          startDate: '2020-01-01',
+          endDate: '2020-06-01',
+        },
+      ],
+    });
+
+    expect(screen.getByText(/Maret 2022 - Sekarang/)).toBeTruthy();
+    expect(screen.getByText(/Januari 2020 - Juni 2020/)).toBeTruthy();
+    expect(screen.getByText('Acme | Ngawi')).toBeTruthy();
+  });
+});
+
+describe('BlogIndex', () => {
+  const post = (slug: string) => ({
+    title: slug,
+    slug,
+    excerpt: null,
+    coverImage: null,
+    categories: [],
+  });
+
+  it('shows an empty state', () => {
+    render(BlogIndex, { posts: paginated([]) });
+
+    expect(screen.getByText('Belum Ada Artikel')).toBeTruthy();
+  });
+
+  it('lists posts with pagination', () => {
+    render(BlogIndex, {
+      posts: paginated([post('satu'), post('dua')], {
+        last_page: 2,
+        next_page_url: '/blog?page=2',
+      }),
+    });
+
+    expect(hrefOf(screen.getByRole('link', { name: /satu/ }))).toBe(
+      '/blog/satu',
+    );
+    expect(screen.getByText('Halaman 1 dari 2')).toBeTruthy();
+  });
+});
+
+describe('PortfolioIndex', () => {
+  it('shows an empty state', () => {
+    render(PortfolioIndex, { portfolios: paginated([]) });
+
+    expect(screen.getByText('Belum Ada Portofolio')).toBeTruthy();
+  });
+
+  it('lists portfolios', () => {
+    render(PortfolioIndex, {
+      portfolios: paginated([
+        {
+          name: 'Proyek',
+          slug: 'proyek',
+          image: '/p.webp',
+          shortDesc: null,
+          categories: [],
+          technologies: [],
+        },
+      ]),
+    });
+
+    expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe(
+      '/portofolio/proyek',
+    );
+  });
+});
+
+describe('BlogShow', () => {
+  const post = {
+    title: 'Judul Artikel',
+    excerpt: null,
+    content:
+      '<p>Isi <strong>artikel</strong></p><pre><code class="language-javascript">let a = 1;</code></pre>',
+    coverImage: '/cover.webp',
+    publishedAt: '2024-05-17T00:00:00Z',
+    categories: [{ name: 'Tech', color: null }],
+    tags: ['php'],
+  };
+
+  it('renders content, meta, tags and highlights code', () => {
+    render(BlogShow, { post });
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Judul Artikel' }),
+    ).toBeTruthy();
+    expect(screen.getByText('artikel')).toBeTruthy();
+    expect(screen.getByText('Tech')).toBeTruthy();
+    expect(screen.getByText('php')).toBeTruthy();
+    expect(screen.getAllByText(/2024/).length).toBeGreaterThan(0);
+    expect(document.querySelector('code.hljs')).not.toBeNull();
+    expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe('/blog');
+  });
+
+  it('handles unpublished posts without tags or cover', () => {
+    render(BlogShow, {
+      post: {
+        ...post,
+        publishedAt: null,
+        coverImage: null,
+        tags: [],
+        excerpt: 'Ringkas',
+      },
+    });
+
+    expect(screen.getByText('Belum dipublikasikan')).toBeTruthy();
+    expect(screen.getByText('Belum ada tag untuk artikel ini.')).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Ringkas' }),
+    ).toBeTruthy();
+    expect(screen.queryByAltText('Judul Artikel')).toBeNull();
+  });
+});

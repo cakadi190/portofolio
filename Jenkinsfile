@@ -249,6 +249,10 @@ pipeline {
           set -eu
           docker build --target testing --tag "${IMAGE_NAME}:testing-${BUILD_NUMBER}" .
           docker image rm -f "${IMAGE_NAME}:testing-${BUILD_NUMBER}" >/dev/null 2>&1 || true
+
+          # Frontend unit tests (Vitest) run in the Bun-based assets chain.
+          docker build --target frontend-testing --tag "${IMAGE_NAME}:frontend-testing-${BUILD_NUMBER}" .
+          docker image rm -f "${IMAGE_NAME}:frontend-testing-${BUILD_NUMBER}" >/dev/null 2>&1 || true
         '''
       }
     }
