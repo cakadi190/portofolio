@@ -38,7 +38,10 @@ export function findOcrMatches(lines: OcrLine[], term: string, pattern: RegExp, 
         const window = spans.slice(first, first + size);
         const candidate = text.slice(window[0].start, window[size - 1].end);
 
-        if (editDistance(caseSensitive ? candidate : candidate.toLowerCase(), needle) <= allowed) {
+        const normalized = caseSensitive ? candidate : candidate.toLowerCase();
+        const prefix = normalized.slice(0, needle.length);
+
+        if (editDistance(normalized, needle) <= allowed || editDistance(prefix, needle) <= allowed) {
           matches.push({ index: window[0].start, length: candidate.length });
         }
       }
