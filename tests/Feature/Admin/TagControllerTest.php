@@ -10,13 +10,13 @@ test('guests are redirected to the login page', function () {
 test('authenticated users can list tags', function () {
     Tag::factory()->count(3)->create();
 
-    $response = $this->actingAs(User::factory()->create())->get(route('admin.tags.index'));
+    $response = $this->actingAs(User::factory()->admin()->create())->get(route('admin.tags.index'));
 
     $response->assertOk();
 });
 
 test('a tag can be created', function () {
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.tags.store'), ['name' => 'Laravel']);
 
     $response->assertRedirect(route('admin.tags.index'));
@@ -24,7 +24,7 @@ test('a tag can be created', function () {
 });
 
 test('creating a tag requires a name', function () {
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.tags.store'), ['name' => '']);
 
     $response->assertSessionHasErrors('name');
@@ -33,7 +33,7 @@ test('creating a tag requires a name', function () {
 test('a tag can be updated', function () {
     $tag = Tag::factory()->create(['name' => 'Old Name']);
 
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.tags.update', $tag), ['name' => 'New Name']);
 
     $response->assertRedirect(route('admin.tags.index'));
@@ -43,7 +43,7 @@ test('a tag can be updated', function () {
 test('a tag can be deleted', function () {
     $tag = Tag::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.tags.destroy', $tag));
 
     $response->assertRedirect(route('admin.tags.index'));

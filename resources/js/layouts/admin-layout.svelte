@@ -18,7 +18,7 @@
     children?: Snippet;
   } = $props();
 
-  const menu = $derived(menuOverride ?? adminMenu(page.url));
+  const menu = $derived(menuOverride ?? adminMenu(page.url, page.props.auth.user.account_type));
 </script>
 
 <AdminSidebarLayout {menu} {userName} {userEmail}>

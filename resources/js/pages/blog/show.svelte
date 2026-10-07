@@ -3,8 +3,11 @@
   import AppHead from '@/components/app-head.svelte';
   import { highlightCode } from '@/lib/highlight/action';
   import HeaderPage from '@/components/header-page.svelte';
+  import BlogComments from '@/components/blog/blog-comments.svelte';
+  import type { BlogCommentNode } from '@/components/blog/types';
 
   type Post = {
+    slug: string;
     title: string;
     excerpt: string | null;
     content: string;
@@ -14,7 +17,10 @@
     tags: string[];
   };
 
-  let { post }: { post: Post } = $props();
+  let {
+    post,
+    comments,
+  }: { post: Post; comments: BlogCommentNode[] } = $props();
 
   const publishedLabel = $derived(
     post.publishedAt
@@ -94,6 +100,8 @@
               </div>
             </div>
           </div>
+
+          <BlogComments {comments} postSlug={post.slug} />
         </div>
       </div>
     </div>

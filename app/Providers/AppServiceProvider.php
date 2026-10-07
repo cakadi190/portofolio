@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Services\SeoService;
 use Carbon\CarbonImmutable;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -35,6 +37,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureAuthorization();
+    }
+
+    /**
+     * `manage-site` is the full admin area (admins only); `manage-blog` is the
+     * blogging area shared with editorial staff (redaktur). Both are enforced
+     * at the route level with the `can:` middleware.
+     */
+    protected function configureAuthorization(): void
+    {
+        Gate::define('manage-site', fn (User $user): bool => $user->isAdmin());
+        Gate::define('manage-blog', fn (User $user): bool => $user->canManageBlog());
     }
 
     /**

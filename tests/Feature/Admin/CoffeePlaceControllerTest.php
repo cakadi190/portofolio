@@ -21,7 +21,7 @@ function coffeePlacePayload(array $overrides = []): array
 test('a coffee place stores facilities and galleries', function () {
     $media = Media::factory()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.coffee-places.store'), coffeePlacePayload([
             'facilities' => ['outdoor', 'wfc', 'ac'],
             'galleries' => [['image_url' => $media->path, 'description' => 'Teras']],
@@ -40,7 +40,7 @@ test('updating replaces the galleries', function () {
     $place->galleries()->create(['image_url' => Media::factory()->create()->path]);
     $media = Media::factory()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.coffee-places.update', $place), coffeePlacePayload([
             'galleries' => [['image_url' => $media->path]],
         ]))
@@ -50,7 +50,7 @@ test('updating replaces the galleries', function () {
 });
 
 test('unknown facilities are rejected', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.coffee-places.store'), coffeePlacePayload(['facilities' => ['helipad']]))
         ->assertSessionHasErrors('facilities.0');
 });

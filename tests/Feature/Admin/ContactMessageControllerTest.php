@@ -10,7 +10,7 @@ test('guests are redirected to the login page', function () {
 test('authenticated users can list messages', function () {
     ContactMessage::factory()->count(3)->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.contact-messages.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
@@ -21,7 +21,7 @@ test('authenticated users can list messages', function () {
 
 test('a message read state can be toggled', function () {
     $message = ContactMessage::factory()->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->put(route('admin.contact-messages.update', $message));
     expect($message->refresh()->read_at)->not->toBeNull();
@@ -33,7 +33,7 @@ test('a message read state can be toggled', function () {
 test('a message can be deleted', function () {
     $message = ContactMessage::factory()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.contact-messages.destroy', $message))
         ->assertRedirect(route('admin.contact-messages.index'));
 

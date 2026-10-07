@@ -14,7 +14,7 @@ test('guests are redirected to the login page', function () {
 test('the settings page lists groups and decrypted values', function () {
     SystemSetting::factory()->create(['key' => 'contact_email', 'value' => 'halo@example.com']);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.system-settings.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
@@ -26,7 +26,7 @@ test('the settings page lists groups and decrypted values', function () {
 test('settings are created and updated in bulk with encrypted values', function () {
     SystemSetting::factory()->create(['key' => 'contact_email', 'value' => 'lama@example.com']);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.system-settings.update'), [
             'contact_email' => 'baru@example.com',
             'social_facebook' => 'https://facebook.com/cakadi190',
@@ -43,14 +43,14 @@ test('the service cache is refreshed after saving', function () {
     SystemSetting::factory()->create(['key' => 'contact_email', 'value' => 'lama@example.com']);
     expect($service->get('contact_email'))->toBe('lama@example.com');
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.system-settings.update'), ['contact_email' => 'baru@example.com']);
 
     expect($service->get('contact_email'))->toBe('baru@example.com');
 });
 
 test('values are validated by field type', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.system-settings.update'), [
             'contact_email' => 'bukan-email',
             'contact_whatsapp' => 'abc',
@@ -63,7 +63,7 @@ test('values are validated by field type', function () {
 });
 
 test('unmanaged keys are ignored', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.system-settings.update'), ['contact_email' => 'a@example.com', 'rogue_key' => 'x']);
 
     $this->assertDatabaseMissing('system_settings', ['key' => 'rogue_key']);
@@ -72,7 +72,7 @@ test('unmanaged keys are ignored', function () {
 test('seo settings are created with a media library image and validated formats', function () {
     $media = Media::factory()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.system-settings.update'), [
             'seo_image' => $media->path,
             'google_analytics_id' => 'G-DY3NMX1ZWY',
@@ -86,7 +86,7 @@ test('seo settings are created with a media library image and validated formats'
 });
 
 test('seo settings reject malformed ids and unknown media', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.system-settings.update'), [
             'seo_image' => 'media/tidak-ada.webp',
             'google_analytics_id' => 'bukan-id',

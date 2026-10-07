@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -54,6 +55,27 @@ class User extends Authenticatable implements PasskeyUser
             'account_type' => UserRole::class,
             'gender' => Gender::class,
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->account_type === UserRole::Admin;
+    }
+
+    /**
+     * Admins and editorial staff (redaktur) may manage blogging content.
+     */
+    public function canManageBlog(): bool
+    {
+        return in_array($this->account_type, [UserRole::Admin, UserRole::Redaktur], true);
+    }
+
+    /**
+     * @return HasMany<BlogComment, $this>
+     */
+    public function blogComments(): HasMany
+    {
+        return $this->hasMany(BlogComment::class);
     }
 
     public static function whereEmail(string $email): User

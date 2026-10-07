@@ -12,8 +12,12 @@ import type { AdminSidebarEntry } from '@/types/admin-sidebar';
 
 /**
  * Admin sidebar tree. Only entries wired to a real route are listed.
+ * Redaktur only get the blogging section; the server enforces this too.
  */
-export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
+export function adminMenu(
+  currentUrl: string,
+  accountType: string = 'admin',
+): AdminSidebarEntry[] {
   const isActive = (href: string): boolean =>
     currentUrl === href ||
     currentUrl.startsWith(`${href}/`) ||
@@ -24,14 +28,35 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
     active: isActive(href),
   });
 
+  const dashboard: AdminSidebarEntry = {
+    label: 'Dasbor',
+    icon: LayoutDashboard,
+    href: '/admin',
+    active: currentUrl.split('?')[0] === '/admin',
+  };
+  const blog: AdminSidebarEntry = {
+    label: 'Blog',
+    icon: Newspaper,
+    children: [
+      link('Semua Artikel', '/admin/posts'),
+      link('Kategori Artikel Blog', '/admin/post-categories'),
+      link('Tag Artikel', '/admin/tags'),
+      link('Komentar Blog', '/admin/blog-comments'),
+    ],
+  };
+
+  if (accountType !== 'admin') {
+    return [
+      { type: 'header', label: 'Menu Utama' },
+      dashboard,
+      { type: 'header', label: 'Blog' },
+      blog,
+    ];
+  }
+
   return [
     { type: 'header', label: 'Menu Utama' },
-    {
-      label: 'Dasbor',
-      icon: LayoutDashboard,
-      href: '/admin',
-      active: currentUrl.split('?')[0] === '/admin',
-    },
+    dashboard,
 
     { type: 'header', label: 'Portofolio & Blog' },
     {
@@ -61,15 +86,7 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
         link('Teknologi', '/admin/technologies'),
       ],
     },
-    {
-      label: 'Blog',
-      icon: Newspaper,
-      children: [
-        link('Semua Artikel', '/admin/posts'),
-        link('Kategori Artikel Blog', '/admin/post-categories'),
-        link('Tag Artikel', '/admin/tags'),
-      ],
-    },
+    blog,
     {
       label: 'Kedai Kopi',
       icon: Coffee,

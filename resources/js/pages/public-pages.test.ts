@@ -224,6 +224,7 @@ describe('PortfolioIndex', () => {
 
 describe('BlogShow', () => {
   const post = {
+    slug: 'judul-artikel',
     title: 'Judul Artikel',
     excerpt: null,
     content:
@@ -235,7 +236,7 @@ describe('BlogShow', () => {
   };
 
   it('renders content, meta, tags and highlights code', () => {
-    render(BlogShow, { post });
+    render(BlogShow, { post, comments: [] });
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Judul Artikel' }),
@@ -250,6 +251,7 @@ describe('BlogShow', () => {
 
   it('handles unpublished posts without tags or cover', () => {
     render(BlogShow, {
+      comments: [],
       post: {
         ...post,
         publishedAt: null,
@@ -265,5 +267,34 @@ describe('BlogShow', () => {
       screen.getByRole('heading', { level: 2, name: 'Ringkas' }),
     ).toBeTruthy();
     expect(screen.queryByAltText('Judul Artikel')).toBeNull();
+  });
+
+  it('shows a nested comment thread with a login prompt for guests', () => {
+    render(BlogShow, {
+      post,
+      comments: [
+        {
+          id: 1,
+          body: 'Komentar utama',
+          author: 'Budi',
+          createdAt: '2024-05-18T00:00:00Z',
+          replies: [
+            {
+              id: 2,
+              body: 'Balasan bersarang',
+              author: 'Sari',
+              createdAt: '2024-05-19T00:00:00Z',
+              replies: [],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(screen.getByText('Komentar (2)')).toBeTruthy();
+    expect(screen.getByText('Balasan bersarang')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Masuk' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Balas' })).toBeNull();
+    expect(screen.queryByLabelText('Tulis komentar')).toBeNull();
   });
 });

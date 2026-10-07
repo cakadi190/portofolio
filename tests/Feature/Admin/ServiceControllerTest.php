@@ -10,7 +10,7 @@ test('guests are redirected to the login page', function () {
 
 test('the index and edit pages render', function () {
     $service = Service::factory()->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->get(route('admin.services.index'))->assertOk();
     $this->actingAs($user)->get(route('admin.services.edit', $service))->assertOk();
@@ -20,7 +20,7 @@ test('a service can be updated', function () {
     $service = Service::factory()->create();
     $media = Media::factory()->create();
 
-    $this->actingAs(User::factory()->create())->put(route('admin.services.update', $service), [
+    $this->actingAs(User::factory()->admin()->create())->put(route('admin.services.update', $service), [
         'name' => 'Website Baru',
         'slug' => 'website-baru',
         'color' => '#112233',
@@ -38,7 +38,7 @@ test('a service slug must be unique and the image must exist in the library', fu
     Service::factory()->create(['slug' => 'dipakai']);
     $service = Service::factory()->create();
 
-    $this->actingAs(User::factory()->create())->put(route('admin.services.update', $service), [
+    $this->actingAs(User::factory()->admin()->create())->put(route('admin.services.update', $service), [
         'name' => 'X',
         'slug' => 'dipakai',
         'image' => 'media/tidak-ada.webp',
@@ -47,7 +47,7 @@ test('a service slug must be unique and the image must exist in the library', fu
 
 test('services cannot be created or deleted from the admin', function () {
     $service = Service::factory()->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->post('/admin/services', [])->assertStatus(405);
     $this->actingAs($user)->delete(route('admin.services.update', $service))->assertStatus(405);

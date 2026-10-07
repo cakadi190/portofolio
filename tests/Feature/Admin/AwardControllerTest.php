@@ -9,7 +9,7 @@ test('guests are redirected to the login page', function () {
 });
 
 test('an award can be created', function () {
-    $response = $this->actingAs(User::factory()->create())->post(route('admin.awards.store'), [
+    $response = $this->actingAs(User::factory()->admin()->create())->post(route('admin.awards.store'), [
         'event_name' => 'Hackathon 2026',
         'title' => 'Juara 1',
         'type' => 'competition',
@@ -22,7 +22,7 @@ test('an award can be created', function () {
 });
 
 test('creating an award requires a title and year', function () {
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.awards.store'), ['event_name' => 'Hackathon']);
 
     $response->assertSessionHasErrors(['title', 'type', 'year']);
@@ -31,7 +31,7 @@ test('creating an award requires a title and year', function () {
 test('an award can be updated', function () {
     $award = Award::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())->put(route('admin.awards.update', $award), [
+    $response = $this->actingAs(User::factory()->admin()->create())->put(route('admin.awards.update', $award), [
         'event_name' => $award->event_name,
         'title' => 'Judul Baru',
         'type' => 'honors',
@@ -46,7 +46,7 @@ test('an award can be updated', function () {
 test('an award can be deleted', function () {
     $award = Award::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.awards.destroy', $award));
 
     $response->assertRedirect(route('admin.awards.index'));
@@ -63,7 +63,7 @@ test('the icon is derived automatically from rank and title', function (?int $ra
 ]);
 
 test('an award rejects an unknown type', function () {
-    $response = $this->actingAs(User::factory()->create())->post(route('admin.awards.store'), [
+    $response = $this->actingAs(User::factory()->admin()->create())->post(route('admin.awards.store'), [
         'event_name' => 'Hackathon',
         'title' => 'Juara 1',
         'type' => 'bogus',

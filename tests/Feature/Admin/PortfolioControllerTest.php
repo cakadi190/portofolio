@@ -16,7 +16,7 @@ test('a portfolio can be created with technologies and services', function () {
     $service = Service::factory()->create();
     $media = Media::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())->post(route('admin.portfolios.store'), [
+    $response = $this->actingAs(User::factory()->admin()->create())->post(route('admin.portfolios.store'), [
         'name' => 'Sistem Informasi',
         'image' => $media->path,
         'technologies' => [$technology->id],
@@ -35,7 +35,7 @@ test('a portfolio can be created with technologies and services', function () {
 
 test('the editor pages render', function () {
     $portfolio = Portfolio::factory()->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->get(route('admin.portfolios.create'))->assertOk();
     $this->actingAs($user)->get(route('admin.portfolios.edit', $portfolio))->assertOk();
@@ -44,7 +44,7 @@ test('the editor pages render', function () {
 test('multiple gallery images are saved and replaced on update', function () {
     $cover = Media::factory()->create();
     [$a, $b, $c] = Media::factory()->count(3)->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->post(route('admin.portfolios.store'), [
         'name' => 'Galeri',
@@ -70,7 +70,7 @@ test('multiple gallery images are saved and replaced on update', function () {
 test('gallery images must exist in the media library', function () {
     $cover = Media::factory()->create();
 
-    $this->actingAs(User::factory()->create())->post(route('admin.portfolios.store'), [
+    $this->actingAs(User::factory()->admin()->create())->post(route('admin.portfolios.store'), [
         'name' => 'Galeri',
         'image' => $cover->path,
         'galleries' => [['image_url' => 'media/tidak-ada.webp']],
@@ -78,7 +78,7 @@ test('gallery images must exist in the media library', function () {
 });
 
 test('creating a portfolio requires a name and image', function () {
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.portfolios.store'), []);
 
     $response->assertSessionHasErrors(['name', 'image']);
@@ -90,7 +90,7 @@ test('updating a portfolio syncs its technologies', function () {
     $technologyB = Technology::factory()->create();
     $portfolio->technologies()->sync([$technologyA->id]);
 
-    $response = $this->actingAs(User::factory()->create())->put(route('admin.portfolios.update', $portfolio), [
+    $response = $this->actingAs(User::factory()->admin()->create())->put(route('admin.portfolios.update', $portfolio), [
         'name' => $portfolio->name,
         'image' => $portfolio->image,
         'technologies' => [$technologyB->id],
@@ -107,7 +107,7 @@ test('a portfolio can be deleted while its image stays in the library', function
     Storage::disk('public')->put($media->path, 'fake-content');
     $portfolio = Portfolio::factory()->create(['image' => $media->path]);
 
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.portfolios.destroy', $portfolio));
 
     $response->assertRedirect(route('admin.portfolios.index'));

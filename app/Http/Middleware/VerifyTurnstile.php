@@ -22,6 +22,7 @@ class VerifyTurnstile
         'password.update',
         'contact.store',
         'portfolios.reviews.store',
+        'blog.comments.store',
     ];
 
     public function __construct(private TurnstileService $turnstile) {}

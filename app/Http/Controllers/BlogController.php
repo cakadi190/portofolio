@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogComment;
 use App\Models\Post;
 use App\Services\ImageService;
 use App\Services\SeoService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -77,6 +79,7 @@ class BlogController extends Controller
 
         return Inertia::render('blog/show', [
             'post' => [
+                'slug' => $post->slug,
                 'title' => $post->title,
                 'excerpt' => $post->excerpt,
                 'content' => $post->content,
@@ -88,6 +91,35 @@ class BlogController extends Controller
                 ]),
                 'tags' => $post->tags->pluck('name'),
             ],
+            'comments' => $this->commentTree($post),
         ]);
+    }
+
+    /**
+     * Approved comments as a nested tree. A reply whose ancestor is not
+     * approved is hidden together with that ancestor.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function commentTree(Post $post): Collection
+    {
+        $byParent = $post->comments()
+            ->approved()
+            ->with('user:id,name')
+            ->oldest()
+            ->get()
+            ->groupBy('parent_id');
+
+        $build = function (?int $parentId) use (&$build, $byParent): Collection {
+            return $byParent->get($parentId, collect())->map(fn (BlogComment $comment): array => [
+                'id' => $comment->id,
+                'body' => $comment->body,
+                'author' => $comment->user?->name ?? 'Pengguna terhapus',
+                'createdAt' => $comment->created_at,
+                'replies' => $build($comment->id)->values(),
+            ])->values();
+        };
+
+        return $build(null);
     }
 }

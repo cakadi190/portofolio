@@ -10,7 +10,7 @@ test('guests are redirected to the login page', function () {
 
 test('the editor pages render', function () {
     $post = Post::factory()->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->get(route('admin.posts.create'))->assertOk();
     $this->actingAs($user)->get(route('admin.posts.edit', $post))->assertOk();
@@ -19,7 +19,7 @@ test('the editor pages render', function () {
 test('a post is created and the editor stays on its edit page', function () {
     $tag = Tag::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())->post(route('admin.posts.store'), [
+    $response = $this->actingAs(User::factory()->admin()->create())->post(route('admin.posts.store'), [
         'title' => 'Halo Dunia',
         'content' => '<p>Isi</p>',
         'is_published' => '0',
@@ -34,7 +34,7 @@ test('a post is created and the editor stays on its edit page', function () {
 });
 
 test('creating a post requires title and content', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.posts.store'), ['title' => '', 'content' => ''])
         ->assertSessionHasErrors(['title', 'content']);
 });
@@ -42,7 +42,7 @@ test('creating a post requires title and content', function () {
 test('a post can be updated', function () {
     $post = Post::factory()->create(['is_published' => false]);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.posts.update', $post), [
             'title' => 'Baru',
             'slug' => $post->slug,
@@ -57,7 +57,7 @@ test('a post can be updated', function () {
 test('a post can be deleted', function () {
     $post = Post::factory()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.posts.destroy', $post))
         ->assertRedirect(route('admin.posts.index'));
 
@@ -68,7 +68,7 @@ test('the list searches and sorts', function () {
     Post::factory()->create(['title' => 'Alpha']);
     Post::factory()->create(['title' => 'Bravo']);
     Post::factory()->create(['title' => 'Charlie']);
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)
         ->get(route('admin.posts.index', ['search' => 'bra']))
@@ -90,7 +90,7 @@ test('the list searches and sorts', function () {
 
 test('the list paginates with a whitelisted page size', function () {
     Post::factory()->count(12)->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->get(route('admin.posts.index'))
         ->assertInertia(fn ($page) => $page->has('posts.data', 10)->where('posts.last_page', 2));

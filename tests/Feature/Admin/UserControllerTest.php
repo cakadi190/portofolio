@@ -11,7 +11,7 @@ test('guests are redirected to the login page', function () {
 test('a user can be created with a library avatar', function () {
     $media = Media::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())->post(route('admin.users.store'), [
+    $response = $this->actingAs(User::factory()->admin()->create())->post(route('admin.users.store'), [
         'name' => 'Jane Doe',
         'email' => 'jane@example.com',
         'password' => 'password123',
@@ -27,17 +27,17 @@ test('a user can be created with a library avatar', function () {
 });
 
 test('creating a user requires a name, email, password and account type', function () {
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.users.store'), []);
 
     $response->assertSessionHasErrors(['name', 'email', 'password', 'account_type']);
 });
 
 test('updating a user without a password keeps the previous password', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $originalPassword = $user->password;
 
-    $response = $this->actingAs(User::factory()->create())->put(route('admin.users.update', $user), [
+    $response = $this->actingAs(User::factory()->admin()->create())->put(route('admin.users.update', $user), [
         'name' => 'Updated Name',
         'email' => $user->email,
         'account_type' => 'user',
@@ -54,7 +54,7 @@ test('updating a user swaps the avatar', function () {
     $user = User::factory()->create(['avatar' => 'avatars/old.png']);
     $media = Media::factory()->create();
 
-    $response = $this->actingAs(User::factory()->create())->put(route('admin.users.update', $user), [
+    $response = $this->actingAs(User::factory()->admin()->create())->put(route('admin.users.update', $user), [
         'name' => $user->name,
         'email' => $user->email,
         'account_type' => 'user',
@@ -69,7 +69,7 @@ test('updating a user swaps the avatar', function () {
 test('a user can be deleted', function () {
     $user = User::factory()->create(['avatar' => 'avatars/avatar.png']);
 
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.users.destroy', $user));
 
     $response->assertRedirect(route('admin.users.index'));

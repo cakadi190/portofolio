@@ -28,7 +28,7 @@ describe('adminMenu', () => {
 
     expect(
       blog?.children?.map((child) => (child as AdminSidebarMenuItem).active),
-    ).toEqual([true, false, false]);
+    ).toEqual([true, false, false, false]);
   });
 
   it('does not match sibling routes sharing a prefix', () => {
@@ -48,5 +48,13 @@ describe('adminMenu', () => {
     for (const leaf of leaves as AdminSidebarMenuItem[]) {
       expect(leaf.href).toMatch(/^\/admin/);
     }
+  });
+
+  it('limits redaktur to the dashboard and blogging section', () => {
+    const labels = adminMenu('/admin', 'redaktur')
+      .filter((entry): entry is AdminSidebarMenuItem => entry.type !== 'header')
+      .map((item) => item.label);
+
+    expect(labels).toEqual(['Dasbor', 'Blog']);
   });
 });

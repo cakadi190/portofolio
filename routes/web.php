@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AwardController;
+use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\CoffeeShopController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioController;
@@ -36,6 +38,9 @@ Route::get('layanan/{service:slug}', [ServiceController::class, 'show'])->name('
 Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/', [BlogController::class, 'index'])->name('index');
     Route::get('{post:slug}', [BlogController::class, 'show'])->name('show');
+    Route::post('{post:slug}/komentar', [BlogCommentController::class, 'store'])
+        ->middleware(['auth', 'throttle:10,1'])
+        ->name('comments.store');
 });
 
 Route::prefix('portofolio')->name('portfolios.')->group(function () {
@@ -57,7 +62,7 @@ Route::prefix('sumber-daya')->name('resources.')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('admin', 'dashboard/index')->name('dashboard');
+    Route::get('admin', DashboardController::class)->name('dashboard');
 
     require __DIR__.'/admin.php';
 });

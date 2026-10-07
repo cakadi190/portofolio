@@ -17,7 +17,7 @@ function careerPayload(array $overrides = []): array
 test('a career can be created with related portfolios', function () {
     $portfolios = Portfolio::factory()->count(2)->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.careers.store'), careerPayload(['portfolios' => $portfolios->modelKeys()]))
         ->assertRedirect(route('admin.careers.index'));
 
@@ -27,7 +27,7 @@ test('a career can be created with related portfolios', function () {
 test('the index serializes dates in a format date inputs accept', function () {
     Career::query()->create(careerPayload(['end_date' => '2024-02-20']));
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.careers.index'))
         ->assertInertia(fn ($page) => $page
             ->where('careers.data.0.start_date', '2023-01-10')
@@ -38,7 +38,7 @@ test('a career can be updated and its portfolios resynced', function () {
     $career = Career::query()->create(careerPayload());
     $career->portfolios()->attach(Portfolio::factory()->create());
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.careers.update', $career), careerPayload(['position' => 'Tech Lead']))
         ->assertRedirect(route('admin.careers.index'));
 
@@ -47,7 +47,7 @@ test('a career can be updated and its portfolios resynced', function () {
 });
 
 test('a career end date cannot precede its start date', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.careers.store'), careerPayload(['end_date' => '2022-01-01']))
         ->assertSessionHasErrors('end_date');
 });
@@ -55,7 +55,7 @@ test('a career end date cannot precede its start date', function () {
 test('a career can be deleted', function () {
     $career = Career::query()->create(careerPayload());
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.careers.destroy', $career))
         ->assertRedirect(route('admin.careers.index'));
 

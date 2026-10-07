@@ -17,7 +17,7 @@ test('guests are redirected to the login page', function () {
 });
 
 test('an image is compressed to webp and registered in the library', function () {
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('foto.jpg', 800, 600)]);
 
     $response->assertCreated()->assertJsonPath('mime_type', 'image/webp')->assertJsonPath('is_image', true);
@@ -28,7 +28,7 @@ test('an image is compressed to webp and registered in the library', function ()
 });
 
 test('a pdf is stored as-is', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf')])
         ->assertCreated()
         ->assertJsonPath('is_image', false);
@@ -37,7 +37,7 @@ test('a pdf is stored as-is', function () {
 });
 
 test('unsupported files are rejected', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->create('malware.exe', 10)])
         ->assertJsonValidationErrors('file');
 });
@@ -45,7 +45,7 @@ test('unsupported files are rejected', function () {
 test('the browse endpoint searches and filters by type', function () {
     Media::factory()->create(['name' => 'banner.webp']);
     Media::factory()->pdf()->create(['name' => 'resume.pdf']);
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->getJson(route('admin.media.browse', ['type' => 'image']))
         ->assertJsonCount(1, 'data')->assertJsonPath('data.0.name', 'banner.webp');
@@ -57,7 +57,7 @@ test('the browse endpoint searches and filters by type', function () {
 test('media details can be updated', function () {
     $media = Media::factory()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->put(route('admin.media.update', $media), ['name' => 'baru.webp', 'alt' => 'Teks alternatif'])
         ->assertRedirect(route('admin.media.index'));
 
@@ -68,14 +68,14 @@ test('unused media is deleted together with its file', function () {
     $media = Media::factory()->create();
     Storage::disk('public')->put($media->path, 'x');
 
-    $this->actingAs(User::factory()->create())->delete(route('admin.media.destroy', $media));
+    $this->actingAs(User::factory()->admin()->create())->delete(route('admin.media.destroy', $media));
 
     $this->assertModelMissing($media);
     Storage::disk('public')->assertMissing($media->path);
 });
 
 test('media in use by a record or embedded in post content is kept', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $cover = Media::factory()->create();
     $inline = Media::factory()->create();
     Certification::factory()->create(['file' => $cover->path]);
@@ -89,11 +89,11 @@ test('media in use by a record or embedded in post content is kept', function ()
 });
 
 test('stored files get a kebab-case name derived from the original name', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('Foto Profil_2024.JPG', 100, 100)])
         ->assertCreated();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->create('Surat Lamaran Kerja.PDF', 10, 'application/pdf')])
         ->assertCreated();
 

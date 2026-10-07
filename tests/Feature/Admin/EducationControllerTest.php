@@ -14,7 +14,7 @@ function validEducationPayload(array $overrides = []): array
 }
 
 test('an education can be created with a valid level and score type', function () {
-    $response = $this->actingAs(User::factory()->create())->post(
+    $response = $this->actingAs(User::factory()->admin()->create())->post(
         route('admin.educations.store'),
         validEducationPayload(['academic_score_type' => 'gpa']),
     );
@@ -24,7 +24,7 @@ test('an education can be created with a valid level and score type', function (
 });
 
 test('an education rejects levels and score types outside the enum', function () {
-    $response = $this->actingAs(User::factory()->create())->post(
+    $response = $this->actingAs(User::factory()->admin()->create())->post(
         route('admin.educations.store'),
         validEducationPayload(['level' => 'doctorate', 'academic_score_type' => 'other']),
     );
@@ -33,7 +33,7 @@ test('an education rejects levels and score types outside the enum', function ()
 });
 
 test('the index exposes level options', function () {
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.educations.index'))
         ->assertInertia(fn ($page) => $page->has('levels', count(EducationLevel::cases())));
 });

@@ -19,7 +19,7 @@ test('guests are redirected to the login page', function () {
 });
 
 test('a certification can be created with a media library file', function () {
-    $response = $this->actingAs(User::factory()->create())
+    $response = $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.certifications.store'), certificationPayload());
 
     $response->assertRedirect(route('admin.certifications.index'));
@@ -28,7 +28,7 @@ test('a certification can be created with a media library file', function () {
 });
 
 test('creating a certification requires a file from the media library', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)
         ->post(route('admin.certifications.store'), certificationPayload(['file' => null]))
@@ -41,7 +41,7 @@ test('creating a certification requires a file from the media library', function
 
 test('a certification can be updated keeping or swapping its file', function () {
     $certification = Certification::factory()->create();
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $payload = ['title' => 'Judul Baru', 'issuer' => $certification->issuer, 'issued_at' => '2025-01-15'];
 
     $this->actingAs($user)
@@ -59,7 +59,7 @@ test('a certification can be updated keeping or swapping its file', function () 
 test('a certification can be deleted', function () {
     $certification = Certification::factory()->create();
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->delete(route('admin.certifications.destroy', $certification))
         ->assertRedirect(route('admin.certifications.index'));
 
