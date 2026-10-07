@@ -77,6 +77,7 @@
   let activeHit = $state(-1);
   let zooming = $state(false);
   let zoomTimer = 0;
+  let anchorFrame = 0;
   let hitTimer = 0;
   let searchInput = $state<HTMLInputElement | null>(null);
 
@@ -524,11 +525,51 @@
     }
   });
 
-  function setZoom(next: number): void {
+  /**
+   * Zooms around a viewport point (the pointer on desktop, the pane center by default, the pinch
+   * midpoint on touch). Scroll is re-anchored every frame while the page size eases to its target.
+   */
+  function setZoom(next: number, origin?: { x: number; y: number }): void {
+    const target = Math.min(PDF_ZOOM_MAX, Math.max(PDF_ZOOM_MIN, next));
+    const reference = [...slots.values()][0]?.node;
+
+    if (target === zoom) {
+      return;
+    }
+
     zooming = true;
     window.clearTimeout(zoomTimer);
     zoomTimer = window.setTimeout(() => (zooming = false), 260);
-    zoom = Math.min(PDF_ZOOM_MAX, Math.max(PDF_ZOOM_MIN, next));
+
+    if (!scroller || !reference) {
+      zoom = target;
+      return;
+    }
+
+    const host = scroller;
+    const box = host.getBoundingClientRect();
+    const cx = origin ? origin.x - box.left : box.width / 2;
+    const cy = origin ? origin.y - box.top : box.height / 2;
+    const contentX = host.scrollLeft + cx;
+    const contentY = host.scrollTop + cy;
+    const startWidth = reference.getBoundingClientRect().width || 1;
+    const startedAt = performance.now();
+
+    cancelAnimationFrame(anchorFrame);
+    zoom = target;
+
+    const follow = (): void => {
+      const ratio = reference.getBoundingClientRect().width / startWidth;
+
+      host.scrollLeft = contentX * ratio - cx;
+      host.scrollTop = contentY * ratio - cy;
+
+      if (performance.now() - startedAt < 300) {
+        anchorFrame = requestAnimationFrame(follow);
+      }
+    };
+
+    void tick().then(follow);
   }
 
   function rotate(delta: number): void {
@@ -721,7 +762,7 @@
     }
 
     event.preventDefault();
-    setZoom(zoom * Math.exp(-event.deltaY * 0.006));
+    setZoom(zoom * Math.exp(-event.deltaY * 0.006), { x: event.clientX, y: event.clientY });
   }
 
   function touchDistance(): number {
@@ -730,30 +771,14 @@
     return Math.hypot(a.x - b.x, a.y - b.y);
   }
 
-  async function applyPinch(distance: number): Promise<void> {
-    if (!pinch || !scroller) {
+  function applyPinch(distance: number): void {
+    if (!pinch) {
       return;
     }
 
     const [a, b] = [...touches.values()];
-    const box = scroller.getBoundingClientRect();
-    const cx = (a.x + b.x) / 2 - box.left;
-    const cy = (a.y + b.y) / 2 - box.top;
-    const before = zoom;
-    const contentX = scroller.scrollLeft + cx;
-    const contentY = scroller.scrollTop + cy;
 
-    setZoom(pinch.zoom * (distance / pinch.distance));
-
-    if (zoom === before) {
-      return;
-    }
-
-    const ratio = zoom / before;
-
-    await tick();
-    scroller.scrollLeft = contentX * ratio - cx;
-    scroller.scrollTop = contentY * ratio - cy;
+    setZoom(pinch.zoom * (distance / pinch.distance), { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
   }
 
   function onPointerDown(event: PointerEvent): void {
