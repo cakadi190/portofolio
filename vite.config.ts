@@ -89,8 +89,14 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
     },
-    // Svelte components must resolve to their browser build under Vitest.
-    conditions: process.env.VITEST ? ['browser'] : [],
+    // Svelte's package exports fall back to its server entry (where
+    // `hydrate()` throws `lifecycle_function_unavailable`) unless the
+    // `browser` condition matches, so pin it for Vitest and the client
+    // build (the Bun-run Docker build can miss Vite's default).
+    conditions:
+      process.env.VITEST || !isSsrBuild
+        ? ['module', 'browser', 'development|production']
+        : [],
   },
   test: {
     environment: 'jsdom',
