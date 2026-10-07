@@ -28,7 +28,7 @@
   import { cubicOut } from 'svelte/easing';
   import { tick } from 'svelte';
   import { perfectScrollbar } from '@/lib/perfect-scrollbar';
-  import { createOcrCache, findOcrMatches, terminateOcrWorker } from '@/lib/ocr';
+  import { createOcrCache, findOcrMatches, OCR_POOL_SIZE, terminateOcrWorker } from '@/lib/ocr';
   import type { OcrLine, Rect } from '@/lib/ocr';
   import type { TransitionConfig } from 'svelte/transition';
   import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist';
@@ -75,6 +75,9 @@
   let searching = $state(false);
   let hits = $state.raw<SearchHit[]>([]);
   let activeHit = $state(-1);
+  let zooming = $state(false);
+  let zoomTimer = 0;
+  let hitTimer = 0;
   let searchInput = $state<HTMLInputElement | null>(null);
 
   const slots = new Map<number, Slot>();
@@ -209,6 +212,32 @@
     scroller.scrollTo({
       top: page.top - box.top + scroller.scrollTop + (y / view.height) * page.height - box.height / 2,
       left: page.left - box.left + scroller.scrollLeft + (x / view.width) * page.width - box.width / 2,
+      behavior: 'smooth',
+    });
+  }
+
+  /** Centers the rendered highlight itself, so the target comes from real layout rather than recomputed geometry. */
+  async function scrollToHit(index: number): Promise<void> {
+    await tick();
+
+    const hit = hits[index];
+    const marker = scroller?.querySelector<HTMLElement>(`[data-hit="${index}"]`);
+
+    if (!scroller || !hit) {
+      return;
+    }
+
+    if (!marker) {
+      scrollToRect(hit.page, hit.rect);
+      return;
+    }
+
+    const box = scroller.getBoundingClientRect();
+    const rect = marker.getBoundingClientRect();
+
+    scroller.scrollTo({
+      top: rect.top - box.top + scroller.scrollTop + rect.height / 2 - box.height / 2,
+      left: rect.left - box.left + scroller.scrollLeft + rect.width / 2 - box.width / 2,
       behavior: 'smooth',
     });
   }
@@ -496,6 +525,9 @@
   });
 
   function setZoom(next: number): void {
+    zooming = true;
+    window.clearTimeout(zoomTimer);
+    zoomTimer = window.setTimeout(() => (zooming = false), 260);
     zoom = Math.min(PDF_ZOOM_MAX, Math.max(PDF_ZOOM_MIN, next));
   }
 
@@ -583,6 +615,16 @@
       }
 
       const hasTextLayer = runs.reduce((total, run) => total + run.str.trim().length, 0) >= 30;
+      if (!hasTextLayer) {
+        for (let ahead = 1; ahead < OCR_POOL_SIZE; ahead++) {
+          const next = pdfPages[number + ahead - 1];
+
+          if (next) {
+            void ocrCache.get(number + ahead, next).catch(() => undefined);
+          }
+        }
+      }
+
       const scanned = hasTextLayer
         ? []
         : await ocrCache.get(number, pdfPages[number - 1]).catch((error: unknown) => {
@@ -635,9 +677,16 @@
 
   function focusHit(index: number): void {
     activeHit = index;
+    window.clearTimeout(hitTimer);
 
     if (index >= 0) {
-      scrollToRect(hits[index].page, hits[index].rect);
+      void scrollToHit(index);
+      /* Page sizes may still be settling (sidebar opening reflows the width); re-aim once they have. */
+      hitTimer = window.setTimeout(() => {
+        if (activeHit === index) {
+          void scrollToHit(index);
+        }
+      }, 300);
     }
   }
 
@@ -948,10 +997,10 @@
         {#each rows as row (row[0])}
           <div class="pdf-row">
             {#each row as number (number)}
-              <div class="pdf-page" use:pageSlot={number} style={pageStyle(number)}>
+              <div class="pdf-page" class:is-zooming={zooming} use:pageSlot={number} style={pageStyle(number)}>
                 <canvas aria-label={`${title} – halaman ${number}`} oncontextmenu={(event) => event.preventDefault()}></canvas>
                 {#each hitsByPage.get(number) ?? [] as hit (hit.index)}
-                  <span class="pdf-hit" class:is-active={hit.index === activeHit} style={hitStyle(number, hit.rect)}></span>
+                  <span class="pdf-hit" data-hit={hit.index} class:is-active={hit.index === activeHit} style={hitStyle(number, hit.rect)}></span>
                 {/each}
               </div>
             {/each}
@@ -1287,13 +1336,16 @@
     background: #fff;
     border-radius: 0.25rem;
     box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.4);
+  }
+
+  .pdf-page.is-zooming {
     transition:
       width 0.2s cubic-bezier(0.215, 0.61, 0.355, 1),
       height 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pdf-page {
+    .pdf-page.is-zooming {
       transition: none;
     }
   }

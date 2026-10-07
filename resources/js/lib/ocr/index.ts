@@ -3,25 +3,27 @@ import { recognizePage } from './recognize';
 import type { OcrLine } from './types';
 
 export { findOcrMatches } from './match';
-export { terminateOcrWorker } from './worker';
+export { OCR_POOL_SIZE, terminateOcrWorker } from './worker';
 export type { OcrLine, OcrMatch, OcrWord, Rect } from './types';
 
 /** Per-document OCR cache keyed by page number. */
 export function createOcrCache() {
-  const cache = new Map<number, OcrLine[]>();
+  const cache = new Map<number, Promise<OcrLine[]>>();
 
   return {
-    async get(number: number, source: PDFPageProxy): Promise<OcrLine[]> {
-      const cached = cache.get(number);
+    /** Shares one in-flight job per page, so prefetching and searching never OCR the same page twice. */
+    get(number: number, source: PDFPageProxy): Promise<OcrLine[]> {
+      let pending = cache.get(number);
 
-      if (cached) {
-        return cached;
+      if (!pending) {
+        pending = recognizePage(source).catch((error: unknown) => {
+          cache.delete(number);
+          throw error;
+        });
+        cache.set(number, pending);
       }
 
-      const lines = await recognizePage(source);
-      cache.set(number, lines);
-
-      return lines;
+      return pending;
     },
     clear(): void {
       cache.clear();

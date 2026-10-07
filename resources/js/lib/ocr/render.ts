@@ -1,7 +1,7 @@
 import type { PDFPageProxy } from 'pdfjs-dist';
 
-const MAX_SCALE = 3;
-const MAX_SIDE = 3600;
+const MAX_SCALE = 2.5;
+const MAX_SIDE = 3000;
 
 /** Renders a PDF page to a grayscale, high-contrast canvas suited for OCR. */
 export async function renderPageForOcr(source: PDFPageProxy): Promise<{ canvas: HTMLCanvasElement; scale: number }> {
@@ -23,6 +23,8 @@ export async function renderPageForOcr(source: PDFPageProxy): Promise<{ canvas: 
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.filter = 'grayscale(1) contrast(1.6)';
     context.drawImage(raw, 0, 0);
+    raw.width = 0;
+    raw.height = 0;
   }
 
   return { canvas, scale };

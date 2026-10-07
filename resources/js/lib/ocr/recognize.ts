@@ -1,14 +1,15 @@
 import type { PDFPageProxy } from 'pdfjs-dist';
 import { renderPageForOcr } from './render';
 import type { OcrLine, Rect } from './types';
-import { getOcrWorker } from './worker';
+import { getOcrScheduler } from './worker';
 
 /** Recognizes a page without a text layer (scanned PDF) and returns word boxes in PDF units. */
 export async function recognizePage(source: PDFPageProxy): Promise<OcrLine[]> {
   const { canvas, scale } = await renderPageForOcr(source);
-  const worker = await getOcrWorker();
-  await worker.setParameters({ tessedit_pageseg_mode: '11' as never, preserve_interword_spaces: '1' });
-  const { data } = await worker.recognize(canvas, {}, { blocks: true });
+  const pool = await getOcrScheduler();
+  const { data } = await pool.addJob('recognize', canvas, {}, { blocks: true });
+  canvas.width = 0;
+  canvas.height = 0;
   const [left, , , top] = source.view;
   const lines: OcrLine[] = [];
 
