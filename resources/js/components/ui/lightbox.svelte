@@ -224,7 +224,7 @@
 
   function onWheel(event: WheelEvent): void {
     event.preventDefault();
-    zoomTo(scale * Math.exp(-event.deltaY * 0.006), { x: event.clientX, y: event.clientY });
+    zoomTo(scale * Math.exp(-event.deltaY * 0.006), { x: event.clientX, y: event.clientY }, true);
   }
 
   function onDoubleClick(event: MouseEvent): void {
@@ -536,7 +536,7 @@
   }
 
   .lightbox-image.is-animating {
-    transition: transform 0.2s ease;
+    transition: transform 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 
   .lightbox-message {

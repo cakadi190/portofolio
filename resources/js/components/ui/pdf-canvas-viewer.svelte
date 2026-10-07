@@ -996,7 +996,7 @@
           </p>
         {/if}
 
-        <ul class="pdf-results" use:perfectScrollbar>
+        <ul class="pdf-results" use:perfectScrollbar={{ suppressScrollX: true }}>
           {#each hits as hit, index (index)}
             <li>
               <button type="button" class="pdf-result" class:is-active={index === activeHit} onclick={() => focusHit(index)}>
@@ -1287,6 +1287,15 @@
     background: #fff;
     border-radius: 0.25rem;
     box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.4);
+    transition:
+      width 0.2s cubic-bezier(0.215, 0.61, 0.355, 1),
+      height 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pdf-page {
+      transition: none;
+    }
   }
 
   .pdf-page canvas {
@@ -1321,7 +1330,9 @@
     flex-direction: column;
     gap: 0.5rem;
     min-height: 0;
+    min-width: 0;
     padding: 0.75rem;
+    overflow: hidden;
     border-left: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -1338,8 +1349,13 @@
     min-height: 0;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
     overflow-y: auto;
     list-style: none;
+  }
+
+  .pdf-results li {
+    min-width: 0;
   }
 
   .pdf-result {
@@ -1347,6 +1363,7 @@
     flex-direction: column;
     gap: 0.125rem;
     width: 100%;
+    min-width: 0;
     padding: 0.5rem;
     font-size: 0.8125rem;
     color: inherit;
