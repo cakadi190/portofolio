@@ -78,6 +78,9 @@
   let zooming = $state(false);
   let zoomTimer = 0;
   let anchorFrame = 0;
+  let glideFrame = 0;
+  const prefersReducedMotion =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let hitTimer = 0;
   let searchInput = $state<HTMLInputElement | null>(null);
 
@@ -236,11 +239,40 @@
     const box = scroller.getBoundingClientRect();
     const rect = marker.getBoundingClientRect();
 
-    scroller.scrollTo({
-      top: rect.top - box.top + scroller.scrollTop + rect.height / 2 - box.height / 2,
-      left: rect.left - box.left + scroller.scrollLeft + rect.width / 2 - box.width / 2,
-      behavior: 'smooth',
-    });
+    glideTo(
+      scroller,
+      rect.top - box.top + scroller.scrollTop + rect.height / 2 - box.height / 2,
+      rect.left - box.left + scroller.scrollLeft + rect.width / 2 - box.width / 2,
+    );
+  }
+
+  /**
+   * Eases the scroll position frame by frame. Native smooth scrolling is aborted whenever the scrollbar
+   * plugin resets scrollLeft (it does so while the pages fit horizontally, i.e. at 100% zoom or less).
+   */
+  function glideTo(host: HTMLElement, top: number, left: number): void {
+    cancelAnimationFrame(glideFrame);
+
+    const fromTop = host.scrollTop;
+    const fromLeft = host.scrollLeft;
+    const toTop = Math.min(Math.max(0, top), host.scrollHeight - host.clientHeight);
+    const toLeft = Math.min(Math.max(0, left), host.scrollWidth - host.clientWidth);
+    const duration = prefersReducedMotion ? 0 : 280;
+    const startedAt = performance.now();
+
+    const step = (now: number): void => {
+      const progress = duration === 0 ? 1 : Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - (1 - progress) ** 3;
+
+      host.scrollTop = fromTop + (toTop - fromTop) * eased;
+      host.scrollLeft = fromLeft + (toLeft - fromLeft) * eased;
+
+      if (progress < 1) {
+        glideFrame = requestAnimationFrame(step);
+      }
+    };
+
+    glideFrame = requestAnimationFrame(step);
   }
 
   async function renderSlot(number: number): Promise<void> {
