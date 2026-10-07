@@ -31,6 +31,7 @@ Route::get('penghargaan', [AwardController::class, 'index'])->name('awards.index
 Route::get('kontak', [ContactController::class, 'index'])->name('contact.index');
 Route::post('kontak', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 Route::get('layanan', [ServiceController::class, 'index'])->name('services.index');
+Route::get('layanan/{service:slug}', [ServiceController::class, 'show'])->name('services.show');
 
 Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/', [BlogController::class, 'index'])->name('index');

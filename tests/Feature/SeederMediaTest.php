@@ -6,10 +6,10 @@ use App\Models\Post;
 use App\Services\MediaService;
 use Database\Seeders\CoffeePlaceSeeder;
 use Database\Seeders\EducationSeeder;
-use Database\Seeders\PortfolioCategorySeeder;
 use Database\Seeders\PortfolioSeeder;
 use Database\Seeders\PostCategorySeeder;
 use Database\Seeders\PostSeeder;
+use Database\Seeders\ServiceSeeder;
 use Database\Seeders\TechnologySeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Support\Facades\Storage;
@@ -27,7 +27,7 @@ it('registers seeded education logos in the media library', function (): void {
 });
 
 it('registers seeded coffee place and portfolio images in the media library', function (): void {
-    $this->seed([CoffeePlaceSeeder::class, TechnologySeeder::class, PortfolioCategorySeeder::class, PortfolioSeeder::class]);
+    $this->seed([CoffeePlaceSeeder::class, TechnologySeeder::class, ServiceSeeder::class, PortfolioSeeder::class]);
 
     $portfolio = Portfolio::query()->first();
 

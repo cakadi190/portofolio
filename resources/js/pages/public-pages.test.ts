@@ -8,6 +8,7 @@ import CareerPage from '@/pages/career/index.svelte';
 import Dashboard from '@/pages/dashboard/index.svelte';
 import PortfolioIndex from '@/pages/portfolio/index.svelte';
 import ServicePage from '@/pages/service/index.svelte';
+import ServiceShow from '@/pages/service/show.svelte';
 import AboutSite from '@/pages/tentang/situs.svelte';
 import SkillPage from '@/pages/tentang/skill.svelte';
 import { hrefOf } from '@/tests/helpers';
@@ -34,9 +35,57 @@ describe('Dashboard', () => {
   });
 });
 
+describe('ServicePage', () => {
+  it('shows an empty state without services', () => {
+    render(ServicePage, { services: [] });
+
+    expect(document.title).toContain('Layanan Saya');
+    expect(screen.getByText(/Belum Ada Layanan/)).toBeTruthy();
+  });
+
+  it('links each service to its detail page', () => {
+    render(ServicePage, {
+      services: [
+        {
+          name: 'Website',
+          slug: 'website',
+          color: '#0ea5e9',
+          image: null,
+          excerpt: 'Bikin web',
+          portfoliosCount: 2,
+        },
+      ],
+    });
+
+    expect(hrefOf(screen.getByRole('link', { name: /Website/ }))).toBe('/layanan/website');
+  });
+});
+
+describe('ServiceShow', () => {
+  it('renders the description and related portfolios', () => {
+    render(ServiceShow, {
+      service: { name: 'Website', slug: 'website', color: null, image: null, description: '<p>Isi layanan</p>' },
+      portfolios: [
+        { name: 'Proyek', slug: 'proyek', image: '/p.webp', shortDesc: null, services: [], technologies: [] },
+      ],
+    });
+
+    expect(screen.getByText('Isi layanan')).toBeTruthy();
+    expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe('/portofolio/proyek');
+  });
+
+  it('shows an empty portfolio message', () => {
+    render(ServiceShow, {
+      service: { name: 'Website', slug: 'website', color: null, image: null, description: null },
+      portfolios: [],
+    });
+
+    expect(screen.getByText(/Belum ada portofolio untuk layanan ini/)).toBeTruthy();
+  });
+});
+
 describe('static pages', () => {
   it.each([
-    ['Layanan Saya', ServicePage],
     ['Tentang Situs', AboutSite],
     ['Skill', SkillPage],
   ])('%s renders its header', (title, Page) => {
@@ -161,7 +210,7 @@ describe('PortfolioIndex', () => {
           slug: 'proyek',
           image: '/p.webp',
           shortDesc: null,
-          categories: [],
+          services: [],
           technologies: [],
         },
       ]),

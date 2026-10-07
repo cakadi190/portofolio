@@ -11,7 +11,7 @@
     slug: string;
     image: string;
     shortDesc: string | null;
-    categories: { name: string; color: string | null }[];
+    services: { name: string; color: string | null }[];
     technologies: string[];
   };
 

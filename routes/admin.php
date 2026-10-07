@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\PortfolioGalleryController;
 use App\Http\Controllers\Admin\PortfolioRatingController;
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TechnologyController;
@@ -38,6 +39,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('portfolio-ratings', PortfolioRatingController::class)->parameters(['portfolio-ratings' => 'portfolioRating'])->only($only);
     Route::resource('post-categories', PostCategoryController::class)->parameters(['post-categories' => 'postCategory'])->only($only);
     Route::resource('posts', PostController::class)->parameters(['posts' => 'post'])->only([...$only, 'create', 'edit']);
+    Route::resource('services', ServiceController::class)->parameters(['services' => 'service'])->only(['index', 'edit', 'update']);
     Route::resource('tags', TagController::class)->parameters(['tags' => 'tag'])->only($only);
     Route::resource('technologies', TechnologyController::class)->parameters(['technologies' => 'technology'])->only($only);
     Route::resource('users', UserController::class)->parameters(['users' => 'user'])->only($only);

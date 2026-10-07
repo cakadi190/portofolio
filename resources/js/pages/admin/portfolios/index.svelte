@@ -14,7 +14,7 @@
     image: string;
     is_private: boolean;
     technologies: { id: number; name: string }[];
-    categories: { id: number; name: string }[];
+    services: { id: number; name: string }[];
   };
 
   let {
@@ -43,7 +43,7 @@
     { label: 'Sampul' },
     { label: 'Nama', key: 'name', sortable: true },
     { label: 'Teknologi' },
-    { label: 'Kategori' },
+    { label: 'Layanan' },
     { label: 'Privat', key: 'is_private', sortable: true },
     { label: 'Aksi', align: 'end' },
   ]}
@@ -76,7 +76,7 @@
       >
       <td
         ><div class="d-flex flex-wrap gap-1">
-          {#each portfolio.categories as item (item.id)}
+          {#each portfolio.services as item (item.id)}
             <span class="badge text-bg-secondary fw-normal">{item.name}</span>
           {:else}
             <span class="text-muted">&mdash;</span>

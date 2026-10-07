@@ -2,7 +2,7 @@
 
 use App\Models\Media;
 use App\Models\Portfolio;
-use App\Models\PortfolioCategory;
+use App\Models\Service;
 use App\Models\Technology;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -11,16 +11,16 @@ test('guests are redirected to the login page', function () {
     $this->get(route('admin.portfolios.index'))->assertRedirect(route('login'));
 });
 
-test('a portfolio can be created with technologies and categories', function () {
+test('a portfolio can be created with technologies and services', function () {
     $technology = Technology::factory()->create();
-    $category = PortfolioCategory::factory()->create();
+    $service = Service::factory()->create();
     $media = Media::factory()->create();
 
     $response = $this->actingAs(User::factory()->create())->post(route('admin.portfolios.store'), [
         'name' => 'Sistem Informasi',
         'image' => $media->path,
         'technologies' => [$technology->id],
-        'categories' => [$category->id],
+        'services' => [$service->id],
     ]);
 
     $portfolio = Portfolio::query()->firstOrFail();
@@ -29,7 +29,7 @@ test('a portfolio can be created with technologies and categories', function () 
 
     expect($portfolio->slug)->toBe('sistem-informasi');
     expect($portfolio->technologies)->toHaveCount(1);
-    expect($portfolio->categories)->toHaveCount(1);
+    expect($portfolio->services)->toHaveCount(1);
     expect($portfolio->image)->toBe($media->path);
 });
 

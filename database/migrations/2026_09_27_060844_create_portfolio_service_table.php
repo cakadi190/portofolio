@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('portfolio_category_portfolio', function (Blueprint $table) {
-            $table->foreignId('portfolio_category_id')->constrained()->cascadeOnDelete();
+        Schema::create('portfolio_service', function (Blueprint $table) {
+            $table->foreignId('service_id')->constrained('services')->cascadeOnDelete();
             $table->foreignId('portfolio_id')->constrained()->cascadeOnDelete();
 
-            $table->primary(['portfolio_category_id', 'portfolio_id']);
+            $table->primary(['service_id', 'portfolio_id']);
         });
     }
 
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('portfolio_category_portfolio');
+        Schema::dropIfExists('portfolio_service');
     }
 };

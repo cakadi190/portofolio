@@ -22,7 +22,7 @@
     source_code: string | null;
     is_private: boolean;
     technologies: { id: number }[];
-    categories: { id: number }[];
+    services: { id: number }[];
     careers: { id: number }[];
     galleries: { image_url: string; description: string | null }[];
   };
@@ -30,12 +30,12 @@
   let {
     portfolio,
     technologies,
-    categories,
+    services,
     careers,
   }: {
     portfolio: Portfolio | null;
     technologies: Option[];
-    categories: Option[];
+    services: Option[];
     careers: { id: number; position: string; company: string }[];
   } = $props();
 
@@ -192,12 +192,12 @@
         </div>
 
         <div class="card">
-          <div class="card-header fw-semibold">Kategori</div>
+          <div class="card-header fw-semibold">Layanan</div>
           <div class="card-body">
             <MultiCheck
-              name="categories"
-              options={categories.map((c) => ({ value: c.id, label: c.name }))}
-              selected={portfolio?.categories.map((c) => c.id) ?? []}
+              name="services"
+              options={services.map((c) => ({ value: c.id, label: c.name }))}
+              selected={portfolio?.services.map((c) => c.id) ?? []}
             />
           </div>
         </div>

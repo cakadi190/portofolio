@@ -39,7 +39,7 @@ Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**:
 
 ## Pelacakan pemakaian
 
-`MediaService::USAGES` memetakan `tabel → kolom exact` (path sama persis) dan `kolom like` (path tertanam di HTML: `posts.content`, `portfolios.description`). **Saat menambah kolom berkas baru di model mana pun, daftarkan di `USAGES`** dan pakai `MediaField` + `new MediaPath($this->route('...')?->kolom)` di FormRequest.
+`MediaService::USAGES` memetakan `tabel → kolom exact` (path sama persis) dan `kolom like` (path tertanam di HTML: `posts.content`, `portfolios.description`, `services.description`; `services.image` kolom exact). **Saat menambah kolom berkas baru di model mana pun, daftarkan di `USAGES`** dan pakai `MediaField` + `new MediaPath($this->route('...')?->kolom)` di FormRequest.
 
 ## Menambah field berkas ke model baru (resep)
 

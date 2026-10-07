@@ -45,7 +45,7 @@ const portfolio = {
   slug: 'proyek',
   image: '/p.webp',
   shortDesc: 'Deskripsi',
-  categories: [{ name: 'Web', color: null }],
+  services: [{ name: 'Web', color: null }],
   technologies: [],
 };
 
@@ -226,7 +226,7 @@ describe('CardPortfolio', () => {
   });
 
   it('omits optional parts', () => {
-    render(CardPortfolio, { ...portfolio, shortDesc: null, categories: [] });
+    render(CardPortfolio, { ...portfolio, shortDesc: null, services: [] });
 
     expect(screen.queryByText('Deskripsi')).toBeNull();
     expect(screen.queryByText('Web')).toBeNull();

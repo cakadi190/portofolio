@@ -57,6 +57,7 @@ export function adminMenu(currentUrl: string): AdminSidebarEntry[] {
         link('Semua Portofolio', '/admin/portfolios'),
         link('Galeri Portofolio', '/admin/portfolio-galleries'),
         link('Ulasan Portofolio', '/admin/portfolio-ratings'),
+        link('Layanan', '/admin/services'),
         link('Teknologi', '/admin/technologies'),
       ],
     },

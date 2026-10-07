@@ -13,6 +13,7 @@ import PortfolioGalleries from '@/pages/admin/portfolio-galleries/index.svelte';
 import PortfolioRatings from '@/pages/admin/portfolio-ratings/index.svelte';
 import PortfolioForm from '@/pages/admin/portfolios/form.svelte';
 import Portfolios from '@/pages/admin/portfolios/index.svelte';
+import Services from '@/pages/admin/services/index.svelte';
 import PostCategories from '@/pages/admin/post-categories/index.svelte';
 import PostForm from '@/pages/admin/posts/form.svelte';
 import Posts from '@/pages/admin/posts/index.svelte';
@@ -93,6 +94,7 @@ const indexPages: Case[] = [
     { portfolioRatings: empty, portfolios: [], filters },
   ],
   ['Portofolio', Portfolios, { portfolios: empty, filters }],
+  ['Layanan', Services, { services: empty, filters }],
   ['Kategori Artikel', PostCategories, { postCategories: empty, filters }],
   ['Artikel Blog', Posts, { posts: empty, filters }],
   ['Tag', Tags, { tags: empty, filters }],
@@ -192,7 +194,7 @@ describe('admin forms', () => {
     render(PortfolioForm, {
       portfolio: null,
       technologies: idOptions,
-      categories: idOptions,
+      services: idOptions,
       careers: [],
     });
 

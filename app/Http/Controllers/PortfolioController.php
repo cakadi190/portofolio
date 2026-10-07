@@ -18,7 +18,7 @@ class PortfolioController extends Controller
     public function index(): Response
     {
         $portfolios = Portfolio::query()
-            ->with(['categories:id,name,color', 'technologies:id,name'])
+            ->with(['services:id,name,color', 'technologies:id,name'])
             ->latest()
             ->paginate(9)
             ->withQueryString()
@@ -27,9 +27,9 @@ class PortfolioController extends Controller
                 'slug' => $portfolio->slug,
                 'image' => ImageService::url($portfolio->image),
                 'shortDesc' => $portfolio->short_desc,
-                'categories' => $portfolio->categories->map(fn ($category): array => [
-                    'name' => $category->name,
-                    'color' => $category->color,
+                'services' => $portfolio->services->map(fn ($service): array => [
+                    'name' => $service->name,
+                    'color' => $service->color,
                 ]),
                 'technologies' => $portfolio->technologies->pluck('name'),
             ]);

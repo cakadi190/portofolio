@@ -37,11 +37,11 @@ class Portfolio extends Model
     }
 
     /**
-     * @return BelongsToMany<PortfolioCategory, $this>
+     * @return BelongsToMany<Service, $this>
      */
-    public function categories(): BelongsToMany
+    public function services(): BelongsToMany
     {
-        return $this->belongsToMany(PortfolioCategory::class, 'portfolio_category_portfolio');
+        return $this->belongsToMany(Service::class);
     }
 
     /**

@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PortfolioRequest;
 use App\Models\Career;
 use App\Models\Portfolio;
-use App\Models\PortfolioCategory;
+use App\Models\Service;
 use App\Models\Technology;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,8 +23,8 @@ class PortfolioController extends Controller
         return Inertia::render('admin/portfolios/index', [
             'portfolios' => $this->paginateTable(
                 Portfolio::query()
-                    ->with(['technologies:id,name', 'categories:id,name', 'careers:id'])
-                    ->withCount(['technologies', 'categories', 'galleries', 'ratings'])
+                    ->with(['technologies:id,name', 'services:id,name', 'careers:id'])
+                    ->withCount(['technologies', 'services', 'galleries', 'ratings'])
                     ->orderBy('name'),
                 $request,
                 ['name'],
@@ -45,14 +45,14 @@ class PortfolioController extends Controller
     public function edit(Portfolio $portfolio): Response
     {
         return Inertia::render('admin/portfolios/form', [
-            'portfolio' => $portfolio->load(['technologies:id', 'categories:id', 'careers:id', 'galleries:id,portfolio_id,image_url,description']),
+            'portfolio' => $portfolio->load(['technologies:id', 'services:id', 'careers:id', 'galleries:id,portfolio_id,image_url,description']),
             ...$this->options(),
         ]);
     }
 
     public function store(PortfolioRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except(['technologies', 'categories', 'careers', 'galleries']);
+        $data = $request->safe()->except(['technologies', 'services', 'careers', 'galleries']);
 
         $portfolio = Portfolio::query()->create($data);
         $this->syncRelations($portfolio, $request);
@@ -64,7 +64,7 @@ class PortfolioController extends Controller
 
     public function update(PortfolioRequest $request, Portfolio $portfolio): RedirectResponse
     {
-        $data = $request->safe()->except(['technologies', 'categories', 'careers', 'galleries']);
+        $data = $request->safe()->except(['technologies', 'services', 'careers', 'galleries']);
 
         $portfolio->update($data);
         $this->syncRelations($portfolio, $request);
@@ -86,7 +86,7 @@ class PortfolioController extends Controller
     private function syncRelations(Portfolio $portfolio, PortfolioRequest $request): void
     {
         $portfolio->technologies()->sync($request->validated('technologies', []));
-        $portfolio->categories()->sync($request->validated('categories', []));
+        $portfolio->services()->sync($request->validated('services', []));
         $portfolio->careers()->sync($request->validated('careers', []));
 
         $portfolio->galleries()->delete();
@@ -100,7 +100,7 @@ class PortfolioController extends Controller
     {
         return [
             'technologies' => Technology::query()->orderBy('name')->get(['id', 'name']),
-            'categories' => PortfolioCategory::query()->orderBy('name')->get(['id', 'name']),
+            'services' => Service::query()->orderBy('name')->get(['id', 'name']),
             'careers' => Career::query()->orderBy('position')->get(['id', 'position', 'company']),
         ];
     }

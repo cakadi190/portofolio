@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(OrganizationSeeder::class);
         $this->call(AwardSeeder::class);
         $this->call(TechnologySeeder::class);
-        $this->call(PortfolioCategorySeeder::class);
+        $this->call(ServiceSeeder::class);
         $this->call(PortfolioSeeder::class);
         $this->call(PostCategorySeeder::class);
         $this->call(PostSeeder::class);

@@ -8,13 +8,13 @@
     slug: string;
     image: string;
     shortDesc: string | null;
-    categories: { name: string; color: string | null }[];
+    services: { name: string; color: string | null }[];
     technologies: string[];
   };
 
-  let { name, slug, image, shortDesc, categories, technologies }: Props = $props();
+  let { name, slug, image, shortDesc, services, technologies }: Props = $props();
 
-  const category = $derived(categories[0]);
+  const service = $derived(services[0]);
 </script>
 
 <div class="wrapper">
@@ -24,10 +24,10 @@
     <div class="card-body p-4">
       <div class="d-flex gap-2 mb-2 justify-content-between">
         <h5 class="card-title mb-0">{name}</h5>
-        {#if category}
+        {#if service}
           <div>
-            <span class="badge" style={`background-color: ${category.color ?? '#6c757d'}`}>
-              {category.name}
+            <span class="badge" style={`background-color: ${service.color ?? '#6c757d'}`}>
+              {service.name}
             </span>
           </div>
         {/if}

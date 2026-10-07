@@ -29,6 +29,7 @@ class MediaService
         'coffee_place_galleries' => ['exact' => ['image_url'], 'like' => []],
         'portfolios' => ['exact' => ['image'], 'like' => ['description']],
         'portfolio_galleries' => ['exact' => ['image_url'], 'like' => []],
+        'services' => ['exact' => ['image'], 'like' => ['description']],
         'posts' => ['exact' => ['cover_image'], 'like' => ['content']],
     ];
 
