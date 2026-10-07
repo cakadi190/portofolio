@@ -37,8 +37,5 @@ jobs:
       - name: Setup Application
         run: composer setup
 
-      - name: Run Frontend Tests (Vitest)
-        run: bun run test
-
       - name: Run CI Checks
         run: composer ci:check

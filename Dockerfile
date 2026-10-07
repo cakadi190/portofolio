@@ -148,9 +148,10 @@ RUN printf 'memory_limit = -1\n' > "$PHP_INI_DIR/conf.d/zz-build.ini"
 
 
 # ---------------------------------------------------------------------------
-# assets — build-time only: compiles public/build
+# frontend-source — JS deps, PHP vendor, source and .env shared by the
+# `assets` build and the `frontend-testing` run, so both reuse these layers
 # ---------------------------------------------------------------------------
-FROM frontend-base AS assets
+FROM frontend-base AS frontend-source
 
 ARG UID=1000
 ARG GID=1000
@@ -182,21 +183,30 @@ RUN set -eux; \
         storage/framework/sessions storage/logs bootstrap/cache; \
     cp .env.example .env; \
     composer dump-autoload; \
-    php artisan key:generate; \
-    bun run build:ssr
+    php artisan key:generate
 
 
 # ---------------------------------------------------------------------------
-# frontend-testing — Vitest on top of the assets stage (deps, source, .env,
-# Wayfinder types already in place). Built only by `--target frontend-testing`.
+# assets — build-time only: compiles public/build
 # ---------------------------------------------------------------------------
-FROM assets AS frontend-testing
+FROM frontend-source AS assets
+
+RUN bun run build:ssr
+
+
+# ---------------------------------------------------------------------------
+# frontend-testing — Vitest on top of frontend-source (deps, source, .env).
+# Branches off before the production bundle so tests never wait on, or
+# invalidate, `build:ssr`; only the Wayfinder types the tests import are
+# generated. Built only by `--target frontend-testing`.
+# ---------------------------------------------------------------------------
+FROM frontend-source AS frontend-testing
 
 # Vitest's jsdom environment breaks under Bun's runtime (the image has no
 # Node), so install Node for the test workers.
 RUN apk add --no-cache nodejs
 
-RUN bun run test
+RUN php artisan wayfinder:generate && bun run test
 
 
 # ---------------------------------------------------------------------------

@@ -57,7 +57,7 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 - Cakupan: seluruh frontend — `lib/` (helper, OCR, analytics, highlight, editor blocks), `components/` (termasuk `ui/`: field, picker, lightbox, editor teks, PDF viewer), `layouts/`, `pages/` (publik, auth, admin) dan bootstrap `app.ts`; ditambah tes setup Bootstrap 5 (`tests/bootstrap.test.ts`). Kode generated (`wayfinder`) dikecualikan dari coverage.
 - `resources/js/tests/setup.ts` menyediakan stub API browser yang tidak ada di jsdom (`matchMedia`, `ResizeObserver`, `IntersectionObserver`, `Element.animate`, `Range` rect); `tests/helpers.ts` (`hrefOf`) dan `tests/stubs/*` untuk komponen berat (picker media, lightbox, PDF viewer).
 - Plugin Laravel/Wayfinder dinonaktifkan saat `VITEST` (hanya transform Svelte).
-- CI: `bun run test` ikut di `composer ci:check` dan langkah tersendiri di `.github/workflows/tests.yml`; Jenkins membangun target Docker `frontend-testing` pada tahap Test.
+- CI: `bun run test` dijalankan sekali lewat `composer ci:check` (GitHub Actions); Jenkins membangun target Docker `frontend-testing` (bercabang dari stage `frontend-source`, tanpa `build:ssr`) paralel dengan target Pest pada tahap Test.
 - Perubahan logika frontend menambah/memperbarui tes Vitest yang relevan; tes backend tetap Pest.
 
 ## Konfigurasi & lingkungan

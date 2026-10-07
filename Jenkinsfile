@@ -244,16 +244,27 @@ pipeline {
     // statement about the runtime that ships, not a build agent's PHP.
     stage('Test') {
       when { expression { params.RUN_TESTS } }
-      steps {
-        sh '''
-          set -eu
-          docker build --target testing --tag "${IMAGE_NAME}:testing-${BUILD_NUMBER}" .
-          docker image rm -f "${IMAGE_NAME}:testing-${BUILD_NUMBER}" >/dev/null 2>&1 || true
-
-          # Frontend unit tests (Vitest) run in the Bun-based assets chain.
-          docker build --target frontend-testing --tag "${IMAGE_NAME}:frontend-testing-${BUILD_NUMBER}" .
-          docker image rm -f "${IMAGE_NAME}:frontend-testing-${BUILD_NUMBER}" >/dev/null 2>&1 || true
-        '''
+      parallel {
+        stage('Pest') {
+          steps {
+            sh '''
+              set -eu
+              docker build --target testing --tag "${IMAGE_NAME}:testing-${BUILD_NUMBER}" .
+              docker image rm -f "${IMAGE_NAME}:testing-${BUILD_NUMBER}" >/dev/null 2>&1 || true
+            '''
+          }
+        }
+        // Vitest runs on frontend-source, which branches before the
+        // production bundle build, so it never waits on `build:ssr`.
+        stage('Vitest') {
+          steps {
+            sh '''
+              set -eu
+              docker build --target frontend-testing --tag "${IMAGE_NAME}:frontend-testing-${BUILD_NUMBER}" .
+              docker image rm -f "${IMAGE_NAME}:frontend-testing-${BUILD_NUMBER}" >/dev/null 2>&1 || true
+            '''
+          }
+        }
       }
     }
 
