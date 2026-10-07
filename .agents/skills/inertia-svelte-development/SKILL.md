@@ -1,9 +1,9 @@
 ---
 name: inertia-svelte-development
-description: 'Develops Inertia.js v3 Svelte 5 client-side applications. Activates when creating Svelte pages, forms, or navigation; using Link, Form, useForm, useHttp, setLayoutProps, or router; working with deferred props, prefetching, optimistic updates, instant visits, or polling; or when user mentions Svelte with Inertia, Svelte pages, Svelte forms, or Svelte navigation.'
+description: "Develops Inertia.js v3 Svelte 5 client-side applications. Activates when creating Svelte pages, forms, or navigation; using Link, Form, useForm, useHttp, setLayoutProps, or router; working with deferred props, prefetching, optimistic updates, instant visits, or polling; or when user mentions Svelte with Inertia, Svelte pages, Svelte forms, or Svelte navigation."
 license: MIT
 metadata:
-    author: laravel
+  author: laravel
 ---
 
 # Inertia Svelte Development
@@ -41,7 +41,6 @@ Svelte page components should be placed in the `resources/js/pages` directory.
 ### Page Component Structure
 
 <!-- Basic Svelte Page Component -->
-
 ```svelte
 <script>
 let { users } = $props()
@@ -64,7 +63,6 @@ let { users } = $props()
 Use `<Link>` for client-side navigation instead of traditional `<a>` tags:
 
 <!-- Inertia Svelte Navigation -->
-
 ```svelte
 <script>
 import { Link } from '@inertiajs/svelte'
@@ -78,7 +76,6 @@ import { Link } from '@inertiajs/svelte'
 ### Link With Method
 
 <!-- Link With POST Method -->
-
 ```svelte
 <script>
 import { Link } from '@inertiajs/svelte'
@@ -92,7 +89,6 @@ import { Link } from '@inertiajs/svelte'
 Prefetch pages to improve perceived performance:
 
 <!-- Prefetch on Hover -->
-
 ```svelte
 <script>
 import { Link } from '@inertiajs/svelte'
@@ -104,7 +100,6 @@ import { Link } from '@inertiajs/svelte'
 ### Programmatic Navigation
 
 <!-- Router Visit -->
-
 ```svelte
 <script>
 import { router } from '@inertiajs/svelte'
@@ -131,7 +126,6 @@ function createUser() {
 The recommended way to build forms is with the `<Form>` component. In Svelte 5, use `{#snippet}` for the default slot:
 
 <!-- Form Component Example -->
-
 ```svelte
 <script>
 import { Form } from '@inertiajs/svelte'
@@ -163,7 +157,6 @@ import { Form } from '@inertiajs/svelte'
 ### Form Component With All Props
 
 <!-- Form Component Full Example -->
-
 ```svelte
 <script>
 import { Form } from '@inertiajs/svelte'
@@ -217,7 +210,6 @@ The `<Form>` component supports automatic resetting:
 Use the `search-docs` tool with a query of `form component resetting` for detailed guidance.
 
 <!-- Form With Reset Props -->
-
 ```svelte
 <script>
 import { Form } from '@inertiajs/svelte'
@@ -244,7 +236,6 @@ Forms can also be built using the `useForm` hook for more programmatic control. 
 For more programmatic control or to follow existing conventions, use the `useForm` hook:
 
 <!-- useForm Example -->
-
 ```svelte
 <script>
 import { useForm } from '@inertiajs/svelte'
@@ -292,7 +283,6 @@ function submit(e) {
 Use the `useHttp` hook for standalone HTTP requests that do not trigger Inertia page visits. It provides the same developer experience as `useForm`, but for plain JSON endpoints.
 
 <!-- useHttp Example -->
-
 ```svelte
 <script>
 import { useHttp } from '@inertiajs/svelte'
@@ -321,7 +311,6 @@ function search() {
 Apply data changes instantly before the server responds, with automatic rollback on failure:
 
 <!-- Optimistic Update with Router -->
-
 ```svelte
 <script>
 import { router } from '@inertiajs/svelte'
@@ -340,7 +329,6 @@ function like(post) {
 Optimistic updates also work with `useForm` and the `<Form>` component:
 
 <!-- Optimistic Update with Form Component -->
-
 ```svelte
 <script>
 import { Form } from '@inertiajs/svelte'
@@ -365,7 +353,6 @@ import { Form } from '@inertiajs/svelte'
 Navigate to a new page immediately without waiting for the server response. The target component renders right away with shared props, while page-specific props load in the background.
 
 <!-- Instant Visit with Link -->
-
 ```svelte
 <script>
 import { Link, inertia } from '@inertiajs/svelte'
@@ -389,7 +376,6 @@ import { Link, inertia } from '@inertiajs/svelte'
 Share dynamic data between pages and persistent layouts:
 
 <!-- Layout Props in Layout -->
-
 ```svelte
 <script>
 let { title = 'My App', showSidebar = true, children } = $props()
@@ -405,7 +391,6 @@ let { title = 'My App', showSidebar = true, children } = $props()
 ```
 
 <!-- Setting Layout Props from Page -->
-
 ```svelte
 <script>
 import { setLayoutProps } from '@inertiajs/svelte'
@@ -424,7 +409,6 @@ setLayoutProps({
 Use deferred props to load data after initial page render:
 
 <!-- Deferred Props with Empty State -->
-
 ```svelte
 <script>
 let { users } = $props()
@@ -452,7 +436,6 @@ let { users } = $props()
 Use the `usePoll` hook to automatically refresh data at intervals. It handles cleanup on unmount and throttles polling when the tab is inactive.
 
 <!-- Basic Polling -->
-
 ```svelte
 <script>
 import { usePoll } from '@inertiajs/svelte'
@@ -469,7 +452,6 @@ usePoll(5000)
 ```
 
 <!-- Polling With Request Options and Manual Control -->
-
 ```svelte
 <script>
 import { usePoll } from '@inertiajs/svelte'
@@ -506,7 +488,6 @@ const { start, stop } = usePoll(5000, {
 Lazy-load a prop when an element scrolls into view. Useful for deferring expensive data that sits below the fold:
 
 <!-- WhenVisible Example -->
-
 ```svelte
 <script>
 import { WhenVisible } from '@inertiajs/svelte'
@@ -535,7 +516,6 @@ let { stats } = $props()
 Automatically load additional pages of paginated data as users scroll:
 
 <!-- InfiniteScroll Example -->
-
 ```svelte
 <script>
 import { InfiniteScroll } from '@inertiajs/svelte'
