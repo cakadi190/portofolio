@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/svelte';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import Tags from '@/pages/admin/tags/index.svelte';
 
 const router = vi.hoisted(() => ({ delete: vi.fn(), get: vi.fn() }));
@@ -36,6 +36,14 @@ const filters = {
 };
 
 describe('admin tags page (full flow)', () => {
+  // Bootstrap's modal fade leaves a fallback timer running. If it fires after
+  // the jsdom environment is torn down it dispatches a Node `Event` and fails
+  // the whole run, so let pending transitions finish while jsdom is alive.
+  afterEach(async () => {
+    cleanup();
+    await new Promise((resolve) => setTimeout(resolve, 400));
+  });
+
   it('lists tags with edit and delete actions', () => {
     render(Tags, { tags, filters });
 
