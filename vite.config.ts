@@ -59,11 +59,7 @@ export default defineConfig({
         // (legacy @import, global color functions); silence those
         // so the build output stays readable.
         quietDeps: true,
-        silenceDeprecations: [
-          'import',
-          'color-functions',
-          'global-builtin',
-        ],
+        silenceDeprecations: ['import', 'color-functions', 'global-builtin'],
       },
     },
   },

@@ -13,8 +13,16 @@
     PDF_ZOOM_STEP,
   } from '@/components/ui/pdf-canvas-viewer.svelte';
   import { fade, fly, scale as scaleTransition } from 'svelte/transition';
+  import ExternalLink from '@lucide/svelte/icons/external-link';
+  import {
+    detectMediaType,
+    isNonEmbeddableVideoUrl,
+    nativeVideoMime,
+    toEmbedUrl,
+    type LightboxMediaType,
+  } from '@/lib/video-embed';
 
-  type LightboxImage = { url: string; title?: string | null; type?: 'image' | 'pdf' };
+  type LightboxImage = { url: string; title?: string | null; type?: LightboxMediaType };
 
   const ZOOM_MIN = 1;
   const ZOOM_MAX = 8;
@@ -22,7 +30,8 @@
   const DOUBLE_CLICK_ZOOM = 2.5;
 
   /**
-   * Google-Drive-style file preview (images and PDFs; PDFs are drawn on canvas via pdf.js): full-screen overlay with header bar,
+   * Google-Drive-style file preview (images, PDFs drawn on canvas via pdf.js, native videos in a <video> player,
+   * and external videos such as YouTube/Vidio/Vimeo in an iframe): full-screen overlay with header bar,
    * zoom (buttons, wheel, pinch, double-click), drag-to-pan, prev/next paging
    * and keyboard shortcuts. Ported from the BatamTix lightbox.
    */
@@ -58,8 +67,18 @@
   let moved = false;
 
   const current = $derived(images[index]);
-  const isPdf = $derived(
-    current?.type === 'pdf' || (!current?.type && /\.pdf($|[?#])/i.test(current?.url ?? '')),
+  const mediaType = $derived<LightboxMediaType>(
+    current ? detectMediaType(current.url, current.type) : 'image',
+  );
+  const isPdf = $derived(mediaType === 'pdf');
+  const isVideo = $derived(mediaType === 'video');
+  const isEmbed = $derived(mediaType === 'embed');
+  const isZoomable = $derived(mediaType === 'image');
+  const embedUrl = $derived(
+    isEmbed && current ? (toEmbedUrl(current.url) ?? (isNonEmbeddableVideoUrl(current.url) ? null : current.url)) : null,
+  );
+  const defaultTitle = $derived(
+    isPdf ? 'Pratinjau PDF' : isVideo || isEmbed ? 'Pratinjau video' : 'Pratinjau gambar',
   );
 
   const prefersReducedMotion =
@@ -264,6 +283,14 @@
       return;
     }
 
+    if (event.target instanceof HTMLVideoElement && ['ArrowLeft', 'ArrowRight', '0'].includes(event.key)) {
+      return;
+    }
+
+    if (!isZoomable && ['+', '=', '-', '_', '0'].includes(event.key)) {
+      return;
+    }
+
     switch (event.key) {
       case 'Escape':
         event.stopPropagation();
@@ -300,14 +327,14 @@
 <svelte:window onkeydowncapture={onKeydown} />
 
 {#if open && current}
-  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || (isPdf ? 'Pratinjau PDF' : 'Pratinjau gambar')} use:portal transition:fade={{ duration: motion(220) }}>
+  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || defaultTitle} use:portal transition:fade={{ duration: motion(220) }}>
     {#if !isPdf}
     <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
       <div class="lightbox-start">
         <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
           <X size={20} />
         </button>
-        <h2 class="lightbox-title" title={current.title ?? ''}>{current.title || (isPdf ? 'Pratinjau PDF' : 'Pratinjau gambar')}</h2>
+        <h2 class="lightbox-title" title={current.title ?? ''}>{current.title || defaultTitle}</h2>
       </div>
 
       <div class="lightbox-controls">
@@ -321,7 +348,7 @@
           </button>
           <span class="lightbox-divider" aria-hidden="true"></span>
         {/if}
-        {#if !isPdf}
+        {#if isZoomable}
         <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={zoomValue <= zoomMin} onclick={zoomOut}>
           <ZoomOut size={20} />
         </button>
@@ -336,9 +363,13 @@
       </div>
 
       <div class="lightbox-end">
-        {#if !isPdf}
-        <a class="lightbox-button" href={current.url} download={current.title ?? ''} aria-label={isPdf ? 'Unduh PDF' : 'Unduh gambar'} title={isPdf ? 'Unduh PDF' : 'Unduh gambar'}>
+        {#if isZoomable || isVideo}
+        <a class="lightbox-button" href={current.url} download={current.title ?? ''} aria-label={isVideo ? 'Unduh video' : 'Unduh gambar'} title={isVideo ? 'Unduh video' : 'Unduh gambar'}>
           <Download size={20} />
+        </a>
+        {:else if isEmbed}
+        <a class="lightbox-button" href={current.url} target="_blank" rel="noopener noreferrer" aria-label="Buka di tab baru" title="Buka di tab baru">
+          <ExternalLink size={20} />
         </a>
         {/if}
       </div>
@@ -358,6 +389,59 @@
             title={current.title || 'Pratinjau PDF'}
             onclose={close}
           />
+        </div>
+      {/key}
+    {:else if isVideo || isEmbed}
+      {#key current.url}
+        <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+        <div
+          class="lightbox-video-stage"
+          onclick={(event) => event.target === event.currentTarget && close()}
+          in:fly|global={{ x: direction * 72, duration: motion(280), easing: cubicOut }}
+        >
+          {#if isVideo}
+            {#if failed}
+              <div class="lightbox-message lightbox-fallback" role="alert">
+                <p>Format video ini tidak dapat diputar di browser Anda.</p>
+                <a class="lightbox-fallback-link" href={current.url} download={current.title ?? ''}>
+                  <Download size={16} /> Unduh video
+                </a>
+              </div>
+            {:else}
+              <!-- svelte-ignore a11y_media_has_caption -->
+              <video
+                class="lightbox-video"
+                controls
+                autoplay
+                playsinline
+                preload="metadata"
+                onerror={() => (failed = true)}
+              >
+                <source
+                  src={current.url}
+                  type={nativeVideoMime(current.url)}
+                  onerror={() => (failed = true)}
+                />
+              </video>
+            {/if}
+          {:else if embedUrl}
+            <iframe
+              class="lightbox-embed"
+              src={embedUrl}
+              title={current.title || defaultTitle}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture"
+              allowfullscreen
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          {:else}
+            <div class="lightbox-message lightbox-fallback" role="alert">
+              <p>Situs ini tidak mengizinkan video diputar di halaman lain.</p>
+              <a class="lightbox-fallback-link" href={current.url} target="_blank" rel="noopener noreferrer">
+                <ExternalLink size={16} /> Tonton di situs asal
+              </a>
+            </div>
+          {/if}
         </div>
       {/key}
     {:else}
@@ -398,7 +482,7 @@
     </div>
     {/if}
 
-    {#if images.length > 1 && !isPdf}
+    {#if images.length > 1 && isZoomable}
       <button type="button" class="lightbox-nav lightbox-nav-prev" aria-label="Sebelumnya" disabled={index === 0} onclick={() => go(-1)}>
         <ChevronLeft size={28} />
       </button>
@@ -525,6 +609,61 @@
     flex: 1;
     flex-direction: column;
     min-height: 0;
+  }
+
+  .lightbox-video-stage {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 0 1rem 1rem;
+  }
+
+  .lightbox-video,
+  .lightbox-embed {
+    width: min(100%, 1200px);
+    max-height: 100%;
+    background: #000;
+    border: 0;
+    border-radius: 0.5rem;
+  }
+
+  .lightbox-video {
+    height: 100%;
+  }
+
+  .lightbox-embed {
+    aspect-ratio: 16 / 9;
+    height: auto;
+    max-width: calc((100vh - 6rem) * 16 / 9);
+  }
+
+  .lightbox-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .lightbox-fallback p {
+    margin: 0;
+  }
+
+  .lightbox-fallback-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    color: inherit;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+  }
+
+  .lightbox-fallback-link:hover {
+    background: rgba(255, 255, 255, 0.25);
   }
 
   .lightbox-image {

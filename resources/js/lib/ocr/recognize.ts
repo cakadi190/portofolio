@@ -19,7 +19,10 @@ function overlapRatio(a: Rect, b: Rect): number {
     return 0;
   }
 
-  return (width * height) / Math.min((a[2] - a[0]) * (a[3] - a[1]), (b[2] - b[0]) * (b[3] - b[1]));
+  return (
+    (width * height) /
+    Math.min((a[2] - a[0]) * (a[3] - a[1]), (b[2] - b[0]) * (b[3] - b[1]))
+  );
 }
 
 /** Recognizes a page without a text layer (scanned PDF) and returns word boxes in PDF units. */
@@ -36,7 +39,11 @@ export async function recognizePage(source: PDFPageProxy): Promise<OcrLine[]> {
     })),
   ];
   const results = await Promise.all(
-    rectangles.map((rectangle) => pool.addJob('recognize', canvas, rectangle ? { rectangle } : {}, { blocks: true })),
+    rectangles.map((rectangle) =>
+      pool.addJob('recognize', canvas, rectangle ? { rectangle } : {}, {
+        blocks: true,
+      }),
+    ),
   );
   canvas.width = 0;
   canvas.height = 0;
@@ -58,7 +65,10 @@ export async function recognizePage(source: PDFPageProxy): Promise<OcrLine[]> {
               top - word.bbox.y0 / scale,
             ];
 
-            if (word.text.trim() === '' || seen.some((other) => overlapRatio(other, rect) > 0.5)) {
+            if (
+              word.text.trim() === '' ||
+              seen.some((other) => overlapRatio(other, rect) > 0.5)
+            ) {
               continue;
             }
 

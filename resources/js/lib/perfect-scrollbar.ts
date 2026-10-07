@@ -5,8 +5,14 @@ import 'perfect-scrollbar/css/perfect-scrollbar.css';
  * Svelte action that swaps a node's native scrollbar for perfect-scrollbar and keeps it
  * in sync when the node or its children resize or change.
  */
-export function perfectScrollbar(node: HTMLElement, options: PerfectScrollbar.Options = {}) {
-  const instance = new PerfectScrollbar(node, { wheelPropagation: true, ...options });
+export function perfectScrollbar(
+  node: HTMLElement,
+  options: PerfectScrollbar.Options = {},
+) {
+  const instance = new PerfectScrollbar(node, {
+    wheelPropagation: true,
+    ...options,
+  });
   const refresh = () => instance.update();
   const resizeObserver = new ResizeObserver(refresh);
   const mutationObserver = new MutationObserver(() => {

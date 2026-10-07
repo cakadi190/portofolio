@@ -4,9 +4,14 @@ const MAX_SCALE = 2.5;
 const MAX_SIDE = 3000;
 
 /** Renders a PDF page to a grayscale, high-contrast canvas suited for OCR. */
-export async function renderPageForOcr(source: PDFPageProxy): Promise<{ canvas: HTMLCanvasElement; scale: number }> {
+export async function renderPageForOcr(
+  source: PDFPageProxy,
+): Promise<{ canvas: HTMLCanvasElement; scale: number }> {
   const base = source.getViewport({ scale: 1, rotation: 0 });
-  const scale = Math.min(MAX_SCALE, MAX_SIDE / Math.max(base.width, base.height));
+  const scale = Math.min(
+    MAX_SCALE,
+    MAX_SIDE / Math.max(base.width, base.height),
+  );
   const view = source.getViewport({ scale, rotation: 0 });
   const raw = document.createElement('canvas');
   raw.width = Math.ceil(view.width);

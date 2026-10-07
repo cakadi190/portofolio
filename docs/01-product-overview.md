@@ -13,10 +13,10 @@
 
 ## Persona
 
-| Persona | Kebutuhan |
-| --- | --- |
-| **Pengunjung / calon klien / rekruter** | Cepat menilai kemampuan, melihat portofolio, membaca blog, menghubungi pemilik. Tanpa login. |
-| **Admin (pemilik)** | Mengelola semua konten lewat `/admin`, aman (2FA, passkey), nyaman (tabel cari/urut, modal form, picker media). |
+| Persona                                 | Kebutuhan                                                                                                       |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Pengunjung / calon klien / rekruter** | Cepat menilai kemampuan, melihat portofolio, membaca blog, menghubungi pemilik. Tanpa login.                    |
+| **Admin (pemilik)**                     | Mengelola semua konten lewat `/admin`, aman (2FA, passkey), nyaman (tabel cari/urut, modal form, picker media). |
 
 ## Ruang lingkup (in scope)
 

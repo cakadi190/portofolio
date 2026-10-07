@@ -9,7 +9,11 @@ const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const CACHEABLE_EXTENSION = /\.(webp|avif|jpe?g|png|gif|svg)$/i;
 
 export default {
-  async fetch(request: Request, _env: unknown, ctx: ExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    _env: unknown,
+    ctx: ExecutionContext,
+  ): Promise<Response> {
     const url = new URL(request.url);
 
     if (request.method !== 'GET' || !CACHEABLE_EXTENSION.test(url.pathname)) {
@@ -31,7 +35,10 @@ export default {
     }
 
     const headers = new Headers(originResponse.headers);
-    headers.set('Cache-Control', `public, max-age=${CACHE_TTL_SECONDS}, immutable`);
+    headers.set(
+      'Cache-Control',
+      `public, max-age=${CACHE_TTL_SECONDS}, immutable`,
+    );
 
     const response = new Response(originResponse.body, {
       status: originResponse.status,

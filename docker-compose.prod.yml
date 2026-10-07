@@ -39,19 +39,19 @@ x-app-common: &app-common
     # 172.22.0.0/16 subnet catatancakadi-net is created with in
     # scripts/deploy-bluegreen.sh (Docker assigns the first usable address as
     # gateway when none is given explicitly).
-    - "host.docker.internal:172.22.0.1"
+    - 'host.docker.internal:172.22.0.1'
   env_file:
     - .env
   environment:
     APP_ENV: production
-    APP_DEBUG: "false"
+    APP_DEBUG: 'false'
     # Pinned here so a stale MySQL-era DB_* block in the Jenkins .env secret
     # can't override it. The file lives on the ./storage/database bind mount.
     DB_CONNECTION: sqlite
     DB_DATABASE: /app/storage/database/database.sqlite
     # WAL + a busy timeout let blue and green share the file during a flip.
     DB_JOURNAL_MODE: WAL
-    DB_BUSY_TIMEOUT: "5000"
+    DB_BUSY_TIMEOUT: '5000'
     # 127.0.0.1 inside this container is the
     # container itself, not the host's Redis. Native Redis on the host must
     # also accept connections from the Docker bridge gateway (172.22.0.1),
@@ -60,7 +60,7 @@ x-app-common: &app-common
     # nginx is the only thing that can reach this container (it is only
     # published on 127.0.0.1), so trusting the forwarding headers it sets is
     # contained to that.
-    TRUSTED_PROXIES: "*"
+    TRUSTED_PROXIES: '*'
     # The image has no Node runtime — the compiled SSR bundle
     # (bootstrap/ssr) is run with Bun instead (see the entrypoint).
     INERTIA_SSR_RUNTIME: bun
@@ -77,9 +77,9 @@ x-app-common: &app-common
     driver: json-file
     options:
       max-size: 10m
-      max-file: "3"
+      max-file: '3'
   healthcheck:
-    test: ["CMD", "curl", "-fsS", "http://localhost:8000/up"]
+    test: ['CMD', 'curl', '-fsS', 'http://localhost:8000/up']
     interval: 10s
     timeout: 5s
     retries: 12
@@ -100,12 +100,12 @@ services:
   catatancakadi-blue:
     <<: *app-common
     container_name: catatancakadi-blue
-    profiles: ["blue"]
+    profiles: ['blue']
     networks:
       default:
         ipv4_address: 172.22.0.5
     ports:
-      - "127.0.0.1:5020:8000"
+      - '127.0.0.1:5020:8000'
     volumes:
       - ./storage/app:/app/storage/app
       - ./storage/logs:/app/storage/logs
@@ -114,12 +114,12 @@ services:
   catatancakadi-green:
     <<: *app-common
     container_name: catatancakadi-green
-    profiles: ["green"]
+    profiles: ['green']
     networks:
       default:
         ipv4_address: 172.22.0.8
     ports:
-      - "127.0.0.1:5021:8000"
+      - '127.0.0.1:5021:8000'
     volumes:
       - ./storage/app:/app/storage/app
       - ./storage/logs:/app/storage/logs

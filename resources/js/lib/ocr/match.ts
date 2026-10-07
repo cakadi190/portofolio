@@ -7,7 +7,11 @@ export function editDistance(a: string, b: string): number {
     const current = [i];
 
     for (let j = 1; j <= b.length; j++) {
-      current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      current[j] = Math.min(
+        previous[j] + 1,
+        current[j - 1] + 1,
+        previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
     }
 
     previous = current;
@@ -17,7 +21,12 @@ export function editDistance(a: string, b: string): number {
 }
 
 /** Finds exact (via pattern) and fuzzy matches of the term inside recognized lines. */
-export function findOcrMatches(lines: OcrLine[], term: string, pattern: RegExp, caseSensitive: boolean): OcrMatch[] {
+export function findOcrMatches(
+  lines: OcrLine[],
+  term: string,
+  pattern: RegExp,
+  caseSensitive: boolean,
+): OcrMatch[] {
   const needle = caseSensitive ? term : term.toLowerCase();
   const allowed = needle.length >= 9 ? 2 : needle.length >= 5 ? 1 : 0;
   const size = needle.split(/\s+/).length;
@@ -28,10 +37,17 @@ export function findOcrMatches(lines: OcrLine[], term: string, pattern: RegExp, 
     const spans = line.map((word) => {
       text += (text.length > 0 ? ' ' : '') + word.text;
 
-      return { start: text.length - word.text.length, end: text.length, rect: word.rect };
+      return {
+        start: text.length - word.text.length,
+        end: text.length,
+        rect: word.rect,
+      };
     });
 
-    const matches = [...text.matchAll(pattern)].map((match) => ({ index: match.index, length: match[0].length }));
+    const matches = [...text.matchAll(pattern)].map((match) => ({
+      index: match.index,
+      length: match[0].length,
+    }));
 
     if (matches.length === 0 && allowed > 0) {
       for (let first = 0; first + size <= spans.length; first++) {
@@ -41,7 +57,10 @@ export function findOcrMatches(lines: OcrLine[], term: string, pattern: RegExp, 
         const normalized = caseSensitive ? candidate : candidate.toLowerCase();
         const prefix = normalized.slice(0, needle.length);
 
-        if (editDistance(normalized, needle) <= allowed || editDistance(prefix, needle) <= allowed) {
+        if (
+          editDistance(normalized, needle) <= allowed ||
+          editDistance(prefix, needle) <= allowed
+        ) {
           matches.push({ index: window[0].start, length: candidate.length });
         }
       }
@@ -49,7 +68,9 @@ export function findOcrMatches(lines: OcrLine[], term: string, pattern: RegExp, 
 
     for (const match of matches) {
       const end = match.index + match.length;
-      const covered = spans.filter((span) => span.start < end && span.end > match.index);
+      const covered = spans.filter(
+        (span) => span.start < end && span.end > match.index,
+      );
 
       if (covered.length === 0) {
         continue;
