@@ -192,6 +192,10 @@ RUN set -eux; \
 # ---------------------------------------------------------------------------
 FROM assets AS frontend-testing
 
+# Vitest's jsdom environment breaks under Bun's runtime (the image has no
+# Node), so install Node for the test workers.
+RUN apk add --no-cache nodejs
+
 RUN bun run test
 
 
