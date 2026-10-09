@@ -5,6 +5,7 @@
 </script>
 
 <script lang="ts">
+  import FileBadge from '@lucide/svelte/icons/file-badge';
   import BookOpen from '@lucide/svelte/icons/book-open';
   import Book from '@lucide/svelte/icons/book';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
@@ -28,6 +29,9 @@
   import { cubicOut } from 'svelte/easing';
   import { tick } from 'svelte';
   import { perfectScrollbar } from '@/lib/perfect-scrollbar';
+  import PdfCertificatePanel from '@/components/ui/pdf-certificate-panel.svelte';
+  import { extractPdfSignatures } from '@/lib/pdf-signatures';
+  import type { PdfSignature } from '@/lib/pdf-signatures';
   import { createOcrCache, findOcrMatches, OCR_POOL_SIZE, terminateOcrWorker } from '@/lib/ocr';
   import type { OcrLine, Rect } from '@/lib/ocr';
   import type { TransitionConfig } from 'svelte/transition';
@@ -65,6 +69,8 @@
   let availWidth = $state(0);
   let showThumbs = $state(typeof window !== 'undefined' && window.innerWidth >= 768);
   let showSearch = $state(false);
+  let showCerts = $state(false);
+  let signatures = $state.raw<PdfSignature[]>([]);
   let menu = $state<'main' | 'settings' | 'zoom' | 'mobile' | null>(null);
   let panTool = $state(true);
   let panning = $state(false);
@@ -449,7 +455,17 @@
         throw new Error(`HTTP ${response.status}`);
       }
 
-      loadingTask = pdfjs.getDocument({ data: new Uint8Array(await response.arrayBuffer()) });
+      const bytes = new Uint8Array(await response.arrayBuffer());
+
+      void extractPdfSignatures(bytes.slice())
+        .then((found) => {
+          if (!cancelled) {
+            signatures = found;
+          }
+        })
+        .catch(() => {});
+
+      loadingTask = pdfjs.getDocument({ data: bytes });
       doc = await loadingTask.promise;
 
       const loaded: PDFPageProxy[] = [];
@@ -626,8 +642,14 @@
     menu = null;
   }
 
+  function toggleCerts(): void {
+    showCerts = !showCerts;
+    showSearch = showSearch && !showCerts;
+  }
+
   function toggleSearch(): void {
     showSearch = !showSearch;
+    showCerts = showCerts && !showSearch;
 
     if (showSearch) {
       queueMicrotask(() => searchInput?.focus());
@@ -964,6 +986,11 @@
         <Hand size={18} />
       </button>
       <span class="pdf-divider" aria-hidden="true"></span>
+      {#if signatures.length > 0}
+        <button type="button" class="pdf-button" class:is-active={showCerts} aria-label="Sertifikat Elektronik" title="Sertifikat Elektronik" aria-pressed={showCerts} onclick={toggleCerts}>
+          <FileBadge size={18} />
+        </button>
+      {/if}
       <button type="button" class="pdf-button" class:is-active={showSearch} aria-label="Cari" aria-pressed={showSearch} onclick={toggleSearch}>
         <Search size={18} />
       </button>
@@ -988,6 +1015,11 @@
             <button type="button" class="pdf-item" class:is-active={showSearch} role="menuitemcheckbox" aria-checked={showSearch} onclick={() => { toggleSearch(); menu = null; }}>
               <Search size={16} /> Cari
             </button>
+            {#if signatures.length > 0}
+              <button type="button" class="pdf-item" class:is-active={showCerts} role="menuitemcheckbox" aria-checked={showCerts} onclick={() => { toggleCerts(); menu = null; }}>
+                <FileBadge size={16} /> Sertifikat Elektronik
+              </button>
+            {/if}
             <p class="pdf-heading">Zoom {Math.round(zoom * 100)}%</p>
             <div class="pdf-item-row">
               <button type="button" class="pdf-item" role="menuitem" disabled={zoom <= PDF_ZOOM_MIN} onclick={() => setZoom(zoom - PDF_ZOOM_STEP)}>
@@ -1073,6 +1105,12 @@
     </div>
 
     </div>
+
+    {#if showCerts && signatures.length > 0}
+      <div class="pdf-search pdf-search-certs" data-bs-theme="dark" use:perfectScrollbar={{ suppressScrollX: true }} transition:slideSidebar>
+        <PdfCertificatePanel {signatures} />
+      </div>
+    {/if}
 
     {#if showSearch}
       <div class="pdf-search" data-bs-theme="dark" transition:slideSidebar>
@@ -1443,6 +1481,10 @@
     padding: 0.75rem;
     overflow: hidden;
     border-left: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .pdf-search-certs {
+    overflow-y: auto;
   }
 
   .pdf-count {

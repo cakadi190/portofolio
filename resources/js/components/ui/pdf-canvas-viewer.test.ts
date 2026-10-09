@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import PdfCanvasViewer from '@/components/ui/pdf-canvas-viewer.svelte';
@@ -228,6 +230,42 @@ describe('PdfCanvasViewer', () => {
       await fireEvent.click(screen.getByLabelText('Hasil berikutnya'));
 
       expect(screen.getByText(/2 dari 3 hasil/)).toBeTruthy();
+    });
+  });
+
+  describe('electronic certificates', () => {
+    function serveSigned(name: string): void {
+      const bytes = readFileSync(join(process.cwd(), 'resources/js/tests/fixtures', name));
+      const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, arrayBuffer: async () => buffer }));
+    }
+
+    it('hides the certificate trigger when the PDF carries no signature', async () => {
+      await mountViewer();
+
+      expect(screen.queryByLabelText('Sertifikat Elektronik')).toBeNull();
+    });
+
+    it('lists the signer and issuer chain of a signed PDF in the sidebar', async () => {
+      serveSigned('signed-komdigi.pdf');
+      await mountViewer();
+
+      await fireEvent.click(await screen.findByLabelText('Sertifikat Elektronik'));
+
+      expect(await screen.findByText('BUDI CONTOH', { selector: 'strong' })).toBeTruthy();
+      expect(screen.getByText('Root CA Indonesia (Kominfo/Komdigi)')).toBeTruthy();
+      expect(screen.getByText('Dokumen tidak berubah sejak ditandatangani')).toBeTruthy();
+    });
+
+    it('offers the certificates from the mobile options menu', async () => {
+      serveSigned('signed-foreign.pdf');
+      await mountViewer();
+
+      await fireEvent.click(screen.getByLabelText('Opsi'));
+      await fireEvent.click(await screen.findByRole('menuitemcheckbox', { name: 'Sertifikat Elektronik' }));
+
+      expect(await screen.findByText('Penerbit luar negeri (US)')).toBeTruthy();
     });
   });
 });
