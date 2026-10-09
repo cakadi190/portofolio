@@ -1,18 +1,32 @@
 <script lang="ts">
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
   import ShieldAlert from '@lucide/svelte/icons/shield-alert';
   import ShieldQuestion from '@lucide/svelte/icons/shield-question-mark';
-  import type { CertificateInfo, PdfSignature, SignatureIntegrity } from '@/lib/pdf-signatures';
+  import type {
+    CertificateInfo,
+    PdfSignature,
+    SignatureIntegrity,
+  } from '@/lib/pdf-signatures';
 
   let { signatures }: { signatures: PdfSignature[] } = $props();
 
-  const INTEGRITY: Record<SignatureIntegrity, { label: string; tone: 'ok' | 'bad' | 'unknown' }> = {
+  const INTEGRITY: Record<
+    SignatureIntegrity,
+    { label: string; tone: 'ok' | 'bad' | 'unknown' }
+  > = {
     valid: { label: 'Dokumen tidak berubah sejak ditandatangani', tone: 'ok' },
-    modified: { label: 'Dokumen berubah atau tanda tangan tidak cocok', tone: 'bad' },
+    modified: {
+      label: 'Dokumen berubah atau tanda tangan tidak cocok',
+      tone: 'bad',
+    },
     unknown: { label: 'Integritas tidak dapat diperiksa', tone: 'unknown' },
   };
 
-  const dateFormat = new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+  const dateFormat = new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+  });
   const dayFormat = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' });
 
   function origin(signature: PdfSignature): string {
@@ -24,7 +38,9 @@
       return 'Penerbit dalam negeri (Indonesia)';
     }
 
-    return signature.rootCountry ? `Penerbit luar negeri (${signature.rootCountry})` : 'Penerbit tidak diketahui';
+    return signature.rootCountry
+      ? `Penerbit luar negeri (${signature.rootCountry})`
+      : 'Penerbit tidak diketahui';
   }
 
   function validity(certificate: CertificateInfo): string {
@@ -39,68 +55,79 @@
 <div class="pdf-certs">
   <p class="pdf-certs-title">Sertifikat Elektronik</p>
   <p class="pdf-certs-note">
-    {signatures.length} tanda tangan elektronik ditemukan. Informasi dibaca dari berkas ini dan bukan pengganti
-    validasi resmi (pencabutan sertifikat belum diperiksa).
+    {signatures.length} tanda tangan elektronik ditemukan. Informasi dibaca dari berkas
+    ini dan bukan pengganti validasi resmi (pencabutan sertifikat belum diperiksa).
   </p>
 
   <ul class="pdf-cert-list">
     {#each signatures as signature, index (index)}
       {@const integrity = INTEGRITY[signature.integrity]}
-      <li class="pdf-cert">
-        <div class="pdf-cert-head">
-          {#if integrity.tone === 'ok'}
-            <BadgeCheck size={18} class="pdf-tone-ok" />
-          {:else if integrity.tone === 'bad'}
-            <ShieldAlert size={18} class="pdf-tone-bad" />
-          {:else}
-            <ShieldQuestion size={18} class="pdf-tone-unknown" />
-          {/if}
-          <strong>{signature.signer.commonName}</strong>
-        </div>
+      <li>
+        <details class="pdf-cert" name="pdf-certificates" open={signatures.length === 1 || index === 0}>
+          <summary class="pdf-cert-head">
+            {#if integrity.tone === 'ok'}
+              <BadgeCheck size={18} class="pdf-tone-ok" />
+            {:else if integrity.tone === 'bad'}
+              <ShieldAlert size={18} class="pdf-tone-bad" />
+            {:else}
+              <ShieldQuestion size={18} class="pdf-tone-unknown" />
+            {/if}
+            <strong>{signature.signer.commonName}</strong>
+            <ChevronDown size={16} class="pdf-cert-caret" />
+          </summary>
 
-        <p class="pdf-cert-status pdf-tone-{integrity.tone}">{integrity.label}</p>
+          <p class="pdf-cert-status pdf-tone-{integrity.tone}">
+            {integrity.label}
+          </p>
 
-        {#if !signature.coversWholeDocument}
-          <p class="pdf-cert-status pdf-tone-unknown">Ada tanda tangan atau perubahan setelahnya</p>
-        {/if}
-
-        <dl>
-          <dt>Sumber</dt>
-          <dd class:pdf-tone-ok={signature.komdigiRoot}>{origin(signature)}</dd>
-
-          {#if signature.signedAt}
-            <dt>Waktu tanda tangan</dt>
-            <dd>{dateFormat.format(signature.signedAt)}</dd>
+          {#if !signature.coversWholeDocument}
+            <p class="pdf-cert-status pdf-tone-unknown">
+              Ada tanda tangan atau perubahan setelahnya
+            </p>
           {/if}
 
-          {#if signature.reason}
-            <dt>Alasan</dt>
-            <dd>{signature.reason}</dd>
-          {/if}
+          <dl>
+            <dt>Sumber</dt>
+            <dd class:pdf-tone-ok={signature.komdigiRoot}>
+              {origin(signature)}
+            </dd>
 
-          {#if signature.location}
-            <dt>Lokasi</dt>
-            <dd>{signature.location}</dd>
-          {/if}
+            {#if signature.signedAt}
+              <dt>Waktu tanda tangan</dt>
+              <dd>{dateFormat.format(signature.signedAt)}</dd>
+            {/if}
 
-          <dt>Berlaku</dt>
-          <dd>{validity(signature.signer)}</dd>
+            {#if signature.reason}
+              <dt>Alasan</dt>
+              <dd>{signature.reason}</dd>
+            {/if}
 
-          <dt>No. seri</dt>
-          <dd class="pdf-cert-serial">{signature.signer.serialNumber}</dd>
+            {#if signature.location}
+              <dt>Lokasi</dt>
+              <dd>{signature.location}</dd>
+            {/if}
 
-          <dt>Rantai penerbit</dt>
-          <dd>
-            <ol class="pdf-cert-chain">
-              {#each [...signature.chain].reverse() as certificate (certificate.serialNumber + certificate.subject)}
-                <li>
-                  {certificate.commonName}
-                  {#if certificate.organization}<span>{certificate.organization}</span>{/if}
-                </li>
-              {/each}
-            </ol>
-          </dd>
-        </dl>
+            <dt>Berlaku</dt>
+            <dd>{validity(signature.signer)}</dd>
+
+            <dt>No. seri</dt>
+            <dd class="pdf-cert-serial">{signature.signer.serialNumber}</dd>
+
+            <dt>Rantai penerbit</dt>
+            <dd>
+              <ol class="pdf-cert-chain">
+                {#each [...signature.chain].reverse() as certificate (certificate.serialNumber + certificate.subject)}
+                  <li>
+                    {certificate.commonName}
+                    {#if certificate.organization}<span
+                        >{certificate.organization}</span
+                      >{/if}
+                  </li>
+                {/each}
+              </ol>
+            </dd>
+          </dl>
+        </details>
       </li>
     {/each}
   </ul>
@@ -148,6 +175,26 @@
     gap: 0.5rem;
     align-items: center;
     overflow-wrap: anywhere;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .pdf-cert-head::-webkit-details-marker {
+    display: none;
+  }
+
+  .pdf-cert-head strong {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pdf-cert-head :global(.pdf-cert-caret) {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+
+  .pdf-cert[open] > .pdf-cert-head :global(.pdf-cert-caret) {
+    transform: rotate(180deg);
   }
 
   .pdf-cert-status {

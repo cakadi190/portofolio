@@ -114,12 +114,15 @@
     };
   }
 
-  /** Search sidebar motion: slides in from the right edge while its width opens up. */
+  /**
+   * Sidebar motion, offcanvas-end style: the panel keeps its fixed width and slides in by shrinking a negative
+   * right margin; `.pdf-body` clips the overflow, so text never reflows while the sidebar opens.
+   */
   function slideSidebar(_node: Element, { duration = 220 }: { duration?: number } = {}): TransitionConfig {
     return {
       duration,
       easing: cubicOut,
-      css: (t) => `overflow:hidden;opacity:${t};flex-basis:${17 * t}rem;transform:translateX(${(1 - t) * 100}%)`,
+      css: (t) => `margin-right:${-17 * (1 - t)}rem`,
     };
   }
 
@@ -1349,7 +1352,8 @@
     display: flex;
     flex: 1;
     min-height: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
 
   .pdf-thumbs {
@@ -1474,6 +1478,8 @@
   .pdf-search {
     display: flex;
     flex: 0 0 17rem;
+    box-sizing: border-box;
+    width: 17rem;
     flex-direction: column;
     gap: 0.5rem;
     min-height: 0;
