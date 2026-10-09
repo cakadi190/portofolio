@@ -185,7 +185,15 @@
   .form-confirmed {
     // Color-per-state variable system: swap one custom property instead of
     // branching every rule that cares about validity.
-    --#{$prefix}-state-color: rgba(0, 0, 0, 0.15);
+    --#{$prefix}-state-color: var(--bs-border-color);
+    --#{$prefix}-confirm-bg: var(--bs-body-bg);
+
+    // Same dark-mode tokens as .form-control (see _base.scss), so the wrapper
+    // reads as one regular input instead of a faint outline around two.
+    [data-bs-theme='dark'] & {
+      --#{$prefix}-state-color: rgba(255, 255, 255, 0.22);
+      --#{$prefix}-confirm-bg: var(--#{$prefix}-surface-inset);
+    }
 
     display: grid;
     grid-template-columns: 1fr auto;
@@ -193,9 +201,15 @@
     align-items: center;
     border: 1px solid var(--#{$prefix}-state-color);
     border-radius: var(--neo-border-radius);
+    background-color: var(--#{$prefix}-confirm-bg);
     padding: 0.5rem;
     gap: 0.25rem;
     transition: border-color 0.15s ease-in-out;
+
+    &:focus-within:not([data-state='invalid']):not([data-state='mismatch']):not([data-state='match']) {
+      --#{$prefix}-state-color: var(--neo-primary);
+      box-shadow: 0 0 0 0.25rem rgba(var(--neo-primary-rgb), 0.25);
+    }
 
     &[data-state='invalid'] {
       --#{$prefix}-state-color: var(--neo-danger);
@@ -224,6 +238,7 @@
       border: 0 !important;
       box-shadow: none !important;
       background-image: none !important;
+      background-color: transparent !important;
       padding-inline-end: 0.75rem !important;
 
       &:focus {
