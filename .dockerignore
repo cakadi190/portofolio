@@ -20,6 +20,16 @@
 !.env.example
 .env.encrypted
 
+# Local tooling output and editor/agent config — changes here would only
+# bust the layer cache of `COPY . .`.
+/coverage
+.phpunit.cache
+.codex
+.mcp.json
+boost.json
+*.code-workspace
+*.log
+
 # Deploy-host-only artifacts; irrelevant inside the PHP image.
 Jenkinsfile
 docker-compose*.yml

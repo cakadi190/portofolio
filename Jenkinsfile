@@ -239,13 +239,22 @@ pipeline {
       }
     }
 
-    // Runs inside the Dockerfile's `testing` target, on the same Alpine PHP
-    // the production image ships, from the same lockfile — a green run is a
-    // statement about the runtime that ships, not a build agent's PHP.
-    stage('Test') {
-      when { expression { params.RUN_TESTS } }
+    // Tests and the production build run side by side. All three share the
+    // same BuildKit cache and in-flight identical layers (base, vendor,
+    // frontend-source) are built once, so the image build is no longer queued
+    // behind the tests. Nothing ships unless every branch is green: the
+    // archive/deploy stages below only start after this block completes.
+    //
+    // Pest runs inside the Dockerfile's `testing` target, on the same Alpine
+    // PHP the production image ships, from the same lockfile — a green run is
+    // a statement about the runtime that ships, not a build agent's PHP.
+    // Vitest runs on frontend-source, which branches before the production
+    // bundle build, so it never waits on `build:ssr`.
+    stage('Verify & Build') {
+      failFast true
       parallel {
         stage('Pest') {
+          when { expression { params.RUN_TESTS } }
           steps {
             sh '''
               set -eu
@@ -254,9 +263,8 @@ pipeline {
             '''
           }
         }
-        // Vitest runs on frontend-source, which branches before the
-        // production bundle build, so it never waits on `build:ssr`.
         stage('Vitest') {
+          when { expression { params.RUN_TESTS } }
           steps {
             sh '''
               set -eu
@@ -265,12 +273,11 @@ pipeline {
             '''
           }
         }
-      }
-    }
-
-    stage('Build image') {
-      steps {
-        sh 'docker build --pull --tag ${IMAGE_NAME}:${IMAGE_TAG} .'
+        stage('Build image') {
+          steps {
+            sh 'docker build --pull --tag ${IMAGE_NAME}:${IMAGE_TAG} .'
+          }
+        }
       }
     }
 

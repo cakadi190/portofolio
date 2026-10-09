@@ -123,7 +123,8 @@ COPY --from=vendor-testing /app/vendor ./vendor
 COPY . .
 
 # phpunit.xml pins DB_CONNECTION to sqlite :memory:, so no external database
-# is needed here.
+# is needed here; every Paratest worker gets its own in-memory database, so
+# --parallel is safe and cuts the suite to roughly the slowest worker.
 RUN set -eux; \
     mkdir -p storage/framework/views storage/framework/cache/data \
         storage/framework/sessions storage/app/public storage/app/private \
@@ -132,7 +133,7 @@ RUN set -eux; \
     composer dump-autoload; \
     php artisan key:generate --force; \
     php artisan config:clear; \
-    php artisan test --compact
+    php artisan test --compact --parallel
 
 
 # ---------------------------------------------------------------------------
@@ -172,7 +173,10 @@ RUN --mount=type=cache,target=/tmp/bun-cache,sharing=locked \
 COPY composer.json composer.lock ./
 COPY --from=vendor-production /app/vendor ./vendor
 
-COPY . .
+# The PHP test tree and phpunit.xml play no part in the frontend build or in
+# Vitest, so they are left out of this layer: editing a Pest test no longer
+# invalidates `bun run build:ssr` or the Vitest run.
+COPY --exclude=tests --exclude=phpunit.xml . .
 
 # The Wayfinder plugin boots the framework during the build, so it needs an
 # .env and a key even though nothing here touches a database. No VITE_* build
@@ -242,7 +246,9 @@ RUN set -eux; \
         'realpath_cache_ttl = 600' \
         > "$PHP_INI_DIR/conf.d/zz-catatancakadi.ini"
 
-COPY --chown=${UID}:${GID} . .
+# Tests are excluded at copy time instead of deleted afterwards, so they never
+# enter a layer (and editing one does not invalidate this stage's cache).
+COPY --chown=${UID}:${GID} --exclude=tests --exclude=phpunit.xml . .
 COPY --from=vendor-production --chown=${UID}:${GID} /app/vendor ./vendor
 COPY --from=assets --chown=${UID}:${GID} /app/public/build ./public/build
 COPY --from=assets --chown=${UID}:${GID} /app/bootstrap/ssr ./bootstrap/ssr
@@ -259,7 +265,6 @@ RUN set -eux; \
     mkdir -p storage/framework/views storage/framework/cache/data \
         storage/framework/sessions storage/app/public storage/app/private \
         storage/logs bootstrap/cache; \
-    rm -rf tests phpunit.xml; \
     cp .env.example .env; \
     composer dump-autoload --no-dev --optimize --no-interaction; \
     php artisan view:cache; \
