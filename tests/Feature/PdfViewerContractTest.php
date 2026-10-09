@@ -50,10 +50,10 @@ it('uses bootstrap form controls and searches annotations in the search sidebar'
         ->toContain("source: 'annotation'");
 });
 
-it('uses perfect-scrollbar on the canvas, page thumbnails and search results, and slides the search sidebar', function () {
+it('uses perfect-scrollbar on the canvas, page thumbnails, search results and certificate sidebar, and slides the sidebars', function () {
     $source = pdfViewerSource();
 
-    expect(substr_count($source, 'use:perfectScrollbar'))->toBe(3);
+    expect(substr_count($source, 'use:perfectScrollbar'))->toBe(4);
     expect($source)
         ->toContain('transition:slideSidebar')
         ->toContain('touch-action: pan-x pan-y');

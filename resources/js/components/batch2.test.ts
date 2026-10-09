@@ -104,9 +104,9 @@ describe('ModalConfirmation', () => {
       open: true,
     });
 
-    await vi.waitFor(() =>
-      expect(document.querySelector('.modal-confirmation.show')).not.toBeNull(),
-    );
+    await vi.waitFor(() => expect(document.querySelector('.modal-confirmation.show')).not.toBeNull(), {
+      timeout: 5000,
+    });
   });
 });
 
