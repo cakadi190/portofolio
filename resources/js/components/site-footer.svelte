@@ -1,6 +1,15 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
   import { Link } from '@inertiajs/svelte';
+  import { skills, site } from '@/wayfinder/routes/about';
+  import { index as awards } from '@/wayfinder/routes/awards';
+  import { index as blog } from '@/wayfinder/routes/blog';
+  import { index as career } from '@/wayfinder/routes/career';
+  import { index as education } from '@/wayfinder/routes/education';
+  import { index as portfolios } from '@/wayfinder/routes/portfolios';
+  import { index as coffeeShops } from '@/wayfinder/routes/resources/coffee-shops';
+  import { index as services } from '@/wayfinder/routes/services';
+  import { index as speaking } from '@/wayfinder/routes/speaking';
 
   const year = new Date().getFullYear();
 
@@ -33,24 +42,23 @@
   ];
 
   const workLinks = [
-    { label: 'Pendidikan', href: '/pendidikan' },
-    { label: 'Penghargaan', href: '/penghargaan' },
-    { label: 'Pembicara', href: '/speaking' },
-    { label: 'Skill & Perkakas', href: '/tentang#skills' },
-    { label: 'Layanan', href: '/layanan' },
-    { label: 'Portofolio Saya', href: '/portofolio' },
-    { label: 'Karir', href: '/karir' },
+    { label: 'Pendidikan', href: education().url },
+    { label: 'Penghargaan', href: awards().url },
+    { label: 'Pembicara', href: speaking().url },
+    { label: 'Skill & Perkakas', href: skills().url },
+    { label: 'Layanan', href: services().url },
+    { label: 'Portofolio Saya', href: portfolios().url },
+    { label: 'Karir', href: career().url },
   ];
 
   const resourceLinks = [
-    { label: 'Blog Pribadi', href: '/blog' },
+    { label: 'Blog Pribadi', href: blog().url },
     { label: 'Referensi Ngoding', href: '#' },
     { label: 'Contekan Kode', href: '#' },
-    { label: 'Tempat Ngopi', href: '/sumber-daya/tempat-ngopi' },
+    { label: 'Tempat Ngopi', href: coffeeShops().url },
   ];
 
   const otherLinks = [
-    { label: 'Tentang Situs', href: '/tentang/situs' },
     { label: 'Kredit', href: '#' },
     { label: 'Donasi di trakteer.id', href: '#' },
     { label: 'Donasi di ko-fi.com', href: '#' },

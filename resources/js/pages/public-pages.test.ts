@@ -14,7 +14,7 @@ import AboutSite from '@/pages/tentang/situs.svelte';
 import SkillPage from '@/pages/tentang/skill.svelte';
 import { hrefOf } from '@/tests/helpers';
 
-const paginated = (data: unknown[], overrides = {}) => ({
+const paginated = (data: any[], overrides = {}) => ({
   data,
   current_page: 1,
   last_page: 1,
@@ -29,7 +29,21 @@ const paginated = (data: unknown[], overrides = {}) => ({
 
 describe('Dashboard', () => {
   it('renders the placeholder and sets the document title', () => {
-    render(Dashboard);
+    render(Dashboard, {
+      summary: {
+        blog: {
+          posts_total: 0,
+          posts_published: 0,
+          posts_draft: 0,
+          tags_total: 0,
+          comments_pending: 0,
+          comments_total: 0,
+          recent_posts: [],
+        },
+        site: null,
+        system: null,
+      },
+    });
 
     expect(screen.getByRole('heading', { name: 'Dasbor' })).toBeTruthy();
     expect(document.title).toContain('Dasbor');
@@ -283,6 +297,7 @@ describe('BlogShow', () => {
     content:
       '<p>Isi <strong>artikel</strong></p><pre><code class="language-javascript">let a = 1;</code></pre>',
     coverImage: '/cover.webp',
+    author: 'Cakadi',
     publishedAt: '2024-05-17T00:00:00Z',
     categories: [{ name: 'Tech', color: null }],
     tags: ['php'],

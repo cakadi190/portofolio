@@ -12,6 +12,7 @@
   const navbarMenu: MenuItem[] = [
     { name: 'Beranda', href: '/' },
     { name: 'Portofolio', href: '/portofolio' },
+    { name: 'Pembicara & Mentoring', href: '/speaking' },
     { name: 'Layanan', href: '/layanan' },
     {
       name: 'Tentang Saya',
@@ -19,7 +20,6 @@
         { name: 'Profil', href: '/tentang/saya' },
         { name: 'Pendidikan & Organisasi', href: '/pendidikan' },
         { name: 'Penghargaan', href: '/penghargaan' },
-        { name: 'Pembicara & Mentoring', href: '/speaking' },
         { name: 'Karir', href: '/karir' },
       ],
     },
@@ -56,7 +56,9 @@
   });
 
   function closeOffcanvas(): void {
-    (document.querySelector('#offcanvas .btn-close') as HTMLElement | null)?.click();
+    (
+      document.querySelector('#offcanvas .btn-close') as HTMLElement | null
+    )?.click();
   }
 </script>
 
@@ -71,7 +73,11 @@
     <AppBrand class="offcanvas-title" href="/" height={28} />
     <div class="d-flex align-items-center gap-2 ms-auto">
       <ThemeToggler />
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="offcanvas"
+        aria-label="Tutup"
       ></button>
     </div>
   </div>
@@ -80,7 +86,9 @@
       {#each navbarMenu as item (item.name)}
         {#if item.children}
           <li class="nav-item">
-            <span class={`nav-link disabled fw-semibold ${isGroupActive(item) ? 'active' : ''}`}>
+            <span
+              class={`nav-link disabled fw-semibold ${isGroupActive(item) ? 'active' : ''}`}
+            >
               {item.name}
             </span>
             <ul class="navbar-nav ps-3 gap-1">
@@ -113,7 +121,10 @@
   </div>
 </div>
 
-<nav bind:this={navbar} class="navbar navbar-expand-lg fixed-top navbar-light py-3">
+<nav
+  bind:this={navbar}
+  class="navbar navbar-expand-lg fixed-top navbar-light py-3"
+>
   <div class="container">
     <AppBrand class="navbar-brand" href="/" height={32} />
 

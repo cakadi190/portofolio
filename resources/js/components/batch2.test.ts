@@ -263,7 +263,7 @@ describe('SiteFooter', () => {
     expect(hrefOf(screen.getByRole('link', { name: 'Blog Pribadi' }))).toBe(
       '/blog',
     );
-    expect(hrefOf(screen.getByRole('link', { name: 'Karir' }))).toBe('/karir');
+    expect(hrefOf(screen.getByRole('link', { name: 'Karir' }))).toBe('/career');
   });
 });
 

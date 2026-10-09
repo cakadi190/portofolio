@@ -77,6 +77,10 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 
 Middleware `MinifyHtmlResponse` (grup `web`) memadatkan spasi dan menghapus komentar pada respons HTML **hanya di production**. Blok `pre`, `textarea`, `script`, `style`, dan atribut Inertia `data-page` tidak diubah.
 
+## Halaman error
+
+Respons error 400/401/403/404/419/429/500/503 pada request web (non-JSON) dirender sebagai halaman Inertia `resources/js/pages/error.svelte` lewat `$exceptions->respond()` di `bootstrap/app.php`. Judul, teks, dan ilustrasi (`public/images/errors/*.svg`, diambil dari proyek Nuxt) dipetakan di `App\Services\ErrorPageService`. Saat `APP_DEBUG=true`, error 500 tetap memakai halaman debug Laravel.
+
 ## Notifikasi (toast)
 
 - `resources/js/lib/toast.ts` membungkus SweetAlert2 (`toast.success/error/warning/info/cancelled`); gunakan helper ini, jangan memanggil SweetAlert2 langsung.

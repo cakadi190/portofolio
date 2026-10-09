@@ -48,7 +48,9 @@ NGINX_MANAGED_MARKER="$DEPLOY_PATH/.nginx_managed"
 # default is a glob resolved at rotate time. Override NGINX_SITE_FILE for a
 # plain Nginx install (e.g. /etc/nginx/sites-available/cakadi.web.id).
 NGINX_SITE_FILE="${NGINX_SITE_FILE:-/www/server/panel/vhost/nginx/proxy/www.cakadi.web.id/*_www.cakadi.web.id.conf}"
-NGINX_UPSTREAM_RE="proxy_pass[[:space:]]+http://(127\.0\.0\.1|localhost):"
+# The container only publishes on 127.0.0.1 (IPv4). A "localhost" upstream makes
+# Nginx try ::1 first, mark the peer dead and answer 502 on every 404/error_page
+# subrequest — so the rotate step always rewrites the host to 127.0.0.1 too.
 COMPOSE_FILE="docker-compose.prod.yml"
 HEALTH_RETRIES=30
 HEALTH_INTERVAL=2
@@ -109,8 +111,8 @@ if [ "$ACTION" = "rotate" ]; then
   if [ -f "$NGINX_MANAGED_MARKER" ] || [ -n "$site_file" ]; then
     if [ -n "$site_file" ] && [ -f "$site_file" ]; then
       echo "==> Updating Nginx port to $app_port ($new_color) in $site_file."
-      sed -i -E "s#(${NGINX_UPSTREAM_RE})[0-9]+([[:space:]]*;)#\1${app_port}\3#" "$site_file"
-      if ! grep -qE "${NGINX_UPSTREAM_RE}${app_port}[[:space:]]*;" "$site_file"; then
+      sed -i -E "s#proxy_pass([[:space:]]+)http://(127\.0\.0\.1|localhost):[0-9]+([[:space:]]*;)#proxy_pass\1http://127.0.0.1:${app_port}\3#" "$site_file"
+      if ! grep -qE "proxy_pass[[:space:]]+http://127\.0\.0\.1:${app_port}[[:space:]]*;" "$site_file"; then
         echo "!! sed did not update proxy_pass to port ${app_port} in ${site_file} — refusing to reload Nginx." >&2
         exit 1
       fi

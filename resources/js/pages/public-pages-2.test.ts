@@ -188,7 +188,7 @@ describe('CoffeePage', () => {
     facilities: ['Wifi'],
     galleries: [],
   };
-  const places = (data: unknown[]) => ({
+  const places = (data: any[]) => ({
     data,
     current_page: 1,
     last_page: 1,

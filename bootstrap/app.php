@@ -3,11 +3,14 @@
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\MinifyHtmlResponse;
 use App\Http\Middleware\VerifyTurnstile;
+use App\Services\ErrorPageService;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -44,4 +47,27 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
+            $status = $response->getStatusCode();
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return $response;
+            }
+
+            // Keep Laravel's debug page for unexpected server errors while developing.
+            if ($status >= 500 && config('app.debug') && $status !== 503) {
+                return $response;
+            }
+
+            $props = app(ErrorPageService::class)->propsFor($status);
+
+            if ($props === null) {
+                return $response;
+            }
+
+            return Inertia::render('error', $props)
+                ->toResponse($request)
+                ->setStatusCode($status);
+        });
     })->create();
