@@ -95,7 +95,7 @@ test('the sitemap stylesheet renders into an html page with the project logo', f
     $xsl->importStylesheet(simplexml_load_string($response->getContent()));
     $html = $xsl->transformToXml(simplexml_load_string($this->get(route('sitemaps.pages'))->getContent()));
 
-    expect($html)->toContain('XML Sitemap')->toContain('/kontak');
+    expect($html)->toContain('XML Sitemap')->toContain('/contact');
 })->skip(! class_exists(XSLTProcessor::class), 'ext-xsl is not installed');
 
 test('seo system settings drive keywords, verification tags, author and social profiles', function () {

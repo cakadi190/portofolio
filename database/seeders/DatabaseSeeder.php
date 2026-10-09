@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EducationSeeder::class);
         $this->call(OrganizationSeeder::class);
         $this->call(AwardSeeder::class);
+        $this->call(SpeakingEngagementSeeder::class);
         $this->call(TechnologySeeder::class);
         $this->call(ServiceSeeder::class);
         $this->call(PortfolioSeeder::class);

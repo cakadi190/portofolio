@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\PortfolioRatingController;
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SpeakingEngagementController;
 use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TechnologyController;
@@ -52,6 +53,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('portfolio-galleries', PortfolioGalleryController::class)->parameters(['portfolio-galleries' => 'portfolioGallery'])->only($only);
         Route::resource('portfolio-ratings', PortfolioRatingController::class)->parameters(['portfolio-ratings' => 'portfolioRating'])->only($only);
         Route::resource('services', ServiceController::class)->parameters(['services' => 'service'])->only(['index', 'edit', 'update']);
+        Route::resource('speaking-engagements', SpeakingEngagementController::class)->parameters(['speaking-engagements' => 'speakingEngagement'])->only($only);
         Route::resource('technologies', TechnologyController::class)->parameters(['technologies' => 'technology'])->only($only);
         Route::resource('users', UserController::class)->parameters(['users' => 'user'])->only($only);
     });

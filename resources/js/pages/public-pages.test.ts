@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import AppIndex from '@/pages/app/index.svelte';
 import AwardPage from '@/pages/award/index.svelte';
+import SpeakingPage from '@/pages/speaking/index.svelte';
 import BlogIndex from '@/pages/blog/index.svelte';
 import BlogShow from '@/pages/blog/show.svelte';
 import CareerPage from '@/pages/career/index.svelte';
@@ -135,6 +136,58 @@ describe('AwardPage', () => {
     expect(screen.getByText('Lomba A')).toBeTruthy();
     expect(screen.getByText('2020')).toBeTruthy();
     expect(screen.getAllByText('Baru')).toHaveLength(1);
+  });
+});
+
+describe('SpeakingPage', () => {
+  const engagement = {
+    id: 1,
+    title: 'Webinar AI',
+    organizer: 'Diwostech.id',
+    role: 'trainer',
+    roleLabel: 'Pelatih',
+    format: 'online',
+    formatLabel: 'Online',
+    location: 'Zoom',
+    startsAt: '2026-10-11 19:30',
+    endsAt: '2026-10-11 21:30',
+    registrationUrl: 'https://bit.ly/Diwostech8',
+    description: null,
+    poster: null,
+    isUpcoming: true,
+  };
+
+  it('shows the schedule in WIB and a register link only for upcoming events', () => {
+    render(SpeakingPage, {
+      upcoming: [engagement],
+      past: [{ ...engagement, id: 2, title: 'Seminar Lama', isUpcoming: false }],
+    });
+
+    expect(screen.getAllByText(/19\.30 – 21\.30 WIB/).length).toBeGreaterThan(0);
+    expect(screen.getByText('Seminar Lama')).toBeTruthy();
+    expect(screen.getAllByText('Daftar Sekarang')).toHaveLength(1);
+  });
+
+  it('opens the timezone modal only for upcoming events with a time', async () => {
+    render(SpeakingPage, {
+      upcoming: [engagement],
+      past: [{ ...engagement, id: 2, title: 'Seminar Lama', isUpcoming: false }],
+    });
+
+    const triggers = screen.getAllByText('Lihat waktu di zona waktu Anda');
+
+    expect(triggers).toHaveLength(1);
+
+    await fireEvent.click(triggers[0]);
+
+    expect(screen.getByText('WITA')).toBeTruthy();
+    expect(screen.getByText('WIT')).toBeTruthy();
+  });
+
+  it('shows an empty archive message', () => {
+    render(SpeakingPage, { upcoming: [], past: [] });
+
+    expect(screen.getByText(/Belum ada acara yang terarsip/)).toBeTruthy();
   });
 });
 

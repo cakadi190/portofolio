@@ -73,7 +73,7 @@ test('redaktur and plain users are denied the rest of the admin area', function 
 
     foreach ([
         'admin.users.index', 'admin.system-settings.index', 'admin.portfolios.index', 'admin.portfolio-ratings.index',
-        'admin.contact-messages.index', 'admin.media.index', 'admin.awards.index', 'admin.services.index',
+        'admin.contact-messages.index', 'admin.media.index', 'admin.awards.index', 'admin.speaking-engagements.index', 'admin.services.index',
     ] as $name) {
         $this->actingAs($user)->get(route($name))->assertForbidden();
     }

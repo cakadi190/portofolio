@@ -29,7 +29,7 @@ test('the coffee place list exposes every detail needed by the modal', function 
     ]);
     $place->galleries()->create(['image_url' => 'media/2026/10/kopi.webp', 'description' => 'Teras']);
 
-    $this->get('/sumber-daya/tempat-ngopi')
+    $this->get('/resources/coffee-shops')
         ->assertInertia(fn ($page) => $page
             ->where('places.data.0.wifiProvider', 'IndiHome')
             ->where('places.data.0.wifiSpeed', 'Strong')

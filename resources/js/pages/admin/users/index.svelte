@@ -45,6 +45,13 @@
   let editOpen = $state(false);
   let editingUser = $state<UserRow | null>(null);
 
+  const roleHint =
+    'Admin: akses penuh. Redaktur: hanya mengelola blog. Pengguna: akun biasa tanpa akses panel admin.';
+
+  function roleLabel(value: string): string {
+    return accountTypes.find((type) => type.value === value)?.label ?? value;
+  }
+
   function openEdit(user: UserRow): void {
     editingUser = user;
     editOpen = true;
@@ -89,7 +96,17 @@
       </td>
       <td>{user.name}</td>
       <td>{user.email}</td>
-      <td>{user.account_type}</td>
+      <td>
+        <span
+          class="badge {user.account_type === 'admin'
+            ? 'text-bg-success'
+            : user.account_type === 'redaktur'
+              ? 'text-bg-info'
+              : 'text-bg-secondary'}"
+        >
+          {roleLabel(user.account_type)}
+        </span>
+      </td>
       <td>{user.phone ?? '—'}</td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
@@ -167,7 +184,8 @@
             required
             invalid={!!errors.account_type}
           />
-          <Field.Feedback message={errors.account_type} />
+          <div class="form-text">{roleHint}</div>
+<Field.Feedback message={errors.account_type} />
         </Field.Group>
 
         <div class="row g-3">
@@ -281,7 +299,8 @@
               required
               invalid={!!errors.account_type}
             />
-            <Field.Feedback message={errors.account_type} />
+            <div class="form-text">{roleHint}</div>
+<Field.Feedback message={errors.account_type} />
           </Field.Group>
 
           <div class="row g-3">

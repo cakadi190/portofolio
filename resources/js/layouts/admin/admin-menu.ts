@@ -5,6 +5,7 @@ import GraduationCap from '@lucide/svelte/icons/graduation-cap';
 import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import Contact from '@lucide/svelte/icons/contact';
 import Images from '@lucide/svelte/icons/images';
+import Mic from '@lucide/svelte/icons/mic';
 import Newspaper from '@lucide/svelte/icons/newspaper';
 import Settings from '@lucide/svelte/icons/settings';
 import User from '@lucide/svelte/icons/user';
@@ -74,6 +75,12 @@ export function adminMenu(
       icon: Award,
       href: '/admin/awards',
       active: isActive('/admin/awards'),
+    },
+    {
+      label: 'Pembicara & Mentoring',
+      icon: Mic,
+      href: '/admin/speaking-engagements',
+      active: isActive('/admin/speaking-engagements'),
     },
     {
       label: 'Portofolio',

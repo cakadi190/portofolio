@@ -102,6 +102,12 @@ return [
             'changefreq' => 'monthly',
             'priority' => '0.4',
         ],
+        'speaking.index' => [
+            'title' => 'Pembicara & Mentoring',
+            'description' => 'Jadwal dan arsip acara tempat Cak Adi menjadi pembicara, mentor, atau pelatih seputar pengembangan web dan teknologi.',
+            'changefreq' => 'monthly',
+            'priority' => '0.4',
+        ],
         'resources.coffee-shops.index' => [
             'title' => 'Tempat Ngopi',
             'description' => 'Berikut daftar tempat ngopi yang saya rekomendasikan.',

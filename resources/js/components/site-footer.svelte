@@ -5,17 +5,38 @@
   const year = new Date().getFullYear();
 
   const socials = [
-    { label: "Cak Adi's Facebook", href: 'https://www.facebook.com/cakadi190', icon: 'fa6-brands:facebook' },
-    { label: "Cak Adi's Twitter", href: 'https://www.twitter.com/cakadi190', icon: 'fa6-brands:twitter' },
-    { label: "Cak Adi's Figma", href: 'https://www.figma.com/@cakadi190', icon: 'fa6-brands:figma' },
-    { label: "Cak Adi's Instagram", href: 'https://www.instagram.com/cakadi190', icon: 'fa6-brands:instagram' },
-    { label: "Cak Adi's Linkedin", href: 'https://www.linkedin.com/in/cakadi190', icon: 'fa6-brands:linkedin-in' },
+    {
+      label: "Cak Adi's Facebook",
+      href: 'https://www.facebook.com/cakadi190',
+      icon: 'fa6-brands:facebook',
+    },
+    {
+      label: "Cak Adi's Twitter",
+      href: 'https://www.twitter.com/cakadi190',
+      icon: 'fa6-brands:twitter',
+    },
+    {
+      label: "Cak Adi's Figma",
+      href: 'https://www.figma.com/@cakadi190',
+      icon: 'fa6-brands:figma',
+    },
+    {
+      label: "Cak Adi's Instagram",
+      href: 'https://www.instagram.com/cakadi190',
+      icon: 'fa6-brands:instagram',
+    },
+    {
+      label: "Cak Adi's Linkedin",
+      href: 'https://www.linkedin.com/in/cakadi190',
+      icon: 'fa6-brands:linkedin-in',
+    },
   ];
 
   const workLinks = [
     { label: 'Pendidikan', href: '/pendidikan' },
     { label: 'Penghargaan', href: '/penghargaan' },
-    { label: 'Skill & Perkakas', href: '/tentang/skill' },
+    { label: 'Pembicara', href: '/speaking' },
+    { label: 'Skill & Perkakas', href: '/tentang#skills' },
     { label: 'Layanan', href: '/layanan' },
     { label: 'Portofolio Saya', href: '/portofolio' },
     { label: 'Karir', href: '/karir' },
@@ -42,13 +63,19 @@
       <div class="col-md-6">
         <h5 class="h6">Tentang Saya</h5>
         <p class="opacity-75">
-          Saya adalah seorang fullstack developer yang suka sekali dengan
-          desain dan juga tertarik di dunia teknologi. Saya adalah orang
-          kelahiran Klaten, Jawa Tengah dan berdomisili di Ngawi, Jawa Timur.
+          Saya adalah seorang fullstack developer yang suka sekali dengan desain
+          dan juga tertarik di dunia teknologi. Saya adalah orang kelahiran
+          Klaten, Jawa Tengah dan berdomisili di Ngawi, Jawa Timur.
         </p>
         <div class="d-flex gap-3 mt-4">
           {#each socials as social (social.href)}
-            <a aria-label={social.label} class="social-link" href={social.href} target="_blank" rel="noopener">
+            <a
+              aria-label={social.label}
+              class="social-link"
+              href={social.href}
+              target="_blank"
+              rel="noopener"
+            >
               <Icon icon={social.icon} width={20} height={20} />
             </a>
           {/each}

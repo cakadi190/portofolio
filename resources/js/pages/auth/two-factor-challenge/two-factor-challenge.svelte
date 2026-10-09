@@ -11,6 +11,7 @@
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
+  import OtpInput from '@/components/ui/otp-input.svelte';
   import { store } from '@/wayfinder/routes/two-factor/login';
 
   let useRecoveryCode = $state(false);
@@ -51,15 +52,7 @@
       {:else}
         <Field.Group>
           <Field.Label for="code">Kode autentikasi</Field.Label>
-          <Field.Input placeholder="Masukkan kode autentikasi"
-            id="code"
-            type="text"
-            inputmode="numeric"
-            name="code"
-            autocomplete="one-time-code"
-            autofocus
-            invalid={!!errors.code}
-          />
+          <OtpInput name="code" id="code" autofocus invalid={!!errors.code} />
           <Field.Feedback message={errors.code} />
         </Field.Group>
       {/if}

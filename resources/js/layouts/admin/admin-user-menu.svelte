@@ -32,7 +32,11 @@
   >
     <div class="avatar">
       {#if avatarUrl}
-        <img src={avatarUrl} alt={userName ?? ''} class="w-100 h-100 object-fit-cover" />
+        <img
+          src={avatarUrl}
+          alt={userName ?? ''}
+          class="w-100 h-100 object-fit-cover"
+        />
       {:else}
         <AppLogoIcon height={16} aria-hidden="true" />
       {/if}
@@ -45,14 +49,18 @@
       <Link href="/settings/profile" class="dropdown-item">
         <div class="avatar">
           {#if avatarUrl}
-            <img src={avatarUrl} alt={userName ?? ''} class="w-100 h-100 object-fit-cover" />
+            <img
+              src={avatarUrl}
+              alt={userName ?? ''}
+              class="w-100 rounded h-100 object-fit-cover"
+            />
           {:else}
             <AppLogoIcon height={20} aria-hidden="true" />
           {/if}
         </div>
         <div class="content">
           <strong>{userName ?? '—'}</strong>
-          <p class="mb-0">Lihat Profil</p>
+          <p class="mb-0 text-muted">{userEmail}</p>
         </div>
       </Link>
     </li>

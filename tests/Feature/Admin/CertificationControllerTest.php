@@ -69,6 +69,6 @@ test('a certification can be deleted', function () {
 test('the about page lists certifications', function () {
     Certification::factory()->create(['title' => 'AWS Cloud Practitioner']);
 
-    $this->get('/tentang/saya')
+    $this->get('/about')
         ->assertInertia(fn ($page) => $page->has('certifications', 1)->where('certifications.0.title', 'AWS Cloud Practitioner'));
 });

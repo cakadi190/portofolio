@@ -12,7 +12,8 @@ Hasil reverse engineering; urutan bukan prioritas final.
 | 4   | `bun run types:check` gagal di lingkungan dev (konfigurasi TypeScript 7 + svelte-check).                                                                          | Tipe frontend belum tervalidasi otomatis.                          | Pasang TS 6 + `@typescript/native` sesuai pesan error.            |
 | 5   | Tipe model Wayfinder (`types.d.ts`) tidak memuat semua kolom; halaman mendeklarasikan tipe lokal.                                                                 | Potensi drift tipe.                                                | Telusuri konfigurasi Wayfinder, lalu impor tipe generated.        |
 | 6   | Data seed memakai path aset statis, bukan item media.                                                                                                             | Tidak tampil di Pustaka Media.                                     | Opsional: seeder mengimpor aset ke `media`.                       |
-| 7   | Halaman publik `/penghargaan` belum menampilkan/menyaring `AwardType`.                                                                                            | Jenis hanya terlihat di admin.                                     | Tambahkan badge/filter jenis.                                     |
+| 7   | Halaman publik `/awards` belum menampilkan/menyaring `AwardType`.                                                                                            | Jenis hanya terlihat di admin.                                     | Tambahkan badge/filter jenis.                                     |
+| 8   | `/speaking` hanya berupa daftar kartu (tanpa halaman detail per acara) dan waktu acara disimpan sebagai waktu dinding WIB, sehingga status "akan datang" bisa meleset hingga 7 jam (zona aplikasi UTC). | Acara selesai bisa tampil "akan datang" beberapa jam lebih lama. | Tambah halaman detail/slug; simpan zona waktu acara. |
 
 ## Ide lanjutan
 

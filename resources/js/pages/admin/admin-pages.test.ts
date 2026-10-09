@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import type { Component } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Awards from '@/pages/admin/awards/index.svelte';
+import SpeakingEngagements from '@/pages/admin/speaking-engagements/index.svelte';
 import Careers from '@/pages/admin/careers/index.svelte';
 import Certifications from '@/pages/admin/certifications/index.svelte';
 import CoffeePlaces from '@/pages/admin/coffee-places/index.svelte';
@@ -57,6 +58,11 @@ type Case = [
 
 const indexPages: Case[] = [
   ['Penghargaan', Awards, { awards: empty, types: options, filters }],
+  [
+    'Pembicara & Mentoring',
+    SpeakingEngagements,
+    { speakingEngagements: empty, roles: options, formats: options, filters },
+  ],
   ['Riwayat Karier', Careers, { careers: empty, portfolios: [], filters }],
   ['Sertifikasi', Certifications, { certifications: empty, filters }],
   [

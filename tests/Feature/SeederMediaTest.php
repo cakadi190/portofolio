@@ -3,6 +3,7 @@
 use App\Models\Media;
 use App\Models\Portfolio;
 use App\Models\Post;
+use App\Models\SpeakingEngagement;
 use App\Services\MediaService;
 use Database\Seeders\CoffeePlaceSeeder;
 use Database\Seeders\EducationSeeder;
@@ -10,6 +11,7 @@ use Database\Seeders\PortfolioSeeder;
 use Database\Seeders\PostCategorySeeder;
 use Database\Seeders\PostSeeder;
 use Database\Seeders\ServiceSeeder;
+use Database\Seeders\SpeakingEngagementSeeder;
 use Database\Seeders\TechnologySeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Support\Facades\Storage;
@@ -44,4 +46,15 @@ it('seeds posts with editor blocks and resolves the cover image token', function
         ->and($post->content)->toContain('wp-block-callout')
         ->and($post->content)->not->toContain('{{cover}}')
         ->and($post->content)->toContain('/storage/'.$post->cover_image);
+});
+
+it('registers seeded speaking engagement posters in the media library', function (): void {
+    $this->seed(SpeakingEngagementSeeder::class);
+
+    expect(SpeakingEngagement::query()->count())->toBe(2);
+
+    SpeakingEngagement::query()->each(function (SpeakingEngagement $engagement): void {
+        expect(Media::query()->where('path', $engagement->poster)->exists())->toBeTrue();
+        Storage::disk('public')->assertExists($engagement->poster);
+    });
 });

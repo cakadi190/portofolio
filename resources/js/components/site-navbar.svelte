@@ -3,16 +3,33 @@
   import AppBrand from '@/components/app-brand.svelte';
   import ThemeToggler from '@/components/theme-toggler.svelte';
 
-  const navbarMenu = [
+  interface MenuItem {
+    name: string;
+    href?: string;
+    children?: { name: string; href: string }[];
+  }
+
+  const navbarMenu: MenuItem[] = [
     { name: 'Beranda', href: '/' },
     { name: 'Portofolio', href: '/portofolio' },
-    { name: 'Tentang Saya', href: '/tentang/saya' },
-    { name: 'Pendidikan & Organisasi', href: '/pendidikan' },
-    { name: 'Penghargaan', href: '/penghargaan' },
-    { name: 'Karir', href: '/karir' },
+    { name: 'Layanan', href: '/layanan' },
+    {
+      name: 'Tentang Saya',
+      children: [
+        { name: 'Profil', href: '/tentang/saya' },
+        { name: 'Pendidikan & Organisasi', href: '/pendidikan' },
+        { name: 'Penghargaan', href: '/penghargaan' },
+        { name: 'Pembicara & Mentoring', href: '/speaking' },
+        { name: 'Karir', href: '/karir' },
+      ],
+    },
     { name: 'Blog', href: '/blog' },
     { name: 'Kontak Saya', href: '/kontak' },
   ];
+
+  function isGroupActive(item: MenuItem): boolean {
+    return item.children?.some((child) => child.href === page.url) ?? false;
+  }
 
   let navbar = $state<HTMLElement>();
 
@@ -61,15 +78,36 @@
   <div class="offcanvas-body">
     <ul class="navbar-nav gap-2 justify-content-end flex-grow-1">
       {#each navbarMenu as item (item.name)}
-        <li class="nav-item">
-          <Link
-            class={`nav-link ${item.href === page.url ? 'active' : ''}`}
-            href={item.href}
-            onclick={closeOffcanvas}
-          >
-            {item.name}
-          </Link>
-        </li>
+        {#if item.children}
+          <li class="nav-item">
+            <span class={`nav-link disabled fw-semibold ${isGroupActive(item) ? 'active' : ''}`}>
+              {item.name}
+            </span>
+            <ul class="navbar-nav ps-3 gap-1">
+              {#each item.children as child (child.href)}
+                <li class="nav-item">
+                  <Link
+                    class={`nav-link ${child.href === page.url ? 'active' : ''}`}
+                    href={child.href}
+                    onclick={closeOffcanvas}
+                  >
+                    {child.name}
+                  </Link>
+                </li>
+              {/each}
+            </ul>
+          </li>
+        {:else if item.href}
+          <li class="nav-item">
+            <Link
+              class={`nav-link ${item.href === page.url ? 'active' : ''}`}
+              href={item.href}
+              onclick={closeOffcanvas}
+            >
+              {item.name}
+            </Link>
+          </li>
+        {/if}
       {/each}
     </ul>
   </div>
@@ -97,14 +135,39 @@
     <div class="collapse navbar-collapse" id="navbarMain">
       <ul class="navbar-nav gap-2 justify-content-end flex-grow-1 me-3">
         {#each navbarMenu as item (item.name)}
-          <li class="nav-item">
-            <Link
-              class={`nav-link ${item.href === page.url ? 'active' : ''}`}
-              href={item.href}
-            >
-              {item.name}
-            </Link>
-          </li>
+          {#if item.children}
+            <li class="nav-item dropdown">
+              <button
+                type="button"
+                class={`nav-link dropdown-toggle ${isGroupActive(item) ? 'active' : ''}`}
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {item.name}
+              </button>
+              <ul class="dropdown-menu">
+                {#each item.children as child (child.href)}
+                  <li>
+                    <Link
+                      class={`dropdown-item ${child.href === page.url ? 'active' : ''}`}
+                      href={child.href}
+                    >
+                      {child.name}
+                    </Link>
+                  </li>
+                {/each}
+              </ul>
+            </li>
+          {:else if item.href}
+            <li class="nav-item">
+              <Link
+                class={`nav-link ${item.href === page.url ? 'active' : ''}`}
+                href={item.href}
+              >
+                {item.name}
+              </Link>
+            </li>
+          {/if}
         {/each}
       </ul>
     </div>

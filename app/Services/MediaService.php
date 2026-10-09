@@ -30,6 +30,7 @@ class MediaService
         'portfolios' => ['exact' => ['image'], 'like' => ['description']],
         'portfolio_galleries' => ['exact' => ['image_url'], 'like' => []],
         'services' => ['exact' => ['image'], 'like' => ['description']],
+        'speaking_engagements' => ['exact' => ['poster'], 'like' => []],
         'posts' => ['exact' => ['cover_image'], 'like' => ['content']],
     ];
 

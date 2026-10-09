@@ -32,7 +32,7 @@ test('the service detail page lists only its portfolios', function () {
 });
 
 test('an unknown service slug returns 404', function () {
-    $this->get('/layanan/tidak-ada')->assertNotFound();
+    $this->get('/services/tidak-ada')->assertNotFound();
 });
 
 test('the portfolio list exposes each portfolio services', function () {
