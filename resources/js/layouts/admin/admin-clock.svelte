@@ -1,6 +1,7 @@
 <script lang="ts">
   import ClockIcon from '@lucide/svelte/icons/clock';
   import { portal } from '@/lib/dom';
+  import AdminCalendar from './admin-calendar.svelte';
 
   function format(date: Date): string {
     const pad = (value: number) => String(value).padStart(2, '0');
@@ -9,6 +10,22 @@
   }
 
   let now = $state(format(new Date()));
+  let modalOpen = $state(false);
+
+  function trackModal(node: HTMLElement) {
+    const open = () => (modalOpen = true);
+    const close = () => (modalOpen = false);
+
+    node.addEventListener('show.bs.modal', open);
+    node.addEventListener('hidden.bs.modal', close);
+
+    return {
+      destroy() {
+        node.removeEventListener('show.bs.modal', open);
+        node.removeEventListener('hidden.bs.modal', close);
+      },
+    };
+  }
 
   $effect(() => {
     const id = window.setInterval(() => {
@@ -32,6 +49,7 @@
 
 <div
   use:portal
+  use:trackModal
   class="modal fade"
   role="dialog"
   aria-modal="true"
@@ -40,7 +58,7 @@
   aria-labelledby="adminClockModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="adminClockModalLabel">Kalender Kegiatan</h5>
@@ -52,7 +70,7 @@
         ></button>
       </div>
       <div class="modal-body">
-        <p>Belum ada kegiatan.</p>
+        <AdminCalendar active={modalOpen} />
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"

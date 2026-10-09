@@ -54,7 +54,7 @@ test('redaktur can use the blogging area', function () {
 
 test('every admin route outside the blogging area is admin only', function () {
     $bloggingRoutes = [
-        'admin.blog-comments.', 'admin.post-categories.', 'admin.posts.', 'admin.tags.', 'admin.media.browse', 'admin.media.store',
+        'admin.blog-comments.', 'admin.post-categories.', 'admin.posts.', 'admin.tags.', 'admin.media.browse', 'admin.media.store', 'admin.calendar-events',
     ];
 
     $restricted = collect(Route::getRoutes()->getRoutes())

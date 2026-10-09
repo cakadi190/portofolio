@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AwardController;
 use App\Http\Controllers\Admin\BlogCommentController;
+use App\Http\Controllers\Admin\CalendarEventController;
 use App\Http\Controllers\Admin\CareerController;
 use App\Http\Controllers\Admin\CertificationController;
 use App\Http\Controllers\Admin\CoffeePlaceController;
@@ -27,6 +28,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Blogging area: admins and redaktur.
     Route::middleware('can:manage-blog')->group(function () use ($only) {
+        Route::get('calendar-events', CalendarEventController::class)->name('calendar-events');
         Route::resource('blog-comments', BlogCommentController::class)->parameters(['blog-comments' => 'blogComment'])->only(['index', 'show', 'update', 'destroy']);
         Route::resource('post-categories', PostCategoryController::class)->parameters(['post-categories' => 'postCategory'])->only($only);
         Route::patch('posts/{post}/author', [PostController::class, 'updateAuthor'])->name('posts.author.update');

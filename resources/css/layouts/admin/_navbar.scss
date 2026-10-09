@@ -164,3 +164,151 @@
     }
   }
 }
+
+.admin-calendar {
+  display: grid;
+  gap: 1.25rem;
+  overflow-x: hidden;
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+
+  &__main,
+  &__side {
+    min-width: 0;
+  }
+
+  &__side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &__today {
+    display: flex;
+    flex-direction: column;
+    padding: 0.875rem 1rem;
+    border-radius: var(--neo-border-radius-lg);
+    background: var(--neo-primary);
+    color: #fff;
+  }
+
+  &__pin {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--neo-border-color);
+    border-radius: var(--neo-border-radius);
+    background: var(--neo-tertiary-bg);
+    color: inherit;
+    text-align: start;
+
+    &:hover {
+      border-color: var(--neo-primary);
+    }
+
+    .admin-calendar__dot {
+      margin-top: 0.4rem;
+    }
+  }
+
+  &__pin-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__pin-title {
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.25rem;
+    text-align: center;
+  }
+
+  &__weekday {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--neo-secondary-color);
+    padding-bottom: 0.25rem;
+  }
+
+  &__day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    aspect-ratio: 1;
+    border: 1px solid transparent;
+    border-radius: var(--neo-border-radius);
+    background: transparent;
+    color: inherit;
+
+    &:hover {
+      background: var(--neo-tertiary-bg);
+    }
+
+    &.is-today {
+      border-color: var(--neo-primary);
+      font-weight: 700;
+    }
+
+    &.is-selected {
+      background: var(--neo-primary);
+      color: #fff;
+
+      .admin-calendar__dot {
+        box-shadow: 0 0 0 1px #fff;
+      }
+    }
+  }
+
+  &__dots {
+    display: flex;
+    gap: 2px;
+    min-height: 6px;
+  }
+
+  &__dot {
+    display: inline-block;
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+
+    &--speaking {
+      background: var(--neo-warning);
+    }
+
+    &--post {
+      background: var(--neo-info);
+    }
+  }
+
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  &__event {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+
+    .admin-calendar__dot {
+      margin-top: 0.4rem;
+    }
+  }
+}
