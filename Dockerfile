@@ -1,4 +1,5 @@
-# syntax=docker/dockerfile:1.9
+# syntax=docker/dockerfile:1.9-labs
+# (-labs only for `COPY --exclude`, which is not in the stable 1.9 channel.)
 #
 # CatatanCakadi — FrankenPHP image.
 #
