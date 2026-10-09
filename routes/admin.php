@@ -29,6 +29,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('can:manage-blog')->group(function () use ($only) {
         Route::resource('blog-comments', BlogCommentController::class)->parameters(['blog-comments' => 'blogComment'])->only(['index', 'show', 'update', 'destroy']);
         Route::resource('post-categories', PostCategoryController::class)->parameters(['post-categories' => 'postCategory'])->only($only);
+        Route::patch('posts/{post}/author', [PostController::class, 'updateAuthor'])->name('posts.author.update');
         Route::resource('posts', PostController::class)->parameters(['posts' => 'post'])->only([...$only, 'create', 'edit']);
         Route::resource('tags', TagController::class)->parameters(['tags' => 'tag'])->only($only);
 

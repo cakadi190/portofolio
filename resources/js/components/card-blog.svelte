@@ -8,15 +8,26 @@
     coverImage: string | null;
     categories: { name: string; color: string | null }[];
     tags: string[];
+    author?: string | null;
+    href?: string;
   };
 
-  let { title, slug, excerpt, coverImage, categories, tags }: Props = $props();
+  let {
+    title,
+    slug,
+    excerpt,
+    coverImage,
+    categories,
+    tags,
+    author = null,
+    href = `/blog/${slug}`,
+  }: Props = $props();
 
   const category = $derived(categories[0]);
 </script>
 
 <div class="wrapper">
-  <Link href={`/blog/${slug}`} class="card h-100 overflow-hidden rounded-4 card-blog">
+  <Link {href} class="card h-100 overflow-hidden rounded-4 card-blog">
     {#if coverImage}
       <img loading="lazy" src={coverImage} class="rounded-3 card-img-top" alt={title} />
     {/if}
@@ -34,6 +45,10 @@
       </div>
       {#if excerpt}
         <div class="card-text mb-3 opacity-75">{excerpt}</div>
+      {/if}
+
+      {#if author}
+        <div class="small opacity-75 mb-3">Oleh {author}</div>
       {/if}
 
       {#if tags.length}

@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
  *
  * @phpstan-type SeoOverrides array{
  *     title?: string,
+ *     author?: string|null,
  *     description?: string|null,
  *     image?: string|null,
  *     image_alt?: string|null,
@@ -51,11 +52,12 @@ class SeoService
     }
 
     /**
-     * Author name shown in meta tags and structured data.
+     * Author name shown in meta tags and structured data: the page's own
+     * author (e.g. a post's writer) or else the site-wide setting.
      */
     public function author(): string
     {
-        return (string) $this->settings->get('seo_author', config('seo.author'));
+        return ($this->overrides['author'] ?? null) ?: (string) $this->settings->get('seo_author', config('seo.author'));
     }
 
     /**

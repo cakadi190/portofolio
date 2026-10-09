@@ -7,6 +7,7 @@
   import DatePicker from '@/components/ui/date-picker.svelte';
   import { Field } from '@/components/ui/field';
   import MediaField from '@/components/media/media-field.svelte';
+  import Select from '@/components/ui/select.svelte';
   import MultiCheck from '@/components/ui/multi-check.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import { index, store, update } from '@/wayfinder/routes/admin/posts';
@@ -21,6 +22,7 @@
     excerpt: string | null;
     content: string;
     cover_image: string | null;
+    user_id: number | null;
     is_published: boolean;
     published_at: string | null;
     tags: { id: number }[];
@@ -31,10 +33,12 @@
     post,
     tags,
     categories,
+    authors,
   }: {
     post: Post | null;
     tags: Option[];
     categories: Option[];
+    authors: Option[];
   } = $props();
 
   // svelte-ignore state_referenced_locally
@@ -187,6 +191,21 @@
                 {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
               </button>
             </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header fw-semibold">Penulis</div>
+          <div class="card-body">
+            <Select
+              id="post-user_id"
+              name="user_id"
+              items={authors.map((a) => ({ value: a.id, label: a.name }))}
+              value={post ? post.user_id : null}
+              invalid={!!errors.user_id}
+              placeholder="Saya sendiri"
+            />
+            <Field.Feedback message={errors.user_id} />
           </div>
         </div>
 

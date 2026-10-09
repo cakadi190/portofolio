@@ -34,9 +34,9 @@ class SpeakingEngagementSeeder extends Seeder
             ],
             [
                 'title' => 'Menumbuhkan Jiwa Wirausaha Muda dengan Kreativitas dan Inovasi: An Entrepreneur\'s Story & eXPERIENCE',
-                'organizer' => 'Taska Expo & Seminar — UPI Kampus Serang',
+                'organizer' => 'Taska Expo & Seminar - UPI Kampus Serang',
                 'role' => SpeakingRole::Speaker,
-                'format' => SpeakingFormat::Offline,
+                'format' => SpeakingFormat::Hybrid,
                 'location' => 'Gd. Baru UPI Serang',
                 'starts_at' => '2024-06-08 09:00',
                 'ends_at' => null,

@@ -6,6 +6,7 @@ use App\Traits\Models\AutoGenerateSlug;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -17,7 +18,7 @@ class Post extends Model
     protected string $slugSource = 'title';
 
     protected $fillable = [
-        'title', 'slug', 'excerpt', 'content', 'cover_image', 'is_published', 'published_at',
+        'user_id', 'title', 'slug', 'excerpt', 'content', 'cover_image', 'is_published', 'published_at',
     ];
 
     /**
@@ -29,6 +30,16 @@ class Post extends Model
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The writer of the post. Null once that account has been deleted.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

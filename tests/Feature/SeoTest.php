@@ -3,7 +3,9 @@
 use App\Models\Portfolio;
 use App\Models\PortfolioGallery;
 use App\Models\Post;
+use App\Models\SpeakingEngagement;
 use App\Models\SystemSetting;
+use App\Models\User;
 
 test('the sitemap index lists every child sitemap', function () {
     $response = $this->get(route('sitemaps.index'))->assertOk();
@@ -128,4 +130,25 @@ test('dotted route names resolve their own title and description', function () {
     $this->get(route('blog.index'))
         ->assertSee('<title>Artikel • '.config('app.name').'</title>', escape: false)
         ->assertSee('Kumpulan artikel Cak Adi', escape: false);
+});
+
+test('a post names its author in the page and in the seo tags', function () {
+    $post = Post::factory()->for(User::factory()->redaktur()->create(['name' => 'Siti Redaktur']), 'author')->create();
+
+    $this->get(route('blog.show', $post))
+        ->assertOk()
+        ->assertSee('<meta name="author" content="Siti Redaktur">', escape: false)
+        ->assertSee('<meta property="article:author" content="Siti Redaktur">', escape: false)
+        ->assertInertia(fn ($page) => $page->where('post.author', 'Siti Redaktur'));
+});
+
+test('the homepage lists speaking engagements, upcoming first', function () {
+    $past = SpeakingEngagement::factory()->create(['starts_at' => now()->subWeek(), 'is_published' => true]);
+    $upcoming = SpeakingEngagement::factory()->create(['starts_at' => now()->addWeek(), 'is_published' => true]);
+    SpeakingEngagement::factory()->create(['is_published' => false]);
+
+    $this->get(route('home'))->assertInertia(fn ($page) => $page
+        ->has('speakings', 2)
+        ->where('speakings.0.id', $upcoming->id)
+        ->where('speakings.1.id', $past->id));
 });

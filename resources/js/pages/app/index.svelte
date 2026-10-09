@@ -4,6 +4,7 @@
   import ElkuslaSection from '@/components/home/elkusla-section.svelte';
   import HeaderHome from '@/components/home/header-home.svelte';
   import PortfolioHomeSection from '@/components/home/portfolio-home-section.svelte';
+  import SpeakingHomeSection from '@/components/home/speaking-home-section.svelte';
 
   type Portfolio = {
     name: string;
@@ -21,9 +22,25 @@
     coverImage: string | null;
     categories: { name: string; color: string | null }[];
     tags: string[];
+    author: string | null;
   };
 
-  let { portfolios = [], posts = [] }: { portfolios?: Portfolio[]; posts?: Post[] } = $props();
+  type Speaking = {
+    id: number;
+    title: string;
+    organizer: string;
+    roleLabel: string;
+    formatLabel: string;
+    location: string | null;
+    startsAt: string;
+    poster: string | null;
+  };
+
+  let {
+    portfolios = [],
+    speakings = [],
+    posts = [],
+  }: { portfolios?: Portfolio[]; speakings?: Speaking[]; posts?: Post[] } = $props();
 </script>
 
 <AppHead title="Beranda" />
@@ -32,5 +49,6 @@
   <HeaderHome />
   <ElkuslaSection />
   <PortfolioHomeSection {portfolios} />
+  <SpeakingHomeSection {speakings} />
   <BlogHomeSection {posts} />
 </div>

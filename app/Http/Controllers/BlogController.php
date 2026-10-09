@@ -20,7 +20,7 @@ class BlogController extends Controller
     {
         $posts = Post::query()
             ->where('is_published', true)
-            ->with('categories:id,name,color')
+            ->with(['categories:id,name,color', 'author:id,name'])
             ->latest('published_at')
             ->paginate(9)
             ->withQueryString()
@@ -29,6 +29,7 @@ class BlogController extends Controller
                 'slug' => $post->slug,
                 'excerpt' => $post->excerpt,
                 'coverImage' => ImageService::url($post->cover_image),
+                'author' => $post->author?->name,
                 'categories' => $post->categories->map(fn ($category): array => [
                     'name' => $category->name,
                     'color' => $category->color,
@@ -47,12 +48,13 @@ class BlogController extends Controller
     {
         abort_unless($post->is_published, 404);
 
-        $post->load(['categories:id,name,color', 'tags:id,name']);
+        $post->load(['categories:id,name,color', 'tags:id,name', 'author:id,name']);
 
         $coverImage = ImageService::url($post->cover_image);
 
         $seo->set([
             'title' => $post->title,
+            'author' => $post->author?->name,
             'description' => $post->excerpt ?: Str::limit(strip_tags($post->content), 200),
             'image' => $coverImage,
             'image_alt' => $post->title,
@@ -84,6 +86,7 @@ class BlogController extends Controller
                 'excerpt' => $post->excerpt,
                 'content' => $post->content,
                 'coverImage' => ImageService::url($post->cover_image),
+                'author' => $post->author?->name,
                 'publishedAt' => $post->published_at,
                 'categories' => $post->categories->map(fn ($category): array => [
                     'name' => $category->name,

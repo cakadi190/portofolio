@@ -2,6 +2,7 @@
   import { Link } from '@inertiajs/svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
+  import PostAuthorModal from '@/components/admin/post-author-modal.svelte';
   import AppHead from '@/components/app-head.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { create, destroy, edit, index } from '@/wayfinder/routes/admin/posts';
@@ -12,12 +13,28 @@
     title: string;
     slug: string;
     is_published: boolean;
+    user_id: number | null;
+    author: { id: number; name: string } | null;
     tags: { id: number; name: string }[];
     categories: { id: number; name: string }[];
   };
 
-  let { posts, filters }: { posts: Paginated<Post>; filters: TableFilters } =
+  type Author = { id: number; name: string };
+
+  let {
+    posts,
+    filters,
+    authors,
+  }: { posts: Paginated<Post>; filters: TableFilters; authors: Author[] } =
     $props();
+
+  let authorOpen = $state(false);
+  let authorPost = $state<Post | null>(null);
+
+  function openAuthor(post: Post): void {
+    authorPost = post;
+    authorOpen = true;
+  }
 </script>
 
 <AppHead title="Artikel Blog" />
@@ -35,6 +52,7 @@
   url={index().url}
   columns={[
     { label: 'Judul', key: 'title', sortable: true },
+    { label: 'Penulis' },
     { label: 'Status', key: 'is_published', sortable: true },
     { label: 'Tag' },
     { label: 'Kategori' },
@@ -49,6 +67,16 @@
         <Link href={edit(post.id).url} class="fw-semibold text-decoration-none">
           {post.title}
         </Link>
+      </td>
+      <td>
+        <button
+          type="button"
+          class="btn btn-sm btn-link p-0 text-decoration-none"
+          title="Ganti penulis"
+          onclick={() => openAuthor(post)}
+        >
+          {post.author?.name ?? 'Tanpa penulis'}
+        </button>
       </td>
       <td>
         <span
@@ -90,3 +118,5 @@
     </tr>
   {/snippet}
 </DataTable>
+
+<PostAuthorModal bind:open={authorOpen} post={authorPost} {authors} />

@@ -26,6 +26,7 @@ class PostSeeder extends Seeder
             $cover = $media->storeFromPublicPath("/images/posts/{$item['image']}.webp", $userId)->path;
 
             $post = Post::query()->create([
+                'user_id' => $userId,
                 'title' => $item['title'],
                 'slug' => $item['slug'],
                 'excerpt' => $item['excerpt'],

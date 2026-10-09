@@ -102,7 +102,7 @@ const indexPages: Case[] = [
   ['Portofolio', Portfolios, { portfolios: empty, filters }],
   ['Layanan', Services, { services: empty, filters }],
   ['Kategori Artikel', PostCategories, { postCategories: empty, filters }],
-  ['Artikel Blog', Posts, { posts: empty, filters }],
+  ['Artikel Blog', Posts, { posts: empty, filters, authors: [] }],
   ['Tag', Tags, { tags: empty, filters }],
   ['Teknologi', Technologies, { technologies: empty, filters }],
   [
@@ -190,7 +190,7 @@ describe('admin settings pages', () => {
 
 describe('admin forms', () => {
   it('PostForm renders the create heading for a new post', () => {
-    render(PostForm, { post: null, tags: idOptions, categories: idOptions });
+    render(PostForm, { post: null, tags: idOptions, categories: idOptions, authors: idOptions });
 
     expect(document.title).toContain('Tulis Artikel Baru');
     expect(document.querySelector('input[name="title"]')).not.toBeNull();

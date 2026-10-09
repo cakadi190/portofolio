@@ -10,6 +10,7 @@
     coverImage: string | null;
     categories: { name: string; color: string | null }[];
     tags: string[];
+    author: string | null;
   };
 
   let { posts = [] }: { posts?: Post[] } = $props();

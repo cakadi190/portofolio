@@ -73,3 +73,41 @@
     object-fit: cover;
   }
 }
+
+.card-speaking {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    border-color: var(--neo-primary);
+  }
+
+  &.is-past {
+    opacity: 0.6;
+    filter: grayscale(0.6);
+
+    &:hover {
+      opacity: 1;
+      filter: none;
+    }
+  }
+
+  .card-speaking-poster {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: rgba(var(--neo-body-color-rgb), 0.06);
+
+    .card-img-top {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover .card-img-top {
+      transform: scale(1.04);
+    }
+  }
+}

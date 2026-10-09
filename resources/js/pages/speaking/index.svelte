@@ -27,6 +27,8 @@
   let { upcoming, past }: { upcoming: Engagement[]; past: Engagement[] } =
     $props();
 
+  const engagements = $derived([...upcoming, ...past]);
+
   const dateFormatter = new Intl.DateTimeFormat('id-ID', {
     weekday: 'long',
     day: 'numeric',
@@ -103,12 +105,15 @@
 </script>
 
 {#snippet card(engagement: Engagement)}
-  <div class="col-md-6 reveal reveal-spring reveal-bottom">
-    <article class="card h-100 overflow-hidden">
+  <div class="col-md-6 col-lg-4 reveal reveal-spring reveal-bottom">
+    <article
+      class="card card-speaking h-100 overflow-hidden rounded-4"
+      class:is-past={!engagement.isUpcoming}
+    >
       {#if engagement.poster}
         <button
           type="button"
-          class="btn p-0 border-0 rounded-0"
+          class="card-speaking-poster btn p-0 border-0 rounded-0"
           aria-label={`Lihat poster ${engagement.title}`}
           onclick={() => openPoster(engagement)}
         >
@@ -120,36 +125,49 @@
           />
         </button>
       {/if}
-      <div class="card-body d-flex flex-column gap-2">
+      <div class="card-body p-4 d-flex flex-column gap-3">
         <div class="d-flex flex-wrap gap-2">
           <span class="badge bg-primary">{engagement.roleLabel}</span>
-          <span class="badge text-bg-secondary">{engagement.formatLabel}</span>
+          {#if !engagement.isUpcoming}
+            <span class="badge text-bg-secondary">Selesai</span>
+          {/if}
+          <span class="badge tag-badge">{engagement.formatLabel}</span>
         </div>
-        <h5 class="mb-0">{engagement.title}</h5>
-        <p class="mb-0 opacity-75">{engagement.organizer}</p>
-        {#if engagement.isUpcoming && hasTime(engagement)}
-          <button
-            type="button"
-            class="btn btn-link p-0 small text-start align-self-start d-flex align-items-center gap-2"
-            onclick={() => openZones(engagement)}
-          >
-            <Icon icon="lucide:globe" width={16} height={16} />
-            Lihat waktu di zona waktu Anda
-          </button>
-        {/if}
-        <p class="mb-0 small d-flex align-items-center gap-2">
-          <Icon icon="lucide:calendar" width={16} height={16} />
-          {formatSchedule(engagement)}
-        </p>
-        {#if engagement.location}
-          <p class="mb-0 small d-flex align-items-center gap-2">
-            <Icon icon="lucide:map-pin" width={16} height={16} />
-            {engagement.location}
-          </p>
-        {/if}
+
+        <div>
+          <h5 class="card-title mb-1">{engagement.title}</h5>
+          <p class="mb-0 opacity-75">{engagement.organizer}</p>
+        </div>
+
+        <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+          <li class="d-flex align-items-start gap-2">
+            <Icon icon="lucide:calendar" width={16} height={16} class="mt-1 flex-shrink-0" />
+            <span>{formatSchedule(engagement)}</span>
+          </li>
+          {#if engagement.location}
+            <li class="d-flex align-items-start gap-2">
+              <Icon icon="lucide:map-pin" width={16} height={16} class="mt-1 flex-shrink-0" />
+              <span>{engagement.location}</span>
+            </li>
+          {/if}
+          {#if engagement.isUpcoming && hasTime(engagement)}
+            <li>
+              <button
+                type="button"
+                class="btn btn-link p-0 small text-start d-flex align-items-center gap-2"
+                onclick={() => openZones(engagement)}
+              >
+                <Icon icon="lucide:globe" width={16} height={16} />
+                Lihat waktu di zona waktu Anda
+              </button>
+            </li>
+          {/if}
+        </ul>
+
         {#if engagement.description}
           <p class="mb-0 small opacity-75">{engagement.description}</p>
         {/if}
+
         {#if engagement.isUpcoming && engagement.registrationUrl}
           <a
             href={engagement.registrationUrl}
@@ -175,18 +193,8 @@
 
   <section class="need-space pt-0">
     <div class="container">
-      {#if upcoming.length > 0}
-        <h4 class="mb-4">Akan Datang</h4>
-        <div class="row g-4 mb-5">
-          {#each upcoming as engagement (engagement.id)}
-            {@render card(engagement)}
-          {/each}
-        </div>
-      {/if}
-
-      <h4 class="mb-4">Arsip</h4>
       <div class="row g-4">
-        {#each past as engagement (engagement.id)}
+        {#each engagements as engagement (engagement.id)}
           {@render card(engagement)}
         {:else}
           <p class="opacity-75">Belum ada acara yang terarsip.</p>

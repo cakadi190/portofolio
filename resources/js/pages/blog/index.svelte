@@ -11,6 +11,7 @@
     slug: string;
     excerpt: string | null;
     coverImage: string | null;
+    author: string | null;
     categories: { name: string; color: string | null }[];
   };
 

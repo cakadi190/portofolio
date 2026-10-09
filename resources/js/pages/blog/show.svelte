@@ -1,5 +1,6 @@
 <script lang="ts">
   import Calendar from '@lucide/svelte/icons/calendar';
+  import User from '@lucide/svelte/icons/user';
   import AppHead from '@/components/app-head.svelte';
   import { highlightCode } from '@/lib/highlight/action';
   import HeaderPage from '@/components/header-page.svelte';
@@ -12,6 +13,7 @@
     excerpt: string | null;
     content: string;
     coverImage: string | null;
+    author: string | null;
     publishedAt: string | null;
     categories: { name: string; color: string | null }[];
     tags: string[];
@@ -62,6 +64,13 @@
                 <Calendar size={16} />
                 <span>{publishedLabel}</span>
               </div>
+
+              {#if post.author}
+                <div class="d-flex align-items-center gap-2 opacity-75">
+                  <User size={16} />
+                  <span>{post.author}</span>
+                </div>
+              {/if}
 
               {#each post.categories as category (category.name)}
                 <span

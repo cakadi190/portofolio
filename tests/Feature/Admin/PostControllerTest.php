@@ -98,3 +98,30 @@ test('the list paginates with a whitelisted page size', function () {
     $this->actingAs($user)->get(route('admin.posts.index', ['per_page' => 7]))
         ->assertInertia(fn ($page) => $page->where('filters.per_page', 10));
 });
+
+test('a new post defaults to the signed in user as its author', function () {
+    $user = User::factory()->redaktur()->create();
+
+    $this->actingAs($user)->post(route('admin.posts.store'), ['title' => 'Tulisanku', 'content' => '<p>Isi</p>']);
+
+    expect(Post::query()->where('title', 'Tulisanku')->firstOrFail()->user_id)->toBe($user->id);
+});
+
+test('the author can be changed from the post list', function () {
+    $post = Post::factory()->create();
+    $author = User::factory()->redaktur()->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.posts.author.update', $post), ['user_id' => $author->id])
+        ->assertRedirect();
+
+    expect($post->refresh()->author->is($author))->toBeTrue();
+});
+
+test('a regular user cannot become a post author', function () {
+    $post = Post::factory()->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->patch(route('admin.posts.author.update', $post), ['user_id' => User::factory()->create()->id])
+        ->assertSessionHasErrors('user_id');
+});
