@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { tick } from 'svelte';
+
   interface Props {
     name: string;
     id?: string;
@@ -20,10 +22,14 @@
 
   const code = $derived(digits.join(''));
 
+  let wasInvalid = false;
+
   $effect(() => {
-    if (invalid) {
+    if (invalid && !wasInvalid) {
       reset();
     }
+
+    wasInvalid = invalid;
   });
 
   function reset() {
@@ -99,10 +105,13 @@
     submitIfComplete(boxes[next]);
   }
 
-  function submitIfComplete(box: HTMLInputElement | undefined) {
-    if (digits.every(Boolean)) {
-      box?.form?.requestSubmit();
+  async function submitIfComplete(box: HTMLInputElement | undefined) {
+    if (!digits.every(Boolean)) {
+      return;
     }
+
+    await tick();
+    box?.form?.requestSubmit();
   }
 </script>
 
