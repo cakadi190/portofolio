@@ -1,0 +1,49 @@
+// Stacked layout for admin DataTables on small screens: each row becomes a
+// card and every cell shows its column label (set from the header by
+// `data-table.svelte` as `data-label`), like DataTables' responsive mode.
+@media (max-width: 767.98px) {
+  .dt-responsive {
+    thead {
+      display: none;
+    }
+
+    tbody,
+    tr,
+    td {
+      display: block;
+      width: 100%;
+    }
+
+    tr {
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--neo-border-color);
+      border-radius: var(--neo-border-radius);
+      overflow: hidden;
+    }
+
+    td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      text-align: end !important;
+      border-bottom-width: 1px;
+
+      &:last-child {
+        border-bottom: 0;
+      }
+
+      &[data-label]::before {
+        content: attr(data-label);
+        flex: 0 0 35%;
+        font-weight: 700;
+        text-align: start;
+      }
+
+      &[colspan] {
+        display: block;
+        text-align: center !important;
+      }
+    }
+  }
+}

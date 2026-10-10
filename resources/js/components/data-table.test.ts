@@ -63,6 +63,12 @@ describe('DataTable', () => {
     expect(screen.getByText('Menampilkan 1 sampai 2 dari 2 data')).toBeTruthy();
   });
 
+  it('labels cells with their column header for the mobile layout', () => {
+    mount();
+
+    expect(screen.getByText('Satu').closest('td')?.dataset.label).toBe('Nama');
+  });
+
   it('shows the empty text, or a no-match message when filtered', () => {
     const { unmount } = mount({ data: paginated({ data: [], total: 0 }) });
     expect(screen.getByText('Data akan muncul di sini.')).toBeTruthy();

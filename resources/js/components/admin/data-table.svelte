@@ -44,6 +44,22 @@
   const isFiltered = $derived(filters.search !== '');
   const pages = $derived(pageWindow(data.current_page, data.last_page));
 
+  let tbody = $state<HTMLTableSectionElement>();
+
+  /** Copies each header label onto its cell so the mobile layout can show it. */
+  $effect(() => {
+    void data.data;
+    void columns;
+    if (!tbody) return;
+
+    for (const tr of tbody.rows) {
+      Array.from(tr.cells).forEach((cell, index) => {
+        const label = columns[index]?.label;
+        if (cell.colSpan === 1 && label) cell.dataset.label = label;
+      });
+    }
+  });
+
   function visit(params: Partial<TableFilters> & { page?: number }): void {
     const next = { ...filters, page: 1, ...params };
     const query: Record<string, string | number> = {};
@@ -164,7 +180,7 @@
   {/if}
 {:else}
   <div class="table-responsive">
-    <table class="table align-middle">
+    <table class="table align-middle dt-responsive">
       <thead>
         <tr>
           {#each columns as column (column.label)}
@@ -199,7 +215,7 @@
           {/each}
         </tr>
       </thead>
-      <tbody>
+      <tbody bind:this={tbody}>
         {#each data.data as item (item.id)}
           {@render row(item)}
         {:else}
