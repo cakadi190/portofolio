@@ -9,6 +9,7 @@ vi.mock('@inertiajs/svelte', () => ({
 }));
 
 import {
+  captureUtm,
   initializeAnalytics,
   track,
   trackEvent,
@@ -167,5 +168,80 @@ describe('initializeAnalytics', () => {
     expect(percents).toEqual([25, 50]);
 
     Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+  });
+});
+
+describe('captureUtm', () => {
+  afterEach(() => window.sessionStorage.clear());
+
+  it('maps utm parameters to GA4 campaign parameters and remembers them', () => {
+    window.history.pushState({}, '', '/?utm_source=ig&utm_medium=bio&utm_campaign=launch');
+
+    expect(captureUtm()).toEqual({
+      campaign_source: 'ig',
+      campaign_medium: 'bio',
+      campaign_name: 'launch',
+    });
+
+    window.history.pushState({}, '', '/blog');
+
+    expect(captureUtm()).toEqual({
+      campaign_source: 'ig',
+      campaign_medium: 'bio',
+      campaign_name: 'launch',
+    });
+  });
+
+  it('returns nothing without utm parameters', () => {
+    expect(captureUtm()).toEqual({});
+  });
+});
+
+describe('contextual events', () => {
+  const navigate = (page: object, url = '/') => {
+    window.history.pushState({}, '', url);
+    handlers.navigate.forEach((handler) =>
+      (handler as (event: unknown) => void)({ detail: { page } }),
+    );
+  };
+
+  it('reports search terms from the query string', () => {
+    navigate({ component: 'blog/index' }, '/blog?search=laravel');
+
+    expect(gtag).toHaveBeenCalledWith('event', 'search', { search_term: 'laravel' });
+  });
+
+  it('reports view_item for show pages and page_error for error pages', () => {
+    navigate({ component: 'blog/show' }, '/blog/hello');
+    navigate({ component: 'error', props: { status: 404 } }, '/nope');
+
+    expect(gtag).toHaveBeenCalledWith('event', 'view_item', {
+      content_type: 'blog',
+      item_id: '/blog/hello',
+    });
+    expect(gtag).toHaveBeenCalledWith('event', 'page_error', {
+      status: 404,
+      page_path: '/nope',
+    });
+  });
+
+  it('reports generate_lead after a successful contact post', () => {
+    (handlers.start[0] as (event: unknown) => void)({
+      detail: { visit: { method: 'post' } },
+    });
+    navigate({ component: 'contact/index', url: '/contact' }, '/contact');
+
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form: 'contact' });
+  });
+
+  it('reports share clicks to known networks', () => {
+    document.body.innerHTML = '<a href="https://wa.me/?text=hi">wa</a>';
+    (document.body.firstElementChild as HTMLElement).click();
+
+    expect(gtag).toHaveBeenCalledWith(
+      'event',
+      'share',
+      expect.objectContaining({ method: 'whatsapp' }),
+    );
   });
 });

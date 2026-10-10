@@ -25,3 +25,21 @@ test('a measurement id saved in system settings takes precedence over the enviro
 
     $this->get('/')->assertSee('G-FROMDB', escape: false)->assertDontSee('G-FROMENV', escape: false);
 });
+
+test('the sitemap stylesheet carries the google tag and sitemap events', function () {
+    config(['services.google_analytics.measurement_id' => 'G-TEST123456']);
+
+    $this->get(route('sitemaps.style'))
+        ->assertOk()
+        ->assertSee('googletagmanager.com/gtag/js?id=G-TEST123456', escape: false)
+        ->assertSee("track('search'", escape: false)
+        ->assertSee("'select_content'", escape: false);
+});
+
+test('the sitemap stylesheet omits the google tag without a measurement id', function () {
+    config(['services.google_analytics.measurement_id' => null]);
+
+    $this->get(route('sitemaps.style'))
+        ->assertOk()
+        ->assertDontSee('googletagmanager.com', escape: false);
+});

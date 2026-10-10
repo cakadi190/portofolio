@@ -1,4 +1,8 @@
 {!! '<' . '?xml version="1.0" encoding="UTF-8"?' . '>' !!}
+@php
+    $measurementId = app(\App\Services\SystemSettingService::class)
+        ->get('google_analytics_id', config('services.google_analytics.measurement_id'));
+@endphp
 {{--
     Stylesheet XSL agar sitemap terbaca manusia di browser (mesin pencari
     mengabaikannya). Desain
@@ -33,6 +37,19 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Signika:wght@400;500;600;700&amp;display=swap" />
+@if ($measurementId)
+        <script async="async" src="https://www.googletagmanager.com/gtag/js?id={{ $measurementId }}"><xsl:text> </xsl:text></script>
+        <script><![CDATA[
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', @json($measurementId), {
+            page_title: document.title,
+            page_location: window.location.href,
+            content_group: 'sitemap'
+          });
+        ]]></script>
+@endif
         <style>
           :root {
             --primary: #2e3192; --accent: #f7941d; --green: #009245;
@@ -112,7 +129,26 @@
             var counter = document.getElementById('sitemap-count');
             var empty = document.getElementById('sitemap-empty');
             var label = counter.getAttribute('data-label');
+            var searchTimer;
+            function track(name, params) {
+              if (typeof window.gtag === 'function') { window.gtag('event', name, params); }
+            }
+            document.addEventListener('click', function (event) {
+              var link = event.target.closest && event.target.closest('a[href]');
+              if (!link) { return; }
+              track('select_content', {
+                content_type: 'sitemap_url',
+                item_id: link.getAttribute('href'),
+                link_text: (link.textContent || '').trim().slice(0, 100)
+              });
+            });
             input.addEventListener('input', function () {
+              clearTimeout(searchTimer);
+              searchTimer = setTimeout(function () {
+                if (input.value.trim() !== '') {
+                  track('search', { search_term: input.value.trim(), search_location: 'sitemap' });
+                }
+              }, 800);
               var keyword = input.value.trim().toLowerCase();
               var visible = 0;
               rows.forEach(function (row) {

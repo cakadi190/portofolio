@@ -6,6 +6,7 @@
   import { Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import FileText from '@lucide/svelte/icons/file-text';
+  import SidePanel from '@/components/side-panel.svelte';
   import HeaderPage from '@/components/header-page.svelte';
   import Lightbox from '@/components/ui/lightbox.svelte';
   import { formatDate } from '@/lib/utils';
@@ -45,7 +46,16 @@
       })),
   );
 
+  let infoOpen = $state(false);
+  let infoCertification = $state<Certification | null>(null);
+
+  function openInfo(certification: Certification): void {
+    infoCertification = certification;
+    infoOpen = true;
+  }
+
   function openLightbox(certification: Certification): void {
+    infoOpen = false;
     lightboxIndex = lightboxImages.findIndex((image) => image.url === certification.file);
     lightboxOpen = true;
   }
@@ -212,52 +222,39 @@
                 {#each certifications as certification (certification.id)}
                   <div class="col-md-6">
                     <div class="card h-100 overflow-hidden rounded-4">
-                      {#if certification.file}
-                        <a
-                          href={certification.file}
-                          target="_blank"
-                          rel="noopener"
-                          class="d-block text-center bg-body-tertiary"
-                          onclick={(event) => {
-                            event.preventDefault();
-                            openLightbox(certification);
-                          }}
+                      <div
+                        class="card-body d-flex align-items-center justify-content-between gap-3"
+                      >
+                        <h5 class="mb-0">{certification.title}</h5>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary d-none d-md-inline-block flex-shrink-0"
+                          onclick={() => openInfo(certification)}
                         >
-                          {#if certification.isPdf}
-                            <div class="py-5 d-flex flex-column align-items-center gap-2">
-                              <FileText size={40} />
-                              <span class="small">Lihat sertifikat (PDF)</span>
-                            </div>
-                          {:else}
-                            <img
-                              src={certification.file}
-                              alt={certification.title}
-                              class="w-100 object-fit-cover"
-                              style="max-height: 14rem"
-                              loading="lazy"
-                            />
-                          {/if}
-                        </a>
-                      {/if}
-                      <div class="card-body">
-                        <h5 class="mb-1">{certification.title}</h5>
-                        <p class="mb-2 opacity-75">{certification.issuer}</p>
-                        <p class="small mb-0">
-                          Terbit {formatDate(certification.issuedAt)}{certification.expiresAt
-                            ? ` · Berlaku hingga ${formatDate(certification.expiresAt)}`
-                            : ''}
-                        </p>
-                        {#if certification.credentialId}
-                          <p class="small opacity-75 mb-0">ID: {certification.credentialId}</p>
-                        {/if}
-                        {#if certification.credentialUrl}
-                          <a
-                            href={certification.credentialUrl}
-                            target="_blank"
-                            rel="noopener"
-                            class="small">Verifikasi kredensial</a
+                          Info
+                        </button>
+                        <div class="dropdown d-md-none flex-shrink-0">
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            aria-label="Aksi sertifikasi"
                           >
-                        {/if}
+                            Aksi
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                              <button
+                                type="button"
+                                class="dropdown-item"
+                                onclick={() => openInfo(certification)}
+                              >
+                                Informasi
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -301,3 +298,37 @@
 </div>
 
 <Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
+
+<SidePanel bind:open={infoOpen} title={infoCertification?.title ?? ''} subtitle={infoCertification?.issuer}>
+  {#snippet children()}
+    {#if infoCertification}
+      <p class="small mb-2">
+        Terbit {formatDate(infoCertification.issuedAt)}{infoCertification.expiresAt
+          ? ` · Berlaku hingga ${formatDate(infoCertification.expiresAt)}`
+          : ''}
+      </p>
+      {#if infoCertification.credentialId}
+        <p class="small opacity-75 mb-2">ID: {infoCertification.credentialId}</p>
+      {/if}
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        {#if infoCertification.file}
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            onclick={() => infoCertification && openLightbox(infoCertification)}
+          >
+            Lihat sertifikat{infoCertification.isPdf ? ' (PDF)' : ''}
+          </button>
+        {/if}
+        {#if infoCertification.credentialUrl}
+          <a
+            href={infoCertification.credentialUrl}
+            target="_blank"
+            rel="noopener"
+            class="btn btn-outline-primary btn-sm">Verifikasi kredensial</a
+          >
+        {/if}
+      </div>
+    {/if}
+  {/snippet}
+</SidePanel>

@@ -15,10 +15,21 @@
     autofocus = false,
   }: Props = $props();
 
-  let digits = $state<string[]>([]);
+  let digits = $state<string[]>(Array.from({ length }, () => ''));
   let boxes = $state<HTMLInputElement[]>([]);
 
   const code = $derived(digits.join(''));
+
+  $effect(() => {
+    if (invalid) {
+      reset();
+    }
+  });
+
+  function reset() {
+    digits = Array.from({ length }, () => '');
+    boxes[0]?.focus();
+  }
 
   function sanitize(value: string): string {
     return value.replace(/\D/g, '');
@@ -28,43 +39,52 @@
     const box = event.currentTarget as HTMLInputElement;
     const cleaned = sanitize(box.value);
 
-    if (cleaned.length > 1) {
+    box.value = digits[index];
+
+    if (cleaned) {
       fill(cleaned, index);
-
-      return;
     }
-
-    digits[index] = cleaned;
-    box.value = cleaned;
-
-    if (cleaned && index < length - 1) {
-      boxes[index + 1]?.focus();
-    }
-
-    submitIfComplete(box);
   }
 
   function handleKeydown(event: KeyboardEvent, index: number) {
-    if (event.key === 'Backspace' && !digits[index] && index > 0) {
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
+    if (/^\d$/.test(event.key)) {
       event.preventDefault();
-      digits[index - 1] = '';
-      boxes[index - 1]?.focus();
+      fill(event.key, index);
+    } else if (event.key === 'Backspace') {
+      event.preventDefault();
+
+      if (digits[index]) {
+        digits[index] = '';
+      } else if (index > 0) {
+        digits[index - 1] = '';
+        boxes[index - 1]?.focus();
+      }
+    } else if (event.key === 'Delete') {
+      event.preventDefault();
+      digits[index] = '';
     } else if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault();
       boxes[index - 1]?.focus();
     } else if (event.key === 'ArrowRight' && index < length - 1) {
+      event.preventDefault();
       boxes[index + 1]?.focus();
+    } else if (event.key.length === 1) {
+      event.preventDefault();
     }
   }
 
   function handlePaste(event: ClipboardEvent, index: number) {
     const pasted = sanitize(event.clipboardData?.getData('text') ?? '');
 
-    if (!pasted) {
-      return;
-    }
-
     event.preventDefault();
-    fill(pasted, index);
+
+    if (pasted) {
+      fill(pasted, index);
+    }
   }
 
   function fill(value: string, start: number) {
@@ -72,17 +92,16 @@
 
     characters.forEach((character, offset) => {
       digits[start + offset] = character;
-      boxes[start + offset].value = character;
     });
 
-    const last = Math.min(start + characters.length, length - 1);
-    boxes[last]?.focus();
-    submitIfComplete(boxes[last]);
+    const next = Math.min(start + characters.length, length - 1);
+    boxes[next]?.focus();
+    submitIfComplete(boxes[next]);
   }
 
-  function submitIfComplete(box: HTMLInputElement) {
-    if (digits.filter(Boolean).length === length) {
-      box.form?.requestSubmit();
+  function submitIfComplete(box: HTMLInputElement | undefined) {
+    if (digits.every(Boolean)) {
+      box?.form?.requestSubmit();
     }
   }
 </script>
@@ -98,7 +117,8 @@
       id={index === 0 ? id : `${id}-${index}`}
       type="text"
       inputmode="numeric"
-      maxlength={index === 0 ? length : 1}
+      maxlength={index === 0 ? length : 2}
+      value={digits[index]}
       autocomplete="one-time-code"
       autocapitalize="off"
       spellcheck="false"
@@ -107,6 +127,7 @@
       placeholder="•"
       aria-label="Karakter {index + 1} dari {length}"
       autofocus={autofocus && index === 0}
+      onfocus={(event) => event.currentTarget.select()}
       oninput={(event) => handleInput(event, index)}
       onkeydown={(event) => handleKeydown(event, index)}
       onpaste={(event) => handlePaste(event, index)}
