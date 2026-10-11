@@ -56,6 +56,10 @@
             >Kirim Komentar</button
           >
         </div>
+        <p class="small opacity-75 mb-0">
+          Komentar dimoderasi dan mencerminkan pendapat penulisnya. Baca
+          <a href="/disclaimer">kebijakan komentar</a>.
+        </p>
       {/snippet}
     </Form>
   {:else}

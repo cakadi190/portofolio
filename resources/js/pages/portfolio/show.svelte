@@ -379,6 +379,10 @@
                               disabled={processing}>Kirim Ulasan</button
                             >
                           </div>
+                          <p class="small opacity-75 mb-0">
+                            Ulasan dimoderasi dan merupakan pendapat pengulas.
+                            Baca <a href="/disclaimer">kebijakan ulasan</a>.
+                          </p>
                         {/snippet}
                       </Form>
                     {/key}

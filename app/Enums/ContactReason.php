@@ -12,6 +12,7 @@ enum ContactReason: string
     case Connecting = 'connecting';
     case ProjectCollaboration = 'project_collaboration';
     case General = 'general';
+    case Correction = 'correction';
     case Others = 'others';
 
     public function label(): string
@@ -20,6 +21,7 @@ enum ContactReason: string
             self::Connecting => 'Izin Berkoneksi',
             self::ProjectCollaboration => 'Kolaborasi Proyek',
             self::General => 'Ingin Bertanya Hal Umum',
+            self::Correction => 'Koreksi / Hak Jawab',
             self::Others => 'Hal Lainnya',
         };
     }

@@ -110,6 +110,11 @@
             </div>
           </div>
 
+          <p class="small opacity-75 mt-5">
+            Artikel ini adalah pendapat pribadi penulis, bukan nasihat
+            profesional. Lihat <a href="/disclaimer">penyangkalan</a>.
+          </p>
+
           <BlogComments {comments} postSlug={post.slug} />
         </div>
       </div>

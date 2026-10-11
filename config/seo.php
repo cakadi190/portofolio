@@ -120,6 +120,12 @@ return [
             'changefreq' => 'monthly',
             'priority' => '0.5',
         ],
+        'disclaimer.index' => [
+            'title' => 'Penyangkalan & Ketentuan',
+            'description' => 'Penyangkalan, ketentuan penggunaan, dan kebijakan komentar di situs pribadi Cak Adi, termasuk cara mengajukan koreksi atau hak jawab.',
+            'changefreq' => 'yearly',
+            'priority' => '0.3',
+        ],
         'contact.index' => [
             'title' => 'Hubungi Saya',
             'description' => 'Berikut kontak yang dapat dihubungi apabila anda tertarik dengan skill saya maupun ingin bekerjasama dengan saya.',

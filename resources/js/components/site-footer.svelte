@@ -5,6 +5,7 @@
   import { index as awards } from '@/wayfinder/routes/awards';
   import { index as blog } from '@/wayfinder/routes/blog';
   import { index as career } from '@/wayfinder/routes/career';
+  import { index as disclaimer } from '@/wayfinder/routes/disclaimer';
   import { index as education } from '@/wayfinder/routes/education';
   import { index as portfolios } from '@/wayfinder/routes/portfolios';
   import { index as coffeeShops } from '@/wayfinder/routes/resources/coffee-shops';
@@ -61,6 +62,7 @@
   ];
 
   const otherLinks = [
+    { label: 'Penyangkalan & Ketentuan', href: disclaimer().url },
     { label: 'Kredit', href: '#' },
     { label: 'Donasi di trakteer.id', href: '#' },
     { label: 'Donasi di ko-fi.com', href: '#' },

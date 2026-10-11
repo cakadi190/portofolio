@@ -33,7 +33,7 @@ test('the contact page lists only filled active settings with derived links', fu
             ->where('information.1.url', 'https://wa.me/6281234771365')
             ->has('socials', 1)
             ->where('socials.0.label', 'Instagram')
-            ->has('reasons', 4));
+            ->has('reasons', 5));
 });
 
 test('a visitor can send a message', function () {
