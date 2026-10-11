@@ -43,7 +43,7 @@ Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/', [BlogController::class, 'index'])->name('index');
     Route::get('{post:slug}', [BlogController::class, 'show'])->name('show');
     Route::post('{post:slug}/comments', [BlogCommentController::class, 'store'])
-        ->middleware(['auth', 'throttle:10,1'])
+        ->middleware(['auth', 'verified', 'throttle:10,1'])
         ->name('comments.store');
 });
 

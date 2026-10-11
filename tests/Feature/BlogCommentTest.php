@@ -13,6 +13,16 @@ test('guests cannot post comments', function () {
     expect(BlogComment::count())->toBe(0);
 });
 
+test('users with an unverified email cannot post comments', function () {
+    $post = Post::factory()->create();
+
+    $this->actingAs(User::factory()->unverified()->create())
+        ->post(route('blog.comments.store', $post), ['body' => 'Halo'])
+        ->assertRedirect(route('verification.notice'));
+
+    expect(BlogComment::count())->toBe(0);
+});
+
 test('a user creates a root comment that waits for moderation', function () {
     $post = Post::factory()->create();
     $user = User::factory()->create();

@@ -13,3 +13,14 @@ test('hsts is only sent over https', function () {
 
     $this->get(secure_url('/'))->assertHeader('Strict-Transport-Security', 'max-age=31536000');
 });
+
+test('a report-only content security policy is sent without blocking anything', function () {
+    $response = $this->get(route('home'));
+
+    expect($response->headers->get('Content-Security-Policy-Report-Only'))
+        ->toContain("default-src 'self'")
+        ->toContain("object-src 'none'")
+        ->toContain('https://challenges.cloudflare.com');
+
+    $response->assertHeaderMissing('Content-Security-Policy');
+});
