@@ -24,7 +24,19 @@
     updatedAt: string | null;
   };
 
-  let { clarification }: { clarification: Clarification } = $props();
+  let {
+    clarification,
+    isPreview = false,
+  }: { clarification: Clarification; isPreview?: boolean } = $props();
+
+  const shareUrl = $derived(
+    typeof window === 'undefined'
+      ? ''
+      : `${window.location.origin}/clarifications/${clarification.slug}`,
+  );
+  const lastUpdated = $derived(
+    clarification.updates[0]?.date ?? clarification.updatedAt,
+  );
 
   function formatDate(value: string | null): string {
     return value
@@ -50,6 +62,14 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-9">
+          {#if isPreview}
+            <div class="alert alert-warning" role="status">
+              Pratinjau: halaman ini {clarification.publishedAt
+                ? 'sesuai tampilan publik setelah terbit'
+                : 'belum terbit'} dan hanya terlihat oleh admin.
+            </div>
+          {/if}
+
           {#if clarification.coverImage}
             <img
               src={clarification.coverImage}
@@ -63,9 +83,27 @@
               <Calendar size={16} />
               <span>Terbit {formatDate(clarification.publishedAt)}</span>
             </div>
-            {#if clarification.updates.length}
-              <span>Diperbarui {formatDate(clarification.updates[0].date)}</span>
+            {#if lastUpdated}
+              <span>Terakhir diperbarui {formatDate(lastUpdated)}</span>
             {/if}
+            <span class="d-inline-flex gap-2 ms-md-auto">
+              Bagikan:
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`${clarification.title} ${shareUrl}`)}`}
+                target="_blank"
+                rel="noopener noreferrer">WhatsApp</a
+              >
+              <a
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(clarification.title)}`}
+                target="_blank"
+                rel="noopener noreferrer">X</a
+              >
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                target="_blank"
+                rel="noopener noreferrer">Facebook</a
+              >
+            </span>
           </div>
 
           <div class={`card border-${clarification.verdictColor} rounded-4 mb-4`}>
@@ -143,7 +181,7 @@
           <p class="small opacity-75 mt-5 mb-0">
             Halaman ini adalah klarifikasi dari pemilik situs sebagai pihak yang
             bersangkutan, bukan pemeriksaan fakta independen. Bila Anda menemukan
-            kekeliruan, silakan <a href="/contact">hubungi saya</a>.
+            kekeliruan, silakan <a href="/contact">hubungi saya</a> atau baca <a href="/disclaimer">penyangkalan dan ketentuan</a>.
           </p>
         </div>
       </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ClarificationVerdict;
+use App\Http\Controllers\ClarificationController as PublicClarificationController;
 use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClarificationRequest;
@@ -53,6 +54,17 @@ class ClarificationController extends Controller
         ]);
     }
 
+    /**
+     * Render a clarification (including drafts) exactly as the public sees it.
+     */
+    public function preview(Clarification $clarification): Response
+    {
+        return Inertia::render('clarifications/show', [
+            'clarification' => PublicClarificationController::detail($clarification),
+            'isPreview' => true,
+        ]);
+    }
+
     public function store(ClarificationRequest $request): RedirectResponse
     {
         $clarification = Clarification::query()->create($this->payload($request));
@@ -88,6 +100,11 @@ class ClarificationController extends Controller
     private function payload(ClarificationRequest $request): array
     {
         $data = $request->validated();
+
+        $data['withdrawn_at'] = ($data['is_withdrawn'] ?? false)
+            ? ($request->route('clarification')?->withdrawn_at ?? now())
+            : null;
+        unset($data['is_withdrawn']);
 
         if ($request->boolean('is_published') && blank($data['published_at'] ?? null)) {
             $data['published_at'] = now();

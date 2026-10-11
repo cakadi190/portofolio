@@ -53,6 +53,16 @@ class ClarificationController extends Controller
     {
         abort_unless($clarification->is_published && $clarification->published_at?->isPast(), 404);
 
+        if ($clarification->withdrawn_at !== null) {
+            return Inertia::render('clarifications/withdrawn', [
+                'clarification' => [
+                    'title' => $clarification->title,
+                    'withdrawnAt' => $clarification->withdrawn_at,
+                    'withdrawalNote' => $clarification->withdrawal_note,
+                ],
+            ]);
+        }
+
         $coverImage = ImageService::url($clarification->cover_image);
         $description = $clarification->summary ?: Str::limit(strip_tags($clarification->content), 200);
 
@@ -81,24 +91,32 @@ class ClarificationController extends Controller
             ]],
         ]);
 
-        return Inertia::render('clarifications/show', [
-            'clarification' => [
-                'slug' => $clarification->slug,
-                'title' => $clarification->title,
-                'claim' => $clarification->claim,
-                'claimOrigin' => $clarification->claim_origin,
-                'verdict' => $clarification->verdict->value,
-                'verdictLabel' => $clarification->verdict->label(),
-                'verdictColor' => $clarification->verdict->color(),
-                'summary' => $clarification->summary,
-                'content' => HtmlSanitizer::clean($clarification->content),
-                'apology' => $clarification->apology,
-                'coverImage' => $coverImage,
-                'sources' => $clarification->sources ?? [],
-                'updates' => collect($clarification->updates ?? [])->sortByDesc('date')->values(),
-                'publishedAt' => $clarification->published_at,
-                'updatedAt' => $clarification->updated_at,
-            ],
-        ]);
+        return Inertia::render('clarifications/show', ['clarification' => self::detail($clarification)]);
+    }
+
+    /**
+     * Props of the clarification detail page, shared with the admin preview.
+     *
+     * @return array<string, mixed>
+     */
+    public static function detail(Clarification $clarification): array
+    {
+        return [
+            'slug' => $clarification->slug,
+            'title' => $clarification->title,
+            'claim' => $clarification->claim,
+            'claimOrigin' => $clarification->claim_origin,
+            'verdict' => $clarification->verdict->value,
+            'verdictLabel' => $clarification->verdict->label(),
+            'verdictColor' => $clarification->verdict->color(),
+            'summary' => $clarification->summary,
+            'content' => HtmlSanitizer::clean($clarification->content),
+            'apology' => $clarification->apology,
+            'coverImage' => ImageService::url($clarification->cover_image),
+            'sources' => $clarification->sources ?? [],
+            'updates' => collect($clarification->updates ?? [])->sortByDesc('date')->values(),
+            'publishedAt' => $clarification->published_at,
+            'updatedAt' => $clarification->updated_at,
+        ];
     }
 }

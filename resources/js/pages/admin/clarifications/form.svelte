@@ -11,7 +11,7 @@
   import MediaField from '@/components/media/media-field.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import Select from '@/components/ui/select.svelte';
-  import { index, store, update } from '@/wayfinder/routes/admin/clarifications';
+  import { index, preview, store, update } from '@/wayfinder/routes/admin/clarifications';
   import { show } from '@/wayfinder/routes/clarifications';
 
   type Source = { title: string; url: string };
@@ -30,6 +30,8 @@
     cover_image: string | null;
     sources: Source[] | null;
     updates: Correction[] | null;
+    withdrawn_at: string | null;
+    withdrawal_note: string | null;
     is_published: boolean;
     published_at: string | null;
   };
@@ -52,6 +54,7 @@
 
   // svelte-ignore state_referenced_locally
   let isPublished = $state(clarification?.is_published ?? false);
+  let isWithdrawn = $state(!!clarification?.withdrawn_at);
   // svelte-ignore state_referenced_locally
   let sources = $state((clarification?.sources ?? []).map(withKey));
   // svelte-ignore state_referenced_locally
@@ -117,6 +120,17 @@
             placeholder="Otomatis dari judul"
             value={clarification?.slug ?? ''}
           />
+          {#if clarification}
+            <a
+              href={preview(clarification.id).url}
+              target="_blank"
+              rel="noopener"
+              class="text-nowrap small"
+              title="Pratinjau (termasuk draf)"
+            >
+              Pratinjau
+            </a>
+          {/if}
           {#if clarification?.is_published}
             <a
               href={show(clarification.slug).url}
@@ -314,6 +328,33 @@
       </div>
 
       <aside class="col-lg-3 d-flex flex-column gap-3">
+        <div class="card">
+          <div class="card-header fw-semibold">Penarikan</div>
+          <div class="card-body d-flex flex-column gap-2">
+            <input type="hidden" name="is_withdrawn" value={isWithdrawn ? '1' : '0'} />
+            <div class="form-check">
+              <input
+                id="clarification-withdrawn"
+                type="checkbox"
+                class="form-check-input"
+                bind:checked={isWithdrawn}
+              />
+              <label for="clarification-withdrawn" class="form-check-label"
+                >Tarik klarifikasi ini</label
+              >
+            </div>
+            <textarea
+              name="withdrawal_note"
+              class="form-control form-control-sm"
+              class:is-invalid={!!errors.withdrawal_note}
+              rows="3"
+              placeholder="Alasan penarikan (opsional, tampil publik)"
+              value={clarification?.withdrawal_note ?? ''}
+            ></textarea>
+            <Field.Feedback message={errors.withdrawal_note} />
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header fw-semibold">Terbitkan</div>
           <div class="card-body d-flex flex-column gap-3">

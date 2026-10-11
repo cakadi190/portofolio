@@ -187,3 +187,57 @@ test('a cover image in use cannot be deleted from the media library', function (
 
     expect(app(MediaService::class)->usageCount($cover))->toBe(1);
 });
+
+test('an admin can preview a draft but the public cannot see it', function () {
+    $clarification = Clarification::factory()->unpublished()->create();
+
+    $this->get(route('clarifications.show', $clarification))->assertNotFound();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.clarifications.preview', $clarification))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('clarifications/show')
+            ->where('isPreview', true)
+            ->where('clarification.slug', $clarification->slug));
+});
+
+test('only admins can preview clarifications', function () {
+    $clarification = Clarification::factory()->unpublished()->create();
+
+    $this->actingAs(User::factory()->redaktur()->create())
+        ->get(route('admin.clarifications.preview', $clarification))
+        ->assertForbidden();
+});
+
+test('withdrawing a clarification hides its content and removes it from listings', function () {
+    $clarification = Clarification::factory()->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->put(route('admin.clarifications.update', $clarification), clarificationPayload([
+            'is_withdrawn' => '1',
+            'withdrawal_note' => 'Ditarik karena sumber tidak lagi valid.',
+        ]))
+        ->assertRedirect();
+
+    expect($clarification->fresh()->withdrawn_at)->not->toBeNull();
+
+    $this->get(route('clarifications.index'))->assertInertia(fn ($page) => $page->has('clarifications.data', 0));
+    $this->get(route('sitemaps.clarifications'))->assertDontSee($clarification->slug);
+    $this->get(route('clarifications.show', $clarification))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('clarifications/withdrawn')
+            ->where('clarification.withdrawalNote', 'Ditarik karena sumber tidak lagi valid.')
+            ->missing('clarification.content'));
+});
+
+test('plain text fields are stripped of html tags on save', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('admin.clarifications.store'), clarificationPayload([
+            'claim' => 'Klaim <script>alert(1)</script>palsu',
+        ]))
+        ->assertSessionHasNoErrors();
+
+    expect(Clarification::query()->first()->claim)->not->toContain('<script>');
+});

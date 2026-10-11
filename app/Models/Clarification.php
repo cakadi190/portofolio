@@ -18,7 +18,7 @@ class Clarification extends Model
 
     protected $fillable = [
         'title', 'slug', 'claim', 'claim_origin', 'verdict', 'summary', 'content',
-        'apology', 'cover_image', 'sources', 'updates', 'is_published', 'published_at',
+        'apology', 'cover_image', 'sources', 'updates', 'withdrawn_at', 'withdrawal_note', 'is_published', 'published_at',
     ];
 
     /**
@@ -35,16 +35,17 @@ class Clarification extends Model
             'updates' => 'array',
             'is_published' => 'boolean',
             'published_at' => 'datetime',
+            'withdrawn_at' => 'datetime',
         ];
     }
 
     /**
-     * Clarifications visible to the public: published and already due.
+     * Clarifications listed publicly: published, already due, and not withdrawn.
      *
      * @param  Builder<Clarification>  $query
      */
     public function scopePublished(Builder $query): void
     {
-        $query->where('is_published', true)->where('published_at', '<=', now());
+        $query->where('is_published', true)->where('published_at', '<=', now())->whereNull('withdrawn_at');
     }
 }
