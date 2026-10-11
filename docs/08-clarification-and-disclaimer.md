@@ -25,7 +25,7 @@ Spesifikasi produk modul Klarifikasi. Kebutuhan fungsional ringkas ada di `02` (
 2. **Terjadwal**: `is_published=true` dengan `published_at` di masa depan; publik 404 sampai waktunya ✅.
 3. **Terbit**: `is_published` dan `published_at` ≤ sekarang; tampil di `/clarifications`, sitemap, footer ✅. Menerbitkan tanpa tanggal mengisi `published_at` = sekarang ✅.
 4. **Dikoreksi**: perubahan substansi dicatat di **Riwayat Pembaruan** (`updates` `{date,note}`), tampil terbaru dulu ✅. Jangan mengubah isi/vonis secara senyap.
-5. **Ditarik**: kembalikan ke draf (`is_published=false`) — halaman jadi 404 dan keluar dari sitemap. Tautan lama tidak dialihkan ⬜.
+5. **Ditarik** (`withdrawn_at`): keluar dari daftar dan sitemap; tautan lama menampilkan halaman "Klarifikasi Ditarik" (isi disembunyikan, noindex) dengan catatan penarikan ✅. Mengembalikan ke draf membuat halaman 404.
 
 ## 4. Aturan editorial (wajib diikuti pengelola)
 
@@ -43,20 +43,21 @@ Spesifikasi produk modul Klarifikasi. Kebutuhan fungsional ringkas ada di `02` (
 ## 5. Penyangkalan (disclaimer) — yang sudah ada
 
 - Catatan di bawah setiap klarifikasi: *"Halaman ini adalah klarifikasi dari pemilik situs sebagai pihak yang bersangkutan, bukan pemeriksaan fakta independen. Bila Anda menemukan kekeliruan, silakan hubungi saya."* dengan tautan ke `/contact` ✅.
+- Halaman `/disclaimer` (PUB-18) dengan kebijakan komentar/ulasan; disclaimer singkat di artikel blog, form komentar, dan form ulasan portofolio; alasan kontak "Koreksi / Hak Jawab" ✅.
 - Tautan keluar bertanda `nofollow`; konten HTML disaring `HtmlSanitizer` ✅.
 
 ## 6. Penyangkalan & fitur yang belum ada (usulan)
 
 | ID     | Usulan                                                                                                                                  | Alasan                                                    | Prioritas |
 | ------ | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | --------- |
-| CLR-D1 | Halaman **Penyangkalan & Ketentuan Penggunaan** (`/disclaimer`): opini pribadi, tanpa jaminan akurasi artikel, tautan pihak ketiga, hak cipta, batas tanggung jawab, kontak koreksi. Masuk footer & sitemap. | Belum ada halaman disclaimer di situs. | Tinggi |
-| CLR-D2 | Disclaimer singkat di artikel blog ("pendapat pribadi penulis") dan portofolio (ulasan adalah pendapat pengulas).                         | Melindungi pemilik dari konten pengguna.                 | Sedang |
-| CLR-D3 | Kebijakan komentar/ulasan: syarat moderasi, hak menolak/menghapus (muncul dekat form).                                                   | Komentar & ulasan dimoderasi tetapi aturannya tak tertulis.| Sedang |
-| CLR-D4 | Alasan kontak baru **"Koreksi / Hak Jawab"** di `ContactReason` agar permintaan koreksi terpilah di inbox.                               | Saat ini hanya Connecting/Kolaborasi/Umum/Lainnya.        | Sedang |
-| CLR-D5 | Tombol bagikan + tanggal "Terakhir diperbarui" menonjol di detail klarifikasi.                                                           | Mempermudah rujukan dan menunjukkan koreksi terbaru.      | Rendah |
-| CLR-D6 | Pengalihan/halaman "ditarik" (410 atau catatan penarikan) untuk klarifikasi yang dicabut.                                               | Tautan yang sudah dibagikan tidak menjadi 404 tanpa konteks.| Rendah |
-| CLR-D7 | Menyaring/membersihkan field `claim`, `apology`, `claim_origin` (teks polos) dan menambah tes XSS-nya; ganti JSON-LD ke `ClaimReview` hanya bila Google kembali mendukung. | Lihat `06` #9.                                           | Rendah |
-| CLR-D8 | Pratinjau halaman draf sebelum terbit.                                                                                                   | Mengurangi salah terbit pada topik sensitif.              | Sedang |
+| CLR-D1 ✅ | Halaman **Penyangkalan & Ketentuan Penggunaan** (`/disclaimer`): opini pribadi, tanpa jaminan akurasi artikel, tautan pihak ketiga, hak cipta, batas tanggung jawab, kontak koreksi. Masuk footer & sitemap. | Belum ada halaman disclaimer di situs. | Tinggi |
+| CLR-D2 ✅ | Disclaimer singkat di artikel blog ("pendapat pribadi penulis") dan portofolio (ulasan adalah pendapat pengulas).                         | Melindungi pemilik dari konten pengguna.                 | Sedang |
+| CLR-D3 ✅ | Kebijakan komentar/ulasan: syarat moderasi, hak menolak/menghapus (muncul dekat form).                                                   | Komentar & ulasan dimoderasi tetapi aturannya tak tertulis.| Sedang |
+| CLR-D4 ✅ | Alasan kontak baru **"Koreksi / Hak Jawab"** di `ContactReason` agar permintaan koreksi terpilah di inbox.                               | Saat ini hanya Connecting/Kolaborasi/Umum/Lainnya.        | Sedang |
+| CLR-D5 ✅ | Tombol bagikan + tanggal "Terakhir diperbarui" menonjol di detail klarifikasi.                                                           | Mempermudah rujukan dan menunjukkan koreksi terbaru.      | Rendah |
+| CLR-D6 ✅ | Pengalihan/halaman "ditarik" (410 atau catatan penarikan) untuk klarifikasi yang dicabut.                                               | Tautan yang sudah dibagikan tidak menjadi 404 tanpa konteks.| Rendah |
+| CLR-D7 ✅ | Menyaring/membersihkan field `claim`, `apology`, `claim_origin` (teks polos) dan menambah tes XSS-nya; ganti JSON-LD ke `ClaimReview` hanya bila Google kembali mendukung. | Lihat `06` #9.                                           | Rendah |
+| CLR-D8 ✅ | Pratinjau halaman draf sebelum terbit.                                                                                                   | Mengurangi salah terbit pada topik sensitif.              | Sedang |
 
 ## 7. Kriteria penerimaan modul
 

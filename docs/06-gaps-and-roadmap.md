@@ -18,7 +18,7 @@ Hasil reverse engineering; urutan bukan prioritas final.
 | 10  | CSP baru berupa `Content-Security-Policy-Report-Only` (belum diberlakukan). Situs memakai data inline Inertia, Google Analytics, Turnstile, dan Iconify API sehingga kebijakan perlu disusun dan diuji dulu dengan `Content-Security-Policy-Report-Only`. | XSS yang lolos sanitizer tidak dibatasi lapisan kedua. | Pantau konsol browser di semua halaman, lengkapi daftar sumber, lalu ganti ke header `Content-Security-Policy`. |
 | 11  | Server nyata diduga masih memakai `client_max_body_size 0` (tanpa batas) dan `proxy_request_buffering off`. Batas 10 MB hanya diterapkan aplikasi setelah unggahan diterima penuh. | Unggahan sangat besar dapat menghabiskan disk/memori VPS (DoS). | Referensi sudah diubah ke `12m`; **terapkan manual di server nyata** lalu `nginx -t && systemctl reload nginx`. |
 | 12  | Belum ada pencadangan terjadwal, pemantauan uptime, halaman kebijakan privasi/cookie, dan audit aksesibilitas/Core Web Vitals (lihat `07`). | Risiko kehilangan data & kepatuhan; kualitas belum terukur. | Cron backup SQLite + media off-site, health check, halaman privasi, audit Lighthouse. |
-| 13  | Belum ada halaman Penyangkalan/Ketentuan, kebijakan komentar, alasan kontak "Koreksi/Hak Jawab", dan pratinjau draf klarifikasi (lihat `08` bagian 6). | Perlindungan hukum & kejelasan aturan lemah. | Kerjakan CLR-D1 s.d. D4 dan D8. |
+| 13  | Halaman Penyangkalan, kebijakan komentar, dan alasan kontak Koreksi sudah ada; seluruh usulan `08` bagian 6 sudah dikerjakan; sisa hanya kebijakan manual CLR-04/06/07. | Perlindungan hukum & kejelasan aturan lemah. | Patuhi aturan editorial manual. |
 
 ## Ide lanjutan
 

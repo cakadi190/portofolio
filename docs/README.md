@@ -17,7 +17,7 @@ Dokumen ini adalah **PRD (Product Requirements Document)** hasil reverse enginee
 
 ## Aturan kerja penting (ringkasan)
 
-- Migrasi: **jangan buat migrasi `alter table`**. Ubah migrasi `create_*` yang ada agar `migrate:fresh` di produksi tetap berhasil.
+- Migrasi: ubah migrasi `create_*` hanya bila belum pernah dideploy. Produksi berisi data nyata: untuk tabel yang sudah dideploy, tambahkan migrasi aditif baru dan **jangan** memicu `migrate:fresh` di produksi (detail di `04`).
 - Upload file: selalu lewat Pustaka Media (`MediaService`, `MediaField`), jangan menyimpan file langsung dari controller.
 - Enum baru: gunakan trait `HasEnumOptions`/`HasEnumValues` di `app/Enums`, label Bahasa Indonesia.
 - Teks antarmuka berbahasa Indonesia; kode, nama kolom, dan rute admin berbahasa Inggris.

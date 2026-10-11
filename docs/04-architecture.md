@@ -68,7 +68,7 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 
 ## Aturan proses
 
-1. Tanpa migrasi `alter`; ubah migrasi `create_*` lalu `migrate:fresh --seed`.
+1. Tanpa migrasi `alter` **selama** migrasi `create_*` belum pernah dideploy. Begitu sebuah migrasi sudah berjalan di produksi (yang berisi data nyata), jangan diedit: tambahkan migrasi aditif baru (mis. `add_*_to_*_table`) yang dijalankan `migrate --force`. Jangan memicu `migrate:fresh` (centang `SHOULD_MIGRATE_FRESH` atau `refresh-db` di commit message) di produksi.
 2. Jalankan Pint untuk file PHP yang berubah dan tes yang terdampak sebelum selesai.
 3. Perubahan perilaku produk → perbarui `docs/*` yang relevan.
 4. Jangan menambah dependensi atau folder dasar baru tanpa persetujuan.
