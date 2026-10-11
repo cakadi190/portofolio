@@ -78,6 +78,12 @@ return [
             'changefreq' => 'daily',
             'priority' => '0.9',
         ],
+        'clarifications.index' => [
+            'title' => 'Klarifikasi',
+            'description' => 'Klarifikasi dan hak jawab Cak Adi atas kabar, klaim, atau pemberitaan yang beredar, lengkap dengan bukti dan permintaan maaf bila ada kekeliruan.',
+            'changefreq' => 'weekly',
+            'priority' => '0.7',
+        ],
         'services.index' => [
             'title' => 'Layanan Saya',
             'description' => 'Berikut layanan yang bisa saya berikan dan layani untuk anda.',

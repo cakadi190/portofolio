@@ -14,6 +14,7 @@ Hasil reverse engineering; urutan bukan prioritas final.
 | 6   | Data seed memakai path aset statis, bukan item media.                                                                                                             | Tidak tampil di Pustaka Media.                                     | Opsional: seeder mengimpor aset ke `media`.                       |
 | 7   | Halaman publik `/awards` belum menampilkan/menyaring `AwardType`.                                                                                            | Jenis hanya terlihat di admin.                                     | Tambahkan badge/filter jenis.                                     |
 | 8   | `/speaking` hanya berupa daftar kartu (tanpa halaman detail per acara) dan waktu acara disimpan sebagai waktu dinding WIB, sehingga status "akan datang" bisa meleset hingga 7 jam (zona aplikasi UTC). | Acara selesai bisa tampil "akan datang" beberapa jam lebih lama. | Tambah halaman detail/slug; simpan zona waktu acara. |
+| 9   | Klarifikasi (`/clarifications`) adalah klaim sepihak pemilik situs. JSON-LD memakai `BlogPosting`, bukan `ClaimReview` (Google menghentikan tampilan rich result fact-check sejak Juni 2025). Isi HTML Tiptap tidak disanitasi (sama seperti #2). | Tidak ada manfaat rich result; halaman bisa dibaca sebagai pembelaan sepihak bila bukti lemah. | Bukti wajib (≥ 1 sumber saat terbit), arsipkan tangkapan layar ke Pustaka Media, naskah serius ditinjau advokat. |
 
 ## Ide lanjutan
 

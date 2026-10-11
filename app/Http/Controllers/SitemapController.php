@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Clarification;
 use App\Models\Portfolio;
 use App\Models\Post;
 use App\Services\ImageService;
@@ -25,6 +26,7 @@ class SitemapController extends Controller
                 ['title' => 'Halaman Statis', 'loc' => route('sitemaps.pages'), 'lastmod' => null],
                 ['title' => 'Artikel', 'loc' => route('sitemaps.posts'), 'lastmod' => $this->latest(Post::query()->where('is_published', true))],
                 ['title' => 'Portofolio', 'loc' => route('sitemaps.portfolios'), 'lastmod' => $this->latest(Portfolio::query())],
+                ['title' => 'Klarifikasi', 'loc' => route('sitemaps.clarifications'), 'lastmod' => $this->latest(Clarification::query()->published())],
             ],
         ]);
     }
@@ -37,6 +39,7 @@ class SitemapController extends Controller
         $lastmods = [
             'blog.index' => $this->latest(Post::query()->where('is_published', true)),
             'portfolios.index' => $this->latest(Portfolio::query()),
+            'clarifications.index' => $this->latest(Clarification::query()->published()),
         ];
 
         $urls = collect(config('seo.pages'))
@@ -97,6 +100,27 @@ class SitemapController extends Controller
                         $gallery->description ?: $portfolio->name,
                     ])->all(),
                 ]),
+            ]);
+
+        return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
+    }
+
+    /**
+     * Display the sitemap of published clarifications, including their cover images.
+     */
+    public function clarifications(): Response
+    {
+        $urls = Clarification::query()
+            ->published()
+            ->latest('published_at')
+            ->get(['id', 'title', 'slug', 'cover_image', 'published_at', 'updated_at'])
+            ->map(fn (Clarification $clarification): array => [
+                'title' => $clarification->title,
+                'loc' => route('clarifications.show', $clarification),
+                'lastmod' => $clarification->updated_at,
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+                'images' => $this->images([[$clarification->cover_image, $clarification->title]]),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);

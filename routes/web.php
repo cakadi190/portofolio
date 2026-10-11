@@ -5,6 +5,7 @@ use App\Http\Controllers\AwardController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CareerController;
+use App\Http\Controllers\ClarificationController;
 use App\Http\Controllers\CoffeeShopController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
@@ -24,6 +25,7 @@ Route::name('sitemaps.')->controller(SitemapController::class)->group(function (
     Route::get('sitemap-pages.xml', 'pages')->name('pages');
     Route::get('sitemap-posts.xml', 'posts')->name('posts');
     Route::get('sitemap-portfolios.xml', 'portfolios')->name('portfolios');
+    Route::get('sitemap-clarifications.xml', 'clarifications')->name('clarifications');
     Route::get('sitemap.xsl', 'style')->name('style');
 });
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
@@ -43,6 +45,11 @@ Route::prefix('blog')->name('blog.')->group(function () {
     Route::post('{post:slug}/comments', [BlogCommentController::class, 'store'])
         ->middleware(['auth', 'throttle:10,1'])
         ->name('comments.store');
+});
+
+Route::prefix('clarifications')->name('clarifications.')->group(function () {
+    Route::get('/', [ClarificationController::class, 'index'])->name('index');
+    Route::get('{clarification:slug}', [ClarificationController::class, 'show'])->name('show');
 });
 
 Route::prefix('portfolio')->name('portfolios.')->group(function () {

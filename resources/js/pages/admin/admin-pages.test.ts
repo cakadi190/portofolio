@@ -1,9 +1,11 @@
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import type { Component } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Awards from '@/pages/admin/awards/index.svelte';
 import SpeakingEngagements from '@/pages/admin/speaking-engagements/index.svelte';
 import Careers from '@/pages/admin/careers/index.svelte';
+import ClarificationForm from '@/pages/admin/clarifications/form.svelte';
+import Clarifications from '@/pages/admin/clarifications/index.svelte';
 import Certifications from '@/pages/admin/certifications/index.svelte';
 import CoffeePlaces from '@/pages/admin/coffee-places/index.svelte';
 import ContactMessages from '@/pages/admin/contact-messages/index.svelte';
@@ -64,6 +66,7 @@ const indexPages: Case[] = [
     { speakingEngagements: empty, roles: options, formats: options, filters },
   ],
   ['Riwayat Karier', Careers, { careers: empty, portfolios: [], filters }],
+  ['Klarifikasi', Clarifications, { clarifications: empty, filters }],
   ['Sertifikasi', Certifications, { certifications: empty, filters }],
   [
     'Kedai Kopi',
@@ -194,6 +197,52 @@ describe('admin forms', () => {
 
     expect(document.title).toContain('Tulis Artikel Baru');
     expect(document.querySelector('input[name="title"]')).not.toBeNull();
+  });
+
+  it('ClarificationForm renders the create heading and lets sources be added and removed', async () => {
+    render(ClarificationForm, { clarification: null, verdicts: options });
+
+    expect(document.title).toContain('Tulis Klarifikasi Baru');
+    expect(document.querySelector('textarea[name="claim"]')).not.toBeNull();
+    expect(document.querySelector('input[name="sources[0][title]"]')).toBeNull();
+
+    await fireEvent.click(screen.getAllByRole('button', { name: /Tambah/ })[0]);
+
+    expect(document.querySelector('input[name="sources[0][url]"]')).not.toBeNull();
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Hapus sumber 1' }));
+
+    expect(document.querySelector('input[name="sources[0][url]"]')).toBeNull();
+  });
+
+  it('ClarificationForm prefills the saved sources and updates', () => {
+    render(ClarificationForm, {
+      verdicts: options,
+      clarification: {
+        id: 1,
+        title: 'Klarifikasi A',
+        slug: 'klarifikasi-a',
+        claim: 'Klaim',
+        claim_origin: null,
+        verdict: 'false',
+        summary: null,
+        content: '<p>Isi</p>',
+        apology: null,
+        cover_image: null,
+        sources: [{ title: 'Sumber 1', url: 'https://example.com' }],
+        updates: [{ date: '2026-10-11', note: 'Koreksi' }],
+        is_published: true,
+        published_at: '2026-10-11 10:00:00',
+      },
+    });
+
+    expect(document.title).toContain('Ubah Klarifikasi');
+    expect(
+      (document.querySelector('input[name="sources[0][url]"]') as HTMLInputElement).value,
+    ).toBe('https://example.com');
+    expect(
+      (document.querySelector('textarea[name="updates[0][note]"]') as HTMLTextAreaElement).value,
+    ).toBe('Koreksi');
   });
 
   it('PortfolioForm renders the create heading for a new portfolio', () => {

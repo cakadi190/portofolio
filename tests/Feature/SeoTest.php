@@ -10,7 +10,7 @@ use App\Models\User;
 test('the sitemap index lists every child sitemap', function () {
     $response = $this->get(route('sitemaps.index'))->assertOk();
 
-    foreach (['pages', 'posts', 'portfolios'] as $name) {
+    foreach (['pages', 'posts', 'portfolios', 'clarifications'] as $name) {
         $response->assertSee(route("sitemaps.{$name}"), escape: false);
     }
 });

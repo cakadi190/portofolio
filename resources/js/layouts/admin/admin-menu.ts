@@ -1,4 +1,5 @@
 import Award from '@lucide/svelte/icons/award';
+import BadgeCheck from '@lucide/svelte/icons/badge-check';
 import Coffee from '@lucide/svelte/icons/coffee';
 import FolderKanban from '@lucide/svelte/icons/folder-kanban';
 import GraduationCap from '@lucide/svelte/icons/graduation-cap';
@@ -81,6 +82,12 @@ export function adminMenu(
       icon: Mic,
       href: '/admin/speaking-engagements',
       active: isActive('/admin/speaking-engagements'),
+    },
+    {
+      label: 'Klarifikasi',
+      icon: BadgeCheck,
+      href: '/admin/clarifications',
+      active: isActive('/admin/clarifications'),
     },
     {
       label: 'Portofolio',

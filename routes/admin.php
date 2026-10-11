@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\CalendarEventController;
 use App\Http\Controllers\Admin\CareerController;
 use App\Http\Controllers\Admin\CertificationController;
+use App\Http\Controllers\Admin\ClarificationController;
 use App\Http\Controllers\Admin\CoffeePlaceController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\EducationController;
@@ -45,6 +46,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('awards', AwardController::class)->parameters(['awards' => 'award'])->only($only);
         Route::resource('careers', CareerController::class)->parameters(['careers' => 'career'])->only($only);
         Route::resource('certifications', CertificationController::class)->parameters(['certifications' => 'certification'])->only($only);
+        Route::resource('clarifications', ClarificationController::class)->parameters(['clarifications' => 'clarification'])->only([...$only, 'create', 'edit']);
         Route::resource('coffee-places', CoffeePlaceController::class)->parameters(['coffee-places' => 'coffeePlace'])->only($only);
         Route::get('system-settings', [SystemSettingController::class, 'index'])->name('system-settings.index');
         Route::put('system-settings', [SystemSettingController::class, 'update'])->name('system-settings.update');

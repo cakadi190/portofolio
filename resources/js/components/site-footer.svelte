@@ -9,6 +9,7 @@
   import { index as portfolios } from '@/wayfinder/routes/portfolios';
   import { index as coffeeShops } from '@/wayfinder/routes/resources/coffee-shops';
   import { index as services } from '@/wayfinder/routes/services';
+  import { index as clarifications } from '@/wayfinder/routes/clarifications';
   import { index as speaking } from '@/wayfinder/routes/speaking';
 
   const year = new Date().getFullYear();
@@ -53,6 +54,7 @@
 
   const resourceLinks = [
     { label: 'Blog Pribadi', href: blog().url },
+    { label: 'Klarifikasi', href: clarifications().url },
     { label: 'Referensi Ngoding', href: '#' },
     { label: 'Contekan Kode', href: '#' },
     { label: 'Tempat Ngopi', href: coffeeShops().url },

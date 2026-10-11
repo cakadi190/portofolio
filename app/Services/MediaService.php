@@ -32,6 +32,7 @@ class MediaService
         'services' => ['exact' => ['image'], 'like' => ['description']],
         'speaking_engagements' => ['exact' => ['poster'], 'like' => []],
         'posts' => ['exact' => ['cover_image'], 'like' => ['content']],
+        'clarifications' => ['exact' => ['cover_image'], 'like' => ['content']],
     ];
 
     public function __construct(protected ImageService $images) {}

@@ -6,6 +6,8 @@ import SpeakingPage from '@/pages/speaking/index.svelte';
 import BlogIndex from '@/pages/blog/index.svelte';
 import BlogShow from '@/pages/blog/show.svelte';
 import CareerPage from '@/pages/career/index.svelte';
+import ClarificationIndex from '@/pages/clarifications/index.svelte';
+import ClarificationShow from '@/pages/clarifications/show.svelte';
 import Dashboard from '@/pages/dashboard/index.svelte';
 import PortfolioIndex from '@/pages/portfolio/index.svelte';
 import ServicePage from '@/pages/service/index.svelte';
@@ -259,6 +261,110 @@ describe('BlogIndex', () => {
       '/blog/satu',
     );
     expect(screen.getByText('Halaman 1 dari 2')).toBeTruthy();
+  });
+});
+
+describe('ClarificationIndex', () => {
+  const verdicts = [
+    { value: 'false', label: 'Tidak Benar' },
+    { value: 'true_with_apology', label: 'Benar, Saya Meminta Maaf' },
+  ];
+  const item = (slug: string) => ({
+    title: slug,
+    slug,
+    claim: `Klaim ${slug}`,
+    summary: null,
+    coverImage: null,
+    verdict: 'false',
+    verdictLabel: 'Tidak Benar',
+    verdictColor: 'danger',
+    publishedAt: '2026-10-11T00:00:00Z',
+  });
+
+  it('shows an empty state', () => {
+    render(ClarificationIndex, {
+      clarifications: paginated([]),
+      verdicts,
+      activeVerdict: null,
+    });
+
+    expect(screen.getByText('Belum Ada Klarifikasi')).toBeTruthy();
+  });
+
+  it('lists clarifications with their verdict and a verdict filter', () => {
+    render(ClarificationIndex, {
+      clarifications: paginated([item('satu')]),
+      verdicts,
+      activeVerdict: 'false',
+    });
+
+    expect(hrefOf(screen.getByRole('link', { name: /Klaim satu/ }))).toBe(
+      '/clarifications/satu',
+    );
+    expect(screen.getAllByText('Tidak Benar').length).toBeGreaterThan(0);
+    expect(
+      hrefOf(screen.getByRole('link', { name: 'Benar, Saya Meminta Maaf' })),
+    ).toContain('verdict=true_with_apology');
+  });
+});
+
+describe('ClarificationShow', () => {
+  const clarification = {
+    slug: 'klarifikasi-a',
+    title: 'Klarifikasi A',
+    claim: 'Klaim yang beredar',
+    claimOrigin: 'Media sosial, 1 Januari 2026',
+    verdict: 'true_with_apology',
+    verdictLabel: 'Benar, Saya Meminta Maaf',
+    verdictColor: 'primary',
+    summary: null,
+    content: '<p>Penjelasan <strong>lengkap</strong></p>',
+    apology: 'Saya meminta maaf.',
+    coverImage: null,
+    sources: [{ title: 'Pernyataan resmi', url: 'https://example.com/a' }],
+    updates: [{ date: '2026-02-01', note: 'Bukti ditambahkan.' }],
+    publishedAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-02-01T00:00:00Z',
+  };
+
+  it('renders the claim, verdict, apology, sources and update log', () => {
+    render(ClarificationShow, { clarification });
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Klarifikasi A' }),
+    ).toBeTruthy();
+    expect(screen.getByText('Klaim yang beredar')).toBeTruthy();
+    expect(screen.getByText(/“Klaim yang beredar”/)).toBeTruthy();
+    expect(screen.getByText('Benar, Saya Meminta Maaf')).toBeTruthy();
+    expect(screen.getByText('lengkap')).toBeTruthy();
+    expect(screen.getByText('Permintaan Maaf')).toBeTruthy();
+    expect(screen.getByText('Saya meminta maaf.')).toBeTruthy();
+    expect(
+      screen
+        .getByRole('link', { name: /Pernyataan resmi/ })
+        .getAttribute('href'),
+    ).toBe('https://example.com/a');
+    expect(screen.getByText('Bukti ditambahkan.')).toBeTruthy();
+    expect(screen.getByText(/bukan pemeriksaan fakta independen/)).toBeTruthy();
+    expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe(
+      '/clarifications',
+    );
+  });
+
+  it('omits the apology, sources and update sections when empty', () => {
+    render(ClarificationShow, {
+      clarification: {
+        ...clarification,
+        apology: null,
+        sources: [],
+        updates: [],
+        claimOrigin: null,
+      },
+    });
+
+    expect(screen.queryByText('Permintaan Maaf')).toBeNull();
+    expect(screen.queryByText('Bukti dan Sumber')).toBeNull();
+    expect(screen.queryByText('Riwayat Pembaruan')).toBeNull();
   });
 });
 
