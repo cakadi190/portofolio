@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\MinifyHtmlResponse;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\VerifyTurnstile;
 use App\Services\ErrorPageService;
 use Illuminate\Foundation\Application;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['sidebar_state']);
 
         $middleware->web(append: [
+            SecurityHeaders::class,
             VerifyTurnstile::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

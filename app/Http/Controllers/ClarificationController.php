@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ClarificationVerdict;
 use App\Models\Clarification;
+use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
@@ -90,7 +91,7 @@ class ClarificationController extends Controller
                 'verdictLabel' => $clarification->verdict->label(),
                 'verdictColor' => $clarification->verdict->color(),
                 'summary' => $clarification->summary,
-                'content' => $clarification->content,
+                'content' => HtmlSanitizer::clean($clarification->content),
                 'apology' => $clarification->apology,
                 'coverImage' => $coverImage,
                 'sources' => $clarification->sources ?? [],

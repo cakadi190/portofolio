@@ -55,7 +55,7 @@ class MediaService
             $mime = 'image/webp';
             $size = Storage::disk('public')->size($path);
         } else {
-            $path = $file->storeAs($directory, $filename.'.'.strtolower($file->getClientOriginalExtension() ?: $file->extension()), 'public');
+            $path = $file->storeAs($directory, $filename.'.'.($file->extension() ?: 'bin'), 'public');
             $width = $height = null;
             $mime = (string) $file->getMimeType();
             $size = $file->getSize();

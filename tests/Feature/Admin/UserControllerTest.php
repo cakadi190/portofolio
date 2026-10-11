@@ -75,3 +75,58 @@ test('a user can be deleted', function () {
     $response->assertRedirect(route('admin.users.index'));
     $this->assertDatabaseMissing('users', ['id' => $user->id]);
 });
+
+test('an admin cannot delete their own account', function () {
+    $admin = User::factory()->admin()->create();
+    User::factory()->admin()->create();
+
+    $this->actingAs($admin)->delete(route('admin.users.destroy', $admin))->assertRedirect();
+
+    $this->assertModelExists($admin);
+});
+
+test('the last admin cannot be deleted', function () {
+    $admin = User::factory()->admin()->create();
+    $editor = User::factory()->redaktur()->create();
+
+    $this->actingAs($admin)->delete(route('admin.users.destroy', $admin))->assertRedirect();
+
+    $this->assertModelExists($admin);
+    $this->assertModelExists($editor);
+});
+
+test('another admin can be deleted while a different admin remains', function () {
+    $actor = User::factory()->admin()->create();
+    $other = User::factory()->admin()->create();
+
+    $this->actingAs($actor)->delete(route('admin.users.destroy', $other))
+        ->assertRedirect(route('admin.users.index'));
+
+    $this->assertModelMissing($other);
+});
+
+test('the last admin cannot be demoted', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->put(route('admin.users.update', $admin), [
+        'name' => $admin->name,
+        'email' => $admin->email,
+        'account_type' => 'user',
+    ])->assertRedirect();
+
+    expect($admin->refresh()->isAdmin())->toBeTrue();
+});
+
+test('an admin can be demoted while another admin remains', function () {
+    $actor = User::factory()->admin()->create();
+    $other = User::factory()->admin()->create();
+
+    $this->actingAs($actor)->put(route('admin.users.update', $other), [
+        'name' => $other->name,
+        'email' => $other->email,
+        'account_type' => 'redaktur',
+    ])->assertRedirect(route('admin.users.index'));
+
+    expect($other->refresh()->isAdmin())->toBeFalse();
+});
+

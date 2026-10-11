@@ -49,6 +49,12 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
+        if ($user->isAdmin() && $data['account_type'] !== UserRole::Admin->value && ! $this->hasAnotherAdmin($user)) {
+            Inertia::flash('toast', ['type' => 'danger', 'message' => 'Admin terakhir tidak dapat diturunkan perannya.']);
+
+            return back();
+        }
+
         if (filled($data['password'] ?? null)) {
             $data['password'] = Hash::make($data['password']);
         } else {
@@ -62,12 +68,36 @@ class UserController extends Controller
         return to_route('admin.users.index');
     }
 
-    public function destroy(User $user): RedirectResponse
+    public function destroy(Request $request, User $user): RedirectResponse
     {
+        if ($user->is($request->user())) {
+            Inertia::flash('toast', ['type' => 'danger', 'message' => 'Anda tidak dapat menghapus akun Anda sendiri.']);
+
+            return back();
+        }
+
+        if ($user->isAdmin() && ! $this->hasAnotherAdmin($user)) {
+            Inertia::flash('toast', ['type' => 'danger', 'message' => 'Admin terakhir tidak dapat dihapus.']);
+
+            return back();
+        }
+
         $user->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengguna berhasil dihapus.']);
 
         return to_route('admin.users.index');
+    }
+
+    /**
+     * Whether any admin other than the given user exists, so the site can
+     * never be left without someone able to manage it.
+     */
+    private function hasAnotherAdmin(User $user): bool
+    {
+        return User::query()
+            ->where('account_type', UserRole::Admin)
+            ->whereKeyNot($user->getKey())
+            ->exists();
     }
 }

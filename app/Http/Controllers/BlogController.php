@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogComment;
 use App\Models\Post;
+use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
 use Illuminate\Support\Collection;
@@ -84,7 +85,7 @@ class BlogController extends Controller
                 'slug' => $post->slug,
                 'title' => $post->title,
                 'excerpt' => $post->excerpt,
-                'content' => $post->content,
+                'content' => HtmlSanitizer::clean($post->content),
                 'coverImage' => ImageService::url($post->cover_image),
                 'author' => $post->author?->name,
                 'publishedAt' => $post->published_at,

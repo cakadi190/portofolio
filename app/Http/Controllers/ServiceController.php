@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Portfolio;
 use App\Models\Service;
+use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
 use Inertia\Inertia;
@@ -52,7 +53,7 @@ class ServiceController extends Controller
                 'slug' => $service->slug,
                 'color' => $service->color,
                 'image' => ImageService::url($service->image),
-                'description' => $service->description,
+                'description' => HtmlSanitizer::clean($service->description),
             ],
             'portfolios' => $service->portfolios()
                 ->with('technologies:id,name')
