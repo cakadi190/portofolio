@@ -85,17 +85,20 @@
     <ul class="navbar-nav gap-2 justify-content-end flex-grow-1">
       {#each navbarMenu as item (item.name)}
         {#if item.children}
-          <li class="nav-item">
-            <span
-              class={`nav-link disabled fw-semibold ${isGroupActive(item) ? 'active' : ''}`}
+          <li class="nav-item dropdown">
+            <button
+              type="button"
+              class={`nav-link dropdown-toggle ${isGroupActive(item) ? 'active' : ''}`}
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >
               {item.name}
-            </span>
-            <ul class="navbar-nav ps-3 gap-1">
+            </button>
+            <ul class="dropdown-menu">
               {#each item.children as child (child.href)}
-                <li class="nav-item">
+                <li>
                   <Link
-                    class={`nav-link ${child.href === page.url ? 'active' : ''}`}
+                    class={`dropdown-item ${child.href === page.url ? 'active' : ''}`}
                     href={child.href}
                     onclick={closeOffcanvas}
                   >

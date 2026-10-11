@@ -127,7 +127,11 @@
 >
   <div class="sidebar-inner">
     <div class="sidebar-header">
-      <Link href="/admin" class="sidebar-brand">
+      <Link
+        href="/admin"
+        class="sidebar-brand"
+        onclick={() => sidebar.closeMobile()}
+      >
         <div class="sidebar-icon">
           <div class="sidebar-icon-box">
             <AppLogoIcon height={32} />

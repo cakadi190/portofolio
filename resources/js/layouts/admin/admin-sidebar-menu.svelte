@@ -235,6 +235,7 @@
             href={entry.href ?? '#'}
             class="sm-link"
             aria-current={entry.active ? 'page' : undefined}
+            onclick={() => sidebar.closeMobile()}
           >
             <span class="sm-icon">
               {#if entry.icon}
