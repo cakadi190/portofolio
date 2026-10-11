@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\SpeakingEngagement;
+use Illuminate\Support\Carbon;
 
 test('the speaking page splits upcoming engagements from the archive', function () {
     SpeakingEngagement::factory()->upcoming()->create(['title' => 'Acara Depan']);
@@ -38,16 +39,17 @@ test('the speaking page is indexable and in the pages sitemap', function () {
 
 test('an engagement stays upcoming until its end time passes', function () {
     $this->freezeTime();
+    $jakartaNow = Carbon::parse(now('Asia/Jakarta')->format('Y-m-d H:i:s'));
 
     SpeakingEngagement::factory()->create([
         'title' => 'Masih Berlangsung',
-        'starts_at' => now()->subHour(),
-        'ends_at' => now()->addHour(),
+        'starts_at' => $jakartaNow->subHour(),
+        'ends_at' => $jakartaNow->addHour(),
     ]);
     SpeakingEngagement::factory()->create([
         'title' => 'Baru Selesai',
-        'starts_at' => now()->subHours(3),
-        'ends_at' => now()->subMinute(),
+        'starts_at' => $jakartaNow->subHours(3),
+        'ends_at' => $jakartaNow->subMinute(),
     ]);
 
     $this->get(route('speaking.index'))
@@ -60,10 +62,11 @@ test('an engagement stays upcoming until its end time passes', function () {
 
 test('a date-only engagement without an end time ends at the end of that day', function () {
     $this->freezeTime();
+    $jakartaNow = Carbon::parse(now('Asia/Jakarta')->format('Y-m-d H:i:s'));
 
     SpeakingEngagement::factory()->create([
         'title' => 'Hari Ini',
-        'starts_at' => now()->startOfDay(),
+        'starts_at' => $jakartaNow->startOfDay(),
         'ends_at' => null,
     ]);
 
