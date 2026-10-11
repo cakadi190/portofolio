@@ -62,65 +62,67 @@
   }
 </script>
 
-<div
-  class="offcanvas offcanvas-start"
-  tabindex="-1"
-  id="offcanvas"
-  role="dialog"
-  aria-labelledby="offcanvasLabel"
->
-  <div class="offcanvas-header align-items-center">
-    <AppBrand class="offcanvas-title" href="/" height={28} />
-    <div class="d-flex align-items-center gap-2 ms-auto">
-      <ThemeToggler />
-      <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="offcanvas"
-        aria-label="Tutup"
-      ></button>
+<div class="navbar p-0 d-block">
+  <div
+    class="offcanvas offcanvas-start"
+    tabindex="-1"
+    id="offcanvas"
+    role="dialog"
+    aria-labelledby="offcanvasLabel"
+  >
+    <div class="offcanvas-header align-items-center">
+      <AppBrand class="offcanvas-title" href="/" height={28} />
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        <ThemeToggler />
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          aria-label="Tutup"
+        ></button>
+      </div>
     </div>
-  </div>
-  <div class="offcanvas-body">
-    <ul class="navbar-nav gap-2 justify-content-end flex-grow-1">
-      {#each navbarMenu as item (item.name)}
-        {#if item.children}
-          <li class="nav-item dropdown">
-            <button
-              type="button"
-              class={`nav-link dropdown-toggle ${isGroupActive(item) ? 'active' : ''}`}
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              {item.name}
-            </button>
-            <ul class="dropdown-menu">
-              {#each item.children as child (child.href)}
-                <li>
-                  <Link
-                    class={`dropdown-item ${child.href === page.url ? 'active' : ''}`}
-                    href={child.href}
-                    onclick={closeOffcanvas}
-                  >
-                    {child.name}
-                  </Link>
-                </li>
-              {/each}
-            </ul>
-          </li>
-        {:else if item.href}
-          <li class="nav-item">
-            <Link
-              class={`nav-link ${item.href === page.url ? 'active' : ''}`}
-              href={item.href}
-              onclick={closeOffcanvas}
-            >
-              {item.name}
-            </Link>
-          </li>
-        {/if}
-      {/each}
-    </ul>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav gap-2 justify-content-end flex-grow-1">
+        {#each navbarMenu as item (item.name)}
+          {#if item.children}
+            <li class="nav-item dropdown">
+              <button
+                type="button"
+                class={`nav-link dropdown-toggle ${isGroupActive(item) ? 'active' : ''}`}
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {item.name}
+              </button>
+              <ul class="dropdown-menu">
+                {#each item.children as child (child.href)}
+                  <li>
+                    <Link
+                      class={`dropdown-item ${child.href === page.url ? 'active' : ''}`}
+                      href={child.href}
+                      onclick={closeOffcanvas}
+                    >
+                      {child.name}
+                    </Link>
+                  </li>
+                {/each}
+              </ul>
+            </li>
+          {:else if item.href}
+            <li class="nav-item">
+              <Link
+                class={`nav-link ${item.href === page.url ? 'active' : ''}`}
+                href={item.href}
+                onclick={closeOffcanvas}
+              >
+                {item.name}
+              </Link>
+            </li>
+          {/if}
+        {/each}
+      </ul>
+    </div>
   </div>
 </div>
 
