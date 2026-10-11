@@ -50,12 +50,17 @@ class SpeakingEngagement extends Model
      */
     public function hasEnded(): bool
     {
+        $now = now('Asia/Jakarta')->format('Y-m-d H:i:s');
+
         if ($this->ends_at !== null) {
-            return $this->ends_at->isPast();
+            return $this->ends_at->format('Y-m-d H:i:s') < $now;
         }
 
         $hasTime = $this->starts_at->format('H:i') !== '00:00';
+        $end = $hasTime
+            ? $this->starts_at->format('Y-m-d H:i:s')
+            : $this->starts_at->format('Y-m-d').' 23:59:59';
 
-        return ($hasTime ? $this->starts_at : $this->starts_at->copy()->endOfDay())->isPast();
+        return $end < $now;
     }
 }

@@ -9,7 +9,6 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
-  import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
   import OtpInput from '@/components/ui/otp-input.svelte';
   import { store } from '@/wayfinder/routes/two-factor/login';
@@ -34,6 +33,7 @@
     {/if}
   </div>
 
+  {#key useRecoveryCode}
   <Form {...store.form()} novalidate class="d-flex flex-column gap-3">
     {#snippet children({ errors, processing })}
       {#if useRecoveryCode}
@@ -67,19 +67,19 @@
       </button>
     {/snippet}
   </Form>
+  {/key}
 
   <div class="text-center small text-muted">
     <span>Atau, Anda dapat</span>
-    <TextLink
-      href="#"
-      onclick={(event: MouseEvent) => {
-        event.preventDefault();
-        toggleRecoveryCode();
-      }}
+    <button
+      type="button"
+      class="btn btn-link p-0 align-baseline small text-body"
+      data-test="two-factor-toggle-button"
+      onclick={toggleRecoveryCode}
     >
       {useRecoveryCode
         ? 'masuk menggunakan kode autentikasi'
         : 'masuk menggunakan kode pemulihan'}
-    </TextLink>
+    </button>
   </div>
 </div>
