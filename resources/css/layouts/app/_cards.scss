@@ -75,7 +75,36 @@
 }
 
 .card-speaking {
+  position: relative;
   transition: all 0.2s ease-in-out;
+
+  .ribbon-ended {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    pointer-events: none;
+
+    span {
+      position: absolute;
+      top: 26px;
+      left: -34px;
+      width: 150px;
+      padding: 4px 0;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #dc3545;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      transform: rotate(-45deg);
+    }
+  }
 
   &:hover {
     border-color: var(--neo-primary);

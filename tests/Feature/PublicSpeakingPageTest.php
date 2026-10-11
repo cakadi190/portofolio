@@ -35,3 +35,38 @@ test('the speaking page is indexable and in the pages sitemap', function () {
     $this->get(route('speaking.index'))->assertDontSee('noindex');
     $this->get(route('sitemaps.pages'))->assertSee(route('speaking.index'), false);
 });
+
+test('an engagement stays upcoming until its end time passes', function () {
+    $this->freezeTime();
+
+    SpeakingEngagement::factory()->create([
+        'title' => 'Masih Berlangsung',
+        'starts_at' => now()->subHour(),
+        'ends_at' => now()->addHour(),
+    ]);
+    SpeakingEngagement::factory()->create([
+        'title' => 'Baru Selesai',
+        'starts_at' => now()->subHours(3),
+        'ends_at' => now()->subMinute(),
+    ]);
+
+    $this->get(route('speaking.index'))
+        ->assertInertia(fn ($page) => $page
+            ->has('upcoming', 1)
+            ->where('upcoming.0.title', 'Masih Berlangsung')
+            ->has('past', 1)
+            ->where('past.0.title', 'Baru Selesai'));
+});
+
+test('a date-only engagement without an end time ends at the end of that day', function () {
+    $this->freezeTime();
+
+    SpeakingEngagement::factory()->create([
+        'title' => 'Hari Ini',
+        'starts_at' => now()->startOfDay(),
+        'ends_at' => null,
+    ]);
+
+    $this->get(route('speaking.index'))
+        ->assertInertia(fn ($page) => $page->has('upcoming', 1)->where('upcoming.0.title', 'Hari Ini'));
+});

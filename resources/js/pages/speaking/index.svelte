@@ -110,6 +110,9 @@
       class="card card-speaking h-100 overflow-hidden rounded-4"
       class:is-past={!engagement.isUpcoming}
     >
+      {#if !engagement.isUpcoming}
+        <span class="ribbon-ended" aria-label="Acara telah selesai"><span>Selesai</span></span>
+      {/if}
       {#if engagement.poster}
         <button
           type="button"
@@ -128,9 +131,6 @@
       <div class="card-body p-4 d-flex flex-column gap-3">
         <div class="d-flex flex-wrap gap-2">
           <span class="badge bg-primary">{engagement.roleLabel}</span>
-          {#if !engagement.isUpcoming}
-            <span class="badge text-bg-secondary">Selesai</span>
-          {/if}
           <span class="badge tag-badge">{engagement.formatLabel}</span>
         </div>
 

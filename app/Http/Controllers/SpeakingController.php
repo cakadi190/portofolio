@@ -31,7 +31,7 @@ class SpeakingController extends Controller
                 'registrationUrl' => $engagement->registration_url,
                 'description' => $engagement->description,
                 'poster' => $engagement->poster,
-                'isUpcoming' => ($engagement->ends_at ?? $engagement->starts_at)->isFuture(),
+                'isUpcoming' => ! $engagement->hasEnded(),
             ]);
 
         return Inertia::render('speaking/index', [

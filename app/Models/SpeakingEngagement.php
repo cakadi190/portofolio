@@ -43,4 +43,19 @@ class SpeakingEngagement extends Model
     {
         $query->where('is_published', true);
     }
+
+    /**
+     * An engagement is over once its end time passes. Without an end time it
+     * ends at its start time, or at the end of that day when no time was set.
+     */
+    public function hasEnded(): bool
+    {
+        if ($this->ends_at !== null) {
+            return $this->ends_at->isPast();
+        }
+
+        $hasTime = $this->starts_at->format('H:i') !== '00:00';
+
+        return ($hasTime ? $this->starts_at : $this->starts_at->copy()->endOfDay())->isPast();
+    }
 }
