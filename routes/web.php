@@ -34,6 +34,8 @@ Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 Route::get('resume', [ResumeController::class, 'show'])->name('resume.show');
 Route::get('resume.pdf', [ResumeController::class, 'pdf'])->name('resume.pdf');
+Route::get('resume/{profile}.pdf', [ResumeController::class, 'pdf'])->name('resume.profile.pdf');
+Route::get('resume/{profile}', [ResumeController::class, 'show'])->name('resume.profile');
 Route::get('career', [CareerController::class, 'index'])->name('career.index');
 Route::get('education', [EducationController::class, 'index'])->name('education.index');
 Route::get('awards', [AwardController::class, 'index'])->name('awards.index');
