@@ -1,6 +1,10 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
+  import Copy from '@lucide/svelte/icons/copy';
+  import ImageIcon from '@lucide/svelte/icons/image';
+  import SquareDashedMousePointer from '@lucide/svelte/icons/square-dashed-mouse-pointer';
+  import TextCursor from '@lucide/svelte/icons/text-cursor';
   import Download from '@lucide/svelte/icons/download';
   import List from '@lucide/svelte/icons/list';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
@@ -19,6 +23,8 @@
   type OutlineItem = { title: string; page: number; depth: number };
   type Hit = { page: number; rects: Rect[]; snippet: string; source: 'text' | 'ocr' };
   type TextRun = { str: string; transform: number[]; width: number; height: number };
+  type Tool = 'text' | 'area';
+  type Box = { page: number; left: number; top: number; width: number; height: number };
   type PageLink = { rect: Rect; url?: string; page?: number };
 
   let {
@@ -48,6 +54,10 @@
   let hits = $state<Hit[]>([]);
   let searched = $state(false);
   let searching = $state(false);
+  let tool = $state<Tool>('text');
+  let drag = $state<Box | null>(null);
+  let selection = $state<(Box & { text: string; busy: boolean }) | null>(null);
+  let note = $state('');
   let sidebar = $state(typeof window !== 'undefined' && window.innerWidth >= 992);
   let mobileSearch = $state(false);
   let activeHit = $state(-1);
@@ -56,6 +66,10 @@
   let searchTimer: ReturnType<typeof setTimeout> | undefined;
   const ocrCache = createOcrCache();
   const textCache = new Map<number, PageWord[]>();
+  const textRendered = new Set<number>();
+  let pdfjsModule: typeof import('pdfjs-dist') | null = null;
+  let dragOrigin: { x: number; y: number } | null = null;
+  let selectionId = 0;
   let pages = $state.raw<PDFPageProxy[]>([]);
   let scroller = $state<HTMLElement | null>(null);
 
@@ -103,7 +117,29 @@
     await page.render({ canvas, viewport }).promise.catch(() => {});
   };
 
+  /** Renders pdf.js's invisible text layer once at scale 1; CSS scales it with the sheet so selection survives zooming. */
+  const renderText = async (number: number): Promise<void> => {
+    const host = canvases.get(number)?.parentElement?.querySelector<HTMLElement>('.rv-text');
+    const page = pages[number - 1];
+
+    if (!pdfjsModule || !host || !page || textRendered.has(number)) {
+      return;
+    }
+
+    textRendered.add(number);
+
+    await new pdfjsModule.TextLayer({
+      textContentSource: page.streamTextContent(),
+      container: host,
+      viewport: page.getViewport({ scale: 1 }),
+    })
+      .render()
+      .catch(() => textRendered.delete(number));
+  };
+
   const renderPage = async (number: number): Promise<void> => {
+    void renderText(number);
+
     const canvas = canvases.get(number);
     const page = pages[number - 1];
 
@@ -352,6 +388,170 @@
     return `left:${(left - minX) * zoom}px;top:${(maxY - top) * zoom}px;width:${(right - left) * zoom}px;height:${(top - bottom) * zoom}px`;
   };
 
+  const pageWords = async (number: number): Promise<PageWord[]> => {
+    let words = textCache.get(number);
+
+    if (!words) {
+      const content = await pages[number - 1].getTextContent();
+      words = textRunsToWords((content.items as unknown[]).filter((item): item is TextRun => typeof (item as TextRun).str === 'string'));
+      textCache.set(number, words);
+    }
+
+    if (words.reduce((total, word) => total + word.text.length, 0) >= 30) {
+      return words;
+    }
+
+    return ocrWords(await ocrCache.get(number, pages[number - 1]).catch(() => [] as OcrLine[]));
+  };
+
+  const setTool = (next: Tool): void => {
+    tool = next;
+    selection = null;
+    drag = null;
+    note = '';
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
+
+  const sheetPoint = (event: PointerEvent, sheet: HTMLElement): { x: number; y: number } => {
+    const rect = sheet.getBoundingClientRect();
+
+    return { x: clamp(event.clientX - rect.left, 0, rect.width), y: clamp(event.clientY - rect.top, 0, rect.height) };
+  };
+
+  const startDrag = (event: PointerEvent, number: number): void => {
+    if (tool !== 'area' || event.button !== 0) {
+      return;
+    }
+
+    const sheet = event.currentTarget as HTMLElement;
+    sheet.setPointerCapture(event.pointerId);
+    dragOrigin = sheetPoint(event, sheet);
+    selection = null;
+    note = '';
+    drag = { page: number, left: dragOrigin.x, top: dragOrigin.y, width: 0, height: 0 };
+  };
+
+  const moveDrag = (event: PointerEvent, number: number): void => {
+    if (!dragOrigin) {
+      return;
+    }
+
+    const point = sheetPoint(event, event.currentTarget as HTMLElement);
+    drag = {
+      page: number,
+      left: Math.min(dragOrigin.x, point.x),
+      top: Math.min(dragOrigin.y, point.y),
+      width: Math.abs(point.x - dragOrigin.x),
+      height: Math.abs(point.y - dragOrigin.y),
+    };
+  };
+
+  const endDrag = async (number: number): Promise<void> => {
+    const box = drag;
+    dragOrigin = null;
+    drag = null;
+
+    if (!box || box.width < 6 || box.height < 6) {
+      return;
+    }
+
+    const id = ++selectionId;
+    selection = { ...box, text: '', busy: true };
+
+    const [minX, , , maxY] = pages[number - 1].view;
+    const left = box.left / zoom + minX;
+    const right = (box.left + box.width) / zoom + minX;
+    const top = maxY - box.top / zoom;
+    const bottom = maxY - (box.top + box.height) / zoom;
+    const picked = (await pageWords(number)).filter((word) => {
+      const x = (word.rect[0] + word.rect[2]) / 2;
+      const y = (word.rect[1] + word.rect[3]) / 2;
+
+      return x >= left && x <= right && y >= bottom && y <= top;
+    });
+    let text = '';
+    let line = -1;
+
+    for (const word of picked) {
+      text += (text === '' ? '' : word.line !== line ? '\n' : ' ') + word.text;
+      line = word.line;
+    }
+
+    if (id === selectionId && selection) {
+      selection = { ...selection, text, busy: false };
+    }
+  };
+
+  const flash = (message: string): void => {
+    note = message;
+    setTimeout(() => (note = ''), 2000);
+  };
+
+  const copySelectionText = async (): Promise<void> => {
+    if (!selection?.text) {
+      flash('Tidak ada teks di area ini');
+
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(selection.text);
+      flash('Teks tersalin');
+    } catch {
+      flash('Gagal menyalin');
+    }
+  };
+
+  const copySelectionImage = async (): Promise<void> => {
+    const box = selection;
+    const canvas = box ? canvases.get(box.page) : undefined;
+
+    if (!box || !canvas) {
+      return;
+    }
+
+    const factor = canvas.width / (canvas.parentElement as HTMLElement).clientWidth;
+    const crop = document.createElement('canvas');
+    crop.width = Math.max(1, Math.round(box.width * factor));
+    crop.height = Math.max(1, Math.round(box.height * factor));
+    crop.getContext('2d')?.drawImage(canvas, box.left * factor, box.top * factor, box.width * factor, box.height * factor, 0, 0, crop.width, crop.height);
+
+    const blob = await new Promise<Blob | null>((resolve) => crop.toBlob(resolve, 'image/png'));
+
+    if (!blob) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      flash('Gambar tersalin');
+    } catch {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'cuplikan-cv.png';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      flash('Gambar diunduh');
+    }
+  };
+
+  const onKeydown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      selection = null;
+      drag = null;
+      dragOrigin = null;
+    }
+  };
+
+  const bubbleStyle = (box: Box): string => {
+    const height = (pages[box.page - 1].view[3] - pages[box.page - 1].view[1]) * zoom;
+    const below = box.top + box.height + 52 <= height;
+
+    return `left:${box.left}px;top:${below ? box.top + box.height + 8 : Math.max(0, box.top - 46)}px`;
+  };
+
   const loadLinks = async (pdf: PDFDocumentProxy, loaded: PDFPageProxy[]): Promise<void> => {
     const collected: Record<number, PageLink[]> = {};
 
@@ -436,6 +636,7 @@
         import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
       ]);
       pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+      pdfjsModule = pdfjs;
 
       const response = await fetch(url, { credentials: 'same-origin' });
 
@@ -480,6 +681,8 @@
   });
 </script>
 
+<svelte:window onkeydown={onKeydown} />
+
 <div class="rv">
   <header class="rv-bar">
     <button type="button" class="rv-back" onclick={onclose} aria-label="Kembali">
@@ -501,6 +704,11 @@
     </form>
 
     <div class="rv-controls">
+      <div class="rv-group">
+        <button type="button" class="rv-icon" class:on={tool === 'text'} aria-pressed={tool === 'text'} onclick={() => setTool('text')} aria-label="Pilih teks" title="Pilih teks"><TextCursor size={16} /></button>
+        <button type="button" class="rv-icon" class:on={tool === 'area'} aria-pressed={tool === 'area'} onclick={() => setTool('area')} aria-label="Pilih area" title="Pilih area (seret kotak)"><SquareDashedMousePointer size={16} /></button>
+      </div>
+
       <div class="rv-group">
         <button type="button" class="rv-icon" onclick={() => goTo(current - 1)} disabled={current <= 1} aria-label="Halaman sebelumnya"><ChevronLeft size={18} /></button>
         <span class="rv-page">Hal. {current} / {total || '-'}</span>
@@ -564,8 +772,20 @@
       {:else}
         {#each pages as page, index (index)}
           {@const size = page.getViewport({ scale: zoom })}
-          <div class="rv-sheet" style:width="{size.width}px" style:height="{size.height}px" style:margin-bottom="{GAP}px">
+          <div
+            class="rv-sheet"
+            class:area={tool === 'area'}
+            role="presentation"
+            style:width="{size.width}px"
+            style:height="{size.height}px"
+            style:margin-bottom="{GAP}px"
+            onpointerdown={(event) => startDrag(event, index + 1)}
+            onpointermove={(event) => moveDrag(event, index + 1)}
+            onpointerup={() => void endDrag(index + 1)}
+            onpointercancel={() => void endDrag(index + 1)}
+          >
             <canvas use:track={index + 1}></canvas>
+            <div class="rv-text" style:transform="scale({zoom})"></div>
             {#each hits as hit, hitIndex (hitIndex)}
               {#if hit.page === index + 1}
                 {#each hit.rects as rect, rectIndex (rectIndex)}
@@ -580,6 +800,22 @@
                 <button type="button" class="rv-link" aria-label="Ke halaman {link.page}" onclick={() => goTo(link.page ?? 1)} style={boxStyle(index + 1, link.rect)}></button>
               {/if}
             {/each}
+            {#if drag?.page === index + 1}
+              <div class="rv-marquee" style="left:{drag.left}px;top:{drag.top}px;width:{drag.width}px;height:{drag.height}px"></div>
+            {/if}
+            {#if selection?.page === index + 1}
+              <div class="rv-marquee" style="left:{selection.left}px;top:{selection.top}px;width:{selection.width}px;height:{selection.height}px"></div>
+              <div class="rv-sel-actions" style={bubbleStyle(selection)} role="toolbar" tabindex="-1" onpointerdown={(event) => event.stopPropagation()}>
+                {#if note}
+                  <span class="rv-note">{note}</span>
+                {:else if selection.busy}
+                  <span class="rv-note">Membaca area…</span>
+                {:else}
+                  <button type="button" onclick={copySelectionText}><Copy size={14} /> Salin teks</button>
+                  <button type="button" onclick={copySelectionImage}><ImageIcon size={14} /> Salin gambar</button>
+                {/if}
+              </div>
+            {/if}
           </div>
         {/each}
       {/if}
@@ -631,10 +867,25 @@
   .rv-item.current { background: var(--neo-primary-bg-subtle); }
   .rv-main { flex: 1; padding: 1rem; overflow: auto; }
   .rv-sheet { position: relative; margin-right: auto; margin-left: auto; background: #fff; transition: width 0.2s ease-out, height 0.2s ease-out; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); }
+  .rv-text { position: absolute; top: 0; left: 0; overflow: clip; line-height: 1; text-align: initial; transform-origin: 0 0; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); transition: transform 0.2s ease-out; }
+  .rv-text :global(:is(span, br)) { position: absolute; color: transparent; white-space: pre; cursor: text; transform-origin: 0 0; user-select: text; }
+  .rv-text > :global(:not(.markedContent)), .rv-text :global(.markedContent span:not(.markedContent)) { --font-height: 0; --scale-x: 1; --rotate: 0deg; font-size: calc(var(--text-scale-factor) * var(--font-height)); transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
+  .rv-text :global(.markedContent) { display: contents; }
+  .rv-text :global(::selection) { color: transparent; background: rgba(var(--neo-primary-rgb), 0.35); }
+  .rv-text :global(.endOfContent) { position: absolute; inset: 100% 0 0; display: block; cursor: default; user-select: none; }
+  .rv-text:global(.selecting) :global(.endOfContent) { top: 0; }
+  .rv-sheet.area { cursor: crosshair; user-select: none; touch-action: none; }
+  .rv-sheet.area .rv-text { pointer-events: none; }
+  .rv-marquee { position: absolute; z-index: 2; pointer-events: none; background: rgba(var(--neo-primary-rgb), 0.1); border: 1.5px dashed var(--neo-primary); }
+  .rv-sel-actions { position: absolute; z-index: 3; display: flex; gap: 0.25rem; padding: 0.25rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 0.5rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); cursor: default; }
+  .rv-sel-actions button { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.625rem; font-size: 0.8rem; font-weight: 600; color: inherit; white-space: nowrap; cursor: pointer; background: transparent; border: 0; border-radius: 0.375rem; }
+  .rv-sel-actions button:hover { background: var(--neo-primary-bg-subtle); }
+  .rv-note { padding: 0.375rem 0.625rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+  .rv-icon.on { background: rgba(255, 255, 255, 0.28); }
   .rv-state { margin-top: 3rem; text-align: center; color: var(--neo-secondary-color); }
 
   @media (prefers-reduced-motion: reduce) {
-    .rv-sheet, .rv-side, .rv-backdrop { transition: none !important; }
+    .rv-sheet, .rv-side, .rv-backdrop, .rv-text { transition: none !important; }
     .rv-hit.active.first::before, .rv-hit.active.first::after { animation: none; }
   }
 
@@ -664,6 +915,7 @@
     .rv-main { padding: 0.75rem 0.75rem 5.5rem; }
     .rv-controls { position: fixed; z-index: 20; bottom: 1rem; left: 50%; display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 999px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2); transform: translateX(-50%); }
     .rv-controls .rv-icon { color: inherit; }
+    .rv-controls .rv-icon.on { color: var(--neo-primary-text-emphasis); background: var(--neo-primary-bg-subtle); }
     .rv-controls .rv-icon:hover:not(:disabled) { background: var(--neo-primary-bg-subtle); }
     .rv-controls .rv-page { min-width: 3.5rem; font-size: 0.75rem; }
     .rv-controls .rv-group + .rv-group { padding-left: 0.375rem; border-left: 1px solid var(--neo-border-color); }
