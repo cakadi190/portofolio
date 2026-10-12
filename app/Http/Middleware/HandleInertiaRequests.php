@@ -65,6 +65,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'monitoring' => [
+                'actor' => EnrichSentryScope::actor($request->user()),
+                'userRef' => $request->user() === null ? null : EnrichSentryScope::userReference($request->user()),
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

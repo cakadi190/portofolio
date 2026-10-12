@@ -16,6 +16,7 @@ enum SystemSettingGroup: string
     case Security = 'security';
     case VisitorAnalytics = 'visitor_analytics';
     case IpInfo = 'ipinfo';
+    case Monitoring = 'monitoring';
 
     public function label(): string
     {
@@ -27,6 +28,7 @@ enum SystemSettingGroup: string
             self::Security => 'Keamanan',
             self::VisitorAnalytics => 'Analitik Pengunjung',
             self::IpInfo => 'Integrasi IPInfo',
+            self::Monitoring => 'Pemantauan Error (Sentry)',
         };
     }
 
@@ -40,6 +42,7 @@ enum SystemSettingGroup: string
             self::Security => 'Cloudflare Turnstile untuk melindungi formulir login, daftar, atur ulang kata sandi, kontak, dan ulasan. Aktif hanya jika Site Key dan Secret Key terisi.',
             self::VisitorAnalytics => 'Penghitung pengunjung berbasis data tersimpan: tayangan halaman, pengunjung unik (cookie pihak pertama), kunjungan, dan bot. Lihat docs/09-activity-and-analytics.md untuk definisi metrik.',
             self::IpInfo => 'Pengayaan lokasi/jaringan IP pengunjung lewat IPInfo. Token disimpan terenkripsi dan tidak pernah ditampilkan kembali; kosongkan kolom token untuk mempertahankannya.',
+            self::Monitoring => 'Pelacakan error, performa, dan log lewat Sentry untuk backend (Laravel) dan frontend (Svelte). Data pribadi (IP, cookie, isi form, email, token) dibersihkan sebelum dikirim; pengguna hanya dikenali lewat ID semu. Lihat docs/09-activity-and-analytics.md.',
         };
     }
 
@@ -124,6 +127,16 @@ enum SystemSettingGroup: string
                 ['key' => 'ipinfo_plan', 'label' => 'Plan IPInfo', 'type' => 'select', 'placeholder' => '', 'options' => [['value' => 'lite', 'label' => 'Lite (negara & ASN)'], ['value' => 'core', 'label' => 'Core / Plus (kota, koordinat, zona waktu)']], 'note' => 'Menentukan endpoint resmi yang dipanggil. Bawaan: Lite.'],
                 ['key' => 'ipinfo_token', 'label' => 'Token API IPInfo', 'type' => 'secret', 'placeholder' => 'Token dari dashboard ipinfo.io', 'note' => 'Plan Lite/Core/Plus; bidang yang tidak tersedia pada plan Anda dibiarkan kosong.'],
                 ['key' => 'ipinfo_cache_ttl_days', 'label' => 'Masa simpan cache IP (hari)', 'type' => 'integer', 'placeholder' => '30', 'min' => 1, 'max' => 90, 'note' => 'Bawaan: 30. Patuhi ketentuan retensi plan IPInfo Anda.'],
+            ],
+            self::Monitoring => [
+                ['key' => 'sentry_enabled', 'label' => 'Aktifkan Sentry', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: nonaktif. Aktif hanya jika DSN terisi.'],
+                ['key' => 'sentry_backend_dsn', 'label' => 'DSN Backend (Laravel)', 'type' => 'secret', 'placeholder' => 'https://<key>@o0.ingest.us.sentry.io/0', 'note' => 'Disimpan terenkripsi, tidak ditampilkan kembali. Kosongkan untuk memakai SENTRY_LARAVEL_DSN dari .env.'],
+                ['key' => 'sentry_frontend_dsn', 'label' => 'DSN Frontend (Svelte)', 'type' => 'url', 'placeholder' => 'https://<key>@o0.ingest.us.sentry.io/0', 'note' => 'DSN frontend bersifat publik (tampil di browser).'],
+                ['key' => 'sentry_environment', 'label' => 'Environment', 'type' => 'text', 'placeholder' => 'production', 'note' => 'Bawaan: environment aplikasi.'],
+                ['key' => 'sentry_release', 'label' => 'Release', 'type' => 'text', 'placeholder' => 'catatancakadi@1.0.0', 'note' => 'Versi/commit rilis agar error dapat dilacak ke deploy tertentu. Kosongkan untuk memakai SENTRY_RELEASE.'],
+                ['key' => 'sentry_traces_sample_percent', 'label' => 'Sampling performa (%)', 'type' => 'integer', 'placeholder' => '10', 'min' => 0, 'max' => 100, 'note' => 'Bawaan: 10. Persentase transaksi yang dilacak (backend & frontend).'],
+                ['key' => 'sentry_profiles_sample_percent', 'label' => 'Sampling profiling (%)', 'type' => 'integer', 'placeholder' => '0', 'min' => 0, 'max' => 100, 'note' => 'Bawaan: 0. Backend butuh ekstensi PHP Excimer; frontend butuh header Document-Policy: js-profiling.'],
+                ['key' => 'sentry_enable_logs', 'label' => 'Kirim log ke Sentry', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: nonaktif. Log tetap dibersihkan dari data pribadi.'],
             ],
         };
     }

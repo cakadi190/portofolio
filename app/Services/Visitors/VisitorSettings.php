@@ -51,9 +51,14 @@ class VisitorSettings
         return array_values(array_unique([...self::DEFAULT_EXCLUDED_PATHS, ...$extra]));
     }
 
+    public function ipInfoSwitchedOn(): bool
+    {
+        return $this->settings->bool('ipinfo_enabled', false);
+    }
+
     public function ipInfoEnabled(): bool
     {
-        return $this->settings->bool('ipinfo_enabled', false)
+        return $this->ipInfoSwitchedOn()
             && $this->ipInfoToken() !== null
             && $this->storesIp();
     }

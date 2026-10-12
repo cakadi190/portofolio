@@ -11,6 +11,9 @@
   import Share2 from '@lucide/svelte/icons/share-2';
   import ChartColumn from '@lucide/svelte/icons/chart-column';
   import Globe from '@lucide/svelte/icons/globe';
+  import Bug from '@lucide/svelte/icons/bug';
+  import CircleCheck from '@lucide/svelte/icons/circle-check';
+  import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import { router } from '@inertiajs/svelte';
   import { Form } from '@inertiajs/svelte';
   import { update, test } from '@/wayfinder/routes/admin/system-settings';
@@ -42,10 +45,10 @@
     groups: SettingGroup[];
     values: Record<string, string | null>;
     secretsSet?: string[];
-    status?: Record<string, { enabled: boolean; configured: boolean }>;
+    status?: Record<string, { enabled: boolean; configured: boolean; reason: string | null }>;
   } = $props();
 
-  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search, security: ShieldCheck, visitor_analytics: ChartColumn, ipinfo: Globe } as const;
+  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search, security: ShieldCheck, visitor_analytics: ChartColumn, ipinfo: Globe, monitoring: Bug } as const;
 
   function initialTab(): string {
     const tab =
@@ -119,7 +122,9 @@
                   <div class="d-flex flex-column gap-3">
                     {#each group.fields as field (field.key)}
                       <Field.Group>
-                        <Field.Label for={`setting-${field.key}`}>{field.label}</Field.Label>
+                        {#if field.type !== 'toggle'}
+                          <Field.Label for={`setting-${field.key}`}>{field.label}</Field.Label>
+                        {/if}
                         {#if field.type === 'image'}
                           <MediaField
                             name={field.key}
@@ -129,14 +134,14 @@
                           />
                         {:else if field.type === 'toggle'}
                           <input type="hidden" name={field.key} value="0" />
-                          <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id={`setting-${field.key}`} name={field.key} value="1" checked={values[field.key] === '1'} />
+                          <div class="form-check form-switch d-flex align-items-center gap-2 ps-0">
+                            <input class="form-check-input ms-0 mt-0 flex-shrink-0" type="checkbox" role="switch" id={`setting-${field.key}`} name={field.key} value="1" checked={values[field.key] === '1'} />
+                            <label class="form-check-label fw-semibold" for={`setting-${field.key}`}>{field.label}</label>
                           </div>
                         {:else if field.type === 'select'}
                           <select class="form-select" id={`setting-${field.key}`} name={field.key}>
-                            <option value="">Bawaan</option>
-                            {#each field.options ?? [] as option (option.value)}
-                              <option value={option.value} selected={values[field.key] === option.value}>{option.label}</option>
+                            {#each field.options ?? [] as option, index (option.value)}
+                              <option value={option.value} selected={values[field.key] ? values[field.key] === option.value : index === 0}>{option.label}{index === 0 ? ' (bawaan)' : ''}</option>
                             {/each}
                           </select>
                         {:else if field.type === 'secret'}
@@ -172,12 +177,26 @@
                     {/each}
                   </div>
                   {#if status[group.value]}
-                    <div class="mt-3 d-flex align-items-center gap-2">
-                      <span class="badge {status[group.value].enabled && status[group.value].configured ? 'text-bg-success' : 'text-bg-secondary'}">
-                        {status[group.value].configured ? (status[group.value].enabled ? 'Aktif' : 'Nonaktif') : 'Belum dikonfigurasi'}
-                      </span>
-                      <button type="button" class="btn btn-sm btn-outline-secondary" disabled={!status[group.value].configured} onclick={() => router.post(test().url, {}, { preserveScroll: true })}>
-                        Uji koneksi (simpan dulu)
+                    {@const state = status[group.value]}
+                    {@const active = state.enabled && state.configured}
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4 p-3 rounded border bg-body-tertiary">
+                      <div class="d-flex align-items-start gap-2">
+                        {#if active}
+                          <CircleCheck size={20} class="text-success flex-shrink-0 mt-1" aria-hidden="true" />
+                        {:else}
+                          <CircleAlert size={20} class="text-secondary flex-shrink-0 mt-1" aria-hidden="true" />
+                        {/if}
+                        <div>
+                          <div class="fw-semibold">{active ? 'Integrasi aktif' : 'Integrasi belum aktif'}</div>
+                          {#if state.reason}
+                            <div class="text-muted small">{state.reason}</div>
+                          {:else}
+                            <div class="text-muted small">Uji koneksi memakai pengaturan yang sudah tersimpan.</div>
+                          {/if}
+                        </div>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" disabled={!state.configured} onclick={() => router.post(test().url, {}, { preserveScroll: true })}>
+                        Uji koneksi
                       </button>
                     </div>
                   {/if}

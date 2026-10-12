@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AssignRequestId;
+use App\Http\Middleware\EnrichSentryScope;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\MinifyHtmlResponse;
 use App\Http\Middleware\SecurityHeaders;
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Sentry\Laravel\Integration;
 use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -27,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(prepend: [AssignRequestId::class]);
 
         $middleware->web(append: [
+            EnrichSentryScope::class,
             SecurityHeaders::class,
             VerifyTurnstile::class,
             HandleInertiaRequests::class,
@@ -51,6 +54,8 @@ return Application::configure(basePath: dirname(__DIR__))
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        Integration::handles($exceptions);
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

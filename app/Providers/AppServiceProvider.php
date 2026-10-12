@@ -4,7 +4,10 @@ namespace App\Providers;
 
 use App\Listeners\LogAuthenticationActivity;
 use App\Models\User;
+use App\Services\Monitoring\SentryConfigurator;
+use App\Services\Monitoring\SentrySettings;
 use App\Services\SeoService;
+use App\Services\SystemSettingService;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
@@ -14,6 +17,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\PasswordResetLinkSent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +44,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Sentry boots before this provider's boot(); `booting` runs ahead of every provider boot
+        // and, unlike register(), can already reach the cache. A private settings instance keeps
+        // its snapshot out of the scoped one.
+        $this->app->booting(function (): void {
+            // Eloquent is normally wired by DatabaseServiceProvider::boot(), which has not run yet.
+            Model::setConnectionResolver($this->app['db']);
+            Model::setEventDispatcher($this->app['events']);
+
+            (new SentryConfigurator(new SentrySettings(new SystemSettingService), $this->app['config']))->apply();
+        });
+
         $this->app->scoped(SeoService::class);
 
         $this->app->singleton(ImageManager::class, fn () => new ImageManager(

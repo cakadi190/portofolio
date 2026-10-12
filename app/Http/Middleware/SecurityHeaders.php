@@ -24,7 +24,7 @@ class SecurityHeaders
         ."font-src 'self' data: https://fonts.gstatic.com; "
         ."img-src 'self' data: blob: https:; "
         ."media-src 'self' blob: https:; "
-        ."connect-src 'self' data: blob: https://cdn.jsdelivr.net https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; "
+        ."connect-src 'self' data: blob: https://cdn.jsdelivr.net https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io; "
         .'frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://www.vidio.com https://www.dailymotion.com https://www.figma.com; '
         ."worker-src 'self' blob:; "
         ."object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";

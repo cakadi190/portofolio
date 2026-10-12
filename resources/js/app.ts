@@ -6,6 +6,7 @@ import ResumeLayout from '@/layouts/resume-layout.svelte';
 import { initializeAnalytics } from '@/lib/analytics';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
+import { initializeSentry } from '@/lib/sentry';
 import 'flag-icons/css/flag-icons.min.css';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -41,6 +42,9 @@ if (typeof document !== 'undefined') {
 
   // This will listen for flash toast data from the server...
   initializeFlashToast();
+
+  // Error and performance monitoring (Sentry), configured from system settings.
+  initializeSentry();
 
   // Google Analytics: SPA page views plus click, form and scroll events.
   initializeAnalytics();

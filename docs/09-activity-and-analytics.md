@@ -53,6 +53,27 @@ Endpoint resmi `api.ipinfo.io/lite/{ip}` (plan Lite) atau `/lookup/{ip}` (Core/P
 
 Rahasia (`*_token`, `turnstile_secret_key`) tersimpan terenkripsi, tidak pernah dikirim balik ke browser; kolom kosong mempertahankan nilai, kotak "Hapus nilai tersimpan" menghapusnya. Tombol uji koneksi IPInfo memanggil IP dokumentasi saja.
 
+## Pemantauan error (Sentry)
+
+- Paket: `sentry/sentry-laravel` (backend) dan `@sentry/svelte` (frontend). Seluruh pengaturan ada di Pengaturan Sistem → tab "Pemantauan Error (Sentry)" (grup `monitoring`); nilai `.env` (`SENTRY_LARAVEL_DSN`, `SENTRY_FRONTEND_DSN`, `SENTRY_RELEASE`, `SENTRY_ENVIRONMENT`) hanya cadangan saat setting kosong.
+
+| Kunci | Bawaan |
+| --- | --- |
+| `sentry_enabled` | nonaktif (sakelar utama; tanpa DSN tidak ada yang dikirim) |
+| `sentry_backend_dsn` (rahasia) | — |
+| `sentry_frontend_dsn` (publik) | — |
+| `sentry_environment` / `sentry_release` | environment aplikasi / kosong |
+| `sentry_traces_sample_percent` | 10 |
+| `sentry_profiles_sample_percent` | 0 (backend butuh ekstensi Excimer; frontend butuh header `Document-Policy: js-profiling`) |
+| `sentry_enable_logs` | nonaktif (menambahkan channel `sentry_logs` ke stack log) |
+
+- Backend: `SentryConfigurator` menyalin setting ke config pada callback `booting` (sebelum SDK boot; DSN harus ada saat boot). Perubahan setting berlaku pada request berikutnya setelah cache setting dibersihkan; worker antrean/Octane perlu di-restart. Exception tak tertangani dilaporkan lewat `Integration::handles()` di `bootstrap/app.php`.
+- Frontend: DSN publik dan sampling dirender sebagai `<meta name="sentry-config">` (komponen `x-sentry`) bersama `sentry-trace`/`baggage` agar trace browser tersambung ke request server; `resources/js/lib/sentry.ts` menginisialisasi SDK. Trace hanya diteruskan ke origin sendiri.
+- Pengayaan (tanpa data pribadi): tag `request_id` (sama dengan header `X-Request-Id` dan log aktivitas), `route`, `http_status`, `actor` (guest/user/redaktur/admin), `area`, `inertia`, `inertia_component`, `page_path`, `server_request_id`; pengguna hanya `id` semu (HMAC-SHA256 dengan `APP_KEY`, 16 karakter) + segmen peran.
+- Privasi (UU PDP/GDPR): `send_default_pii=false`; `dataCollection` frontend mematikan info pengguna, cookie, body, dan query string. `SentryEventScrubber` (`before_send*`, breadcrumb, log) membuang cookie, body request, header selain allowlist, email/IP/nomor telepon/NIK/JWT/Bearer dari teks, serta nilai pada kunci sensitif. Frontend tidak melacak performa/profil bila browser mengirim Do Not Track atau Global Privacy Control. Binding SQL tidak dikirim.
+- Yang harus dilakukan di dashboard Sentry: aktifkan "Prevent Storing of IP Addresses" pada kedua proyek, atur retensi data sesuai kebijakan, dan batasi akses anggota. Unggah source map belum dipasang (butuh `SENTRY_AUTH_TOKEN` dan plugin Vite Sentry).
+- CSP report-only mengizinkan `connect-src` ke `*.ingest.sentry.io`, `*.ingest.us.sentry.io`, `*.ingest.de.sentry.io`.
+
 ## Deploy
 
 Migrasi aditif baru (tabel baru, aman untuk `migrate --force`): `create_activity_log_table`, `create_visitor_analytics_tables`. Rollback: `migrate:rollback --step=2` (menghapus data log/analitik). Contoh env: `ACTIVITYLOG_RETENTION_DAYS=365`, `DB_BUSY_TIMEOUT=5000`. Perlu worker antrean dan scheduler (`schedule:run`).

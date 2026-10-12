@@ -95,11 +95,20 @@ class IpInfoClient
     }
 
     /**
-     * @return array{enabled: bool, configured: bool}
+     * @return array{enabled: bool, configured: bool, reason: string|null}
      */
     public function status(): array
     {
-        return ['enabled' => $this->settings->ipInfoEnabled(), 'configured' => $this->settings->ipInfoToken() !== null];
+        $configured = $this->settings->ipInfoToken() !== null;
+
+        $reason = match (true) {
+            ! $configured => 'Token API belum diisi.',
+            ! $this->settings->ipInfoSwitchedOn() => 'Sakelar "Aktifkan IPInfo" masih nonaktif. Aktifkan lalu simpan.',
+            ! $this->settings->storesIp() => 'Penyimpanan alamat IP dimatikan di tab Analitik Pengunjung, sehingga IPInfo tidak berjalan.',
+            default => null,
+        };
+
+        return ['enabled' => $this->settings->ipInfoEnabled(), 'configured' => $configured, 'reason' => $reason];
     }
 
     private function fetch(string $ip, ?IpLookup $existing): IpLookup

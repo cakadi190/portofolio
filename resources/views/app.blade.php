@@ -70,6 +70,7 @@
         </style>
 
         <x-analytics />
+        <x-sentry />
 
         @vite(['resources/css/app.scss', 'resources/js/app.ts'])
         <x-seo />

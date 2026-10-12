@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   initializeAnalytics: vi.fn(),
   initDropdownAnimation: vi.fn(),
   initializeFlashToast: vi.fn(),
+  initializeSentry: vi.fn(),
 }));
 
 vi.mock('@inertiajs/svelte', async (importOriginal) => ({
@@ -19,6 +20,9 @@ vi.mock('@/lib/dropdown-animation', () => ({
 }));
 vi.mock('@/lib/flash-toast', () => ({
   initializeFlashToast: mocks.initializeFlashToast,
+}));
+vi.mock('@/lib/sentry', () => ({
+  initializeSentry: mocks.initializeSentry,
 }));
 vi.mock('flag-icons/css/flag-icons.min.css', () => ({}));
 
@@ -68,5 +72,6 @@ describe('app bootstrap', () => {
     expect(callCounts.initDropdownAnimation).toBe(1);
     expect(callCounts.initializeFlashToast).toBe(1);
     expect(callCounts.initializeAnalytics).toBe(1);
+    expect(callCounts.initializeSentry).toBe(1);
   });
 });
