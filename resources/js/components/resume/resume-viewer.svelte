@@ -3,9 +3,7 @@
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Copy from '@lucide/svelte/icons/copy';
   import ImageIcon from '@lucide/svelte/icons/image';
-  import SquareDashedMousePointer from '@lucide/svelte/icons/square-dashed-mouse-pointer';
-  import TextCursor from '@lucide/svelte/icons/text-cursor';
-  import Download from '@lucide/svelte/icons/download';
+      import Download from '@lucide/svelte/icons/download';
   import List from '@lucide/svelte/icons/list';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -27,7 +25,6 @@
   type OutlineItem = { title: string; page: number; depth: number };
   type Hit = { page: number; rects: Rect[]; snippet: string; source: 'text' | 'ocr' };
   type TextRun = { str: string; transform: number[]; width: number; height: number };
-  type Tool = 'text' | 'area';
   type Box = { page: number; left: number; top: number; width: number; height: number };
   type PageLink = { rect: Rect; url?: string; page?: number };
 
@@ -65,7 +62,6 @@
   let hits = $state<Hit[]>([]);
   let searched = $state(false);
   let searching = $state(false);
-  let tool = $state<Tool>('text');
   let drag = $state<Box | null>(null);
   let selection = $state<(Box & { text: string; busy: boolean }) | null>(null);
   let note = $state('');
@@ -486,14 +482,6 @@
     return ocrWords(await ocrCache.get(number, pages[number - 1]).catch(() => [] as OcrLine[]));
   };
 
-  const setTool = (next: Tool): void => {
-    tool = next;
-    selection = null;
-    drag = null;
-    note = '';
-    window.getSelection()?.removeAllRanges();
-  };
-
   const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 
   const sheetPoint = (event: PointerEvent, sheet: HTMLElement): { x: number; y: number } => {
@@ -503,10 +491,13 @@
   };
 
   const startDrag = (event: PointerEvent, number: number): void => {
-    if (tool !== 'area' || event.button !== 0) {
+    const target = event.target as HTMLElement;
+
+    if (event.button !== 0 || event.pointerType === 'touch' || target.closest('.rv-text > span, .rv-text .markedContent span, .rv-link, .rv-sel-actions')) {
       return;
     }
 
+    window.getSelection()?.removeAllRanges();
     const sheet = event.currentTarget as HTMLElement;
     sheet.setPointerCapture(event.pointerId);
     dragOrigin = sheetPoint(event, sheet);
@@ -804,10 +795,6 @@
     {/if}
 
     <div class="rv-controls">
-      <div class="rv-group rv-tools">
-        <button type="button" class="rv-icon" class:on={tool === 'text'} aria-pressed={tool === 'text'} onclick={() => setTool('text')} aria-label="Pilih teks" title="Pilih teks"><TextCursor size={16} /></button>
-        <button type="button" class="rv-icon" class:on={tool === 'area'} aria-pressed={tool === 'area'} onclick={() => setTool('area')} aria-label="Pilih area" title="Pilih area (seret kotak)"><SquareDashedMousePointer size={16} /></button>
-      </div>
 
       <div class="rv-group">
         <button type="button" class="rv-icon" onclick={() => goTo(current - 1)} disabled={current <= 1} aria-label="Halaman sebelumnya"><ChevronLeft size={18} /></button>
@@ -876,7 +863,6 @@
           {@const size = page.getViewport({ scale: zoom })}
           <div
             class="rv-sheet"
-            class:area={tool === 'area'}
             role="presentation"
             style:width="{size.width}px"
             style:height="{size.height}px"
@@ -887,7 +873,7 @@
             onpointercancel={() => void endDrag(index + 1)}
           >
             <canvas use:track={index + 1}></canvas>
-            <div class="rv-text" style:transform="scale({zoom})"></div>
+            <div class="rv-text" style:transform="scale({zoom})" style:width="{page.view[2] - page.view[0]}px" style:height="{page.view[3] - page.view[1]}px"></div>
             {#each hits as hit, hitIndex (hitIndex)}
               {#if hit.page === index + 1}
                 {#each hit.rects as rect, rectIndex (rectIndex)}
@@ -982,8 +968,7 @@
   .rv-text :global(::selection) { color: transparent; background: rgba(var(--neo-primary-rgb), 0.35); }
   .rv-text :global(.endOfContent) { position: absolute; inset: 100% 0 0; display: block; cursor: default; user-select: none; }
   .rv-text:global(.selecting) :global(.endOfContent) { top: 0; }
-  .rv-sheet.area { cursor: crosshair; user-select: none; touch-action: none; }
-  .rv-sheet.area .rv-text { pointer-events: none; }
+  .rv-sheet canvas { user-select: none; }
   .rv-marquee { position: absolute; z-index: 2; pointer-events: none; background: rgba(var(--neo-primary-rgb), 0.1); border: 1.5px dashed var(--neo-primary); }
   .rv-sel-actions { position: absolute; z-index: 3; display: flex; gap: 0.25rem; padding: 0.25rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 0.5rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); cursor: default; }
   .rv-sel-actions button { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.625rem; font-size: 0.8rem; font-weight: 600; color: inherit; white-space: nowrap; cursor: pointer; background: transparent; border: 0; border-radius: 0.375rem; }
@@ -1025,7 +1010,6 @@
     .rv-main { padding: 0.75rem 0.75rem calc(8rem + env(safe-area-inset-bottom)); }
     .rv-controls .rv-icon { width: 2rem; height: 2rem; }
     .rv-controls .rv-group { gap: 0.125rem; }
-    .rv-tools { display: none; }
     .rv-controls { position: fixed; z-index: 20; bottom: calc(1rem + env(safe-area-inset-bottom)); right: 0; left: 0; width: fit-content; max-width: calc(100% - 1rem); margin-inline: auto; flex-wrap: wrap; justify-content: center; display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 999px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2); }
     .rv-controls .rv-icon { color: inherit; }
     .rv-controls .rv-icon.on { color: var(--neo-primary-text-emphasis); background: var(--neo-primary-bg-subtle); }
