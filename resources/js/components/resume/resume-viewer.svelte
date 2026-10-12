@@ -11,8 +11,12 @@
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import Minus from '@lucide/svelte/icons/minus';
   import Plus from '@lucide/svelte/icons/plus';
+  import MoveHorizontal from '@lucide/svelte/icons/move-horizontal';
+  import Maximize from '@lucide/svelte/icons/maximize';
   import Search from '@lucide/svelte/icons/search';
   import { perfectScrollbar } from '@/lib/perfect-scrollbar';
+  import { anchoredScroll, clampZoom, distanceBetween, fitPageZoom, fitWidthZoom, pinchZoom, stepZoom as nextZoom } from '@/lib/resume-zoom';
+  import type { ZoomMode } from '@/lib/resume-zoom';
   import { createOcrCache, OCR_POOL_SIZE, terminateOcrWorker } from '@/lib/ocr';
   import { findPhraseMatches, textRunsToWords } from '@/lib/ocr/phrase';
   import type { PageWord } from '@/lib/ocr/phrase';
@@ -32,21 +36,28 @@
     title,
     subtitle = '',
     downloadName = 'CV.pdf',
+    profiles = [],
+    activeProfile = '',
+    onprofile,
     onclose,
   }: {
     url: string;
     title: string;
     subtitle?: string;
     downloadName?: string;
+    profiles?: { key: string; label: string; description?: string }[];
+    activeProfile?: string;
+    onprofile?: (key: string) => void;
     onclose: () => void;
   } = $props();
 
-  const ZOOMS = [0.5, 0.75, 1, 1.25, 1.3, 1.5, 2, 3];
   const GAP = 16;
 
   let status = $state<'loading' | 'ready' | 'error'>('loading');
   let tab = $state<Tab>('outline');
-  let zoom = $state(1.3);
+  let zoom = $state(1);
+  let zoomMode = $state<ZoomMode>('fit-width');
+  const MODE_LABELS: Record<ZoomMode, string> = { 'fit-width': 'Sesuai lebar', 'fit-page': 'Sesuai halaman', custom: 'Kustom' };
   let current = $state(1);
   let query = $state('');
   let copied = $state(false);
@@ -207,26 +218,47 @@
     canvases.get(target)?.parentElement?.scrollIntoView({ block: 'start', behavior: 'smooth' });
   };
 
+  let resizeObserver: ResizeObserver | undefined;
   let zoomTimer: ReturnType<typeof setTimeout> | undefined;
 
-  const setZoom = (value: number): void => {
-    const next = Math.round(Math.min(Math.max(value, 0.5), 3) * 100) / 100;
+  /** Scales only the document sheets; the page itself is never zoomed. `anchor` is a point in the scroller's viewport. */
+  const setZoom = (value: number, mode: ZoomMode = 'custom', anchor?: { x: number; y: number }): void => {
+    const next = clampZoom(value);
+    zoomMode = mode;
 
     if (next === zoom || !scroller) {
       return;
     }
 
     const ratio = next / zoom;
+    const point = anchor ?? { x: scroller.clientWidth / 2, y: scroller.clientHeight / 2 };
     zoom = next;
-    scroller.scrollTop *= ratio;
-    scroller.scrollLeft *= ratio;
+    scroller.scrollTop = anchoredScroll(scroller.scrollTop, point.y, ratio);
+    scroller.scrollLeft = anchoredScroll(scroller.scrollLeft, point.x, ratio);
     clearTimeout(zoomTimer);
     zoomTimer = setTimeout(renderVisible, 220);
   };
 
-  const stepZoom = (direction: 1 | -1): void => {
-    const next = direction > 0 ? ZOOMS.find((z) => z > zoom + 0.001) : [...ZOOMS].reverse().find((z) => z < zoom - 0.001);
-    setZoom(next ?? zoom);
+  const stepZoom = (direction: 1 | -1): void => setZoom(nextZoom(zoom, direction));
+
+  /** Re-applies a fit mode against the current viewer size (also on rotation or resize). */
+  const applyFit = (mode: Exclude<ZoomMode, 'custom'>): void => {
+    const first = pages[0];
+
+    if (!scroller || !first) {
+      return;
+    }
+
+    const width = first.view[2] - first.view[0];
+    const height = first.view[3] - first.view[1];
+    const padding = scroller.clientWidth < 768 ? 24 : 32;
+
+    setZoom(
+      mode === 'fit-width'
+        ? fitWidthZoom(scroller.clientWidth, width, padding)
+        : fitPageZoom(scroller.clientWidth, scroller.clientHeight, width, height, padding),
+      mode,
+    );
   };
 
   const wheelZoom = (node: HTMLElement) => {
@@ -236,12 +268,61 @@
       }
 
       event.preventDefault();
-      setZoom(zoom * Math.exp(-event.deltaY * 0.01));
+      const box = node.getBoundingClientRect();
+      setZoom(zoom * Math.exp(-event.deltaY * 0.01), 'custom', { x: event.clientX - box.left, y: event.clientY - box.top });
     };
 
     node.addEventListener('wheel', handler, { passive: false });
 
     return { destroy: () => node.removeEventListener('wheel', handler) };
+  };
+
+  /** Two-finger pinch inside the viewer only; the browser's own page pinch is disabled here via touch-action. */
+  const pinchZoomAction = (node: HTMLElement) => {
+    let start: { distance: number; zoom: number } | null = null;
+
+    const points = (event: TouchEvent): { x: number; y: number }[] =>
+      Array.from(event.touches).map((touch) => ({ x: touch.clientX, y: touch.clientY }));
+
+    const onStart = (event: TouchEvent): void => {
+      if (event.touches.length === 2 && !drag) {
+        const [a, b] = points(event);
+        start = { distance: distanceBetween(a, b), zoom };
+      }
+    };
+
+    const onMove = (event: TouchEvent): void => {
+      if (!start || event.touches.length !== 2) {
+        return;
+      }
+
+      const [a, b] = points(event);
+      const box = node.getBoundingClientRect();
+      setZoom(pinchZoom(start.zoom, start.distance, distanceBetween(a, b)), 'custom', {
+        x: (a.x + b.x) / 2 - box.left,
+        y: (a.y + b.y) / 2 - box.top,
+      });
+    };
+
+    const onEnd = (event: TouchEvent): void => {
+      if (event.touches.length < 2) {
+        start = null;
+      }
+    };
+
+    node.addEventListener('touchstart', onStart, { passive: true });
+    node.addEventListener('touchmove', onMove, { passive: true });
+    node.addEventListener('touchend', onEnd, { passive: true });
+    node.addEventListener('touchcancel', onEnd, { passive: true });
+
+    return {
+      destroy: () => {
+        node.removeEventListener('touchstart', onStart);
+        node.removeEventListener('touchmove', onMove);
+        node.removeEventListener('touchend', onEnd);
+        node.removeEventListener('touchcancel', onEnd);
+      },
+    };
   };
 
   const ocrWords = (lines: OcrLine[]): PageWord[] =>
@@ -663,11 +744,18 @@
       void loadLinks(doc, loaded);
       await tick();
 
-      if (scroller && scroller.clientWidth < 768) {
-        const width = loaded[0].view[2] - loaded[0].view[0];
-        zoom = Math.round(Math.min(1.3, (scroller.clientWidth - 24) / width) * 100) / 100;
+      if (scroller) {
+        zoomMode = scroller.clientWidth < 768 ? 'fit-width' : 'fit-page';
+        applyFit(zoomMode);
         await tick();
       }
+
+      resizeObserver = new ResizeObserver(() => {
+        if (zoomMode !== 'custom') {
+          applyFit(zoomMode);
+        }
+      });
+      resizeObserver.observe(scroller!);
 
       renderVisible();
     })().catch(() => {
@@ -677,6 +765,8 @@
     return () => {
       cancelled = true;
       observer?.disconnect();
+      resizeObserver?.disconnect();
+      clearTimeout(zoomTimer);
       terminateOcrWorker();
       void loadingTask?.destroy();
     };
@@ -685,7 +775,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="rv">
+<div class="rv" data-zoom-mode={zoomMode}>
   <header class="rv-bar">
     <button type="button" class="rv-back" onclick={onclose} aria-label="Kembali">
       <ArrowLeft size={18} /><span class="rv-label">Kembali</span>
@@ -705,22 +795,32 @@
       {#if searched}<span class="rv-count">{searching ? '…' : hits.length === 0 ? '0' : `${activeHit + 1}/${hits.length}`}</span>{/if}
     </form>
 
+    {#if profiles.length > 1}
+      <nav class="rv-profiles" aria-label="Pilih jenis CV">
+        {#each profiles as item (item.key)}
+          <button type="button" class:on={item.key === activeProfile} aria-current={item.key === activeProfile ? 'page' : undefined} title={item.description} onclick={() => onprofile?.(item.key)}>{item.label}</button>
+        {/each}
+      </nav>
+    {/if}
+
     <div class="rv-controls">
-      <div class="rv-group">
+      <div class="rv-group rv-tools">
         <button type="button" class="rv-icon" class:on={tool === 'text'} aria-pressed={tool === 'text'} onclick={() => setTool('text')} aria-label="Pilih teks" title="Pilih teks"><TextCursor size={16} /></button>
         <button type="button" class="rv-icon" class:on={tool === 'area'} aria-pressed={tool === 'area'} onclick={() => setTool('area')} aria-label="Pilih area" title="Pilih area (seret kotak)"><SquareDashedMousePointer size={16} /></button>
       </div>
 
       <div class="rv-group">
         <button type="button" class="rv-icon" onclick={() => goTo(current - 1)} disabled={current <= 1} aria-label="Halaman sebelumnya"><ChevronLeft size={18} /></button>
-        <span class="rv-page">Hal. {current} / {total || '-'}</span>
+        <span class="rv-page"><span class="rv-label">Hal. </span>{current} / {total || '-'}</span>
         <button type="button" class="rv-icon" onclick={() => goTo(current + 1)} disabled={current >= total} aria-label="Halaman berikutnya"><ChevronRight size={18} /></button>
       </div>
 
       <div class="rv-group">
-        <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label="Perkecil"><Minus size={14} /></button>
-        <span class="rv-page">{Math.round(zoom * 100)}%</span>
-        <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label="Perbesar"><Plus size={14} /></button>
+        <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label="Perkecil" data-zoom-out><Minus size={14} /></button>
+        <span class="rv-page" data-zoom-value aria-live="polite" title={MODE_LABELS[zoomMode]}>{Math.round(zoom * 100)}%</span>
+        <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label="Perbesar" data-zoom-in><Plus size={14} /></button>
+        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-width'} aria-pressed={zoomMode === 'fit-width'} onclick={() => applyFit('fit-width')} aria-label="Sesuai lebar" title="Sesuai lebar"><MoveHorizontal size={16} /></button>
+        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-page'} aria-pressed={zoomMode === 'fit-page'} onclick={() => applyFit('fit-page')} aria-label="Sesuai halaman" title="Sesuai halaman"><Maximize size={15} /></button>
       </div>
     </div>
 
@@ -766,7 +866,7 @@
       </div>
     </aside>
 
-    <main class="rv-main" bind:this={scroller} onscroll={updateCurrent} use:wheelZoom>
+    <main class="rv-main" bind:this={scroller} onscroll={updateCurrent} use:wheelZoom use:pinchZoomAction>
       {#if status === 'loading'}
         <p class="rv-state">Memuat dokumen…</p>
       {:else if status === 'error'}
@@ -867,7 +967,13 @@
   .rv-link:hover { background: rgba(var(--neo-primary-rgb), 0.18); outline: 1px solid var(--neo-primary); }
   .rv-count { font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
   .rv-item.current { background: var(--neo-primary-bg-subtle); }
-  .rv-main { flex: 1; padding: 1rem; overflow: auto; }
+  .rv-main { flex: 1; min-width: 0; padding: 1rem; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y; }
+  .rv-icon, .rv-back, .rv-download, .rv-copy, .rv-profiles button, .rv-tabs button, .rv-item, .rv-thumb { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .rv-profiles { display: flex; gap: 0.25rem; padding: 0.1875rem; background: rgba(255, 255, 255, 0.12); border-radius: 999px; }
+  .rv-profiles button { padding: 0.3125rem 0.75rem; font-size: 0.8rem; font-weight: 600; color: #fff; white-space: nowrap; cursor: pointer; background: transparent; border: 0; border-radius: 999px; }
+  .rv-profiles button.on { color: var(--neo-primary); background: #fff; }
+  .rv-icon:focus-visible, .rv-back:focus-visible, .rv-download:focus-visible, .rv-copy:focus-visible, .rv-profiles button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .rv-controls .rv-icon:focus-visible { outline-color: var(--neo-primary); }
   .rv-sheet { position: relative; margin-right: auto; margin-left: auto; background: #fff; transition: width 0.2s ease-out, height 0.2s ease-out; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); }
   .rv-text { position: absolute; top: 0; left: 0; overflow: clip; line-height: 1; text-align: initial; transform-origin: 0 0; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); transition: transform 0.2s ease-out; }
   .rv-text :global(:is(span, br)) { position: absolute; color: transparent; white-space: pre; cursor: text; transform-origin: 0 0; user-select: text; }
@@ -903,6 +1009,8 @@
     .rv-backdrop { position: fixed; z-index: 29; inset: 0; display: block; background: rgba(0, 0, 0, 0.4); border: 0; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
     .rv-backdrop.open { opacity: 1; pointer-events: auto; }
     .rv-search { flex-basis: 100%; order: 5; }
+    .rv-profiles { flex-basis: 100%; order: 6; justify-content: stretch; }
+    .rv-profiles button { flex: 1; }
   }
 
   @media (max-width: 767.98px) {
@@ -914,12 +1022,15 @@
     .rv-search-toggle { display: inline-grid; }
     .rv-search { display: none; }
     .rv-search.open { display: flex; }
-    .rv-main { padding: 0.75rem 0.75rem 5.5rem; }
-    .rv-controls { position: fixed; z-index: 20; bottom: 1rem; left: 50%; display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 999px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2); transform: translateX(-50%); }
+    .rv-main { padding: 0.75rem 0.75rem calc(8rem + env(safe-area-inset-bottom)); }
+    .rv-controls .rv-icon { width: 2rem; height: 2rem; }
+    .rv-controls .rv-group { gap: 0.125rem; }
+    .rv-tools { display: none; }
+    .rv-controls { position: fixed; z-index: 20; bottom: calc(1rem + env(safe-area-inset-bottom)); right: 0; left: 0; width: fit-content; max-width: calc(100% - 1rem); margin-inline: auto; flex-wrap: wrap; justify-content: center; display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 999px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2); }
     .rv-controls .rv-icon { color: inherit; }
     .rv-controls .rv-icon.on { color: var(--neo-primary-text-emphasis); background: var(--neo-primary-bg-subtle); }
     .rv-controls .rv-icon:hover:not(:disabled) { background: var(--neo-primary-bg-subtle); }
-    .rv-controls .rv-page { min-width: 3.5rem; font-size: 0.75rem; }
+    .rv-controls .rv-page { min-width: 2.5rem; font-size: 0.75rem; }
     .rv-controls .rv-group + .rv-group { padding-left: 0.375rem; border-left: 1px solid var(--neo-border-color); }
   }
 </style>

@@ -3,18 +3,50 @@
   import ResumeViewer from '@/components/resume/resume-viewer.svelte';
   import { router } from '@inertiajs/svelte';
 
-  let { pdfUrl, title }: { pdfUrl: string; title: string } = $props();
+  type Profile = { key: string; label: string; description: string; url: string; pdfUrl: string; downloadName: string };
+
+  let {
+    profile,
+    profiles,
+    pdfUrl,
+    downloadName,
+    title,
+    description,
+  }: {
+    profile: string;
+    profiles: Profile[];
+    pdfUrl: string;
+    downloadName: string;
+    title: string;
+    description: string;
+  } = $props();
+
+  const switchProfile = (key: string): void => {
+    const target = profiles.find((item) => item.key === key);
+
+    if (target && target.key !== profile) {
+      router.visit(target.url, { preserveScroll: false });
+    }
+  };
 </script>
 
 <AppHead {title}>
+  <meta name="description" content={description} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="profile" />
   <meta name="robots" content="noindex" />
 </AppHead>
 
-<ResumeViewer
-  url={pdfUrl}
-  title="Curriculum Vitae"
-  subtitle={title}
-  downloadName="CV-Amir-Zuhdi-Wibowo.pdf"
-  onclose={() => router.visit('/')}
-/>
-
+{#key pdfUrl}
+  <ResumeViewer
+    url={pdfUrl}
+    title="Curriculum Vitae"
+    subtitle={title}
+    {downloadName}
+    {profiles}
+    activeProfile={profile}
+    onprofile={switchProfile}
+    onclose={() => router.visit('/')}
+  />
+{/key}
