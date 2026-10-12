@@ -27,7 +27,7 @@ class HtmlSanitizer
         'p' => [], 'br' => [], 'hr' => [], 'span' => [], 'div' => [],
         'h1' => [], 'h2' => [], 'h3' => [], 'h4' => [], 'h5' => [], 'h6' => [],
         'strong' => [], 'b' => [], 'em' => [], 'i' => [], 'u' => [], 's' => [], 'del' => [], 'ins' => [],
-        'mark' => [], 'sub' => [], 'sup' => [], 'code' => [], 'pre' => ['data-code-theme'],
+        'mark' => [], 'sub' => [], 'sup' => [], 'code' => [], 'pre' => ['data-code-theme', 'data-code-title'],
         'blockquote' => [], 'ul' => [], 'ol' => ['start'], 'li' => [],
         'figure' => [], 'figcaption' => [],
         'table' => [], 'thead' => [], 'tbody' => [], 'tfoot' => [], 'tr' => [],
@@ -185,6 +185,7 @@ class HtmlSanitizer
             'loading' => in_array($value, ['lazy', 'eager'], true) ? $value : null,
             'width', 'height', 'colspan', 'rowspan', 'start' => preg_match('/^\d{1,4}%?$/', $value) === 1 ? $value : null,
             'data-type', 'data-code-theme' => preg_match('/^[a-z0-9-]{1,40}$/i', $value) === 1 ? $value : null,
+            'data-code-title' => preg_match('/^[^\x00-\x1f<>"]{1,60}$/u', $value) === 1 ? $value : null,
             'alt', 'title' => $value,
             default => null,
         };

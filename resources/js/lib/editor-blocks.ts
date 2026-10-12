@@ -1,8 +1,14 @@
 import { Extension, Node } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
 import type { Node as ProseNode } from '@tiptap/pm/model';
+import type { EditorView, NodeView } from '@tiptap/pm/view';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import {
+  createCodeHeader,
+  normalizeCodeTitle,
+  CODE_TITLE_MAX_LENGTH,
+} from '@/lib/code-card';
 import { highlightSource } from '@/lib/highlight';
 
 export const ALIGNMENTS = ['left', 'center', 'right'] as const;
@@ -263,6 +269,100 @@ function validCodeTheme(value: unknown): string | null {
     : null;
 }
 
+/**
+ * Editor node view: a titled card whose tab holds an editable title and whose
+ * header carries the copy button. The saved HTML stays a plain `pre > code`.
+ */
+function codeBlockView(
+  initial: ProseNode,
+  view: EditorView,
+  getPos: () => number | undefined,
+): NodeView {
+  let node = initial;
+  const card = document.createElement('div');
+  const pre = document.createElement('pre');
+  const code = document.createElement('code');
+  const input = document.createElement('input');
+
+  card.className = 'code-card';
+  input.type = 'text';
+  input.className = 'code-card__title code-card__title-input';
+  input.placeholder = 'Judul (mis. app/Models/User.php)';
+  input.maxLength = CODE_TITLE_MAX_LENGTH;
+  input.setAttribute('aria-label', 'Judul blok kode');
+  input.spellcheck = false;
+
+  const commitTitle = (): void => {
+    const pos = getPos();
+    const title = normalizeCodeTitle(input.value);
+
+    if (pos === undefined || title === (node.attrs.title ?? null)) {
+      return;
+    }
+
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, title }),
+    );
+  };
+
+  input.addEventListener('change', commitTitle);
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      commitTitle();
+      view.focus();
+    }
+  });
+
+  const sync = (): void => {
+    if (document.activeElement !== input) {
+      input.value = node.attrs.title ?? '';
+    }
+
+    const theme = validCodeTheme(node.attrs.theme);
+
+    if (theme) {
+      pre.dataset.codeTheme = theme;
+    } else {
+      delete pre.dataset.codeTheme;
+    }
+
+    if (node.attrs.title) {
+      pre.dataset.codeTitle = node.attrs.title;
+    } else {
+      delete pre.dataset.codeTitle;
+    }
+  };
+
+  pre.append(code);
+  card.append(
+    createCodeHeader(input, () => node.textContent),
+    pre,
+  );
+  sync();
+
+  return {
+    dom: card,
+    contentDOM: code,
+    update(updated) {
+      if (updated.type !== node.type) {
+        return false;
+      }
+
+      node = updated;
+      sync();
+
+      return true;
+    },
+    stopEvent: (event) =>
+      event.target instanceof HTMLElement &&
+      event.target.closest('.code-card__header') !== null,
+    ignoreMutation: (mutation) =>
+      mutation.target instanceof HTMLElement &&
+      mutation.target.closest('.code-card__header') !== null,
+  };
+}
+
 /** Live syntax colouring for code blocks inside the editor. */
 export const CodeBlockHighlight = Extension.create({
   name: 'codeBlockHighlight',
@@ -272,6 +372,16 @@ export const CodeBlockHighlight = Extension.create({
       {
         types: ['codeBlock'],
         attributes: {
+          title: {
+            default: null,
+            parseHTML: (element) =>
+              normalizeCodeTitle(element.getAttribute('data-code-title')),
+            renderHTML: (attributes) => {
+              const title = normalizeCodeTitle(attributes.title);
+
+              return title ? { 'data-code-title': title } : {};
+            },
+          },
           theme: {
             default: null,
             parseHTML: (element) =>
@@ -300,6 +410,10 @@ export const CodeBlockHighlight = Extension.create({
         },
         props: {
           decorations: (state) => key.getState(state),
+          nodeViews: {
+            codeBlock: (initial, view, getPos) =>
+              codeBlockView(initial, view, getPos),
+          },
         },
       }),
     ];

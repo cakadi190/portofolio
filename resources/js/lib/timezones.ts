@@ -65,7 +65,11 @@ export function zoneRows(
   const zones = [...ZONES];
 
   if (device && !zones.some((zone) => zone.timeZone === device)) {
-    zones.unshift({ key: 'device', label: 'Zona waktu perangkat Anda', timeZone: device });
+    zones.unshift({
+      key: 'device',
+      label: 'Zona waktu perangkat Anda',
+      timeZone: device,
+    });
   }
 
   return zones.map((zone) => ({

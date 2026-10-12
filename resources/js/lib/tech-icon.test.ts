@@ -15,7 +15,15 @@ describe('techIcon', () => {
   });
 
   it('maps every technology used by the seeders', () => {
-    for (const name of ['Supabase', 'Vercel', 'NuxtJS', 'VueJS', 'HTML5', 'CSS3', 'jQuery']) {
+    for (const name of [
+      'Supabase',
+      'Vercel',
+      'NuxtJS',
+      'VueJS',
+      'HTML5',
+      'CSS3',
+      'jQuery',
+    ]) {
       expect(techIcon(name)).not.toBe('lucide:code');
     }
   });

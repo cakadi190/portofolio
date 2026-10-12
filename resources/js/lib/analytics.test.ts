@@ -175,7 +175,11 @@ describe('captureUtm', () => {
   afterEach(() => window.sessionStorage.clear());
 
   it('maps utm parameters to GA4 campaign parameters and remembers them', () => {
-    window.history.pushState({}, '', '/?utm_source=ig&utm_medium=bio&utm_campaign=launch');
+    window.history.pushState(
+      {},
+      '',
+      '/?utm_source=ig&utm_medium=bio&utm_campaign=launch',
+    );
 
     expect(captureUtm()).toEqual({
       campaign_source: 'ig',
@@ -208,7 +212,9 @@ describe('contextual events', () => {
   it('reports search terms from the query string', () => {
     navigate({ component: 'blog/index' }, '/blog?search=laravel');
 
-    expect(gtag).toHaveBeenCalledWith('event', 'search', { search_term: 'laravel' });
+    expect(gtag).toHaveBeenCalledWith('event', 'search', {
+      search_term: 'laravel',
+    });
   });
 
   it('reports view_item for show pages and page_error for error pages', () => {
@@ -231,7 +237,9 @@ describe('contextual events', () => {
     });
     navigate({ component: 'contact/index', url: '/contact' }, '/contact');
 
-    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', { form: 'contact' });
+    expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', {
+      form: 'contact',
+    });
   });
 
   it('reports share clicks to known networks', () => {

@@ -63,7 +63,11 @@ const TECH_ICONS: Record<string, string> = {
   expressjs: 'devicon:express',
 };
 
-const normalize = (name: string): string => name.trim().toLowerCase().replace(/[\s._+-]+/g, '');
+const normalize = (name: string): string =>
+  name
+    .trim()
+    .toLowerCase()
+    .replace(/[\s._+-]+/g, '');
 
 /** Best-effort technology name → devicon Iconify slug, since our schema stores plain names, not icon ids. */
 export function techIcon(name: string): string {

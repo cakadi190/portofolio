@@ -4,19 +4,21 @@ import { describe, expect, it } from 'vitest';
 import { extractPdfSignatures } from '@/lib/pdf-signatures';
 
 function fixture(name: string): Uint8Array {
-  return new Uint8Array(readFileSync(join(process.cwd(), 'resources/js/tests/fixtures', name)));
+  return new Uint8Array(
+    readFileSync(join(process.cwd(), 'resources/js/tests/fixtures', name)),
+  );
 }
 
 describe('extractPdfSignatures', () => {
   it('reads the signer, chain and metadata of a document signed under the Indonesian root CA', async () => {
-    const [signature] = await extractPdfSignatures(fixture('signed-komdigi.pdf'));
+    const [signature] = await extractPdfSignatures(
+      fixture('signed-komdigi.pdf'),
+    );
 
     expect(signature.signer.commonName).toBe('BUDI CONTOH');
-    expect(signature.chain.map((certificate) => certificate.commonName)).toEqual([
-      'BUDI CONTOH',
-      'Contoh CA Class 3',
-      'Root CA Indonesia DS G1',
-    ]);
+    expect(
+      signature.chain.map((certificate) => certificate.commonName),
+    ).toEqual(['BUDI CONTOH', 'Contoh CA Class 3', 'Root CA Indonesia DS G1']);
     expect(signature.komdigiRoot).toBe(true);
     expect(signature.rootCountry).toBe('ID');
     expect(signature.reason).toBe('Saya menyetujui dokumen ini');
@@ -27,7 +29,9 @@ describe('extractPdfSignatures', () => {
   });
 
   it('flags a foreign root CA as not Komdigi', async () => {
-    const [signature] = await extractPdfSignatures(fixture('signed-foreign.pdf'));
+    const [signature] = await extractPdfSignatures(
+      fixture('signed-foreign.pdf'),
+    );
 
     expect(signature.komdigiRoot).toBe(false);
     expect(signature.rootCountry).toBe('US');
@@ -45,7 +49,9 @@ describe('extractPdfSignatures', () => {
   });
 
   it('returns nothing for a PDF without signatures', async () => {
-    const bytes = new TextEncoder().encode('%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF\n');
+    const bytes = new TextEncoder().encode(
+      '%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF\n',
+    );
 
     expect(await extractPdfSignatures(bytes)).toEqual([]);
   });

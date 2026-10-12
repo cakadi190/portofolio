@@ -1,4 +1,5 @@
 import type { Action } from 'svelte/action';
+import { enhanceCodeCards } from '@/lib/code-card';
 import { highlightAll } from './index';
 
 /**
@@ -11,10 +12,12 @@ export const highlightCode: Action<HTMLElement, string | null | undefined> = (
   node,
 ) => {
   highlightAll(node);
+  enhanceCodeCards(node);
 
   return {
     update() {
       highlightAll(node);
+      enhanceCodeCards(node);
     },
   };
 };

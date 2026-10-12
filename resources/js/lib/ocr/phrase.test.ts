@@ -10,15 +10,27 @@ const word = (text: string, line: number, index: number): PageWord => ({
 
 describe('compact', () => {
   it('drops case, diacritics and punctuation', () => {
-    expect(compact('Co-Founder, CÓ!')).toBe('cofoundercó'.normalize('NFD').replace(/[̀-ͯ]/g, ''));
+    expect(compact('Co-Founder, CÓ!')).toBe(
+      'cofoundercó'.normalize('NFD').replace(/[̀-ͯ]/g, ''),
+    );
   });
 });
 
 describe('textRunsToWords', () => {
   it('splits runs into words and starts a new line when the baseline moves', () => {
     const words = textRunsToWords([
-      { str: 'halo dunia', transform: [1, 0, 0, 10, 0, 100], width: 100, height: 10 },
-      { str: 'baris dua', transform: [1, 0, 0, 10, 0, 80], width: 90, height: 10 },
+      {
+        str: 'halo dunia',
+        transform: [1, 0, 0, 10, 0, 100],
+        width: 100,
+        height: 10,
+      },
+      {
+        str: 'baris dua',
+        transform: [1, 0, 0, 10, 0, 80],
+        width: 90,
+        height: 10,
+      },
     ]);
 
     expect(words.map((w) => [w.text, w.line])).toEqual([
@@ -52,7 +64,9 @@ describe('findPhraseMatches', () => {
   });
 
   it('finds every occurrence', () => {
-    expect(findPhraseMatches([word('ab', 0, 0), word('ab', 0, 1)], 'ab')).toHaveLength(2);
+    expect(
+      findPhraseMatches([word('ab', 0, 0), word('ab', 0, 1)], 'ab'),
+    ).toHaveLength(2);
   });
 
   it('only tolerates misread characters when fuzzy is enabled', () => {

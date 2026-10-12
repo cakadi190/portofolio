@@ -238,7 +238,10 @@ function trackPageContext(page: VisitDetail['page']): void {
 }
 
 /** Successful POSTs become GA4 conversions: contact form, comments and ratings. */
-function trackSuccessfulPost(detail: VisitDetail | undefined, method: string | undefined): void {
+function trackSuccessfulPost(
+  detail: VisitDetail | undefined,
+  method: string | undefined,
+): void {
   if (method?.toLowerCase() !== 'post') {
     return;
   }
@@ -257,7 +260,10 @@ function trackSuccessfulPost(detail: VisitDetail | undefined, method: string | u
 /** Reports uncaught errors using GA4's recommended `exception` event. */
 function initExceptionTracking(): void {
   window.addEventListener('error', (event) => {
-    trackEvent('exception', { description: event.message?.slice(0, 150), fatal: false });
+    trackEvent('exception', {
+      description: event.message?.slice(0, 150),
+      fatal: false,
+    });
   });
 
   window.addEventListener('unhandledrejection', (event) => {

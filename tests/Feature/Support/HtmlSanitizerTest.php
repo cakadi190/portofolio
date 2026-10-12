@@ -70,3 +70,10 @@ test('the markup produced by the editor is preserved', function (string $html) {
 test('empty input yields an empty string', function () {
     expect(HtmlSanitizer::clean(null))->toBe('')->and(HtmlSanitizer::clean('  '))->toBe('');
 });
+
+test('code block title is kept but unsafe titles are dropped', function () {
+    expect(HtmlSanitizer::clean('<pre data-code-title="app/Models/User.php"><code>x</code></pre>'))
+        ->toContain('data-code-title="app/Models/User.php"')
+        ->and(HtmlSanitizer::clean('<pre data-code-title="a&quot;onclick=&quot;x"><code>x</code></pre>'))
+        ->not->toContain('data-code-title');
+});

@@ -40,7 +40,8 @@ export function textRunsToWords(runs: TextRun[]): PageWord[] {
     baseline = y;
 
     for (const match of run.str.matchAll(/\S+/g)) {
-      const left = run.transform[4] + run.width * (match.index / run.str.length);
+      const left =
+        run.transform[4] + run.width * (match.index / run.str.length);
       const width = run.width * (match[0].length / run.str.length);
 
       words.push({

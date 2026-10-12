@@ -36,7 +36,9 @@ describe('timezones', () => {
   it('flags a listed zone instead of duplicating it', () => {
     const rows = zoneRows('2026-10-11 19:30', null, 'Asia/Makassar');
 
-    expect(rows.filter((row) => row.isDevice).map((row) => row.key)).toEqual(['wita']);
+    expect(rows.filter((row) => row.isDevice).map((row) => row.key)).toEqual([
+      'wita',
+    ]);
     expect(rows).toHaveLength(5);
   });
 });

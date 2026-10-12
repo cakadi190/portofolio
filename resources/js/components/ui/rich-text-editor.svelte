@@ -50,6 +50,7 @@
     FigureImage,
     safeHref,
   } from '@/lib/editor-blocks';
+  import { normalizeCodeTitle } from '@/lib/code-card';
   import { highlightSource, languageNames } from '@/lib/highlight';
   import { uploadMedia } from '@/lib/media';
   import type { MediaItem } from '@/types/media';
@@ -263,7 +264,7 @@
     const rect = dom.getBoundingClientRect();
 
     codeBadge.visible = true;
-    codeBadge.top = rect.top - bounds.top + 6;
+    codeBadge.top = rect.top - bounds.top + 42;
     codeBadge.right = bounds.right - rect.right + 10;
   }
 
@@ -1300,6 +1301,18 @@
             {/each}
             <option value="plaintext">Teks biasa</option>
           </select>
+          <input
+            type="text"
+            class="form-control form-control-sm rte-field"
+            aria-label="Judul blok kode"
+            placeholder="Judul (mis. User.php)"
+            maxlength="60"
+            value={blockInfo.attrs.title ?? ''}
+            onchange={(event) =>
+              patchBlock({
+                title: normalizeCodeTitle(event.currentTarget.value),
+              })}
+          />
           <select
             class="form-select form-select-sm rte-select"
             aria-label="Tema kode"

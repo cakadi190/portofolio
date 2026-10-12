@@ -56,7 +56,8 @@ const DIGEST_ALGORITHMS: Record<string, string> = {
   '2.16.840.1.101.3.4.2.3': 'SHA-512',
 };
 
-const KOMDIGI_ROOT_PATTERN = /root ca indonesia|kementerian komunikasi (dan|&) (digital|informatika)|komdigi|kominfo/i;
+const KOMDIGI_ROOT_PATTERN =
+  /root ca indonesia|kementerian komunikasi (dan|&) (digital|informatika)|komdigi|kominfo/i;
 
 function readNode(bytes: Uint8Array, offset: number): Node {
   if (offset + 2 > bytes.length) {
@@ -93,7 +94,7 @@ function readNode(bytes: Uint8Array, offset: number): Node {
 function children(bytes: Uint8Array, node: Node): Node[] {
   const result: Node[] = [];
 
-  for (let offset = node.body; offset < node.end; ) {
+  for (let offset = node.body; offset < node.end;) {
     const child = readNode(bytes, offset);
     result.push(child);
     offset = child.end;
@@ -117,7 +118,11 @@ function oidOf(bytes: Uint8Array, node: Node): string {
 
   const first = parts.shift() ?? 0;
 
-  return [Math.min(Math.floor(first / 40), 2), first >= 80 ? first - 80 : first % 40, ...parts].join('.');
+  return [
+    Math.min(Math.floor(first / 40), 2),
+    first >= 80 ? first - 80 : first % 40,
+    ...parts,
+  ].join('.');
 }
 
 function textOf(bytes: Uint8Array, node: Node): string {
@@ -142,22 +147,43 @@ function timeOf(bytes: Uint8Array, node: Node): Date | null {
   }
 
   const [, year, month, day, hour, minute, second = '0'] = match;
-  const fullYear = node.tag === 0x17 ? (Number(year) >= 50 ? 1900 : 2000) + Number(year) : Number(year);
+  const fullYear =
+    node.tag === 0x17
+      ? (Number(year) >= 50 ? 1900 : 2000) + Number(year)
+      : Number(year);
 
-  return new Date(Date.UTC(fullYear, Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second)));
+  return new Date(
+    Date.UTC(
+      fullYear,
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second),
+    ),
+  );
 }
 
 function hex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join(
+    '',
+  );
 }
 
 function raw(bytes: Uint8Array, node: Node): Uint8Array {
   return bytes.subarray(node.start, node.end);
 }
 
-function parseName(bytes: Uint8Array, node: Node): { text: string; values: Record<string, string> } {
+function parseName(
+  bytes: Uint8Array,
+  node: Node,
+): { text: string; values: Record<string, string> } {
   const values: Record<string, string> = {};
-  const labels: Record<string, string> = { [OID_COMMON_NAME]: 'CN', [OID_COUNTRY]: 'C', [OID_ORGANIZATION]: 'O' };
+  const labels: Record<string, string> = {
+    [OID_COMMON_NAME]: 'CN',
+    [OID_COUNTRY]: 'C',
+    [OID_ORGANIZATION]: 'O',
+  };
   const parts: string[] = [];
 
   for (const set of children(bytes, node)) {
@@ -201,14 +227,20 @@ function parseCertificate(bytes: Uint8Array, node: Node): ParsedCertificate {
     issuerKey: hex(raw(bytes, issuer)),
     publicKey: raw(bytes, publicKeyInfo),
     publicKeyOid: oidOf(bytes, children(bytes, algorithm)[0]),
-    curveOid: children(bytes, algorithm)[1]?.tag === 0x06 ? oidOf(bytes, children(bytes, algorithm)[1]) : null,
+    curveOid:
+      children(bytes, algorithm)[1]?.tag === 0x06
+        ? oidOf(bytes, children(bytes, algorithm)[1])
+        : null,
     info: {
       subject: subjectName.text,
       issuer: issuerName.text,
       commonName: subjectName.values[OID_COMMON_NAME] ?? subjectName.text,
       organization: subjectName.values[OID_ORGANIZATION] ?? null,
       country: subjectName.values[OID_COUNTRY] ?? null,
-      serialNumber: hex(bytes.subarray(serial.body, serial.end)).replace(/^(00)+(?=.)/, ''),
+      serialNumber: hex(bytes.subarray(serial.body, serial.end)).replace(
+        /^(00)+(?=.)/,
+        '',
+      ),
       validFrom: timeOf(bytes, validity[0]),
       validTo: timeOf(bytes, validity[1]),
       selfSigned: hex(raw(bytes, subject)) === hex(raw(bytes, issuer)),
@@ -235,7 +267,13 @@ function decodePdfString(value: string, isHex: boolean): string {
       }
 
       const next = value[++index];
-      const escapes: Record<string, number> = { n: 10, r: 13, t: 9, b: 8, f: 12 };
+      const escapes: Record<string, number> = {
+        n: 10,
+        r: 13,
+        t: 9,
+        b: 8,
+        f: 12,
+      };
 
       if (next !== undefined && /[0-7]/.test(next)) {
         const octal = /^[0-7]{1,3}/.exec(value.slice(index))![0];
@@ -259,7 +297,9 @@ function decodePdfString(value: string, isHex: boolean): string {
 }
 
 function dictionaryString(dictionary: string, key: string): string | null {
-  const match = new RegExp(`/${key}\\s*(?:\\(((?:\\\\.|[^\\\\)])*)\\)|<([0-9A-Fa-f\\s]*)>)`).exec(dictionary);
+  const match = new RegExp(
+    `/${key}\\s*(?:\\(((?:\\\\.|[^\\\\)])*)\\)|<([0-9A-Fa-f\\s]*)>)`,
+  ).exec(dictionary);
 
   if (!match) {
     return null;
@@ -270,16 +310,45 @@ function dictionaryString(dictionary: string, key: string): string | null {
 
 /** Parses a PDF date string such as D:20260310063302+07'00' (the signing time recorded in the signature dictionary). */
 function pdfDate(value: string | null): Date | null {
-  const match = value ? /^D:(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?(?:([Zz+-])(\d{2})?'?(\d{2})?'?)?/.exec(value) : null;
+  const match = value
+    ? /^D:(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?(?:([Zz+-])(\d{2})?'?(\d{2})?'?)?/.exec(
+        value,
+      )
+    : null;
 
   if (!match) {
     return null;
   }
 
-  const [, year, month = '01', day = '01', hour = '00', minute = '00', second = '00', sign, offsetHours = '00', offsetMinutes = '00'] = match;
-  const offset = sign === '+' || sign === '-' ? (sign === '+' ? 1 : -1) * (Number(offsetHours) * 60 + Number(offsetMinutes)) : 0;
+  const [
+    ,
+    year,
+    month = '01',
+    day = '01',
+    hour = '00',
+    minute = '00',
+    second = '00',
+    sign,
+    offsetHours = '00',
+    offsetMinutes = '00',
+  ] = match;
+  const offset =
+    sign === '+' || sign === '-'
+      ? (sign === '+' ? 1 : -1) *
+        (Number(offsetHours) * 60 + Number(offsetMinutes))
+      : 0;
 
-  return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second)) - offset * 60000);
+  return new Date(
+    Date.UTC(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second),
+    ) -
+      offset * 60000,
+  );
 }
 
 async function checkIntegrity(
@@ -304,7 +373,9 @@ async function checkIntegrity(
     signed.set(bytes.subarray(offsetA, offsetA + lengthA), 0);
     signed.set(bytes.subarray(offsetB, offsetB + lengthB), lengthA);
 
-    const digest = new Uint8Array(await crypto.subtle.digest(algorithm, signed));
+    const digest = new Uint8Array(
+      await crypto.subtle.digest(algorithm, signed),
+    );
     const attribute = children(container, signedAttributes)
       .map((node) => children(container, node))
       .find(([oid]) => oidOf(container, oid) === OID_MESSAGE_DIGEST);
@@ -313,7 +384,9 @@ async function checkIntegrity(
       return 'unknown';
     }
 
-    const expected = container.subarray(...digestBounds(container, attribute[1]));
+    const expected = container.subarray(
+      ...digestBounds(container, attribute[1]),
+    );
 
     if (hex(digest) !== hex(expected)) {
       return 'modified';
@@ -331,12 +404,20 @@ async function checkIntegrity(
         ['verify'],
       );
 
-      return (await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, signature as BufferSource, attributes as BufferSource))
+      return (await crypto.subtle.verify(
+        'RSASSA-PKCS1-v1_5',
+        key,
+        signature as BufferSource,
+        attributes as BufferSource,
+      ))
         ? 'valid'
         : 'modified';
     }
 
-    const curve = signer.publicKeyOid === OID_EC_PUBLIC_KEY && signer.curveOid ? EC_CURVES[signer.curveOid] : undefined;
+    const curve =
+      signer.publicKeyOid === OID_EC_PUBLIC_KEY && signer.curveOid
+        ? EC_CURVES[signer.curveOid]
+        : undefined;
 
     if (!curve) {
       return 'unknown';
@@ -388,7 +469,10 @@ async function parseSignedData(
   bytes: Uint8Array,
   container: Uint8Array,
   ranges: number[],
-): Promise<Omit<PdfSignature, 'reason' | 'location' | 'coversWholeDocument'> | null> {
+): Promise<Omit<
+  PdfSignature,
+  'reason' | 'location' | 'coversWholeDocument'
+> | null> {
   const root = readNode(container, 0);
   const [, explicit] = children(container, root);
   const [signedData] = children(container, explicit);
@@ -407,15 +491,23 @@ async function parseSignedData(
   const sid = signerInfo[1];
   const digestOid = oidOf(container, children(container, signerInfo[2])[0]);
   const signedAttributes = signerInfo.find((node) => node.tag === 0xa0);
-  const signatureNode = signerInfo.filter((node) => node.tag === 0x04).pop() ?? signerInfo[signerInfo.length - 1];
+  const signatureNode =
+    signerInfo.filter((node) => node.tag === 0x04).pop() ??
+    signerInfo[signerInfo.length - 1];
   let signer: ParsedCertificate | undefined;
 
   if (sid.tag === 0x30) {
     const [issuer, serial] = children(container, sid);
     const issuerKey = hex(raw(container, issuer));
-    const serialKey = hex(container.subarray(serial.body, serial.end)).replace(/^(00)+(?=.)/, '');
+    const serialKey = hex(container.subarray(serial.body, serial.end)).replace(
+      /^(00)+(?=.)/,
+      '',
+    );
 
-    signer = certificates.find((entry) => entry.issuerKey === issuerKey && entry.info.serialNumber === serialKey);
+    signer = certificates.find(
+      (entry) =>
+        entry.issuerKey === issuerKey && entry.info.serialNumber === serialKey,
+    );
   }
 
   signer ??= certificates[0];
@@ -430,7 +522,10 @@ async function parseSignedData(
     const tail = chain[chain.length - 1];
     const issuer = tail.info.selfSigned
       ? undefined
-      : certificates.find((entry) => entry.subjectKey === tail.issuerKey && !chain.includes(entry));
+      : certificates.find(
+          (entry) =>
+            entry.subjectKey === tail.issuerKey && !chain.includes(entry),
+        );
 
     if (!issuer) {
       break;
@@ -450,7 +545,9 @@ async function parseSignedData(
   return {
     signer: signer.info,
     chain: infos,
-    signedAt: signingTime ? timeOf(container, children(container, signingTime[1])[0]) : null,
+    signedAt: signingTime
+      ? timeOf(container, children(container, signingTime[1])[0])
+      : null,
     integrity: await checkIntegrity(
       bytes,
       container,
@@ -460,8 +557,12 @@ async function parseSignedData(
       signer,
       container.subarray(signatureNode.body, signatureNode.end),
     ),
-    komdigiRoot: infos.some((entry) => KOMDIGI_ROOT_PATTERN.test(`${entry.subject} ${entry.issuer}`)),
-    rootCountry: top.selfSigned ? top.country : (/(?:^|, )C=([A-Z]{2})$/.exec(top.issuer)?.[1] ?? top.country),
+    komdigiRoot: infos.some((entry) =>
+      KOMDIGI_ROOT_PATTERN.test(`${entry.subject} ${entry.issuer}`),
+    ),
+    rootCountry: top.selfSigned
+      ? top.country
+      : (/(?:^|, )C=([A-Z]{2})$/.exec(top.issuer)?.[1] ?? top.country),
   };
 }
 
@@ -469,11 +570,15 @@ async function parseSignedData(
  * Lists the signatures found in a PDF, in document order. Unparseable signatures are skipped, and a PDF
  * without signatures yields an empty list.
  */
-export async function extractPdfSignatures(bytes: Uint8Array): Promise<PdfSignature[]> {
+export async function extractPdfSignatures(
+  bytes: Uint8Array,
+): Promise<PdfSignature[]> {
   const text = new TextDecoder('latin1').decode(bytes);
   const signatures: PdfSignature[] = [];
 
-  for (const match of text.matchAll(/\/ByteRange\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\]/g)) {
+  for (const match of text.matchAll(
+    /\/ByteRange\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\]/g,
+  )) {
     const ranges = match.slice(1, 5).map(Number);
     const [, lengthA, offsetB, lengthB] = ranges;
 
@@ -481,7 +586,9 @@ export async function extractPdfSignatures(bytes: Uint8Array): Promise<PdfSignat
       continue;
     }
 
-    const contents = /^\s*<([0-9A-Fa-f\s]+)>/.exec(text.slice(lengthA, offsetB));
+    const contents = /^\s*<([0-9A-Fa-f\s]+)>/.exec(
+      text.slice(lengthA, offsetB),
+    );
 
     if (!contents) {
       continue;
@@ -489,7 +596,9 @@ export async function extractPdfSignatures(bytes: Uint8Array): Promise<PdfSignat
 
     try {
       const digits = contents[1].replace(/\s+/g, '');
-      const container = Uint8Array.from((digits.match(/../g) ?? []).map((pair) => parseInt(pair, 16)));
+      const container = Uint8Array.from(
+        (digits.match(/../g) ?? []).map((pair) => parseInt(pair, 16)),
+      );
       const parsed = await parseSignedData(bytes, container, ranges);
 
       if (!parsed) {
@@ -499,7 +608,9 @@ export async function extractPdfSignatures(bytes: Uint8Array): Promise<PdfSignat
       const index = match.index ?? 0;
       const dictionary = text.slice(
         Math.max(text.lastIndexOf('obj', index), 0),
-        text.indexOf('endobj', index) === -1 ? index + 2000 : text.indexOf('endobj', index),
+        text.indexOf('endobj', index) === -1
+          ? index + 2000
+          : text.indexOf('endobj', index),
       );
 
       signatures.push({
