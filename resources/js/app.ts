@@ -2,6 +2,7 @@ import { createInertiaApp } from '@inertiajs/svelte';
 import AdminLayout from '@/layouts/admin-layout.svelte';
 import AppLayout from '@/layouts/app-layout.svelte';
 import AuthLayout from '@/layouts/auth-layout.svelte';
+import ResumeLayout from '@/layouts/resume-layout.svelte';
 import { initializeAnalytics } from '@/lib/analytics';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
@@ -15,6 +16,8 @@ void createInertiaApp({
     switch (true) {
       case name.startsWith('auth/'):
         return AuthLayout;
+      case name.startsWith('resume/'):
+        return ResumeLayout;
       case name.startsWith('admin/'):
       case name.startsWith('dashboard/'):
         return AdminLayout;

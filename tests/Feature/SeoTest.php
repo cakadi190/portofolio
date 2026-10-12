@@ -51,6 +51,7 @@ test('robots.txt points to the sitemap and hides the admin area', function () {
     $this->get(route('robots'))
         ->assertOk()
         ->assertSee('Disallow: /admin')
+        ->assertSee('Disallow: /resume')
         ->assertSee('Sitemap: '.route('sitemaps.index'), escape: false);
 });
 

@@ -80,8 +80,7 @@ describe('HeaderHome', () => {
       '/kontak',
     );
     const resume = screen.getByRole('link', { name: /Resume/ });
-    expect(resume.getAttribute('target')).toBe('_blank');
-    expect(resume.getAttribute('rel')).toContain('noopener');
+    expect(hrefOf(resume)).toBe('/resume');
     expect(document.querySelectorAll('.tech-stack')).toHaveLength(9);
     expect(screen.getByAltText('Cak Adi')).toBeTruthy();
   });

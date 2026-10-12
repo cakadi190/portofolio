@@ -150,6 +150,7 @@ class SitemapController extends Controller
             'Disallow: /forgot-password',
             'Disallow: /reset-password',
             'Disallow: /two-factor-challenge',
+            'Disallow: /resume',
             '',
             'Sitemap: '.route('sitemaps.index'),
         ];

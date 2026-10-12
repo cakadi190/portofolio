@@ -14,6 +14,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PortfolioReviewController;
+use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SpeakingController;
@@ -31,6 +32,8 @@ Route::name('sitemaps.')->controller(SitemapController::class)->group(function (
 });
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
+Route::get('resume', [ResumeController::class, 'show'])->name('resume.show');
+Route::get('resume.pdf', [ResumeController::class, 'pdf'])->name('resume.pdf');
 Route::get('career', [CareerController::class, 'index'])->name('career.index');
 Route::get('education', [EducationController::class, 'index'])->name('education.index');
 Route::get('awards', [AwardController::class, 'index'])->name('awards.index');

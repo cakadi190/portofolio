@@ -40,7 +40,7 @@
 
 **Situs publik** (Bahasa Indonesia, `id_ID`):
 
-- Beranda, Karier, Pendidikan, Penghargaan, Kontak, Layanan (+ detail), Blog (+ detail & komentar), Portofolio (+ detail & ulasan), Tentang (saya / situs / skill, memuat sertifikasi), Pembicara & Mentoring, Klarifikasi (+ detail), Tempat Ngopi.
+- Beranda, CV/Resume (`/resume`), Karier, Pendidikan, Penghargaan, Kontak, Layanan (+ detail), Blog (+ detail & komentar), Portofolio (+ detail & ulasan), Tentang (saya / situs / skill, memuat sertifikasi), Pembicara & Mentoring, Klarifikasi (+ detail), Tempat Ngopi.
 - SEO on-page, sitemap (index + sub-sitemap), `robots.txt`, redirect 301 dari URL Indonesia lama, halaman error kustom, Google Analytics 4.
 - Mode terang/gelap, lightbox gambar & PDF, tampilan responsif.
 

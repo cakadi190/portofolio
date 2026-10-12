@@ -73,15 +73,10 @@
             <span>Hubungi Saya</span>
           </Link>
 
-          <a
-            href="https://s.id/cvnyaCakAdi"
-            class="btn btn-outline-primary d-flex align-items-center gap-2"
-            target="_blank"
-            rel="noopener"
-          >
+          <Link href="/resume" class="btn btn-outline-primary d-flex align-items-center gap-2">
             <Icon icon="fa6-solid:file-pdf" />
             <span>Resume</span>
-          </a>
+          </Link>
         </div>
 
         <div class="d-flex pt-4 flex-column gap-2 reveal reveal-spring reveal-left">
