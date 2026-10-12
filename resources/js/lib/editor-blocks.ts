@@ -14,7 +14,13 @@ import { highlightSource } from '@/lib/highlight';
 export const ALIGNMENTS = ['left', 'center', 'right'] as const;
 export type BlockAlign = (typeof ALIGNMENTS)[number];
 
-export const CALLOUT_TYPES = ['info', 'success', 'warning', 'danger'] as const;
+export const CALLOUT_TYPES = [
+  'info',
+  'success',
+  'warning',
+  'danger',
+  'dark',
+] as const;
 export type CalloutType = (typeof CALLOUT_TYPES)[number];
 
 export const BUTTON_VARIANTS = ['solid', 'outline'] as const;
@@ -105,7 +111,7 @@ export const FigureImage = Image.extend({
   },
 });
 
-/** Highlighted note box (`info`, `success`, `warning`, `danger`) wrapping regular blocks. */
+/** Highlighted note box (`info`, `success`, `warning`, `danger`, `dark`) wrapping regular blocks. */
 export const Callout = Node.create({
   name: 'callout',
   group: 'block',

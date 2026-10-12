@@ -127,6 +127,7 @@
     success: 'Sukses',
     warning: 'Peringatan',
     danger: 'Bahaya',
+    dark: 'Gelap',
   };
 
   const imageWidths = [25, 50, 75, 100];
