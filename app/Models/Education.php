@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Enums\AcademicScoreType;
 use App\Enums\EducationLevel;
 use Illuminate\Database\Eloquent\Model;
 
 class Education extends Model
 {
+    use RecordsActivity;
+
     /** Eloquent's pluralizer treats "education" as uncountable and would otherwise guess "education". */
     protected $table = 'educations';
 

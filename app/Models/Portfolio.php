@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
 use Database\Factories\PortfolioFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Portfolio extends Model
 {
     /** @use HasFactory<PortfolioFactory> */
-    use AutoGenerateSlug, HasFactory;
+    use AutoGenerateSlug, HasFactory, RecordsActivity;
 
     protected $fillable = [
         'name', 'slug', 'image', 'short_desc', 'description', 'demo_link', 'source_code', 'is_private',

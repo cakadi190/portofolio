@@ -6,6 +6,7 @@ use App\Enums\SystemSettingGroup;
 use App\Models\SystemSetting;
 use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSystemSettingRequest extends FormRequest
 {
@@ -26,6 +27,9 @@ class UpdateSystemSettingRequest extends FormRequest
 
         foreach (self::fields() as $field) {
             $rules[$field['key']] = ['nullable', 'string', 'max:255', ...match ($field['type']) {
+                'toggle' => ['in:0,1'],
+                'integer' => ['integer', 'min:'.($field['min'] ?? 1), 'max:'.($field['max'] ?? 3650)],
+                'select' => [Rule::in(array_column($field['options'] ?? [], 'value'))],
                 'email' => ['email'],
                 'url' => ['url:http,https'],
                 'tel' => ['regex:/^[0-9+\-\s()]+$/'],
@@ -36,7 +40,44 @@ class UpdateSystemSettingRequest extends FormRequest
             }];
         }
 
+        foreach (SystemSettingGroup::secretKeys() as $key) {
+            $rules[$key.'__clear'] = ['nullable', 'boolean'];
+        }
+
         return $rules;
+    }
+
+    /**
+     * Settings to persist. A blank secret keeps the stored value; the
+     * `{key}__clear` flag removes it, so an unchanged masked form can never
+     * overwrite a credential.
+     *
+     * @return array<string, string|null>
+     */
+    public function settingValues(): array
+    {
+        $validated = $this->validated();
+        $values = [];
+
+        foreach ($validated as $key => $value) {
+            if (str_ends_with($key, '__clear')) {
+                continue;
+            }
+
+            if (in_array($key, SystemSettingGroup::secretKeys(), true)) {
+                if (! empty($validated[$key.'__clear'])) {
+                    $values[$key] = null;
+                } elseif ($value !== null) {
+                    $values[$key] = $value;
+                }
+
+                continue;
+            }
+
+            $values[$key] = $value;
+        }
+
+        return $values;
     }
 
     /**
@@ -60,7 +101,7 @@ class UpdateSystemSettingRequest extends FormRequest
     }
 
     /**
-     * @return list<array{key: string, label: string, type: string, placeholder: string, note?: string}>
+     * @return list<array<string, mixed>>
      */
     private static function fields(): array
     {

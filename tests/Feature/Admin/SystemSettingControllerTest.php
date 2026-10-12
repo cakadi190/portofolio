@@ -19,7 +19,7 @@ test('the settings page lists groups and decrypted values', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('admin/system-settings/index')
-            ->has('groups', 5)
+            ->has('groups', 7)
             ->where('values.contact_email', 'halo@example.com'));
 });
 

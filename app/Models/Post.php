@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Post extends Model
 {
     /** @use HasFactory<PostFactory> */
-    use AutoGenerateSlug, HasFactory;
+    use AutoGenerateSlug, HasFactory, RecordsActivity;
 
     protected string $slugSource = 'title';
 

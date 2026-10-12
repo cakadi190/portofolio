@@ -2,12 +2,22 @@
 
 namespace App\Providers;
 
+use App\Listeners\LogAuthenticationActivity;
 use App\Models\User;
 use App\Services\SeoService;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\PasswordResetLinkSent;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -16,6 +26,12 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\DriverInterface;
+use Laravel\Fortify\Events\PasswordUpdatedViaController;
+use Laravel\Fortify\Events\RecoveryCodesGenerated;
+use Laravel\Fortify\Events\TwoFactorAuthenticationConfirmed;
+use Laravel\Fortify\Events\TwoFactorAuthenticationDisabled;
+use Laravel\Fortify\Events\TwoFactorAuthenticationEnabled;
+use Laravel\Fortify\Events\TwoFactorAuthenticationFailed;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +54,30 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureAuthorization();
+        $this->configureAuditListeners();
+    }
+
+    /**
+     * Route authentication and security events to the audit trail.
+     */
+    protected function configureAuditListeners(): void
+    {
+        Event::listen([
+            Login::class,
+            Logout::class,
+            Failed::class,
+            Lockout::class,
+            Registered::class,
+            PasswordReset::class,
+            PasswordResetLinkSent::class,
+            Verified::class,
+            PasswordUpdatedViaController::class,
+            TwoFactorAuthenticationEnabled::class,
+            TwoFactorAuthenticationConfirmed::class,
+            TwoFactorAuthenticationDisabled::class,
+            TwoFactorAuthenticationFailed::class,
+            RecoveryCodesGenerated::class,
+        ], LogAuthenticationActivity::class);
     }
 
     /**

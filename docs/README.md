@@ -13,6 +13,7 @@ Dokumen ini adalah **PRD (Product Requirements Document)** hasil reverse enginee
 | [05-media-library.md](05-media-library.md)                     | Spesifikasi Pustaka Media (file management terpusat)  | Menyentuh upload/gambar/WYSIWYG |
 | [06-gaps-and-roadmap.md](06-gaps-and-roadmap.md)               | Celah yang diketahui, utang teknis, ide lanjutan      | Merencanakan pekerjaan          |
 | [07-nonfunctional-and-acceptance.md](07-nonfunctional-and-acceptance.md) | User story, NFR, Definition of Done, risiko, glosarium | Menilai kualitas/kelengkapan    |
+| [09-activity-and-analytics.md](09-activity-and-analytics.md) | Log aktivitas, analitik pengunjung, IPInfo, retensi | Menyentuh audit/pengunjung/pengaturan |
 | [08-clarification-and-disclaimer.md](08-clarification-and-disclaimer.md) | Kebijakan, vonis, siklus hidup Klarifikasi; penyangkalan | Menyentuh Klarifikasi/disclaimer |
 
 ## Aturan kerja penting (ringkasan)

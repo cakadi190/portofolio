@@ -9,8 +9,11 @@
   import ShieldCheck from '@lucide/svelte/icons/shield-check';
   import Search from '@lucide/svelte/icons/search';
   import Share2 from '@lucide/svelte/icons/share-2';
+  import ChartColumn from '@lucide/svelte/icons/chart-column';
+  import Globe from '@lucide/svelte/icons/globe';
+  import { router } from '@inertiajs/svelte';
   import { Form } from '@inertiajs/svelte';
-  import { update } from '@/wayfinder/routes/admin/system-settings';
+  import { update, test } from '@/wayfinder/routes/admin/system-settings';
 
   type SettingField = {
     key: string;
@@ -18,6 +21,9 @@
     type: string;
     placeholder: string;
     note?: string;
+    min?: number;
+    max?: number;
+    options?: { value: string; label: string }[];
   };
 
   type SettingGroup = {
@@ -30,12 +36,16 @@
   let {
     groups,
     values,
+    secretsSet = [],
+    status = {},
   }: {
     groups: SettingGroup[];
     values: Record<string, string | null>;
+    secretsSet?: string[];
+    status?: Record<string, { enabled: boolean; configured: boolean }>;
   } = $props();
 
-  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search, security: ShieldCheck } as const;
+  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search, security: ShieldCheck, visitor_analytics: ChartColumn, ipinfo: Globe } as const;
 
   function initialTab(): string {
     const tab =
@@ -117,11 +127,38 @@
                             accept="image"
                             invalid={!!errors[field.key]}
                           />
+                        {:else if field.type === 'toggle'}
+                          <input type="hidden" name={field.key} value="0" />
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id={`setting-${field.key}`} name={field.key} value="1" checked={values[field.key] === '1'} />
+                          </div>
+                        {:else if field.type === 'select'}
+                          <select class="form-select" id={`setting-${field.key}`} name={field.key}>
+                            <option value="">Bawaan</option>
+                            {#each field.options ?? [] as option (option.value)}
+                              <option value={option.value} selected={values[field.key] === option.value}>{option.label}</option>
+                            {/each}
+                          </select>
+                        {:else if field.type === 'secret'}
+                          <Field.Input
+                            id={`setting-${field.key}`}
+                            name={field.key}
+                            type="password"
+                            autocomplete="new-password"
+                            placeholder={secretsSet.includes(field.key) ? '•••••••• (tersimpan, kosongkan untuk mempertahankan)' : field.placeholder}
+                            invalid={!!errors[field.key]}
+                          />
+                          {#if secretsSet.includes(field.key)}
+                            <div class="form-check mt-1">
+                              <input class="form-check-input" type="checkbox" id={`clear-${field.key}`} name={`${field.key}__clear`} value="1" />
+                              <label class="form-check-label small" for={`clear-${field.key}`}>Hapus nilai tersimpan</label>
+                            </div>
+                          {/if}
                         {:else}
                           <Field.Input
                             id={`setting-${field.key}`}
                             name={field.key}
-                            type={field.type === 'gtag' || field.type === 'digits' ? 'text' : field.type === 'secret' ? 'password' : field.type}
+                            type={field.type === 'gtag' || field.type === 'digits' ? 'text' : field.type === 'integer' ? 'number' : field.type}
                             placeholder={field.placeholder}
                             value={values[field.key]}
                             invalid={!!errors[field.key]}
@@ -134,6 +171,16 @@
                       </Field.Group>
                     {/each}
                   </div>
+                  {#if status[group.value]}
+                    <div class="mt-3 d-flex align-items-center gap-2">
+                      <span class="badge {status[group.value].enabled && status[group.value].configured ? 'text-bg-success' : 'text-bg-secondary'}">
+                        {status[group.value].configured ? (status[group.value].enabled ? 'Aktif' : 'Nonaktif') : 'Belum dikonfigurasi'}
+                      </span>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" disabled={!status[group.value].configured} onclick={() => router.post(test().url, {}, { preserveScroll: true })}>
+                        Uji koneksi (simpan dulu)
+                      </button>
+                    </div>
+                  {/if}
                 </div>
               {/each}
             </div>

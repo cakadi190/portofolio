@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Career extends Model
 {
+    use RecordsActivity;
+
     protected $fillable = ['position', 'company', 'location', 'start_date', 'end_date'];
 
     /**

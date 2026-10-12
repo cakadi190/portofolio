@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use Database\Factories\PortfolioRatingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PortfolioRating extends Model
 {
     /** @use HasFactory<PortfolioRatingFactory> */
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     protected $fillable = [
         'portfolio_id', 'reviewer_name', 'reviewer_email', 'reviewer_company', 'title', 'rating', 'comment', 'is_approved',

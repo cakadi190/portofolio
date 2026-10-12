@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Enums\BlogCommentStatus;
 use Database\Factories\BlogCommentFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,7 +30,7 @@ use Illuminate\Support\Carbon;
 class BlogComment extends Model
 {
     /** @use HasFactory<BlogCommentFactory> */
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     protected $fillable = ['body'];
 

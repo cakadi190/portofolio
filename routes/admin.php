@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AwardController;
 use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\CalendarEventController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TechnologyController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VisitorAnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -50,6 +52,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('clarifications', ClarificationController::class)->parameters(['clarifications' => 'clarification'])->only([...$only, 'create', 'edit']);
         Route::resource('coffee-places', CoffeePlaceController::class)->parameters(['coffee-places' => 'coffeePlace'])->only($only);
         Route::get('system-settings', [SystemSettingController::class, 'index'])->name('system-settings.index');
+        Route::post('system-settings/test', [SystemSettingController::class, 'testConnection'])->middleware('throttle:6,1')->name('system-settings.test');
+        Route::get('activity-logs/export', [ActivityLogController::class, 'export'])->middleware('throttle:6,1')->name('activity-logs.export');
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('activity-logs/{activity}', [ActivityLogController::class, 'show'])->whereNumber('activity')->name('activity-logs.show');
+        Route::get('visitor-analytics', [VisitorAnalyticsController::class, 'index'])->name('visitor-analytics.index');
         Route::put('system-settings', [SystemSettingController::class, 'update'])->name('system-settings.update');
         Route::resource('contact-messages', ContactMessageController::class)->parameters(['contact-messages' => 'contactMessage'])->only(['index', 'update', 'destroy']);
         Route::resource('educations', EducationController::class)->parameters(['educations' => 'education'])->only($only);

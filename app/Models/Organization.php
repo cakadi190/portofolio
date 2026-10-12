@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Organization extends Model
 {
+    use RecordsActivity;
+
     protected $fillable = ['name', 'description', 'start_date', 'end_date'];
 
     /**

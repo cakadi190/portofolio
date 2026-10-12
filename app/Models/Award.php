@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Enums\AwardType;
 use Database\Factories\AwardFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 class Award extends Model
 {
     /** @use HasFactory<AwardFactory> */
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     protected $fillable = ['event_name', 'title', 'type', 'year', 'rank', 'awarded_at'];
 

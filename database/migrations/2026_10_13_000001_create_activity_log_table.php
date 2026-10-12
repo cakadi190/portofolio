@@ -1,0 +1,46 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('activity_log', function (Blueprint $table) {
+            $table->id();
+            $table->string('log_name')->nullable();
+            $table->text('description');
+            $table->nullableMorphs('subject', 'subject');
+            $table->string('event')->nullable();
+            $table->nullableMorphs('causer', 'causer');
+            $table->json('attribute_changes')->nullable();
+            $table->json('properties')->nullable();
+
+            // Request context, promoted to columns so the admin viewer can filter on them.
+            $table->string('actor_type', 20)->default('system');
+            $table->string('outcome', 10)->default('success');
+            $table->uuid('request_id')->nullable();
+            $table->string('http_method', 10)->nullable();
+            $table->string('route_name', 120)->nullable();
+            $table->unsignedSmallInteger('http_status')->nullable();
+            $table->string('ip_address', 45)->nullable();
+            $table->string('user_agent', 500)->nullable();
+
+            $table->timestamps();
+
+            $table->index(['log_name', 'created_at']);
+            $table->index(['event', 'created_at']);
+            $table->index('created_at');
+            $table->index('ip_address');
+            $table->index('request_id');
+            $table->index(['outcome', 'created_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('activity_log');
+    }
+};

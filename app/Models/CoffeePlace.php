@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Enums\CafePriceTier;
 use App\Enums\WifiSpeed;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CoffeePlace extends Model
 {
+    use RecordsActivity;
+
     protected $fillable = [
         'name', 'address', 'description', 'latitude', 'longitude', 'map_url', 'image',
         'wifi_provider', 'wifi_speed', 'price_tier', 'park_fee', 'opens_at', 'closes_at',

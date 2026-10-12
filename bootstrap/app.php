@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\MinifyHtmlResponse;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\TrackVisitor;
 use App\Http\Middleware\VerifyTurnstile;
 use App\Services\ErrorPageService;
 use Illuminate\Foundation\Application;
@@ -22,12 +24,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['sidebar_state']);
 
+        $middleware->web(prepend: [AssignRequestId::class]);
+
         $middleware->web(append: [
             SecurityHeaders::class,
             VerifyTurnstile::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             MinifyHtmlResponse::class,
+            TrackVisitor::class,
         ]);
 
         // Nginx terminates TLS and proxies to the app container over plain

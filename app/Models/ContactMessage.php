@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Enums\ContactReason;
 use Database\Factories\ContactMessageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class ContactMessage extends Model
 {
     /** @use HasFactory<ContactMessageFactory> */
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     protected $fillable = ['name', 'email', 'reason', 'message', 'read_at'];
 

@@ -6,7 +6,9 @@ use App\Enums\SystemSettingGroup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSystemSettingRequest;
 use App\Models\SystemSetting;
+use App\Services\AuditLogger;
 use App\Services\SystemSettingService;
+use App\Services\Visitors\IpInfoClient;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -14,7 +16,11 @@ use Inertia\Response;
 
 class SystemSettingController extends Controller
 {
-    public function __construct(private SystemSettingService $systemSettings) {}
+    public function __construct(
+        private SystemSettingService $systemSettings,
+        private IpInfoClient $ipInfo,
+        private AuditLogger $audit,
+    ) {}
 
     public function index(): Response
     {
@@ -28,25 +34,68 @@ class SystemSettingController extends Controller
                 ],
                 SystemSettingGroup::cases(),
             ),
-            'values' => SystemSetting::query()->pluck('value', 'key')->all(),
+            'values' => SystemSetting::query()
+                ->whereNotIn('key', SystemSettingGroup::secretKeys())
+                ->pluck('value', 'key')
+                ->all(),
+            'secretsSet' => SystemSetting::query()
+                ->whereIn('key', SystemSettingGroup::secretKeys())
+                ->whereNotNull('value')
+                ->pluck('key')
+                ->all(),
+            'status' => [
+                'ipinfo' => $this->ipInfo->status(),
+            ],
         ]);
     }
 
     public function update(UpdateSystemSettingRequest $request): RedirectResponse
     {
-        DB::transaction(function () use ($request): void {
-            foreach ($request->validated() as $key => $value) {
-                SystemSetting::query()->updateOrCreate(
-                    ['key' => $key],
-                    ['value' => $value, 'is_active' => true],
-                );
+        $changed = DB::transaction(function () use ($request): array {
+            $changed = [];
+
+            foreach ($request->settingValues() as $key => $value) {
+                $setting = SystemSetting::query()->firstOrNew(['key' => $key]);
+
+                if ($setting->exists && $setting->value === $value && $setting->is_active) {
+                    continue;
+                }
+
+                $setting->fill(['value' => $value, 'is_active' => true])->save();
+                $changed[] = $key;
             }
+
+            return $changed;
         });
+
+        if ($changed !== []) {
+            $secrets = SystemSettingGroup::secretKeys();
+
+            $this->audit->record(
+                logName: 'settings',
+                event: 'settings_updated',
+                description: 'Pengaturan sistem diperbarui',
+                properties: [
+                    'keys' => $changed,
+                    'masked_fields_changed' => array_values(array_intersect($changed, $secrets)),
+                ],
+                causer: $request->user(),
+            );
+        }
 
         $this->systemSettings->forget();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengaturan berhasil disimpan.']);
 
         return to_route('admin.system-settings.index');
+    }
+
+    public function testConnection(): RedirectResponse
+    {
+        $result = $this->ipInfo->test();
+
+        Inertia::flash('toast', ['type' => $result['ok'] ? 'success' : 'danger', 'message' => $result['message']]);
+
+        return back();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Enums\SpeakingFormat;
 use App\Enums\SpeakingRole;
 use Database\Factories\SpeakingEngagementFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 class SpeakingEngagement extends Model
 {
     /** @use HasFactory<SpeakingEngagementFactory> */
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     protected $fillable = [
         'title', 'organizer', 'role', 'format', 'location', 'starts_at', 'ends_at',

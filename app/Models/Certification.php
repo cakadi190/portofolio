@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use Database\Factories\CertificationFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class Certification extends Model
 {
     /** @use HasFactory<CertificationFactory> */
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     protected $fillable = [
         'title', 'issuer', 'issued_at', 'expires_at', 'credential_id', 'credential_url', 'file',

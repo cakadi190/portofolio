@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Services\ImageService;
 use Database\Factories\MediaFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Media extends Model
 {
     /** @use HasFactory<MediaFactory> */
-    use HasFactory;
+    use HasFactory, RecordsActivity;
 
     protected $fillable = [
         'user_id', 'disk', 'path', 'name', 'alt', 'mime_type', 'size', 'width', 'height',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use App\Enums\ClarificationVerdict;
 use App\Traits\Models\AutoGenerateSlug;
 use Database\Factories\ClarificationFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 class Clarification extends Model
 {
     /** @use HasFactory<ClarificationFactory> */
-    use AutoGenerateSlug, HasFactory;
+    use AutoGenerateSlug, HasFactory, RecordsActivity;
 
     protected string $slugSource = 'title';
 

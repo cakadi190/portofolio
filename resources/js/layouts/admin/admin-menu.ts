@@ -1,3 +1,5 @@
+import Activity from '@lucide/svelte/icons/activity';
+import ChartColumn from '@lucide/svelte/icons/chart-column';
 import Award from '@lucide/svelte/icons/award';
 import BadgeCheck from '@lucide/svelte/icons/badge-check';
 import Coffee from '@lucide/svelte/icons/coffee';
@@ -130,6 +132,18 @@ export function adminMenu(
     },
 
     { type: 'header', label: 'Sistem' },
+    {
+      label: 'Analitik Pengunjung',
+      icon: ChartColumn,
+      href: '/admin/visitor-analytics',
+      active: isActive('/admin/visitor-analytics'),
+    },
+    {
+      label: 'Log Aktivitas',
+      icon: Activity,
+      href: '/admin/activity-logs',
+      active: isActive('/admin/activity-logs'),
+    },
     {
       label: 'Pengaturan Sistem',
       icon: Settings,

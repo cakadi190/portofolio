@@ -32,6 +32,20 @@ class SystemSettingService
         return filled($value) ? $value : $default;
     }
 
+    public function bool(string $key, bool $default = false): bool
+    {
+        $value = $this->get($key);
+
+        return $value === null ? $default : filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function int(string $key, int $default): int
+    {
+        $value = $this->get($key);
+
+        return is_numeric($value) ? (int) $value : $default;
+    }
+
     /**
      * Discard the in-memory snapshot and the persistent cache after the
      * settings change.

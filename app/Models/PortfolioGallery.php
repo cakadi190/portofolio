@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Concerns\RecordsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PortfolioGallery extends Model
 {
+    use RecordsActivity;
+
     protected $fillable = ['portfolio_id', 'image_url', 'description'];
 
     /**

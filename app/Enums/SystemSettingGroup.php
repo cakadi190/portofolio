@@ -14,6 +14,8 @@ enum SystemSettingGroup: string
     case Mail = 'mail';
     case Seo = 'seo';
     case Security = 'security';
+    case VisitorAnalytics = 'visitor_analytics';
+    case IpInfo = 'ipinfo';
 
     public function label(): string
     {
@@ -23,6 +25,8 @@ enum SystemSettingGroup: string
             self::Mail => 'Surel & Notifikasi',
             self::Seo => 'SEO & Analitik',
             self::Security => 'Keamanan',
+            self::VisitorAnalytics => 'Analitik Pengunjung',
+            self::IpInfo => 'Integrasi IPInfo',
         };
     }
 
@@ -34,14 +38,36 @@ enum SystemSettingGroup: string
             self::Mail => 'Alamat tujuan pesan dari formulir kontak.',
             self::Seo => 'Metadata mesin pencari, verifikasi kepemilikan situs, dan Google Analytics. Kosongkan untuk memakai nilai bawaan.',
             self::Security => 'Cloudflare Turnstile untuk melindungi formulir login, daftar, atur ulang kata sandi, kontak, dan ulasan. Aktif hanya jika Site Key dan Secret Key terisi.',
+            self::VisitorAnalytics => 'Penghitung pengunjung berbasis data tersimpan: tayangan halaman, pengunjung unik (cookie pihak pertama), kunjungan, dan bot. Lihat docs/09-activity-and-analytics.md untuk definisi metrik.',
+            self::IpInfo => 'Pengayaan lokasi/jaringan IP pengunjung lewat IPInfo. Token disimpan terenkripsi dan tidak pernah ditampilkan kembali; kosongkan kolom token untuk mempertahankannya.',
         };
     }
 
     /**
-     * The fixed set of setting keys managed under this group. Input `type` is
-     * one of text, email, tel, url, image (media library path), secret (masked text), gtag (Google tag ID) or digits and drives both validation and the form.
+     * Setting keys whose values are write-only: never sent back to the browser.
      *
-     * @return list<array{key: string, label: string, type: string, placeholder: string, note?: string}>
+     * @return list<string>
+     */
+    public static function secretKeys(): array
+    {
+        $keys = [];
+
+        foreach (self::cases() as $group) {
+            foreach ($group->fields() as $field) {
+                if ($field['type'] === 'secret') {
+                    $keys[] = $field['key'];
+                }
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
+     * The fixed set of setting keys managed under this group. Input `type` is
+     * one of text, email, tel, url, image (media library path), secret (masked text), gtag (Google tag ID), digits, toggle (0/1), integer or select (with `options`) and drives both validation and the form.
+     *
+     * @return list<array{key: string, label: string, type: string, placeholder: string, note?: string, min?: int, max?: int, options?: list<array{value: string, label: string}>}>
      */
     public function fields(): array
     {
@@ -84,6 +110,20 @@ enum SystemSettingGroup: string
             self::Security => [
                 ['key' => 'turnstile_site_key', 'label' => 'Turnstile Site Key', 'type' => 'text', 'placeholder' => '0x4AAAAAAA...', 'note' => 'Kunci publik dari dashboard Cloudflare Turnstile.'],
                 ['key' => 'turnstile_secret_key', 'label' => 'Turnstile Secret Key', 'type' => 'secret', 'placeholder' => '0x4AAAAAAA...', 'note' => 'Kunci rahasia untuk verifikasi di server. Kosongkan salah satu kunci untuk menonaktifkan Turnstile.'],
+            ],
+            self::VisitorAnalytics => [
+                ['key' => 'visitor_tracking_enabled', 'label' => 'Lacak pengunjung', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: aktif.'],
+                ['key' => 'visitor_bot_policy', 'label' => 'Kebijakan bot', 'type' => 'select', 'placeholder' => '', 'options' => [['value' => 'separate', 'label' => 'Catat terpisah dari manusia'], ['value' => 'exclude', 'label' => 'Abaikan sepenuhnya']], 'note' => 'Bawaan: catat terpisah.'],
+                ['key' => 'visitor_store_ip', 'label' => 'Simpan alamat IP', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: aktif. Jika nonaktif, IP tidak disimpan dan pengayaan IPInfo tidak dijalankan.'],
+                ['key' => 'visitor_excluded_paths', 'label' => 'Path yang dikecualikan', 'type' => 'text', 'placeholder' => 'admin,settings,up', 'note' => 'Awalan path dipisahkan koma, ditambahkan ke bawaan (admin, settings, up, storage, build).'],
+                ['key' => 'visitor_session_minutes', 'label' => 'Durasi sesi kunjungan (menit)', 'type' => 'integer', 'placeholder' => '30', 'min' => 5, 'max' => 1440, 'note' => 'Bawaan: 30. Tayangan setelah jeda lebih lama dihitung sebagai kunjungan baru.'],
+                ['key' => 'visitor_retention_days', 'label' => 'Retensi data pengunjung (hari)', 'type' => 'integer', 'placeholder' => '180', 'min' => 7, 'max' => 3650, 'note' => 'Bawaan: 180. Baris pengunjung/kunjungan/IP lebih lama dihapus; statistik harian agregat (tanpa data pribadi) dipertahankan.'],
+            ],
+            self::IpInfo => [
+                ['key' => 'ipinfo_enabled', 'label' => 'Aktifkan IPInfo', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: nonaktif.'],
+                ['key' => 'ipinfo_plan', 'label' => 'Plan IPInfo', 'type' => 'select', 'placeholder' => '', 'options' => [['value' => 'lite', 'label' => 'Lite (negara & ASN)'], ['value' => 'core', 'label' => 'Core / Plus (kota, koordinat, zona waktu)']], 'note' => 'Menentukan endpoint resmi yang dipanggil. Bawaan: Lite.'],
+                ['key' => 'ipinfo_token', 'label' => 'Token API IPInfo', 'type' => 'secret', 'placeholder' => 'Token dari dashboard ipinfo.io', 'note' => 'Plan Lite/Core/Plus; bidang yang tidak tersedia pada plan Anda dibiarkan kosong.'],
+                ['key' => 'ipinfo_cache_ttl_days', 'label' => 'Masa simpan cache IP (hari)', 'type' => 'integer', 'placeholder' => '30', 'min' => 1, 'max' => 90, 'note' => 'Bawaan: 30. Patuhi ketentuan retensi plan IPInfo Anda.'],
             ],
         };
     }

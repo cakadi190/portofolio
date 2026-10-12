@@ -8,6 +8,7 @@ use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,8 @@ use Inertia\Response;
 class UserController extends Controller
 {
     use PaginatesTables;
+
+    public function __construct(private readonly AuditLogger $audit) {}
 
     public function index(Request $request): Response
     {
@@ -62,7 +65,12 @@ class UserController extends Controller
             unset($data['password']);
         }
 
+        $previousRole = $user->account_type;
         $user->update($data);
+
+        if ($previousRole !== $user->account_type) {
+            $this->audit->record('users', 'role_changed', 'Peran pengguna diubah', $user, ['from' => $previousRole->value, 'to' => $user->account_type->value], causer: $request->user());
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengguna berhasil diperbarui.']);
 
