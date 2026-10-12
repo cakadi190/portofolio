@@ -45,6 +45,9 @@ test('admin, assets, non-GET and error responses are not counted', function () {
 });
 
 test('repeat views in a session share one visit, a long gap starts another', function () {
+    // Pinned mid-day so the 31 minute gap never crosses midnight and adds a second visitor day.
+    $this->travelTo(now()->startOfDay()->addHours(12));
+
     track(TOKEN_A, '/a');
     Cache::flush();
     track(TOKEN_A, '/b');
