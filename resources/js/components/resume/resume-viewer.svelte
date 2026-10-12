@@ -17,7 +17,7 @@
   import { findPhraseMatches, textRunsToWords } from '@/lib/ocr/phrase';
   import type { PageWord } from '@/lib/ocr/phrase';
   import type { OcrLine, Rect } from '@/lib/ocr';
-  import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
+  import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 
   type Tab = 'outline' | 'search' | 'pages';
   type OutlineItem = { title: string; page: number; depth: number };
@@ -74,6 +74,7 @@
   let scroller = $state<HTMLElement | null>(null);
 
   let doc: PDFDocumentProxy | null = null;
+  let loadingTask: PDFDocumentLoadingTask | null = null;
   const rendered = new Map<number, number>();
   const canvases = new Map<number, HTMLCanvasElement>();
   const thumbs = new Map<number, HTMLCanvasElement>();
@@ -644,7 +645,8 @@
         throw new Error(`HTTP ${response.status}`);
       }
 
-      doc = await pdfjs.getDocument({ data: new Uint8Array(await response.arrayBuffer()) }).promise;
+      loadingTask = pdfjs.getDocument({ data: new Uint8Array(await response.arrayBuffer()) });
+      doc = await loadingTask.promise;
       const loaded: PDFPageProxy[] = [];
 
       for (let number = 1; number <= doc.numPages; number++) {
@@ -676,7 +678,7 @@
       cancelled = true;
       observer?.disconnect();
       terminateOcrWorker();
-      void doc?.destroy();
+      void loadingTask?.destroy();
     };
   });
 </script>
@@ -730,11 +732,11 @@
 
   <div class="rv-body">
     <aside class="rv-side" class:open={sidebar} aria-hidden={!sidebar}>
-      <nav class="rv-tabs" role="tablist">
+      <div class="rv-tabs" role="tablist">
         {#each [['outline', 'Struktur'], ['search', 'Pencarian'], ['pages', 'Halaman']] as [key, label] (key)}
           <button type="button" role="tab" aria-selected={tab === key} class:active={tab === key} onclick={() => (tab = key as Tab)}>{label}</button>
         {/each}
-      </nav>
+      </div>
 
       <div class="rv-panel" use:perfectScrollbar>
         {#if tab === 'outline'}
