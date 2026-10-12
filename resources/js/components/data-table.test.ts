@@ -153,14 +153,17 @@ describe('DataTable', () => {
   it('changes page size', async () => {
     mount();
 
-    await fireEvent.change(screen.getByLabelText('Tampilkan'), {
-      target: { value: '25' },
-    });
+    const picker = screen.getByLabelText('Tampilkan');
+    await fireEvent.focus(picker);
+    await fireEvent.keyDown(picker, { key: 'ArrowDown' });
+    await fireEvent.click(await screen.findByText('25'));
 
-    expect(get).toHaveBeenCalledWith(
-      '/admin/things',
-      { per_page: 25 },
-      expect.any(Object),
+    await vi.waitFor(() =>
+      expect(get).toHaveBeenCalledWith(
+        '/admin/things',
+        { per_page: 25 },
+        expect.any(Object),
+      ),
     );
   });
 

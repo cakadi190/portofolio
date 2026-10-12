@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Select from '@/components/ui/select.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import EmptyState from '@/components/empty-state.svelte';
@@ -103,35 +104,49 @@
       <input class="form-control" type="search" placeholder="Cari deskripsi, event, atau ID request" bind:value={form.search} aria-label="Cari" />
     </div>
     <div class="col-md-2">
-      <select class="form-select" bind:value={form.log_name} aria-label="Kategori">
-        <option value="">Semua kategori</option>
-        {#each options.log_names as name (name)}<option value={name}>{name}</option>{/each}
-      </select>
+      <Select
+        ariaLabel="Kategori"
+        placeholder="Semua kategori"
+        items={options.log_names.map((name) => ({ value: name, label: name }))}
+        value={form.log_name || null}
+        onchange={(next) => (form.log_name = next === null ? '' : String(next))}
+      />
     </div>
     <div class="col-md-2">
-      <select class="form-select" bind:value={form.event} aria-label="Event">
-        <option value="">Semua event</option>
-        {#each options.events as name (name)}<option value={name}>{name}</option>{/each}
-      </select>
+      <Select
+        ariaLabel="Event"
+        placeholder="Semua event"
+        items={options.events.map((name) => ({ value: name, label: name }))}
+        value={form.event || null}
+        onchange={(next) => (form.event = next === null ? '' : String(next))}
+      />
     </div>
     <div class="col-md-2">
-      <select class="form-select" bind:value={form.outcome} aria-label="Hasil">
-        <option value="">Semua hasil</option>
-        <option value="success">Berhasil</option>
-        <option value="failure">Gagal</option>
-      </select>
+      <Select
+        ariaLabel="Hasil"
+        placeholder="Semua hasil"
+        items={[{ value: 'success', label: 'Berhasil' }, { value: 'failure', label: 'Gagal' }]}
+        value={form.outcome || null}
+        onchange={(next) => (form.outcome = next === null ? '' : String(next))}
+      />
     </div>
     <div class="col-md-2">
-      <select class="form-select" bind:value={form.causer_id} aria-label="Pengguna">
-        <option value="">Semua pengguna</option>
-        {#each options.users as user (user.id)}<option value={user.id}>{user.name}</option>{/each}
-      </select>
+      <Select
+        ariaLabel="Pengguna"
+        placeholder="Semua pengguna"
+        items={options.users.map((user) => ({ value: user.id, label: user.name }))}
+        value={form.causer_id || null}
+        onchange={(next) => (form.causer_id = next === null ? '' : String(next))}
+      />
     </div>
     <div class="col-md-3">
-      <select class="form-select" bind:value={form.subject_type} aria-label="Tipe objek">
-        <option value="">Semua objek</option>
-        {#each options.subject_types as type (type)}<option value={type}>{type.split('\\').pop()}</option>{/each}
-      </select>
+      <Select
+        ariaLabel="Tipe objek"
+        placeholder="Semua objek"
+        items={options.subject_types.map((type) => ({ value: type, label: type.split('\\').pop() ?? type }))}
+        value={form.subject_type || null}
+        onchange={(next) => (form.subject_type = next === null ? '' : String(next))}
+      />
     </div>
     <div class="col-md-2">
       <input class="form-control" type="number" min="1" placeholder="ID objek" bind:value={form.subject_id} aria-label="ID objek" />

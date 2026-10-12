@@ -49,10 +49,10 @@ class AppServiceProvider extends ServiceProvider
         // its snapshot out of the scoped one.
         $this->app->booting(function (): void {
             // Eloquent is normally wired by DatabaseServiceProvider::boot(), which has not run yet.
-            Model::setConnectionResolver($this->app['db']);
-            Model::setEventDispatcher($this->app['events']);
+            Model::setConnectionResolver($this->app->make('db'));
+            Model::setEventDispatcher($this->app->make('events'));
 
-            (new SentryConfigurator(new SentrySettings(new SystemSettingService), $this->app['config']))->apply();
+            (new SentryConfigurator(new SentrySettings(new SystemSettingService), $this->app->make('config')))->apply();
         });
 
         $this->app->scoped(SeoService::class);

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Select from '@/components/ui/select.svelte';
   import { Link, router } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -43,12 +44,10 @@
   const statusLabel = (value: string): string =>
     statuses.find((status) => status.value === value)?.label ?? value;
 
-  function filterStatus(event: Event): void {
-    const status = (event.currentTarget as HTMLSelectElement).value;
-
+  function filterStatus(status: string | number | null): void {
     router.get(
       index().url,
-      { ...filters, status: status || undefined, page: undefined },
+      { ...filters, status: status ? String(status) : undefined, page: undefined },
       { preserveState: true, replace: true },
     );
   }
@@ -67,17 +66,14 @@
 />
 
 <div class="mb-3">
-  <select
-    class="form-select w-auto"
-    aria-label="Filter status"
-    value={filters.status ?? ''}
+  <Select
+    inline
+    ariaLabel="Filter status"
+    placeholder="Semua status"
+    items={statuses}
+    value={filters.status || null}
     onchange={filterStatus}
-  >
-    <option value="">Semua status</option>
-    {#each statuses as status (status.value)}
-      <option value={status.value}>{status.label}</option>
-    {/each}
-  </select>
+  />
 </div>
 
 <DataTable

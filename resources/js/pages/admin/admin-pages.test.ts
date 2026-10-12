@@ -193,7 +193,12 @@ describe('admin settings pages', () => {
 
 describe('admin forms', () => {
   it('PostForm renders the create heading for a new post', () => {
-    render(PostForm, { post: null, tags: idOptions, categories: idOptions, authors: idOptions });
+    render(PostForm, {
+      post: null,
+      tags: idOptions,
+      categories: idOptions,
+      authors: idOptions,
+    });
 
     expect(document.title).toContain('Tulis Artikel Baru');
     expect(document.querySelector('input[name="title"]')).not.toBeNull();
@@ -204,13 +209,19 @@ describe('admin forms', () => {
 
     expect(document.title).toContain('Tulis Klarifikasi Baru');
     expect(document.querySelector('textarea[name="claim"]')).not.toBeNull();
-    expect(document.querySelector('input[name="sources[0][title]"]')).toBeNull();
+    expect(
+      document.querySelector('input[name="sources[0][title]"]'),
+    ).toBeNull();
 
     await fireEvent.click(screen.getAllByRole('button', { name: /Tambah/ })[0]);
 
-    expect(document.querySelector('input[name="sources[0][url]"]')).not.toBeNull();
+    expect(
+      document.querySelector('input[name="sources[0][url]"]'),
+    ).not.toBeNull();
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Hapus sumber 1' }));
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Hapus sumber 1' }),
+    );
 
     expect(document.querySelector('input[name="sources[0][url]"]')).toBeNull();
   });
@@ -238,10 +249,18 @@ describe('admin forms', () => {
 
     expect(document.title).toContain('Ubah Klarifikasi');
     expect(
-      (document.querySelector('input[name="sources[0][url]"]') as HTMLInputElement).value,
+      (
+        document.querySelector(
+          'input[name="sources[0][url]"]',
+        ) as HTMLInputElement
+      ).value,
     ).toBe('https://example.com');
     expect(
-      (document.querySelector('textarea[name="updates[0][note]"]') as HTMLTextAreaElement).value,
+      (
+        document.querySelector(
+          'textarea[name="updates[0][note]"]',
+        ) as HTMLTextAreaElement
+      ).value,
     ).toBe('Koreksi');
   });
 

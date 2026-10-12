@@ -52,6 +52,7 @@
   } from '@/lib/editor-blocks';
   import { normalizeCodeTitle } from '@/lib/code-card';
   import { highlightSource, languageNames } from '@/lib/highlight';
+  import Select from '@/components/ui/select.svelte';
   import { uploadMedia } from '@/lib/media';
   import type { MediaItem } from '@/types/media';
 
@@ -131,6 +132,26 @@
   };
 
   const imageWidths = [25, 50, 75, 100];
+  const headingItems = [
+    { value: '0', label: 'Paragraf' },
+    { value: '1', label: 'Judul 1' },
+    { value: '2', label: 'Judul 2' },
+    { value: '3', label: 'Judul 3' },
+  ];
+  const widthItems = imageWidths.map((width) => ({ value: String(width), label: `${width}%` }));
+  const buttonVariantItems = [
+    { value: 'solid', label: 'Solid' },
+    { value: 'outline', label: 'Garis tepi' },
+  ];
+  const languageItems = [
+    ...languageNames().map((name) => ({ value: name, label: name })),
+    { value: 'plaintext', label: 'Teks biasa' },
+  ];
+  const themeItems = CODE_THEMES.filter((theme) => theme.value !== '').map((theme) => ({
+    value: theme.value,
+    label: `Tema: ${theme.label}`,
+  }));
+  const defaultThemeLabel = `Tema: ${CODE_THEMES.find((theme) => theme.value === '')?.label ?? 'Otomatis'}`;
 
   const blockItems: BlockItem[] = [
     {
@@ -944,11 +965,19 @@
     >
       {#if mode === 'visual' && editor}
         {#if !minimal}
-          <select
-            class="form-select form-select-sm rte-select rte-adv"
-            aria-label="Gaya paragraf"
-            onchange={(event) => {
-              const level = Number(event.currentTarget.value);
+          <Select
+            inline
+            required
+            searchable={false}
+            size="sm"
+            class="rte-select rte-adv"
+            ariaLabel="Gaya paragraf"
+            items={headingItems}
+            value={String(
+              [1, 2, 3].find((level) => active('heading', { level })) ?? 0,
+            )}
+            onchange={(next) => {
+              const level = Number(next);
               if (level === 0) editor?.chain().focus().setParagraph().run();
               else
                 editor
@@ -957,15 +986,7 @@
                   .toggleHeading({ level: level as 1 | 2 | 3 })
                   .run();
             }}
-            value={String(
-              [1, 2, 3].find((level) => active('heading', { level })) ?? 0,
-            )}
-          >
-            <option value="0">Paragraf</option>
-            <option value="1">Judul 1</option>
-            <option value="2">Judul 2</option>
-            <option value="3">Judul 3</option>
-          </select>
+          />
 
           <span class="rte-sep rte-adv"></span>
         {/if}
@@ -1214,18 +1235,17 @@
                 })}><option.icon size={16} /></button
             >
           {/each}
-          <select
-            class="form-select form-select-sm rte-select"
-            aria-label="Lebar gambar"
-            value={String(blockInfo.attrs.width ?? '')}
-            onchange={(event) =>
-              patchBlock({ width: Number(event.currentTarget.value) || null })}
-          >
-            <option value="">Lebar otomatis</option>
-            {#each imageWidths as width (width)}
-              <option value={String(width)}>{width}%</option>
-            {/each}
-          </select>
+          <Select
+            inline
+            searchable={false}
+            size="sm"
+            class="rte-select"
+            ariaLabel="Lebar gambar"
+            placeholder="Lebar otomatis"
+            items={widthItems}
+            value={blockInfo.attrs.width ? String(blockInfo.attrs.width) : null}
+            onchange={(next) => patchBlock({ width: Number(next) || null })}
+          />
           <input
             class="form-control form-control-sm rte-field"
             placeholder="Teks alternatif"
@@ -1267,16 +1287,17 @@
               patchBlock({ href });
             }}
           />
-          <select
-            class="form-select form-select-sm rte-select"
-            aria-label="Gaya tombol"
+          <Select
+            inline
+            required
+            searchable={false}
+            size="sm"
+            class="rte-select"
+            ariaLabel="Gaya tombol"
+            items={buttonVariantItems}
             value={blockInfo.attrs.variant}
-            onchange={(event) =>
-              patchBlock({ variant: event.currentTarget.value })}
-          >
-            <option value="solid">Solid</option>
-            <option value="outline">Garis tepi</option>
-          </select>
+            onchange={(next) => patchBlock({ variant: next })}
+          />
           {#each [{ align: 'left', label: 'Rata kiri', icon: AlignLeft }, { align: 'center', label: 'Rata tengah', icon: AlignCenter }, { align: 'right', label: 'Rata kanan', icon: AlignRight }] as option (option.align)}
             <button
               type="button"
@@ -1289,19 +1310,16 @@
           {/each}
         {:else if blockInfo.kind === 'codeBlock'}
           <span class="rte-bar-title">Kode</span>
-          <select
-            class="form-select form-select-sm rte-select"
-            aria-label="Bahasa pemrograman"
-            value={blockInfo.attrs.language ?? ''}
-            onchange={(event) =>
-              patchBlock({ language: event.currentTarget.value || null })}
-          >
-            <option value="">Otomatis</option>
-            {#each languageNames() as language (language)}
-              <option value={language}>{language}</option>
-            {/each}
-            <option value="plaintext">Teks biasa</option>
-          </select>
+          <Select
+            inline
+            size="sm"
+            class="rte-select"
+            ariaLabel="Bahasa pemrograman"
+            placeholder="Otomatis"
+            items={languageItems}
+            value={blockInfo.attrs.language || null}
+            onchange={(next) => patchBlock({ language: next || null })}
+          />
           <input
             type="text"
             class="form-control form-control-sm rte-field"
@@ -1314,17 +1332,16 @@
                 title: normalizeCodeTitle(event.currentTarget.value),
               })}
           />
-          <select
-            class="form-select form-select-sm rte-select"
-            aria-label="Tema kode"
-            value={blockInfo.attrs.theme ?? ''}
-            onchange={(event) =>
-              patchBlock({ theme: event.currentTarget.value || null })}
-          >
-            {#each CODE_THEMES as theme (theme.value)}
-              <option value={theme.value}>Tema: {theme.label}</option>
-            {/each}
-          </select>
+          <Select
+            inline
+            size="sm"
+            class="rte-select"
+            ariaLabel="Tema kode"
+            placeholder={defaultThemeLabel}
+            items={themeItems}
+            value={blockInfo.attrs.theme || null}
+            onchange={(next) => patchBlock({ theme: next || null })}
+          />
           <div class="rte-code-preview wysiwyg-content-wrapper">
             <span class="rte-code-preview-label">Pratinjau</span>
             <pre data-code-theme={blockInfo.attrs.theme ?? undefined}><code
@@ -1374,33 +1391,27 @@
       class="rte-code-badge"
       style="top: {codeBadge.top}px; right: {codeBadge.right}px"
     >
-      <select
-        class="form-select form-select-sm"
-        aria-label="Ubah bahasa blok kode"
-        title="Bahasa blok kode"
-        value={blockInfo?.attrs.language ?? ''}
-        onchange={(event) => setCodeLanguage(event.currentTarget.value)}
-      >
-        <option value="">Otomatis</option>
-        {#each languageNames() as language (language)}
-          <option value={language}>{language}</option>
-        {/each}
-        <option value="plaintext">Teks biasa</option>
-      </select>
-      <select
-        class="form-select form-select-sm"
-        aria-label="Ubah tema blok kode"
-        title="Tema blok kode"
-        value={blockInfo?.attrs.theme ?? ''}
-        onchange={(event) => {
-          patchBlock({ theme: event.currentTarget.value || null });
+      <Select
+        inline
+        size="sm"
+        ariaLabel="Ubah bahasa blok kode"
+        placeholder="Otomatis"
+        items={languageItems}
+        value={blockInfo?.attrs.language || null}
+        onchange={(next) => setCodeLanguage(next ? String(next) : '')}
+      />
+      <Select
+        inline
+        size="sm"
+        ariaLabel="Ubah tema blok kode"
+        placeholder={defaultThemeLabel}
+        items={themeItems}
+        value={blockInfo?.attrs.theme || null}
+        onchange={(next) => {
+          patchBlock({ theme: next || null });
           editor?.commands.focus();
         }}
-      >
-        {#each CODE_THEMES as theme (theme.value)}
-          <option value={theme.value}>Tema: {theme.label}</option>
-        {/each}
-      </select>
+      />
     </div>
   {/if}
 
@@ -1552,10 +1563,8 @@
     display: flex;
     gap: 0.25rem;
   }
-  .rte-code-badge select {
-    width: auto;
-    min-width: 7.5rem;
-    padding-block: 0.125rem;
+  .rte-code-badge :global(.neo-select) {
+    min-width: 8.5rem;
     font-size: 0.75rem;
   }
   .rte-code-preview {
@@ -1742,6 +1751,7 @@
   }
   .rte-select {
     width: auto;
+    min-width: 8.5rem;
   }
   .rte-sep {
     width: 1px;

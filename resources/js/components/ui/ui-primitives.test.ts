@@ -225,6 +225,35 @@ describe('Select', () => {
     expect(document.querySelector<HTMLInputElement>('input[name="kind"]')?.value ?? '').toBe('');
   });
 
+  it('reports a picked option through onchange', async () => {
+    const onchange = vi.fn();
+    render(Select, { items, ariaLabel: 'Jenis', onchange });
+
+    const input = screen.getByLabelText('Jenis');
+    await fireEvent.focus(input);
+    await fireEvent.keyDown(input, { key: 'ArrowDown' });
+    await fireEvent.keyDown(input, { key: 'Enter' });
+
+    await vi.waitFor(() => expect(onchange).toHaveBeenCalledWith('a'));
+  });
+
+  it('reports null through onchange when cleared', async () => {
+    const onchange = vi.fn();
+    const { container } = render(Select, { items, value: 'a', onchange });
+
+    await fireEvent.click(container.querySelector('.clear-select')!);
+
+    await vi.waitFor(() => expect(onchange).toHaveBeenCalledWith(null));
+  });
+
+  it('is not clearable and exposes the size and inline modifiers', () => {
+    const { container } = render(Select, { items, value: 'a', required: true, size: 'sm', inline: true });
+
+    expect(container.querySelector('.clear-select')).toBeNull();
+    expect(container.querySelector('.neo-select')?.classList).toContain('is-sm');
+    expect(container.querySelector('.neo-select')?.classList).toContain('is-inline');
+  });
+
   it('marks invalid state', () => {
     const { container } = render(Select, { name: 'kind', items, invalid: true });
 

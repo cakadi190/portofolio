@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Select from '@/components/ui/select.svelte';
   import Copy from '@lucide/svelte/icons/copy';
   import File from '@lucide/svelte/icons/file';
   import FileArchive from '@lucide/svelte/icons/file-archive';
@@ -233,16 +234,22 @@
     bind:value={search}
     oninput={applyFilters}
   />
-  <select
-    class="form-select w-auto"
-    aria-label="Filter jenis media"
-    bind:value={type}
-    onchange={applyFilters}
-  >
-    <option value="all">Semua jenis</option>
-    <option value="image">Gambar</option>
-    <option value="document">Dokumen</option>
-  </select>
+  <Select
+    inline
+    required
+    searchable={false}
+    ariaLabel="Filter jenis media"
+    items={[
+      { value: 'all', label: 'Semua jenis' },
+      { value: 'image', label: 'Gambar' },
+      { value: 'document', label: 'Dokumen' },
+    ]}
+    value={type}
+    onchange={(next) => {
+      type = (next as typeof type | null) ?? 'all';
+      applyFilters();
+    }}
+  />
   <div class="btn-group" role="group" aria-label="Tampilan">
     <button
       type="button"

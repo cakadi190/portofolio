@@ -1,55 +1,87 @@
 <script lang="ts">
   import SvelteSelect from 'svelte-select';
 
-  type Option = { value: string | number; label: string };
+  type Value = string | number;
+  type Option = { value: Value; label: string };
 
   /**
-   * Bootstrap-themed searchable select built on svelte-select. Renders a
-   * hidden `<input {name}>` so Inertia's `<Form>` collects the value from
-   * native `FormData` like any other field.
+   * Bootstrap-themed searchable select built on svelte-select (v6).
+   *
+   * - Inside an Inertia `<Form>`: pass `name`; a hidden `<input {name}>` is
+   *   rendered so native `FormData` collects the value.
+   * - Outside a form: `bind:value` and/or `onchange` (called with the new
+   *   value, or `null` when cleared). Both selecting an item and clearing go
+   *   through `onchange`, unlike svelte-select which splits them in two.
    *
    * With `required` (and no initial value) the first option is preselected,
-   * matching a native `<select>`; otherwise an empty value is allowed.
+   * matching a native `<select>`; otherwise the value may be cleared and the
+   * `placeholder` doubles as the "all / default" label.
    */
   let {
     id,
     name,
     items,
-    value = null,
+    value = $bindable(null),
     required = false,
     invalid = false,
     searchable = true,
     placeholder = 'Pilih…',
+    ariaLabel,
+    size = 'md',
+    inline = false,
+    disabled = false,
+    class: className = '',
+    onchange,
   }: {
     id?: string;
-    name: string;
+    name?: string;
     items: Option[];
-    value?: string | number | null;
+    value?: Value | null;
     required?: boolean;
     invalid?: boolean;
     searchable?: boolean;
     placeholder?: string;
+    ariaLabel?: string;
+    size?: 'sm' | 'md';
+    inline?: boolean;
+    disabled?: boolean;
+    class?: string;
+    onchange?: (value: Value | null) => void;
   } = $props();
 
-  let selected = $state<string | number | null>(null);
+  let selected = $state<Value | null>(null);
 
   $effect(() => {
     selected = value ?? (required ? (items[0]?.value ?? null) : null);
   });
+
+  function commit(next: Value | null | undefined): void {
+    value = next ?? null;
+    onchange?.(value);
+  }
 </script>
 
-<div class="neo-select" class:is-invalid={invalid}>
+<div
+  class="neo-select {className}"
+  class:is-invalid={invalid}
+  class:is-sm={size === 'sm'}
+  class:is-inline={inline}
+>
   <SvelteSelect
     {id}
     {name}
     {items}
     {searchable}
     {placeholder}
+    {disabled}
     bind:value={selected}
     valueMode="id"
     clearable={!required}
     hasError={invalid}
+    inputAttributes={ariaLabel ? { 'aria-label': ariaLabel } : {}}
     floatingConfig={{ strategy: 'fixed' }}
+    onchange={(next) => commit(next as Value | null)}
+    onclear={() => commit(null)}
   />
 </div>
 
@@ -80,5 +112,16 @@
     --icons-color: var(--neo-secondary-color);
     --clear-select-color: var(--neo-secondary-color);
     width: 100%;
+  }
+
+  .neo-select.is-sm {
+    --height: calc(1.5em + 0.5rem + var(--neo-border-width, 1px) * 2);
+    --font-size: 0.875rem;
+    --padding: 0 0.5rem;
+  }
+
+  .neo-select.is-inline {
+    width: auto;
+    min-width: 11rem;
   }
 </style>

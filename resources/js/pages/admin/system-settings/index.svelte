@@ -4,6 +4,7 @@
   import SettingsLayout from '@/components/admin/settings-layout.svelte';
   import MediaField from '@/components/media/media-field.svelte';
   import { Field } from '@/components/ui/field';
+  import Select from '@/components/ui/select.svelte';
   import AtSign from '@lucide/svelte/icons/at-sign';
   import Mail from '@lucide/svelte/icons/mail';
   import ShieldCheck from '@lucide/svelte/icons/shield-check';
@@ -139,11 +140,15 @@
                             <label class="form-check-label fw-semibold" for={`setting-${field.key}`}>{field.label}</label>
                           </div>
                         {:else if field.type === 'select'}
-                          <select class="form-select" id={`setting-${field.key}`} name={field.key}>
-                            {#each field.options ?? [] as option, index (option.value)}
-                              <option value={option.value} selected={values[field.key] ? values[field.key] === option.value : index === 0}>{option.label}{index === 0 ? ' (bawaan)' : ''}</option>
-                            {/each}
-                          </select>
+<Select
+                            id={`setting-${field.key}`}
+                            name={field.key}
+                            required
+                            searchable={false}
+                            items={(field.options ?? []).map((option, index) => ({ value: option.value, label: `${option.label}${index === 0 ? ' (bawaan)' : ''}` }))}
+                            value={values[field.key] || null}
+                            invalid={!!errors[field.key]}
+                          />
                         {:else if field.type === 'secret'}
                           <Field.Input
                             id={`setting-${field.key}`}

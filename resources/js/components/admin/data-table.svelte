@@ -1,4 +1,5 @@
 <script lang="ts" generics="T extends { id: number }">
+  import Select from '@/components/ui/select.svelte';
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
   import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
@@ -124,17 +125,16 @@
 >
   <div class="d-flex align-items-center gap-2 small text-muted">
     <label for="table-per-page">Tampilkan</label>
-    <select
+    <Select
+      inline
+      required
+      size="sm"
+      searchable={false}
       id="table-per-page"
-      class="form-select form-select-sm w-auto"
+      items={perPageOptions.map((option) => ({ value: option, label: String(option) }))}
       value={filters.per_page}
-      onchange={(event) =>
-        visit({ per_page: Number(event.currentTarget.value) })}
-    >
-      {#each perPageOptions as option (option)}
-        <option value={option}>{option}</option>
-      {/each}
-    </select>
+      onchange={(next) => visit({ per_page: Number(next) })}
+    />
     <span>data</span>
   </div>
 

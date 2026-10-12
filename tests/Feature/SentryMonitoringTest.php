@@ -32,7 +32,7 @@ test('settings are copied into runtime config without default pii', function () 
         'sentry_traces_sample_percent' => '25', 'sentry_enable_logs' => '1', 'sentry_environment' => 'staging',
     ]);
 
-    (new SentryConfigurator(app(SentrySettings::class), app('config')))->apply();
+    (new SentryConfigurator(app(SentrySettings::class), config()))->apply();
 
     expect(config('sentry.dsn'))->toBe('https://k@o1.ingest.sentry.io/1')
         ->and(config('sentry.traces_sample_rate'))->toBe(0.25)
