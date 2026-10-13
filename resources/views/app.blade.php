@@ -82,7 +82,10 @@
         <x-analytics />
         <x-sentry />
 
-        @vite(['resources/css/app.scss', 'resources/js/app.ts'])
+        {{-- The resume page's own chunk CSS is otherwise only injected by JS after boot; link it in <head> so the viewer is styled on first paint. --}}
+        @vite(request()->routeIs('resume.show', 'resume.profile')
+            ? ['resources/css/app.scss', 'resources/js/app.ts', 'resources/js/pages/resume/index.svelte']
+            : ['resources/css/app.scss', 'resources/js/app.ts'])
         <x-seo />
         <x-inertia::head />
     </head>
