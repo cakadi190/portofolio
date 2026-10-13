@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\VerifyTurnstile;
 use App\Models\BlogComment;
+use App\Models\GuestbookEntry;
 use App\Models\Post;
 use App\Models\SystemSetting;
 use App\Models\User;
@@ -114,10 +115,27 @@ test('blog comments need a valid token', function () {
     expect(BlogComment::count())->toBe(1);
 });
 
+test('guestbook messages from guests need a valid token', function () {
+    enableTurnstile();
+    $guest = ['guest_name' => 'Tamu', 'guest_email' => 'tamu@example.com', 'body' => '<p>Halo</p>'];
+
+    Http::fake([TurnstileService::VERIFY_URL => Http::sequence()
+        ->push(['success' => false])
+        ->push(['success' => true])]);
+    $this->post(route('guestbook.store'), [...$guest, TurnstileService::RESPONSE_FIELD => 'bad'])
+        ->assertSessionHasErrors(TurnstileService::RESPONSE_FIELD);
+    expect(GuestbookEntry::count())->toBe(0);
+
+    $this->post(route('guestbook.store'), [...$guest, TurnstileService::RESPONSE_FIELD => 'good'])
+        ->assertSessionDoesntHaveErrors();
+    expect(GuestbookEntry::count())->toBe(1);
+});
+
 test('every public POST route is challenged', function () {
     // Passkey login is a WebAuthn signature and the two-factor challenge only
-    // follows a Turnstile-checked login, so neither is a human-facing form.
-    $exempt = ['passkey.login', 'two-factor.login.store'];
+    // follows a Turnstile-checked login, so neither is a human-facing form. The PDF trust lookup is called by
+    // the viewer on its own (throttled, read-only), not submitted by a person.
+    $exempt = ['passkey.login', 'two-factor.login.store', 'pdf-trust'];
 
     $public = collect(Route::getRoutes()->getRoutes())
         ->filter(fn ($route) => in_array('POST', $route->methods(), true) && $route->getName())

@@ -1,8 +1,5 @@
 <script lang="ts">
-  import { Form } from '@inertiajs/svelte';
-  import Turnstile from '@/components/turnstile.svelte';
-  import { Field } from '@/components/ui/field';
-  import { store } from '@/wayfinder/routes/guestbook';
+  import GuestbookForm from './guestbook-form.svelte';
   import GuestbookItem from './guestbook-item.svelte';
   import type { GuestbookNode } from './types';
 
@@ -12,13 +9,11 @@
   let {
     entry,
     depth = 0,
-    canWrite,
     replyingTo,
     onReply,
   }: {
     entry: GuestbookNode;
     depth?: number;
-    canWrite: boolean;
     replyingTo: number | null;
     onReply: (id: number | null) => void;
   } = $props();
@@ -42,55 +37,30 @@
         <small class="opacity-75">{postedAt}</small>
       </div>
 
-      <p class="mb-3" style="white-space: pre-line; overflow-wrap: anywhere;">
-        {entry.body}
-      </p>
+      <!-- The server whitelists this markup (HtmlSanitizer::richText) on write and again on read. -->
+      <div class="guestbook-body mb-3" style="overflow-wrap: anywhere;">
+        {@html entry.body}
+      </div>
 
-      {#if canWrite}
-        <button
+      <button
           type="button"
           class="btn btn-sm btn-outline-secondary"
           aria-expanded={replyingTo === entry.id}
           onclick={() => onReply(replyingTo === entry.id ? null : entry.id)}
         >
           {replyingTo === entry.id ? 'Batal' : 'Balas'}
-        </button>
-      {/if}
+      </button>
 
       {#if replyingTo === entry.id}
-        <Form
-          {...store.form()}
-          class="d-flex flex-column gap-3 mt-3"
-          resetOnSuccess
-          onSuccess={() => onReply(null)}
-        >
-          {#snippet children({ errors, processing })}
-            <input type="hidden" name="parent_id" value={entry.id} />
-            <Field.Group>
-              <Field.Label for={`reply-${entry.id}`}
-                >Balas {entry.author}</Field.Label
-              >
-              <textarea
-                id={`reply-${entry.id}`}
-                name="body"
-                rows="3"
-                maxlength="1000"
-                required
-                class="form-control"
-                class:is-invalid={!!errors.body || !!errors.parent_id}
-              ></textarea>
-              <Field.Feedback message={errors.body ?? errors.parent_id} />
-            </Field.Group>
-            <Turnstile error={errors['cf-turnstile-response']} />
-            <div>
-              <button
-                type="submit"
-                class="btn btn-primary btn-sm"
-                disabled={processing}>Kirim Balasan</button
-              >
-            </div>
-          {/snippet}
-        </Form>
+        <div class="mt-3">
+          <GuestbookForm
+            parentId={entry.id}
+            label={`Balas ${entry.author}`}
+            submitLabel="Kirim Balasan"
+            placeholder="Tulis balasan…"
+            onSuccess={() => onReply(null)}
+          />
+        </div>
       {/if}
     </div>
   </div>
@@ -108,7 +78,6 @@
         <GuestbookItem
           entry={reply}
           depth={depth + 1}
-          {canWrite}
           {replyingTo}
           {onReply}
         />

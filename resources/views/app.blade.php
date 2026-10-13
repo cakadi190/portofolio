@@ -69,9 +69,11 @@
             .dropdown-menu:not(.show) { display: none; }
         </style>
 
-        @if (request()->routeIs('resume.show', 'resume.profile'))
-            {{-- Anti-FOUC for the PDF viewer: paint its shell and preload the PDF before the JS bundle boots. --}}
-            <link rel="preload" as="fetch" href="{{ request()->route('profile') ? route('resume.profile.pdf', request()->route('profile')) : route('resume.pdf') }}" crossorigin="use-credentials">
+        @if (request()->routeIs('resume.show', 'resume.profile', 'certification.show'))
+            {{-- Anti-FOUC for the PDF viewer: paint its shell (and preload the generated resume PDF) before the JS bundle boots. --}}
+            @unless (request()->routeIs('certification.show'))
+                <link rel="preload" as="fetch" href="{{ request()->route('profile') ? route('resume.profile.pdf', request()->route('profile')) : route('resume.pdf') }}" crossorigin="use-credentials">
+            @endunless
             <style>
                 html, body { height: 100%; margin: 0; overflow: hidden; }
                 body { background: var(--neo-tertiary-bg, #f1f5f9); }
@@ -88,6 +90,8 @@
 
             if (request()->routeIs('resume.show', 'resume.profile')) {
                 $entries[] = 'resources/js/pages/resume/index.svelte';
+            } elseif (request()->routeIs('certification.show')) {
+                $entries[] = 'resources/js/pages/certification/show.svelte';
             } elseif (request()->routeIs('admin.posts.create', 'admin.posts.edit')) {
                 $entries[] = 'resources/js/pages/admin/posts/form.svelte';
             }

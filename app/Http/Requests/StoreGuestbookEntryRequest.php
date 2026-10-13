@@ -3,25 +3,30 @@
 namespace App\Http\Requests;
 
 use App\Enums\BlogCommentStatus;
+use App\Http\Requests\Concerns\SanitizesRichText;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreGuestbookEntryRequest extends FormRequest
 {
+    use SanitizesRichText;
+
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return true;
     }
 
     /**
-     * A reply must target an approved entry.
+     * Signed-out visitors leave a name and email (like the contact form); a reply must target an approved entry.
      *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            'body' => ['required', 'string', 'max:1000'],
+            'guest_name' => [Rule::requiredIf($this->user() === null), 'nullable', 'string', 'max:100'],
+            'guest_email' => [Rule::requiredIf($this->user() === null), 'nullable', 'email', 'max:255'],
+            'body' => ['required', 'string', 'max:5000'],
             'parent_id' => [
                 'nullable',
                 'integer',
@@ -36,6 +41,8 @@ class StoreGuestbookEntryRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'guest_name' => 'nama',
+            'guest_email' => 'email',
             'body' => 'pesan',
             'parent_id' => 'pesan yang dibalas',
         ];
@@ -43,8 +50,6 @@ class StoreGuestbookEntryRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if (is_string($this->input('body'))) {
-            $this->merge(['body' => trim($this->input('body'))]);
-        }
+        $this->sanitizeRichText('body');
     }
 }

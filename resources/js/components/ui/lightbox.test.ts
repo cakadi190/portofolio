@@ -2,8 +2,6 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Lightbox from '@/components/ui/lightbox.svelte';
 
-vi.mock('@/components/ui/pdf-canvas-viewer.svelte', async () => await import('@/tests/stubs/pdf-viewer-stub.svelte'));
-
 const images = [
   { url: '/a.webp', title: 'Satu' },
   { url: '/b.webp', title: 'Dua' },
@@ -120,19 +118,9 @@ describe('Lightbox', () => {
     expect(screen.getByLabelText('Buka di tab baru').getAttribute('target')).toBe('_blank');
   });
 
-  it('delegates PDFs to the PDF viewer and ignores zoom keys', async () => {
-    render(Lightbox, { open: true, images: [{ url: '/doc.pdf', title: 'Dokumen' }] });
-
-    expect(screen.getByTestId('pdf-stub').textContent).toContain('/doc.pdf');
-    expect(screen.queryByLabelText('Perbesar')).toBeNull();
-
-    await fireEvent.click(screen.getByText('tutup-pdf'));
-    await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-  });
-
   it('respects an explicit media type', () => {
-    render(Lightbox, { open: true, images: [{ url: '/file', title: 'X', type: 'pdf' }] });
+    render(Lightbox, { open: true, images: [{ url: '/file', title: 'X', type: 'video' }] });
 
-    expect(screen.getByTestId('pdf-stub')).toBeTruthy();
+    expect(document.querySelector('video')).toBeTruthy();
   });
 });

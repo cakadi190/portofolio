@@ -23,6 +23,7 @@ class VerifyTurnstile
         'contact.store',
         'portfolios.reviews.store',
         'blog.comments.store',
+        'guestbook.store',
     ];
 
     public function __construct(private TurnstileService $turnstile) {}

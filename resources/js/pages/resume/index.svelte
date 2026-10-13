@@ -46,6 +46,11 @@
     {downloadName}
     {profiles}
     activeProfile={profile}
+    info={[
+      { label: 'Profil CV', value: profiles.find((item) => item.key === profile)?.label ?? profile },
+      { label: 'Nama berkas', value: downloadName },
+      { label: 'Format', value: 'PDF (ATS-friendly)' },
+    ]}
     onprofile={switchProfile}
     onclose={() => router.visit('/')}
   />

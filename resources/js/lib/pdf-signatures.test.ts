@@ -56,3 +56,60 @@ describe('extractPdfSignatures', () => {
     expect(await extractPdfSignatures(bytes)).toEqual([]);
   });
 });
+
+describe('trust anchoring', () => {
+  it('asks the resolver about the top certificate and reports the store it names', async () => {
+    const asked: number[] = [];
+    const [signature] = await extractPdfSignatures(
+      fixture('signed-komdigi.pdf'),
+      async (top) => {
+        asked.push(top.length);
+
+        return { source: 'komdigi', anchor: 'Root CA Indonesia DS G1' };
+      },
+    );
+
+    expect(asked).toEqual([signature.chain.at(-1)!.der.length]);
+    expect(signature.trust).toMatchObject({
+      source: 'komdigi',
+      anchor: 'Root CA Indonesia DS G1',
+      linksValid: true,
+    });
+  });
+
+  it('is untrusted when no store vouches for the chain, even if the name says Komdigi', async () => {
+    const [signature] = await extractPdfSignatures(
+      fixture('signed-komdigi.pdf'),
+      async () => null,
+    );
+
+    expect(signature.komdigiRoot).toBe(true);
+    expect(signature.trust).toMatchObject({ source: null, linksValid: true });
+  });
+
+  it('asks the resolver for a foreign chain too, leaving the verdict to the server', async () => {
+    let asked = false;
+    await extractPdfSignatures(fixture('signed-foreign.pdf'), async () => {
+      asked = true;
+
+      return null;
+    });
+
+    expect(asked).toBe(true);
+  });
+
+  it('falls back to untrusted when the server cannot be reached', async () => {
+    const { resolveAnchorOnServer } = await import('@/lib/pdf-signatures');
+    const original = globalThis.fetch;
+
+    globalThis.fetch = (async () => {
+      throw new Error('offline');
+    }) as typeof fetch;
+
+    try {
+      expect(await resolveAnchorOnServer(new Uint8Array([1, 2, 3]))).toBeNull();
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+});

@@ -1,4 +1,4 @@
-export type LightboxMediaType = 'image' | 'pdf' | 'video' | 'embed';
+export type LightboxMediaType = 'image' | 'video' | 'embed';
 
 const NATIVE_VIDEO_PATTERN =
   /\.(mp4|m4v|mkv|mov|webm|wmv|avi|3gp|ogv)($|[?#])/i;
@@ -103,7 +103,7 @@ export function toEmbedUrl(url: string): string | null {
 
 /**
  * Decide how the lightbox renders an item. An explicit `type` wins; otherwise it is inferred from the URL:
- * .pdf → pdf, video file extension → video, known video provider → embed, anything else → image.
+ * video file extension → video, known video provider → embed, anything else → image.
  */
 export function detectMediaType(
   url: string,
@@ -111,10 +111,6 @@ export function detectMediaType(
 ): LightboxMediaType {
   if (explicit) {
     return explicit;
-  }
-
-  if (/\.pdf($|[?#])/i.test(url)) {
-    return 'pdf';
   }
 
   if (isNativeVideoUrl(url)) {

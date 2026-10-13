@@ -10,6 +10,7 @@
   import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { formatDate, storageUrl } from '@/lib/utils';
+  import { show as showCertification } from '@/wayfinder/routes/certification';
   import {
     destroy,
     index,
@@ -28,6 +29,7 @@
     credential_url: string | null;
     file: string;
     is_pdf: boolean;
+    slug: string;
   };
 
   let {
@@ -45,10 +47,10 @@
 
   const lightboxImages = $derived(
     certifications.data
+      .filter((certification) => !certification.is_pdf)
       .map((certification) => ({
         url: storageUrl(certification.file) ?? '',
         title: certification.title,
-        type: certification.is_pdf ? ('pdf' as const) : ('image' as const),
       })),
   );
 
@@ -93,17 +95,21 @@
       <td>{certification.issuer}</td>
       <td>{formatDate(certification.issued_at)}</td>
       <td>
-        <a
-          href={storageUrl(certification.file) ?? '#'}
-          target="_blank"
-          rel="noopener"
-          onclick={(event) => {
-            event.preventDefault();
-            openLightbox(certification);
-          }}
-        >
-          {certification.is_pdf ? 'PDF' : 'Gambar'}
-        </a>
+        {#if certification.is_pdf}
+          <a href={showCertification(certification.slug).url} target="_blank" rel="noopener">PDF</a>
+        {:else}
+          <a
+            href={storageUrl(certification.file) ?? '#'}
+            target="_blank"
+            rel="noopener"
+            onclick={(event) => {
+              event.preventDefault();
+              openLightbox(certification);
+            }}
+          >
+            Gambar
+          </a>
+        {/if}
       </td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">

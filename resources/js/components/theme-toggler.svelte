@@ -1,7 +1,7 @@
 <script lang="ts">
   import Moon from '@lucide/svelte/icons/moon';
   import Sun from '@lucide/svelte/icons/sun';
-  import { THEME_STORAGE_KEY } from '@/lib/theme';
+  import { toggleDocumentTheme } from '@/lib/theme';
 
   let isDark = $state(false);
 
@@ -10,17 +10,7 @@
   });
 
   function toggleTheme(): void {
-    const next = isDark ? 'light' : 'dark';
-
-    document.documentElement.setAttribute('data-bs-theme', next);
-
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      // Private mode / blocked storage — theme just won't persist.
-    }
-
-    isDark = next === 'dark';
+    isDark = toggleDocumentTheme() === 'dark';
   }
 </script>
 

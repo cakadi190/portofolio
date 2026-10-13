@@ -65,7 +65,7 @@ describe('NotesShow', () => {
 });
 
 describe('GuestbookPage', () => {
-  it('renders nested entries and asks guests to sign in', () => {
+  it('renders nested entries and asks guests for a name and email', () => {
     render(GuestbookPage, {
       entries: [
         {
@@ -89,7 +89,9 @@ describe('GuestbookPage', () => {
     expect(screen.getByText('Halo dunia')).toBeTruthy();
     expect(screen.getByText('Halo juga')).toBeTruthy();
     expect(screen.getByText('Pesan (2)')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Masuk' })).toBeTruthy();
+    expect(document.querySelector('input[name="guest_name"]')).toBeTruthy();
+    expect(document.querySelector('input[name="guest_email"]')).toBeTruthy();
+    expect(screen.getByText('Kirim Pesan')).toBeTruthy();
   });
 });
 

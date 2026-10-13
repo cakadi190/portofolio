@@ -7,11 +7,6 @@
   import ZoomIn from '@lucide/svelte/icons/zoom-in';
   import ZoomOut from '@lucide/svelte/icons/zoom-out';
   import { cubicOut } from 'svelte/easing';
-  import PdfCanvasViewer, {
-    PDF_ZOOM_MAX,
-    PDF_ZOOM_MIN,
-    PDF_ZOOM_STEP,
-  } from '@/components/ui/pdf-canvas-viewer.svelte';
   import { fade, fly, scale as scaleTransition } from 'svelte/transition';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import {
@@ -30,7 +25,7 @@
   const DOUBLE_CLICK_ZOOM = 2.5;
 
   /**
-   * Google-Drive-style file preview (images, PDFs drawn on canvas via pdf.js, native videos in a <video> player,
+   * Google-Drive-style file preview (images, native videos in a <video> player,
    * and external videos such as YouTube/Vidio/Vimeo in an iframe): full-screen overlay with header bar,
    * zoom (buttons, wheel, pinch, double-click), drag-to-pan, prev/next paging
    * and keyboard shortcuts. Ported from the BatamTix lightbox.
@@ -52,7 +47,6 @@
   const images = $derived<LightboxImage[]>(gallery ?? (src ? [{ url: src, title: alt }] : []));
 
   let scale = $state(1);
-  let pdfZoom = $state(1);
   let offset = $state({ x: 0, y: 0 });
   let dragging = $state(false);
   let animating = $state(false);
@@ -70,7 +64,6 @@
   const mediaType = $derived<LightboxMediaType>(
     current ? detectMediaType(current.url, current.type) : 'image',
   );
-  const isPdf = $derived(mediaType === 'pdf');
   const isVideo = $derived(mediaType === 'video');
   const isEmbed = $derived(mediaType === 'embed');
   const isZoomable = $derived(mediaType === 'image');
@@ -78,7 +71,7 @@
     isEmbed && current ? (toEmbedUrl(current.url) ?? (isNonEmbeddableVideoUrl(current.url) ? null : current.url)) : null,
   );
   const defaultTitle = $derived(
-    isPdf ? 'Pratinjau PDF' : isVideo || isEmbed ? 'Pratinjau video' : 'Pratinjau gambar',
+    isVideo || isEmbed ? 'Pratinjau video' : 'Pratinjau gambar',
   );
 
   const prefersReducedMotion =
@@ -144,34 +137,16 @@
     index = next;
   }
 
-  const zoomValue = $derived(isPdf ? pdfZoom : scale);
-  const zoomMin = $derived(isPdf ? PDF_ZOOM_MIN : ZOOM_MIN);
-  const zoomMax = $derived(isPdf ? PDF_ZOOM_MAX : ZOOM_MAX);
 
   function zoomIn(): void {
-    if (isPdf) {
-      pdfZoom = Math.min(PDF_ZOOM_MAX, pdfZoom + PDF_ZOOM_STEP);
-      return;
-    }
-
     zoomTo(scale + ZOOM_STEP, undefined, true);
   }
 
   function zoomOut(): void {
-    if (isPdf) {
-      pdfZoom = Math.max(PDF_ZOOM_MIN, pdfZoom - PDF_ZOOM_STEP);
-      return;
-    }
-
     zoomTo(scale - ZOOM_STEP, undefined, true);
   }
 
   function resetZoom(): void {
-    if (isPdf) {
-      pdfZoom = 1;
-      return;
-    }
-
     animating = true;
     reset();
   }
@@ -319,7 +294,6 @@
   $effect(() => {
     void current?.url;
     reset();
-    pdfZoom = 1;
     failed = false;
   });
 </script>
@@ -328,7 +302,6 @@
 
 {#if open && current}
   <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || defaultTitle} use:portal transition:fade={{ duration: motion(220) }}>
-    {#if !isPdf}
     <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
       <div class="lightbox-start">
         <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
@@ -349,14 +322,14 @@
           <span class="lightbox-divider" aria-hidden="true"></span>
         {/if}
         {#if isZoomable}
-        <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={zoomValue <= zoomMin} onclick={zoomOut}>
+        <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={scale <= ZOOM_MIN} onclick={zoomOut}>
           <ZoomOut size={20} />
         </button>
-        <span class="lightbox-label">{Math.round(zoomValue * 100)}%</span>
-        <button type="button" class="lightbox-button" aria-label="Perbesar" disabled={zoomValue >= zoomMax} onclick={zoomIn}>
+        <span class="lightbox-label">{Math.round(scale * 100)}%</span>
+        <button type="button" class="lightbox-button" aria-label="Perbesar" disabled={scale >= ZOOM_MAX} onclick={zoomIn}>
           <ZoomIn size={20} />
         </button>
-        <button type="button" class="lightbox-button" aria-label="Reset zoom" disabled={zoomValue === 1} onclick={resetZoom}>
+        <button type="button" class="lightbox-button" aria-label="Reset zoom" disabled={scale === 1} onclick={resetZoom}>
           <RotateCcw size={20} />
         </button>
         {/if}
@@ -375,23 +348,7 @@
       </div>
     </div>
 
-    {/if}
-
-    {#if isPdf}
-      {#key current.url}
-        <div
-          class="lightbox-pdf-stage"
-          in:fly|global={{ x: direction * 72, duration: motion(280), easing: cubicOut }}
-        >
-          <PdfCanvasViewer
-            bind:zoom={pdfZoom}
-            url={current.url}
-            title={current.title || 'Pratinjau PDF'}
-            onclose={close}
-          />
-        </div>
-      {/key}
-    {:else if isVideo || isEmbed}
+    {#if isVideo || isEmbed}
       {#key current.url}
         <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
         <div
@@ -602,13 +559,6 @@
 
   .lightbox-stage.is-dragging {
     cursor: grabbing;
-  }
-
-  .lightbox-pdf-stage {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
   }
 
   .lightbox-video-stage {

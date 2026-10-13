@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { flushSync, onMount, tick } from 'svelte';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Copy from '@lucide/svelte/icons/copy';
   import TextCursor from '@lucide/svelte/icons/text-cursor';
@@ -16,6 +16,12 @@
   import MoveHorizontal from '@lucide/svelte/icons/move-horizontal';
   import Maximize from '@lucide/svelte/icons/maximize';
   import Search from '@lucide/svelte/icons/search';
+  import Moon from '@lucide/svelte/icons/moon';
+  import Sun from '@lucide/svelte/icons/sun';
+  import { toggleDocumentTheme } from '@/lib/theme';
+  import ResumeVerification from '@/components/resume/resume-verification.svelte';
+  import { extractPdfSignatures } from '@/lib/pdf-signatures';
+  import type { PdfSignature } from '@/lib/pdf-signatures';
   import { perfectScrollbar } from '@/lib/perfect-scrollbar';
   import { anchoredScroll, clampZoom, distanceBetween, fitPageZoom, fitWidthZoom, pinchZoom, stepZoom as nextZoom } from '@/lib/resume-zoom';
   import type { ZoomMode } from '@/lib/resume-zoom';
@@ -25,7 +31,7 @@
   import type { OcrLine, Rect } from '@/lib/ocr';
   import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 
-  type Tab = 'outline' | 'search' | 'pages';
+  type Tab = 'outline' | 'search' | 'pages' | 'info' | 'verify';
   type OutlineItem = { title: string; page: number; depth: number };
   type Hit = { page: number; rects: Rect[]; snippet: string; source: 'text' | 'ocr' };
   type TextRun = { str: string; transform: number[]; width: number; height: number };
@@ -40,6 +46,7 @@
     profiles = [],
     activeProfile = '',
     onprofile,
+    info = [],
     onclose,
   }: {
     url: string;
@@ -49,6 +56,8 @@
     profiles?: { key: string; label: string; description?: string }[];
     activeProfile?: string;
     onprofile?: (key: string) => void;
+    /** Rows for the "Informasi" tab, pushed in by the page as label/value pairs. */
+    info?: { label: string; value: string; href?: string }[];
     onclose: () => void;
   } = $props();
 
@@ -57,7 +66,7 @@
   let status = $state<'loading' | 'ready' | 'error'>('loading');
   let fitted = $state(false);
   let tool = $state<'text' | 'area'>('text');
-  let tab = $state<Tab>('outline');
+  let tab = $state<Tab>('info');
   let zoom = $state(1);
   let zoomMode = $state<ZoomMode>('fit-width');
   const MODE_LABELS: Record<ZoomMode, string> = { 'fit-width': 'Sesuai lebar', 'fit-page': 'Sesuai halaman', custom: 'Kustom' };
@@ -65,6 +74,7 @@
   let query = $state('');
   let copied = $state(false);
   let outline = $state<OutlineItem[]>([]);
+  let signatures = $state.raw<PdfSignature[] | null>(null);
   let hits = $state<Hit[]>([]);
   let searched = $state(false);
   let searching = $state(false);
@@ -94,6 +104,107 @@
   let observer: IntersectionObserver | null = null;
 
   const total = $derived(pages.length);
+  const hasSignatures = $derived((signatures?.length ?? 0) > 0);
+  const tabs = $derived<[Tab, string][]>([
+    ['info', 'Informasi'],
+    ['outline', 'Struktur'],
+    ['search', 'Pencarian'],
+    ['pages', 'Halaman'],
+    ...(hasSignatures ? ([['verify', 'Verifikasi']] as [Tab, string][]) : []),
+  ]);
+  let isDark = $state(typeof document !== 'undefined' && document.documentElement.getAttribute('data-bs-theme') === 'dark');
+  const infoRows = $derived([...info, ...(total > 0 ? [{ label: 'Jumlah halaman', value: String(total) }] : [])]);
+  let tabStrip = $state<HTMLElement | null>(null);
+  let tabsCanLeft = $state(false);
+  let tabsCanRight = $state(false);
+
+  const syncTabArrows = (): void => {
+    if (!tabStrip) {
+      return;
+    }
+
+    tabsCanLeft = tabStrip.scrollLeft > 1;
+    tabsCanRight = tabStrip.scrollLeft + tabStrip.clientWidth < tabStrip.scrollWidth - 1;
+  };
+
+  let tabSlide = 0;
+
+  /**
+   * Slides the tab strip so the next tab hidden on that side lines up with the edge, one tab per click.
+   */
+  const scrollTabs = (direction: -1 | 1): void => {
+    if (!tabStrip) {
+      return;
+    }
+
+    const strip = tabStrip;
+    const buttons = Array.from(strip.querySelectorAll<HTMLElement>('button'));
+    const left = strip.scrollLeft;
+    const right = left + strip.clientWidth;
+    const target =
+      direction === 1
+        ? buttons.find((button) => button.offsetLeft + button.offsetWidth > right + 1)
+        : [...buttons].reverse().find((button) => button.offsetLeft < left - 1);
+
+    if (!target) {
+      return;
+    }
+
+    const max = strip.scrollWidth - strip.clientWidth;
+    const destination = Math.min(
+      Math.max(direction === 1 ? target.offsetLeft + target.offsetWidth - strip.clientWidth : target.offsetLeft, 0),
+      max,
+    );
+    const from = left;
+    const started = performance.now();
+    const token = ++tabSlide;
+    const step = (now: number): void => {
+      if (token !== tabSlide) {
+        return;
+      }
+
+      const progress = Math.min((now - started) / 260, 1);
+      const eased = 1 - (1 - progress) ** 3;
+
+      strip.scrollLeft = from + (destination - from) * eased;
+      syncTabArrows();
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  /** The strip only moves through the arrows, so wheel and Shift + wheel must not scroll it. */
+  const blockWheel = (event: WheelEvent): void => {
+    event.preventDefault();
+  };
+
+  const watchTabScroll = (node: HTMLElement) => {
+    const observer = new ResizeObserver(syncTabArrows);
+
+    observer.observe(node);
+    Array.from(node.children).forEach((child) => observer.observe(child));
+    node.addEventListener('scroll', syncTabArrows, { passive: true });
+    node.addEventListener('wheel', blockWheel, { passive: false });
+    syncTabArrows();
+
+    return {
+      destroy() {
+        observer.disconnect();
+        node.removeEventListener('scroll', syncTabArrows);
+        node.removeEventListener('wheel', blockWheel);
+      },
+    };
+  };
+
+  $effect(() => {
+    if (tab === 'verify' && !hasSignatures) {
+      tab = 'info';
+    }
+  });
 
   const track = (node: HTMLCanvasElement, number: number) => {
     canvases.set(number, node);
@@ -223,25 +334,112 @@
   let resizeObserver: ResizeObserver | undefined;
   let zoomTimer: ReturnType<typeof setTimeout> | undefined;
 
-  /** Scales only the document sheets; the page itself is never zoomed. `anchor` is a point in the scroller's viewport. */
-  const setZoom = (value: number, mode: ZoomMode = 'custom', anchor?: { x: number; y: number }): void => {
-    const next = clampZoom(value);
-    zoomMode = mode;
+  let zoomFrame = 0;
+  let zoomTarget = 1;
+  type ZoomTween = { base: number; k: number; point: { x: number; y: number }; sheets: { node: HTMLElement; origin: string }[] };
+  let tween: ZoomTween | null = null;
 
-    if (next === zoom || !scroller) {
+  const paintTween = (): void => {
+    for (const { node, origin } of tween?.sheets ?? []) {
+      node.style.transformOrigin = origin;
+      node.style.transform = tween && tween.k !== 1 ? `scale(${tween.k})` : '';
+    }
+  };
+
+  /** Applies the zoom for real (one layout), keeping `point` fixed, and drops any in-flight transform. */
+  const commitZoom = (final: number, point: { x: number; y: number }): void => {
+    const view = scroller;
+    const ratio = final / zoom;
+
+    cancelAnimationFrame(zoomFrame);
+
+    if (tween) {
+      tween.k = 1;
+      paintTween();
+      tween = null;
+    }
+
+    if (!view) {
       return;
     }
 
-    const ratio = next / zoom;
-    const point = anchor ?? { x: scroller.clientWidth / 2, y: scroller.clientHeight / 2 };
-    zoom = next;
-    scroller.scrollTop = anchoredScroll(scroller.scrollTop, point.y, ratio);
-    scroller.scrollLeft = anchoredScroll(scroller.scrollLeft, point.x, ratio);
+    zoom = final;
+    flushSync();
+    view.scrollTop = anchoredScroll(view.scrollTop, point.y, ratio);
+    view.scrollLeft = anchoredScroll(view.scrollLeft, point.x, ratio);
     clearTimeout(zoomTimer);
     zoomTimer = setTimeout(renderVisible, 220);
   };
 
-  const stepZoom = (direction: 1 | -1): void => setZoom(nextZoom(zoom, direction));
+  /**
+   * Scales only the document sheets; the page itself is never zoomed. `anchor` is a point in the scroller's
+   * viewport. The change eases over `duration` ms (0 applies it immediately). While it eases, the sheets are
+   * only scaled with a GPU transform about the anchor, so no layout runs per frame; the real zoom is committed
+   * once at the end. A new call mid-way retargets the same tween instead of restarting it.
+   */
+  const setZoom = (value: number, mode: ZoomMode = 'custom', anchor?: { x: number; y: number }, duration = 200): void => {
+    const target = clampZoom(value);
+    zoomMode = mode;
+    zoomTarget = target;
+
+    if (!scroller) {
+      return;
+    }
+
+    const view = scroller;
+    const point = tween?.point ?? anchor ?? { x: view.clientWidth / 2, y: view.clientHeight / 2 };
+
+    if (duration <= 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (target !== zoom || tween) {
+        commitZoom(target, point);
+      }
+
+      return;
+    }
+
+    if (!tween) {
+      if (target === zoom) {
+        return;
+      }
+
+      const box = view.getBoundingClientRect();
+
+      tween = {
+        base: zoom,
+        k: 1,
+        point,
+        sheets: Array.from(view.querySelectorAll<HTMLElement>('.rv-sheet')).map((node) => {
+          const rect = node.getBoundingClientRect();
+
+          return { node, origin: `${point.x - (rect.left - box.left)}px ${point.y - (rect.top - box.top)}px` };
+        }),
+      };
+    }
+
+    cancelAnimationFrame(zoomFrame);
+
+    const active = tween;
+    const from = active.k;
+    const to = target / active.base;
+    const started = performance.now();
+    const step = (now: number): void => {
+      const progress = Math.min((now - started) / duration, 1);
+      const eased = 1 - (1 - progress) ** 3;
+
+      active.k = from + (to - from) * eased;
+      paintTween();
+
+      if (progress < 1) {
+        zoomFrame = requestAnimationFrame(step);
+      } else {
+        commitZoom(target, active.point);
+      }
+    };
+
+    zoomFrame = requestAnimationFrame(step);
+  };
+
+  const stepZoom = (direction: 1 | -1): void => setZoom(nextZoom(zoomTarget, direction));
 
   /** Re-applies a fit mode against the current viewer size (also on rotation or resize). */
   const applyFit = (mode: Exclude<ZoomMode, 'custom'>): void => {
@@ -282,7 +480,7 @@
       if (frame === 0) {
         frame = requestAnimationFrame(() => {
           frame = 0;
-          setZoom(zoom * factor, 'custom', anchor);
+          setZoom(zoomTarget * factor, 'custom', anchor, 110);
           factor = 1;
         });
       }
@@ -308,7 +506,7 @@
     const onStart = (event: TouchEvent): void => {
       if (event.touches.length === 2 && !drag) {
         const [a, b] = points(event);
-        start = { distance: distanceBetween(a, b), zoom };
+        start = { distance: distanceBetween(a, b), zoom: zoomTarget };
       }
     };
 
@@ -322,7 +520,7 @@
       setZoom(pinchZoom(start.zoom, start.distance, distanceBetween(a, b)), 'custom', {
         x: (a.x + b.x) / 2 - box.left,
         y: (a.y + b.y) / 2 - box.top,
-      });
+      }, 90);
     };
 
     const onEnd = (event: TouchEvent): void => {
@@ -757,7 +955,21 @@
         throw new Error(`HTTP ${response.status}`);
       }
 
-      loadingTask = pdfjs.getDocument({ data: new Uint8Array(await response.arrayBuffer()) });
+      const bytes = new Uint8Array(await response.arrayBuffer());
+
+      void extractPdfSignatures(bytes.slice())
+        .then((found) => {
+          if (!cancelled) {
+            signatures = found;
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            signatures = [];
+          }
+        });
+
+      loadingTask = pdfjs.getDocument({ data: bytes });
       doc = await loadingTask.promise;
       const loaded: PDFPageProxy[] = [];
 
@@ -803,6 +1015,7 @@
       observer?.disconnect();
       resizeObserver?.disconnect();
       clearTimeout(zoomTimer);
+      cancelAnimationFrame(zoomFrame);
       terminateOcrWorker();
       void loadingTask?.destroy();
     };
@@ -855,6 +1068,7 @@
 
     <div class="rv-actions">
       <a class="rv-download" href={url} download={downloadName} aria-label="Unduh PDF" data-tip="Unduh PDF"><Download size={16} /><span class="rv-label">Unduh PDF</span></a>
+      <button type="button" class="rv-copy" onclick={() => (isDark = toggleDocumentTheme() === 'dark')} aria-label={`Ubah ke mode ${isDark ? 'terang' : 'gelap'}`} data-tip="Ubah tema">{#if isDark}<Sun size={16} />{:else}<Moon size={16} />{/if}</button>
       <button type="button" class="rv-copy" class:done={copied} onclick={copyLink} aria-label="Salin tautan" data-tip={copied ? 'Tautan tersalin!' : 'Salin tautan'}>{#if copied}<Check size={16} />{:else}<LinkIcon size={16} />{/if}</button>
     </div>
   </header>
@@ -863,10 +1077,18 @@
 
   <div class="rv-body">
     <aside class="rv-side" class:open={sidebar} aria-hidden={!sidebar}>
-      <div class="rv-tabs" role="tablist">
-        {#each [['outline', 'Struktur'], ['search', 'Pencarian'], ['pages', 'Halaman']] as [key, label] (key)}
-          <button type="button" role="tab" aria-selected={tab === key} class:active={tab === key} onclick={() => (tab = key as Tab)}>{label}</button>
-        {/each}
+      <div class="rv-tabbar">
+        {#if tabsCanLeft}
+          <button type="button" class="rv-tabarrow" onclick={() => scrollTabs(-1)} aria-label="Geser tab ke kiri"><ChevronLeft size={16} /></button>
+        {/if}
+        <div class="rv-tabs" role="tablist" bind:this={tabStrip} use:watchTabScroll>
+          {#each tabs as [key, label] (key)}
+            <button type="button" role="tab" aria-selected={tab === key} class:active={tab === key} onclick={() => (tab = key as Tab)}>{label}</button>
+          {/each}
+        </div>
+        {#if tabsCanRight}
+          <button type="button" class="rv-tabarrow" onclick={() => scrollTabs(1)} aria-label="Geser tab ke kanan"><ChevronRight size={16} /></button>
+        {/if}
       </div>
 
       {#if tab === 'search'}
@@ -892,6 +1114,16 @@
           {:else}
             <p class="rv-muted">{searching ? 'Mencari…' : searched ? 'Tidak ada hasil yang cocok.' : 'Mulai mengetik untuk mencari.'}</p>
           {/each}
+        {:else if tab === 'info'}
+          <ul class="rv-info">
+            {#each infoRows as row, index (index)}
+              <li><span>{row.label}</span>{#if row.href}<a href={row.href} target="_blank" rel="noopener noreferrer">{row.value}</a>{:else}<strong>{row.value}</strong>{/if}</li>
+            {:else}
+              <li class="rv-muted">Belum ada informasi.</li>
+            {/each}
+          </ul>
+        {:else if tab === 'verify'}
+          <ResumeVerification {signatures} />
         {:else}
           <div class="rv-thumbs">
             {#each pages as _, index (index)}
@@ -966,7 +1198,7 @@
 <style>
   .rv:not(.rv-fitted) .rv-main:has(.rv-sheet) { opacity: 0; }
   .rv-main { transition: opacity 0.25s ease; }
-  .rv { display: flex; flex-direction: column; height: 100%; color: var(--neo-body-color); font-size: 0.875rem; background: var(--neo-tertiary-bg); }
+  .rv { display: flex; flex-direction: column; height: 100%; color: var(--neo-body-color); font-size: 0.875rem; background: var(--neo-body-bg); }
   .rv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.75rem 1rem; color: #fff; background: var(--neo-primary); }
   .rv-back { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.875rem; font-weight: 600; color: var(--neo-primary); cursor: pointer; background: #fff; border: 0; border-radius: 0.5rem; }
   .rv-title { display: flex; flex: 1 1 14rem; flex-direction: column; min-width: 0; }
@@ -991,9 +1223,18 @@
   .rv-body { display: flex; flex: 1; min-height: 0; }
   .rv-side { display: flex; flex: 0 0 20rem; width: 20rem; overflow: hidden; transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease, visibility 0.25s; flex-direction: column; min-height: 0; background: var(--neo-body-bg); border-right: 1px solid var(--neo-border-color); }
   .rv-side > * { width: 20rem; }
-  .rv-tabs { display: flex; border-bottom: 1px solid var(--neo-border-color); }
-  .rv-tabs button { flex: 1; padding: 0.75rem 0; font-weight: 600; color: var(--neo-secondary-color); cursor: pointer; background: transparent; border: 0; border-bottom: 2px solid transparent; }
+  .rv-tabbar { position: relative; display: flex; align-items: stretch; border-bottom: 1px solid var(--neo-border-color); }
+  .rv-tabs { position: relative; display: flex; flex: 1; min-width: 0; overflow-x: scroll; scrollbar-width: none; touch-action: none; overscroll-behavior: contain; }
+  .rv-tabs::-webkit-scrollbar { display: none; }
+  .rv-tabarrow { z-index: 2; display: grid; flex: 0 0 1.75rem; place-items: center; padding: 0; color: var(--neo-secondary-color); cursor: pointer; background: var(--neo-body-bg); border: 0; }
+  .rv-tabarrow:hover { color: var(--neo-primary); background: var(--neo-primary-bg-subtle); }
+  .rv-tabs button { flex: 1 0 auto; padding: 0.75rem 1rem; white-space: nowrap; font-weight: 600; color: var(--neo-secondary-color); cursor: pointer; background: transparent; border: 0; border-bottom: 2px solid transparent; }
   .rv-tabs button.active { color: var(--neo-primary); border-bottom-color: var(--neo-primary); }
+  .rv-info { margin: -0.75rem 0; padding: 0; list-style: none; }
+  .rv-info li { display: flex; gap: 1rem; align-items: baseline; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--neo-border-color); }
+  .rv-info span { color: var(--neo-secondary-color); }
+  .rv-info a { font-weight: 600; color: var(--neo-primary); text-align: right; overflow-wrap: anywhere; }
+  .rv-info strong { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
   .rv-panel { position: relative; flex: 1; padding: 0.75rem 0; overflow-y: auto; }
   .rv-item { display: block; width: 100%; padding: 0.5rem 0.75rem; text-align: left; color: inherit; cursor: pointer; background: transparent; border: 0; }
   .rv-item:hover { background: var(--neo-primary-bg-subtle); }
@@ -1021,7 +1262,7 @@
   .rv-profiles button.on { color: var(--neo-primary); background: #fff; }
   .rv-icon:focus-visible, .rv-back:focus-visible, .rv-download:focus-visible, .rv-copy:focus-visible, .rv-profiles button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .rv-controls .rv-icon:focus-visible { outline-color: var(--neo-primary); }
-  .rv-sheet { position: relative; margin-right: auto; margin-left: auto; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); }
+  .rv-sheet { position: relative; will-change: transform; margin-right: auto; margin-left: auto; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); }
   .rv-text { position: absolute; top: 0; left: 0; overflow: clip; line-height: 1; text-align: initial; transform-origin: 0 0; --total-scale-factor: 1; --scale-round-x: 1px; --scale-round-y: 1px; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); will-change: transform; }
   .rv-text :global(:is(span, br)) { position: absolute; color: transparent; white-space: pre; cursor: text; transform-origin: 0 0; user-select: text; }
   .rv-text > :global(:not(.markedContent)), .rv-text :global(.markedContent span:not(.markedContent)) { --font-height: 0; --scale-x: 1; --rotate: 0deg; font-size: calc(var(--text-scale-factor) * var(--font-height)); transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }

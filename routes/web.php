@@ -5,6 +5,7 @@ use App\Http\Controllers\AwardController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CareerController;
+use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ClarificationController;
 use App\Http\Controllers\CoffeeShopController;
 use App\Http\Controllers\ContactController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\GuestbookController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\PdfTrustController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PortfolioReviewController;
 use App\Http\Controllers\ResumeController;
@@ -67,7 +69,7 @@ Route::permanentRedirect('statistics', '/statistic');
 
 Route::get('guestbook', [GuestbookController::class, 'index'])->name('guestbook.index');
 Route::post('guestbook', [GuestbookController::class, 'store'])
-    ->middleware(['auth', 'verified', 'throttle:10,1'])
+    ->middleware('throttle:10,1')
     ->name('guestbook.store');
 
 Route::prefix('clarifications')->name('clarifications.')->group(function () {
@@ -88,6 +90,9 @@ Route::prefix('about')->name('about.')->group(function () {
     Route::get('site', [AboutController::class, 'site'])->name('site');
     Route::get('skills', [AboutController::class, 'skills'])->name('skills');
 });
+
+Route::post('pdf-trust', PdfTrustController::class)->middleware('throttle:60,1')->name('pdf-trust');
+Route::get('certification/{slug}', [CertificationController::class, 'show'])->name('certification.show');
 
 Route::prefix('resources')->name('resources.')->group(function () {
     Route::get('coffee-shops', [CoffeeShopController::class, 'index'])->name('coffee-shops.index');

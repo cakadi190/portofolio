@@ -76,11 +76,10 @@ describe('native video helpers', () => {
 
 describe('detectMediaType', () => {
   it('lets an explicit type win', () => {
-    expect(detectMediaType('/a.pdf', 'image')).toBe('image');
+    expect(detectMediaType('/clip.mp4', 'image')).toBe('image');
   });
 
   it.each([
-    ['/doc.pdf?x=1', 'pdf'],
     ['/clip.mp4', 'video'],
     ['https://youtu.be/abc', 'embed'],
     ['https://www.netflix.com/title/1', 'embed'],

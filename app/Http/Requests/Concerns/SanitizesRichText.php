@@ -12,9 +12,7 @@ trait SanitizesRichText
      */
     protected function sanitizeRichText(string $field): void
     {
-        $html = strip_tags((string) $this->input($field), '<p><br><strong><em><u><s><ul><ol><li><blockquote>');
-        $html = preg_replace('/<([a-z0-9]+)\s[^>]*>/i', '<$1>', $html) ?? '';
-        $html = HtmlSanitizer::clean($html);
+        $html = HtmlSanitizer::richText((string) $this->input($field));
 
         $this->merge([
             $field => trim(strip_tags($html)) === '' ? '' : $html,

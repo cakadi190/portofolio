@@ -21,6 +21,7 @@
     credentialUrl: string | null;
     file: string | null;
     isPdf: boolean;
+    pageUrl: string | null;
   };
 
   let {
@@ -40,10 +41,8 @@
 
   const lightboxImages = $derived(
     certifications
-      .filter((certification) => certification.file)
-      .map((certification) => ({ url: certification.file as string, title: certification.title,
-        type: certification.isPdf ? ('pdf' as const) : ('image' as const),
-      })),
+      .filter((certification) => certification.file && !certification.isPdf)
+      .map((certification) => ({ url: certification.file as string, title: certification.title })),
   );
 
   let infoOpen = $state(false);
@@ -226,13 +225,22 @@
                         class="card-body d-flex align-items-center justify-content-between gap-3"
                       >
                         <h5 class="mb-0">{certification.title}</h5>
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-primary d-none d-md-inline-block flex-shrink-0"
-                          onclick={() => openInfo(certification)}
-                        >
-                          Info
-                        </button>
+                        {#if certification.pageUrl}
+                          <Link
+                            href={certification.pageUrl}
+                            class="btn btn-sm btn-outline-primary d-none d-md-inline-block flex-shrink-0"
+                          >
+                            Lihat
+                          </Link>
+                        {:else}
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary d-none d-md-inline-block flex-shrink-0"
+                            onclick={() => openInfo(certification)}
+                          >
+                            Info
+                          </button>
+                        {/if}
                         <div class="dropdown d-md-none flex-shrink-0">
                           <button
                             type="button"
@@ -245,13 +253,17 @@
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                              <button
-                                type="button"
-                                class="dropdown-item"
-                                onclick={() => openInfo(certification)}
-                              >
-                                Informasi
-                              </button>
+                              {#if certification.pageUrl}
+                                <Link href={certification.pageUrl} class="dropdown-item">Lihat sertifikat</Link>
+                              {:else}
+                                <button
+                                  type="button"
+                                  class="dropdown-item"
+                                  onclick={() => openInfo(certification)}
+                                >
+                                  Informasi
+                                </button>
+                              {/if}
                             </li>
                           </ul>
                         </div>
@@ -317,7 +329,7 @@
             class="btn btn-primary btn-sm"
             onclick={() => infoCertification && openLightbox(infoCertification)}
           >
-            Lihat sertifikat{infoCertification.isPdf ? ' (PDF)' : ''}
+            Lihat sertifikat
           </button>
         {/if}
         {#if infoCertification.credentialUrl}

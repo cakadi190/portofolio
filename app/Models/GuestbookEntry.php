@@ -15,11 +15,13 @@ use Illuminate\Support\Carbon;
 /**
  * A guestbook message, nestable to any depth through `parent_id`.
  *
- * Only `body` is mass assignable. `user_id`, `parent_id` and `status` are
+ * Only `body` is mass assignable. `user_id`, `guest_name`, `guest_email`, `parent_id` and `status` are
  * always set explicitly by trusted server code.
  *
  * @property int $id
  * @property int|null $user_id
+ * @property string|null $guest_name
+ * @property string|null $guest_email
  * @property int|null $parent_id
  * @property string $body
  * @property BlogCommentStatus $status

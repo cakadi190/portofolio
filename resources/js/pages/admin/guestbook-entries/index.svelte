@@ -20,6 +20,8 @@
     replies_count: number;
     created_at: string;
     user: { id: number; name: string; email: string } | null;
+    guest_name: string | null;
+    guest_email: string | null;
     parent: { id: number; body: string } | null;
   };
 
@@ -106,6 +108,10 @@
         {#if entry.user}
           {entry.user.name}<br /><small class="opacity-75"
             >{entry.user.email}</small
+          >
+        {:else if entry.guest_name}
+          {entry.guest_name}<br /><small class="opacity-75"
+            >{entry.guest_email} · tamu</small
           >
         {:else}
           <em class="opacity-75">Pengguna terhapus</em>

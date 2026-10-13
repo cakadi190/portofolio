@@ -55,6 +55,24 @@ class HtmlSanitizer
     ];
 
     /**
+     * Reduce comment-style rich text to a tiny formatting whitelist (no attributes, no links, no media).
+     * Legacy plain text (no tags at all) is escaped and its line breaks kept.
+     */
+    public static function richText(?string $text): string
+    {
+        $text = (string) $text;
+
+        if ($text === strip_tags($text)) {
+            return nl2br(e($text));
+        }
+
+        $html = strip_tags($text, '<p><br><strong><em><u><s><ul><ol><li><blockquote>');
+        $html = preg_replace('/<([a-z0-9]+)\s[^>]*>/i', '<$1>', $html) ?? '';
+
+        return self::clean($html);
+    }
+
+    /**
      * Return a safe version of the given editor HTML.
      */
     public static function clean(?string $html): string

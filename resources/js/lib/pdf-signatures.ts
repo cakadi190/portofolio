@@ -4,6 +4,7 @@
  * (CRL/OCSP) or anchor the chain in a trust store, so it informs rather than replaces an official validator.
  */
 
+
 export type CertificateInfo = {
   subject: string;
   issuer: string;
@@ -14,6 +15,72 @@ export type CertificateInfo = {
   validFrom: Date | null;
   validTo: Date | null;
   selfSigned: boolean;
+  /** The certificate exactly as embedded (DER), so it can be pinned or exported. */
+  der: Uint8Array;
+};
+
+export type TrustSource = 'komdigi' | 'international' | 'aatl';
+
+/**
+ * Tells which trust store vouches for the top certificate of a chain. Browsers cannot read the operating
+ * system's trust store, so the default resolver asks the server (Komdigi roots kept by hand, everything
+ * else from the server's own CA bundle); tests inject their own.
+ */
+export type AnchorResolver = (
+  topCertificate: Uint8Array,
+) => Promise<{ source: TrustSource; anchor: string } | null>;
+
+function readCookie(name: string): string {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+
+  return match ? decodeURIComponent(match[1]) : '';
+}
+
+export const resolveAnchorOnServer: AnchorResolver = async (certificate) => {
+  try {
+    const response = await fetch('/pdf-trust', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': readCookie('XSRF-TOKEN'),
+      },
+      body: JSON.stringify({
+        certificate: btoa(String.fromCharCode(...certificate)),
+      }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const { source, anchor } = (await response.json()) as {
+      source: TrustSource | null;
+      anchor: string | null;
+    };
+
+    return source && anchor ? { source, anchor } : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Outcome of anchoring a signer's chain in a trust store, the way a browser anchors a TLS certificate:
+ * every link must be signed by the next one and the chain must end at a root we ship.
+ */
+export type TrustResult = {
+  /** Which store anchored the chain, or null when no shipped root vouches for it. */
+  source: TrustSource | null;
+  /** Common name of the anchoring root. */
+  anchor: string | null;
+  /** Every certificate in the chain is signed by its issuer. */
+  linksValid: boolean;
+  /** Some certificate was outside its validity period when the document was signed. */
+  expired: boolean;
+  /** The first certificate that was outside its validity period at signing time, if any. */
+  outOfRange: CertificateInfo | null;
 };
 
 export type SignatureIntegrity = 'valid' | 'modified' | 'unknown';
@@ -32,6 +99,7 @@ export type PdfSignature = {
   komdigiRoot: boolean;
   /** Country code of the topmost certificate in the chain, e.g. "ID". */
   rootCountry: string | null;
+  trust: TrustResult;
 };
 
 type Node = { tag: number; start: number; body: number; end: number };
@@ -47,6 +115,17 @@ const EC_CURVES: Record<string, { name: string; size: number }> = {
   '1.2.840.10045.3.1.7': { name: 'P-256', size: 32 },
   '1.3.132.0.34': { name: 'P-384', size: 48 },
   '1.3.132.0.35': { name: 'P-521', size: 66 },
+};
+
+const CERTIFICATE_SIGNATURES: Record<string, { key: 'rsa' | 'ec'; hash: string }> = {
+  '1.2.840.113549.1.1.5': { key: 'rsa', hash: 'SHA-1' },
+  '1.2.840.113549.1.1.11': { key: 'rsa', hash: 'SHA-256' },
+  '1.2.840.113549.1.1.12': { key: 'rsa', hash: 'SHA-384' },
+  '1.2.840.113549.1.1.13': { key: 'rsa', hash: 'SHA-512' },
+  '1.2.840.10045.4.1': { key: 'ec', hash: 'SHA-1' },
+  '1.2.840.10045.4.3.2': { key: 'ec', hash: 'SHA-256' },
+  '1.2.840.10045.4.3.3': { key: 'ec', hash: 'SHA-384' },
+  '1.2.840.10045.4.3.4': { key: 'ec', hash: 'SHA-512' },
 };
 
 const DIGEST_ALGORITHMS: Record<string, string> = {
@@ -207,10 +286,14 @@ type ParsedCertificate = {
   publicKey: Uint8Array;
   publicKeyOid: string;
   curveOid: string | null;
+  /** The signed part (tbsCertificate), its signature algorithm and the issuer's signature over it. */
+  tbs: Uint8Array;
+  signatureOid: string;
+  signature: Uint8Array;
 };
 
 function parseCertificate(bytes: Uint8Array, node: Node): ParsedCertificate {
-  const [tbs] = children(bytes, node);
+  const [tbs, signatureAlgorithm, signatureBits] = children(bytes, node);
   const fields = children(bytes, tbs);
   const offset = fields[0].tag === 0xa0 ? 1 : 0;
   const serial = fields[offset];
@@ -223,6 +306,9 @@ function parseCertificate(bytes: Uint8Array, node: Node): ParsedCertificate {
   const [algorithm] = children(bytes, publicKeyInfo);
 
   return {
+    tbs: raw(bytes, tbs),
+    signatureOid: oidOf(bytes, children(bytes, signatureAlgorithm)[0]),
+    signature: bytes.subarray(signatureBits.body + 1, signatureBits.end),
     subjectKey: hex(raw(bytes, subject)),
     issuerKey: hex(raw(bytes, issuer)),
     publicKey: raw(bytes, publicKeyInfo),
@@ -244,6 +330,7 @@ function parseCertificate(bytes: Uint8Array, node: Node): ParsedCertificate {
       validFrom: timeOf(bytes, validity[0]),
       validTo: timeOf(bytes, validity[1]),
       selfSigned: hex(raw(bytes, subject)) === hex(raw(bytes, issuer)),
+      der: raw(bytes, node),
     },
   };
 }
@@ -351,6 +438,119 @@ function pdfDate(value: string | null): Date | null {
   );
 }
 
+/**
+ * Verifies `signature` over `data` with the public key of `certificate`. Returns null when the key type or
+ * curve is not one WebCrypto can check here.
+ */
+async function verifyWithCertificate(
+  certificate: ParsedCertificate,
+  hash: string,
+  data: Uint8Array,
+  signature: Uint8Array,
+): Promise<boolean | null> {
+  if (certificate.publicKeyOid === OID_RSA_ENCRYPTION) {
+    const key = await crypto.subtle.importKey(
+      'spki',
+      certificate.publicKey as BufferSource,
+      { name: 'RSASSA-PKCS1-v1_5', hash },
+      false,
+      ['verify'],
+    );
+
+    return crypto.subtle.verify(
+      'RSASSA-PKCS1-v1_5',
+      key,
+      signature as BufferSource,
+      data as BufferSource,
+    );
+  }
+
+  const curve =
+    certificate.publicKeyOid === OID_EC_PUBLIC_KEY && certificate.curveOid
+      ? EC_CURVES[certificate.curveOid]
+      : undefined;
+
+  if (!curve) {
+    return null;
+  }
+
+  const key = await crypto.subtle.importKey(
+    'spki',
+    certificate.publicKey as BufferSource,
+    { name: 'ECDSA', namedCurve: curve.name },
+    false,
+    ['verify'],
+  );
+
+  return crypto.subtle.verify(
+    { name: 'ECDSA', hash },
+    key,
+    ecdsaToRaw(signature, curve.size) as BufferSource,
+    data as BufferSource,
+  );
+}
+
+/** True when `issuer` signed `certificate`; false on a bad signature, unsupported algorithm or malformed key. */
+async function isSignedBy(
+  certificate: ParsedCertificate,
+  issuer: ParsedCertificate,
+): Promise<boolean> {
+  const algorithm = CERTIFICATE_SIGNATURES[certificate.signatureOid];
+
+  if (!algorithm || !globalThis.crypto?.subtle) {
+    return false;
+  }
+
+  try {
+    return (
+      (await verifyWithCertificate(
+        issuer,
+        algorithm.hash,
+        certificate.tbs,
+        certificate.signature,
+      )) === true
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Anchors a signer's chain the way a browser anchors a TLS certificate: each certificate must be signed by
+ * the next (checked here), and the top one must be vouched for by a trusted root (asked of `resolveAnchor`).
+ * Revocation (CRL/OCSP) is not consulted.
+ */
+async function evaluateTrust(
+  chain: ParsedCertificate[],
+  resolveAnchor: AnchorResolver,
+  signedAt: Date | null,
+): Promise<TrustResult> {
+  const at = signedAt ?? new Date();
+  const outOfRange =
+    chain.find(
+      ({ info }) =>
+        (info.validFrom !== null && info.validFrom > at) ||
+        (info.validTo !== null && info.validTo < at),
+    )?.info ?? null;
+  let linksValid = true;
+
+  for (let index = 0; index < chain.length - 1; index++) {
+    linksValid &&= await isSignedBy(chain[index], chain[index + 1]);
+  }
+
+  const anchored = linksValid
+    ? await resolveAnchor(chain[chain.length - 1].info.der)
+    : null;
+
+  return {
+    source: anchored?.source ?? null,
+    anchor: anchored?.anchor ?? null,
+    linksValid,
+    expired: outOfRange !== null,
+    outOfRange,
+  };
+}
+
 async function checkIntegrity(
   bytes: Uint8Array,
   container: Uint8Array,
@@ -395,50 +595,14 @@ async function checkIntegrity(
     const attributes = raw(container, signedAttributes).slice();
     attributes[0] = 0x31;
 
-    if (signer.publicKeyOid === OID_RSA_ENCRYPTION) {
-      const key = await crypto.subtle.importKey(
-        'spki',
-        signer.publicKey as BufferSource,
-        { name: 'RSASSA-PKCS1-v1_5', hash: algorithm },
-        false,
-        ['verify'],
-      );
-
-      return (await crypto.subtle.verify(
-        'RSASSA-PKCS1-v1_5',
-        key,
-        signature as BufferSource,
-        attributes as BufferSource,
-      ))
-        ? 'valid'
-        : 'modified';
-    }
-
-    const curve =
-      signer.publicKeyOid === OID_EC_PUBLIC_KEY && signer.curveOid
-        ? EC_CURVES[signer.curveOid]
-        : undefined;
-
-    if (!curve) {
-      return 'unknown';
-    }
-
-    const key = await crypto.subtle.importKey(
-      'spki',
-      signer.publicKey as BufferSource,
-      { name: 'ECDSA', namedCurve: curve.name },
-      false,
-      ['verify'],
+    const verified = await verifyWithCertificate(
+      signer,
+      algorithm,
+      attributes,
+      signature,
     );
 
-    return (await crypto.subtle.verify(
-      { name: 'ECDSA', hash: algorithm },
-      key,
-      ecdsaToRaw(signature, curve.size) as BufferSource,
-      attributes as BufferSource,
-    ))
-      ? 'valid'
-      : 'modified';
+    return verified === null ? 'unknown' : verified ? 'valid' : 'modified';
   } catch {
     return 'unknown';
   }
@@ -469,6 +633,7 @@ async function parseSignedData(
   bytes: Uint8Array,
   container: Uint8Array,
   ranges: number[],
+  resolveAnchor: AnchorResolver,
 ): Promise<Omit<
   PdfSignature,
   'reason' | 'location' | 'coversWholeDocument'
@@ -541,13 +706,15 @@ async function parseSignedData(
     : undefined;
   const infos = chain.map((entry) => entry.info);
   const top = infos[infos.length - 1];
+  const signedAt = signingTime
+    ? timeOf(container, children(container, signingTime[1])[0])
+    : null;
 
   return {
     signer: signer.info,
     chain: infos,
-    signedAt: signingTime
-      ? timeOf(container, children(container, signingTime[1])[0])
-      : null,
+    signedAt,
+    trust: await evaluateTrust(chain, resolveAnchor, signedAt),
     integrity: await checkIntegrity(
       bytes,
       container,
@@ -572,6 +739,7 @@ async function parseSignedData(
  */
 export async function extractPdfSignatures(
   bytes: Uint8Array,
+  resolveAnchor: AnchorResolver = resolveAnchorOnServer,
 ): Promise<PdfSignature[]> {
   const text = new TextDecoder('latin1').decode(bytes);
   const signatures: PdfSignature[] = [];
@@ -599,7 +767,7 @@ export async function extractPdfSignatures(
       const container = Uint8Array.from(
         (digits.match(/../g) ?? []).map((pair) => parseInt(pair, 16)),
       );
-      const parsed = await parseSignedData(bytes, container, ranges);
+      const parsed = await parseSignedData(bytes, container, ranges, resolveAnchor);
 
       if (!parsed) {
         continue;
