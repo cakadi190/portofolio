@@ -19,7 +19,7 @@
     "@inertiajs/svelte": "^3.9.1",
     "@inertiajs/vite": "^3.9.1",
     "@laravel/passkeys": "^0.4.0",
-    "@lucide/svelte": "^1.55.0",
+    "@lucide/svelte": "^1.56.0",
     "@popperjs/core": "^2.11.8",
     "@sentry/svelte": "^11.7.0",
     "@svelte-plugins/datepicker": "^1.0.11",

@@ -35,7 +35,7 @@ class ResumeController extends Controller
             ])->all(),
             'pdfUrl' => $this->pdfUrl($profile),
             'downloadName' => $profile->filename(),
-            'title' => 'CV - '.ResumeService::NAME,
+            'title' => 'Resume / Curriculum Vitae',
             'description' => "{$profile->label()} {$profile->headline()}: ".$profile->description(),
         ]);
     }
