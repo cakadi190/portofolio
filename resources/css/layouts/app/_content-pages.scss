@@ -71,7 +71,8 @@
   }
 }
 
-.card.sticky-top {
+.card.sticky-top,
+.sticky-sidebar {
   position: sticky;
   top: 7.5rem;
   z-index: 1020;

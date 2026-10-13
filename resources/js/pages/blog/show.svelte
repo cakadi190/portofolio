@@ -112,13 +112,13 @@
               </div>
             </div>
             <div class="col-md-4">
-              <div class="sticky-top d-flex flex-column gap-4">
-              <div class="card rounded-4">
+              <div class="sticky-sidebar d-flex flex-column gap-4">
+              <div class="card rounded-4 overflow-hidden">
                 <div class="card-header p-4">
                   <h4 class="mb-0">Artikel Lainnya</h4>
                 </div>
                 {#if otherPosts.length}
-                  <ul class="list-group list-group-flush rounded-bottom-4">
+                  <ul class="list-group list-group-flush">
                     {#each otherPosts as other (other.slug)}
                       <li class="list-group-item">
                         <Link
@@ -137,7 +137,7 @@
                 {/if}
               </div>
 
-              <div class="card rounded-4">
+              <div class="card rounded-4 overflow-hidden">
                 <div class="card-header p-4">
                   <h4 class="mb-0">Kategori</h4>
                 </div>
@@ -158,7 +158,7 @@
                 {/if}
               </div>
 
-              <div class="card rounded-4">
+              <div class="card rounded-4 overflow-hidden">
                 <div class="card-header p-4">
                   <h4 class="mb-0">Tag</h4>
                 </div>

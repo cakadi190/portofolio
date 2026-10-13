@@ -5,33 +5,30 @@
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
   import Bold from '@lucide/svelte/icons/bold';
-  import ClipboardPaste from '@lucide/svelte/icons/clipboard-paste';
-  import Copy from '@lucide/svelte/icons/copy';
-  import CopyPlus from '@lucide/svelte/icons/copy-plus';
   import Info from '@lucide/svelte/icons/info';
   import MousePointerClick from '@lucide/svelte/icons/mouse-pointer-click';
   import Replace from '@lucide/svelte/icons/replace';
-  import Scissors from '@lucide/svelte/icons/scissors';
   import Trash from '@lucide/svelte/icons/trash';
-  import Code from '@lucide/svelte/icons/code';
   import Heading1 from '@lucide/svelte/icons/heading-1';
   import Heading2 from '@lucide/svelte/icons/heading-2';
   import Heading3 from '@lucide/svelte/icons/heading-3';
   import ImageIcon from '@lucide/svelte/icons/image';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+  import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+  import PanelRight from '@lucide/svelte/icons/panel-right';
+  import Search from '@lucide/svelte/icons/search';
+  import X from '@lucide/svelte/icons/x';
   import Italic from '@lucide/svelte/icons/italic';
   import Link from '@lucide/svelte/icons/link';
   import List from '@lucide/svelte/icons/list';
   import ListOrdered from '@lucide/svelte/icons/list-ordered';
   import Minus from '@lucide/svelte/icons/minus';
   import Pilcrow from '@lucide/svelte/icons/pilcrow';
-  import Palette from '@lucide/svelte/icons/palette';
   import Plus from '@lucide/svelte/icons/plus';
   import Quote from '@lucide/svelte/icons/quote';
   import Redo2 from '@lucide/svelte/icons/redo-2';
   import SquareCode from '@lucide/svelte/icons/square-code';
-  import Strikethrough from '@lucide/svelte/icons/strikethrough';
-  import Underline from '@lucide/svelte/icons/underline';
   import Undo2 from '@lucide/svelte/icons/undo-2';
   import { Editor, type ChainedCommands } from '@tiptap/core';
   import CharacterCount from '@tiptap/extension-character-count';
@@ -39,7 +36,8 @@
   import TextAlign from '@tiptap/extension-text-align';
   import { NodeSelection } from '@tiptap/pm/state';
   import StarterKit from '@tiptap/starter-kit';
-  import { onMount } from 'svelte';
+  import { Link as InertiaLink } from '@inertiajs/svelte';
+  import { onMount, type Snippet } from 'svelte';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
   import {
     ButtonBlock,
@@ -70,6 +68,14 @@
     placeholder = 'Mulai menulis cerita Anda...',
     invalid = false,
     minimal = false,
+    shell = false,
+    backHref = '',
+    documentTitle = '',
+    rootLabel = 'Dokumen',
+    header,
+    settings,
+    actions,
+    after,
   }: {
     name: string;
     value?: string | null;
@@ -77,6 +83,22 @@
     invalid?: boolean;
     /** Public-safe mode: basic formatting only, no images, links, headings or HTML tab. */
     minimal?: boolean;
+    /** Gutenberg-style full-screen editor: top bar, canvas and a settings sidebar. */
+    shell?: boolean;
+    /** Target of the back arrow in the shell top bar. */
+    backHref?: string;
+    /** Title shown in the centre of the shell top bar. */
+    documentTitle?: string;
+    /** First crumb of the breadcrumb under the canvas. */
+    rootLabel?: string;
+    /** Rendered above the content (e.g. the title field). */
+    header?: Snippet;
+    /** Content of the "document" tab of the shell sidebar. */
+    settings?: Snippet;
+    /** Buttons on the right of the shell top bar (e.g. save). */
+    actions?: Snippet;
+    /** Rendered below the content (e.g. validation feedback). */
+    after?: Snippet;
   } = $props();
 
   let element = $state<HTMLDivElement>();
@@ -95,8 +117,18 @@
   // Floating language picker anchored to the code block under the caret.
   let codeBadge = $state({ visible: false, top: 0, right: 0 });
   let pickerMode = $state<'insert' | 'replace'>('insert');
-  let ctx = $state({ open: false, x: 0, y: 0 });
+  let ctx = $state({
+    open: false,
+    x: 0,
+    y: 0,
+    kind: 'context' as 'context' | 'type' | 'align',
+  });
   let ctxEl = $state<HTMLDivElement>();
+  let menuEl = $state<HTMLDivElement>();
+  let focused = $state(false);
+  let sidebarOpen = $state(true);
+  let sidebarTab = $state<'document' | 'block'>('document');
+  let blockTb = $state({ visible: false, top: 0, left: 0 });
 
   type BlockItem = {
     label: string;
@@ -116,7 +148,8 @@
   };
   type ContextItem = {
     label: string;
-    icon: typeof Pilcrow;
+    icon?: typeof Pilcrow;
+    shortcut?: string;
     action: () => void;
     disabled?: boolean;
     on?: boolean;
@@ -131,6 +164,54 @@
     dark: 'Gelap',
   };
 
+  const blockLabels: Record<string, string> = {
+    paragraph: 'Paragraf',
+    bulletList: 'Daftar poin',
+    orderedList: 'Daftar angka',
+    blockquote: 'Kutipan',
+    codeBlock: 'Blok kode',
+    callout: 'Callout',
+    image: 'Gambar',
+    buttonBlock: 'Tombol',
+    horizontalRule: 'Garis pemisah',
+  };
+  const blockDescriptions: Record<string, string> = {
+    paragraph: 'Mulai dengan komponen dasar dari semua cerita.',
+    heading: 'Beri judul pada bagian tulisan Anda.',
+    bulletList: 'Buat daftar poin biasa.',
+    orderedList: 'Buat daftar bernomor.',
+    blockquote: 'Beri penekanan visual pada kutipan.',
+    codeBlock: 'Tampilkan cuplikan kode dengan pewarnaan sintaks.',
+    callout: 'Kotak catatan berwarna untuk info penting.',
+    image: 'Sisipkan gambar dari pustaka media.',
+    buttonBlock: 'Tautan ajakan bertindak berbentuk tombol.',
+    horizontalRule: 'Pisahkan bagian tulisan dengan garis.',
+  };
+  const blockIcons: Record<string, typeof Pilcrow> = {
+    paragraph: Pilcrow,
+    heading: Heading2,
+    bulletList: List,
+    orderedList: ListOrdered,
+    blockquote: Quote,
+    codeBlock: SquareCode,
+    callout: Info,
+    image: ImageIcon,
+    buttonBlock: MousePointerClick,
+    horizontalRule: Minus,
+  };
+  const alignKeys = ['left', 'center', 'right'] as const;
+  const headingLevels = [1, 2, 3] as const;
+  const alignLabels = {
+    left: 'Rata kiri',
+    center: 'Rata tengah',
+    right: 'Rata kanan',
+  } as const;
+  const alignIcons = {
+    left: AlignLeft,
+    center: AlignCenter,
+    right: AlignRight,
+  } as const;
+
   const imageWidths = [25, 50, 75, 100];
   const headingItems = [
     { value: '0', label: 'Paragraf' },
@@ -138,7 +219,10 @@
     { value: '2', label: 'Judul 2' },
     { value: '3', label: 'Judul 3' },
   ];
-  const widthItems = imageWidths.map((width) => ({ value: String(width), label: `${width}%` }));
+  const widthItems = imageWidths.map((width) => ({
+    value: String(width),
+    label: `${width}%`,
+  }));
   const buttonVariantItems = [
     { value: 'solid', label: 'Solid' },
     { value: 'outline', label: 'Garis tepi' },
@@ -147,10 +231,12 @@
     ...languageNames().map((name) => ({ value: name, label: name })),
     { value: 'plaintext', label: 'Teks biasa' },
   ];
-  const themeItems = CODE_THEMES.filter((theme) => theme.value !== '').map((theme) => ({
-    value: theme.value,
-    label: `Tema: ${theme.label}`,
-  }));
+  const themeItems = CODE_THEMES.filter((theme) => theme.value !== '').map(
+    (theme) => ({
+      value: theme.value,
+      label: `Tema: ${theme.label}`,
+    }),
+  );
   const defaultThemeLabel = `Tema: ${CODE_THEMES.find((theme) => theme.value === '')?.label ?? 'Otomatis'}`;
 
   const blockItems: BlockItem[] = [
@@ -243,7 +329,7 @@
   let inserter = $state({ visible: false, top: 0, left: 0 });
   let menu = $state({
     open: false,
-    source: 'slash' as 'slash' | 'button',
+    source: 'slash' as 'slash' | 'button' | 'top',
     top: 0,
     left: 0,
     query: '',
@@ -262,6 +348,150 @@
 
   function closeMenu(): void {
     menu.open = false;
+  }
+
+  /** Top-level block under the selection, for the inspector and breadcrumb. */
+  const currentBlock = $derived.by(() => {
+    void tick;
+
+    const range = editor ? topBlock() : null;
+    const node = range ? editor?.state.doc.nodeAt(range.pos) : null;
+
+    if (!range || !node) return null;
+
+    const kind = node.type.name;
+
+    return {
+      kind,
+      pos: range.pos,
+      label:
+        kind === 'heading'
+          ? `Judul ${node.attrs.level}`
+          : (blockLabels[kind] ?? kind),
+    };
+  });
+
+  /** Places the floating block toolbar above the block under the caret. */
+  function syncToolbar(): void {
+    const range = editor ? topBlock() : null;
+    const dom = range ? editor?.view.nodeDOM(range.pos) : null;
+
+    if (
+      !editor ||
+      mode !== 'visual' ||
+      !focused ||
+      !(dom instanceof HTMLElement)
+    ) {
+      blockTb.visible = false;
+
+      return;
+    }
+
+    const rect = dom.getBoundingClientRect();
+    const floor = shell ? 126 : 72;
+
+    const isLaidOut = rect.height > 0;
+
+    if (
+      isLaidOut &&
+      (rect.bottom < floor + 8 || rect.top > window.innerHeight)
+    ) {
+      blockTb.visible = false;
+
+      return;
+    }
+
+    blockTb.visible = true;
+    blockTb.top = Math.max(rect.top - 52, floor + 4);
+    blockTb.left = Math.max(8, Math.min(rect.left, window.innerWidth - 360));
+  }
+
+  function openToolbarMenu(
+    kind: 'type' | 'align' | 'context',
+    event: MouseEvent,
+  ): void {
+    if (ctx.open && ctx.kind === kind) {
+      closeContext();
+
+      return;
+    }
+
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+
+    closeMenu();
+    Object.assign(ctx, { open: true, kind, x: rect.left, y: rect.bottom + 4 });
+  }
+
+  function openTopInserter(event: MouseEvent): void {
+    if (menu.open && menu.source === 'top') {
+      closeMenu();
+
+      return;
+    }
+
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+
+    Object.assign(menu, {
+      open: true,
+      source: 'top',
+      query: '',
+      index: 0,
+      top: rect.bottom + 6,
+      left: rect.left,
+    });
+  }
+
+  function applyBlock(item: BlockItem): void {
+    if (!editor) return;
+
+    const chain = editor.chain().focus();
+
+    (item.run ? item.run(chain) : chain).run();
+
+    if (item.action) item.action();
+
+    if (item.picker) openPicker('insert');
+  }
+
+  function isAligned(align: 'left' | 'center' | 'right'): boolean {
+    void tick;
+
+    if (blockInfo?.kind === 'image' || blockInfo?.kind === 'buttonBlock') {
+      return blockInfo.attrs.align === align;
+    }
+
+    return editor?.isActive({ textAlign: align }) ?? false;
+  }
+
+  function setAlign(align: 'left' | 'center' | 'right'): void {
+    if (blockInfo?.kind === 'image' || blockInfo?.kind === 'buttonBlock') {
+      patchBlock({
+        align,
+        ...(blockInfo.kind === 'image' &&
+        align !== 'center' &&
+        !blockInfo.attrs.width
+          ? { width: 50 }
+          : {}),
+      });
+
+      return;
+    }
+
+    editor?.chain().focus().setTextAlign(align).run();
+  }
+
+  function addParagraph(where: 'before' | 'after'): void {
+    const range = topBlock();
+
+    if (!editor || !range) return;
+
+    const at = where === 'before' ? range.pos : range.pos + range.size;
+
+    editor
+      .chain()
+      .insertContentAt(at, { type: 'paragraph' })
+      .focus(at + 1)
+      .run();
   }
 
   /** Tracks the caret line to place the "+" inserter and the "/" command menu. */
@@ -315,6 +545,8 @@
 
     inserter.visible = text === '' && caret.depth === 1;
     inserter.top = coords.top - bounds.top;
+    inserter.left =
+      editor.view.dom.getBoundingClientRect().right - bounds.left - 24;
 
     const match = /^\/([\p{L}\d]*)$/u.exec(text);
 
@@ -360,6 +592,21 @@
 
     if (menu.source === 'slash')
       chain.deleteRange({ from: menu.from, to: menu.to });
+
+    if (menu.source === 'top') {
+      const range = topBlock();
+      const node = range ? editor.state.doc.nodeAt(range.pos) : null;
+      const isEmptyParagraph =
+        node?.type.name === 'paragraph' && node.content.size === 0;
+
+      if (!isEmptyParagraph) {
+        const at = range
+          ? range.pos + range.size
+          : editor.state.doc.content.size;
+
+        chain.insertContentAt(at, { type: 'paragraph' }).focus(at + 1);
+      }
+    }
 
     (item.run ? item.run(chain) : chain).run();
     closeMenu();
@@ -562,7 +809,12 @@
     }
 
     editor.commands.focus();
-    Object.assign(ctx, { open: true, x: event.clientX, y: event.clientY });
+    Object.assign(ctx, {
+      open: true,
+      kind: 'context',
+      x: event.clientX,
+      y: event.clientY,
+    });
   }
 
   async function pasteFromClipboard(): Promise<void> {
@@ -584,99 +836,128 @@
     if (!ctx.open || !editor) return [];
 
     const instance = editor;
+
+    if (ctx.kind === 'type') {
+      return [
+        blockItems.map<ContextItem>((item) => ({
+          label: item.label,
+          icon: item.icon,
+          on: currentBlock?.label === item.label,
+          action: () => applyBlock(item),
+        })),
+      ];
+    }
+
+    if (ctx.kind === 'align') {
+      return [
+        (['left', 'center', 'right'] as const).map<ContextItem>((align) => ({
+          label: alignLabels[align],
+          icon: alignIcons[align],
+          on: isAligned(align),
+          action: () => setAlign(align),
+        })),
+      ];
+    }
+
     const hasSelection =
       !instance.state.selection.empty ||
       instance.state.selection instanceof NodeSelection;
     const groups: ContextItem[][] = [
       [
         {
-          label: 'Potong',
-          icon: Scissors,
-          disabled: !hasSelection,
-          action: () => clipboardCommand('cut'),
-        },
-        {
           label: 'Salin',
-          icon: Copy,
+          shortcut: 'Ctrl+C',
           disabled: !hasSelection,
           action: () => clipboardCommand('copy'),
         },
-        { label: 'Tempel', icon: ClipboardPaste, action: pasteFromClipboard },
-      ],
-      [
         {
-          label: 'Tebal',
-          icon: Bold,
-          on: active('bold'),
-          action: () => instance.chain().focus().toggleBold().run(),
+          label: 'Potong',
+          shortcut: 'Ctrl+X',
+          disabled: !hasSelection,
+          action: () => clipboardCommand('cut'),
         },
-        {
-          label: 'Miring',
-          icon: Italic,
-          on: active('italic'),
-          action: () => instance.chain().focus().toggleItalic().run(),
-        },
-        {
-          label: 'Garis bawah',
-          icon: Underline,
-          on: active('underline'),
-          action: () => instance.chain().focus().toggleUnderline().run(),
-        },
-        {
-          label: 'Coret',
-          icon: Strikethrough,
-          on: active('strike'),
-          action: () => instance.chain().focus().toggleStrike().run(),
-        },
+        { label: 'Tempel', shortcut: 'Ctrl+V', action: pasteFromClipboard },
       ],
     ];
 
+    if (!minimal) {
+      groups[0].push(
+        { label: 'Gandakan', action: duplicateBlock },
+        { label: 'Tambahkan sebelumnya', action: () => addParagraph('before') },
+        { label: 'Tambahkan setelahnya', action: () => addParagraph('after') },
+      );
+    }
+
+    const format: ContextItem[] = [
+      {
+        label: 'Tebal',
+        shortcut: 'Ctrl+B',
+        on: active('bold'),
+        action: () => instance.chain().focus().toggleBold().run(),
+      },
+      {
+        label: 'Miring',
+        shortcut: 'Ctrl+I',
+        on: active('italic'),
+        action: () => instance.chain().focus().toggleItalic().run(),
+      },
+      {
+        label: 'Garis bawah',
+        shortcut: 'Ctrl+U',
+        on: active('underline'),
+        action: () => instance.chain().focus().toggleUnderline().run(),
+      },
+      {
+        label: 'Coret',
+        on: active('strike'),
+        action: () => instance.chain().focus().toggleStrike().run(),
+      },
+    ];
+
+    groups.push(format);
+
     if (minimal) return groups;
 
-    groups[1].push({
-      label: active('link') ? 'Ubah tautan' : 'Tautan',
-      icon: Link,
-      on: active('link'),
-      action: setLink,
-    });
-
-    const turnInto = blockItems
-      .filter((item) =>
-        ['Paragraf', 'Judul 2', 'Judul 3', 'Kutipan', 'Callout'].includes(
-          item.label,
-        ),
-      )
-      .map<ContextItem>((item) => ({
-        label: `Ubah ke ${item.label.toLowerCase()}`,
-        icon: item.icon,
-        action: () => item.run && item.run(instance.chain().focus()).run(),
-      }));
-
-    groups.push(turnInto, [
+    format.push(
       {
-        label: 'Sisipkan blok...',
-        icon: Plus,
-        action: () => setTimeout(openButtonMenu),
+        label: 'Kode inline',
+        on: active('code'),
+        action: () => instance.chain().focus().toggleCode().run(),
+      },
+      {
+        label: active('link') ? 'Ubah tautan' : 'Tautan',
+        on: active('link'),
+        action: setLink,
+      },
+    );
+
+    groups.push([
+      {
+        label: 'Ubah menjadi...',
+        action: () =>
+          setTimeout(() => Object.assign(ctx, { open: true, kind: 'type' })),
+      },
+      {
+        label: 'Pindah ke atas',
+        disabled: !canMove(-1),
+        action: () => moveBlock(-1),
+      },
+      {
+        label: 'Pindah ke bawah',
+        disabled: !canMove(1),
+        action: () => moveBlock(1),
       },
     ]);
 
     if (blockInfo?.kind === 'image') {
       groups.push([
         ...(['left', 'center', 'right'] as const).map<ContextItem>((align) => ({
-          label: {
-            left: 'Rata kiri',
-            center: 'Rata tengah',
-            right: 'Rata kanan',
-          }[align],
-          icon: { left: AlignLeft, center: AlignCenter, right: AlignRight }[
-            align
-          ],
+          label: alignLabels[align],
           on: blockInfo?.attrs.align === align,
           action: () => patchBlock({ align }),
         })),
         {
           label: 'Ganti gambar...',
-          icon: Replace,
           action: () => openPicker('replace'),
         },
       ]);
@@ -695,18 +976,11 @@
           { label: 'Bahasa: Teks biasa', value: 'plaintext' },
         ].map<ContextItem>(({ label, value }) => ({
           label,
-          icon: SquareCode,
           on: current === value,
           action: () => patchBlock({ language: value || null }),
         })),
-      );
-    }
-
-    if (blockInfo?.kind === 'codeBlock') {
-      groups.push(
         CODE_THEMES.map<ContextItem>((theme) => ({
           label: `Tema: ${theme.label}`,
-          icon: Palette,
           on: (blockInfo?.attrs.theme ?? '') === theme.value,
           action: () => patchBlock({ theme: theme.value || null }),
         })),
@@ -714,22 +988,12 @@
     }
 
     groups.push([
-      { label: 'Duplikat blok', icon: CopyPlus, action: duplicateBlock },
+      { label: 'Sunting sebagai HTML', action: () => setMode('html') },
+    ]);
+
+    groups.push([
       {
-        label: 'Pindah ke atas',
-        icon: ArrowUp,
-        disabled: !canMove(-1),
-        action: () => moveBlock(-1),
-      },
-      {
-        label: 'Pindah ke bawah',
-        icon: ArrowDown,
-        disabled: !canMove(1),
-        action: () => moveBlock(1),
-      },
-      {
-        label: 'Hapus blok',
-        icon: Trash,
+        label: 'Hapus',
         danger: true,
         action: () => deleteBlock(),
       },
@@ -761,8 +1025,8 @@
     if (x !== ctx.x || y !== ctx.y) Object.assign(ctx, { x, y });
   });
 
-  function handleMenuKey(event: KeyboardEvent): boolean {
-    if (!menu.open) return false;
+  function handleMenuKey(event: KeyboardEvent, fromInput = false): boolean {
+    if (!menu.open || (menu.source === 'top' && !fromInput)) return false;
 
     const total = filteredBlocks.length;
 
@@ -923,318 +1187,102 @@
         blockInfo = readBlock();
         syncCodeBadge();
         syncBlockUi();
+        syncToolbar();
+      },
+      onFocus: () => {
+        focused = true;
+        if (menu.source === 'top') closeMenu();
+        syncToolbar();
       },
       onBlur: () => {
+        focused = false;
         if (menu.source === 'slash') closeMenu();
+        syncToolbar();
       },
     });
 
     editor = instance;
     words = instance.storage.characterCount.words();
 
-    return () => instance.destroy();
+    if (window.innerWidth < 992) sidebarOpen = false;
+
+    const resync = (): void => syncToolbar();
+
+    window.addEventListener('scroll', resync, true);
+    window.addEventListener('resize', resync);
+
+    return () => {
+      window.removeEventListener('scroll', resync, true);
+      window.removeEventListener('resize', resync);
+      instance.destroy();
+    };
   });
 </script>
 
 <svelte:window
   onpointerdown={(event) => {
-    if (ctx.open && !ctxEl?.contains(event.target as Node)) closeContext();
+    const target = event.target as HTMLElement;
+
+    if (
+      ctx.open &&
+      !ctxEl?.contains(target) &&
+      !target.closest('[data-rte-trigger]')
+    ) {
+      closeContext();
+    }
+
+    if (
+      menu.open &&
+      menu.source === 'top' &&
+      !menuEl?.contains(target) &&
+      !target.closest('[data-rte-trigger]')
+    ) {
+      closeMenu();
+    }
   }}
   onkeydown={(event) => {
     if (ctx.open && event.key === 'Escape') closeContext();
+    if (menu.open && menu.source === 'top' && event.key === 'Escape')
+      closeMenu();
   }}
   onresize={closeContext}
   onscroll={closeContext}
 />
 
-<div
-  class="rte"
-  class:is-invalid={invalid}
-  class:rte-minimal={minimal}
-  bind:this={host}
->
-  <input type="hidden" {name} value={html} />
+{#snippet alignButtons(onpick: (align: 'left' | 'center' | 'right') => void)}
+  <div class="rte-ins-row">
+    {#each alignKeys as align (align)}
+      {@const AlignIcon = alignIcons[align]}
+      <button
+        type="button"
+        class="rte-btn"
+        class:on={isAligned(align)}
+        title={alignLabels[align]}
+        onclick={() => onpick(align)}><AlignIcon size={16} /></button
+      >
+    {/each}
+  </div>
+{/snippet}
 
-  <div class="rte-top">
-    <div
-      class="rte-toolbar"
-      class:open={toolbarOpen}
-      id="rte-toolbar-{name}"
-      role="toolbar"
-      aria-label="Pemformatan teks"
-    >
-      {#if mode === 'visual' && editor}
-        {#if !minimal}
-          <Select
-            inline
-            required
-            searchable={false}
-            size="sm"
-            class="rte-select rte-adv"
-            ariaLabel="Gaya paragraf"
-            items={headingItems}
-            value={String(
-              [1, 2, 3].find((level) => active('heading', { level })) ?? 0,
-            )}
-            onchange={(next) => {
-              const level = Number(next);
-              if (level === 0) editor?.chain().focus().setParagraph().run();
-              else
-                editor
-                  ?.chain()
-                  .focus()
-                  .toggleHeading({ level: level as 1 | 2 | 3 })
-                  .run();
-            }}
-          />
-
-          <span class="rte-sep rte-adv"></span>
-        {/if}
-
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('bold')}
-          title="Tebal"
-          onclick={() => editor?.chain().focus().toggleBold().run()}
-          ><Bold size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('italic')}
-          title="Miring"
-          onclick={() => editor?.chain().focus().toggleItalic().run()}
-          ><Italic size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('underline')}
-          title="Garis bawah"
-          onclick={() => editor?.chain().focus().toggleUnderline().run()}
-          ><Underline size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('strike')}
-          title="Coret"
-          onclick={() => editor?.chain().focus().toggleStrike().run()}
-          ><Strikethrough size={16} /></button
-        >
-        {#if !minimal}
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active('code')}
-            title="Kode inline"
-            onclick={() => editor?.chain().focus().toggleCode().run()}
-            ><Code size={16} /></button
-          >
-        {/if}
-
-        {#if !minimal}
-          <span class="rte-sep rte-adv"></span>
-
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active('heading', { level: 1 })}
-            title="Judul 1"
-            onclick={() =>
-              editor?.chain().focus().toggleHeading({ level: 1 }).run()}
-            ><Heading1 size={16} /></button
-          >
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active('heading', { level: 2 })}
-            title="Judul 2"
-            onclick={() =>
-              editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-            ><Heading2 size={16} /></button
-          >
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active('heading', { level: 3 })}
-            title="Judul 3"
-            onclick={() =>
-              editor?.chain().focus().toggleHeading({ level: 3 }).run()}
-            ><Heading3 size={16} /></button
-          >
-
-          <span class="rte-sep rte-adv"></span>
-        {/if}
-        <span class="rte-sep rte-adv"></span>
-
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('bulletList')}
-          title="Daftar poin"
-          onclick={() => editor?.chain().focus().toggleBulletList().run()}
-          ><List size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('orderedList')}
-          title="Daftar angka"
-          onclick={() => editor?.chain().focus().toggleOrderedList().run()}
-          ><ListOrdered size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          class:on={active('blockquote')}
-          title="Kutipan"
-          onclick={() => editor?.chain().focus().toggleBlockquote().run()}
-          ><Quote size={16} /></button
-        >
-        {#if !minimal}
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active('codeBlock')}
-            title="Blok kode"
-            onclick={() => editor?.chain().focus().toggleCodeBlock().run()}
-            ><SquareCode size={16} /></button
-          >
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            title="Garis pemisah"
-            onclick={() => editor?.chain().focus().setHorizontalRule().run()}
-            ><Minus size={16} /></button
-          >
-
-          <span class="rte-sep rte-adv"></span>
-
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active({ textAlign: 'left' })}
-            title="Rata kiri"
-            onclick={() => editor?.chain().focus().setTextAlign('left').run()}
-            ><AlignLeft size={16} /></button
-          >
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active({ textAlign: 'center' })}
-            title="Rata tengah"
-            onclick={() => editor?.chain().focus().setTextAlign('center').run()}
-            ><AlignCenter size={16} /></button
-          >
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active({ textAlign: 'right' })}
-            title="Rata kanan"
-            onclick={() => editor?.chain().focus().setTextAlign('right').run()}
-            ><AlignRight size={16} /></button
-          >
-
-          <span class="rte-sep rte-adv"></span>
-
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            class:on={active('link')}
-            title="Tautan"
-            onclick={setLink}><Link size={16} /></button
-          >
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            title="Sisipkan gambar dari pustaka media"
-            disabled={uploading}
-            onclick={() => openPicker('insert')}><ImageIcon size={16} /></button
-          >
-        {/if}
-        <span class="rte-sep rte-adv"></span>
-
-        {#if !minimal}
-          <button
-            type="button"
-            class="rte-btn rte-adv"
-            title="Sisipkan blok"
-            onclick={openButtonMenu}><Plus size={16} /></button
-          >
-        {/if}
-
-        <button
-          type="button"
-          class="rte-btn"
-          title="Urungkan"
-          disabled={!editor.can().undo()}
-          onclick={() => editor?.chain().focus().undo().run()}
-          ><Undo2 size={16} /></button
-        >
-        <button
-          type="button"
-          class="rte-btn"
-          title="Ulangi"
-          disabled={!editor.can().redo()}
-          onclick={() => editor?.chain().focus().redo().run()}
-          ><Redo2 size={16} /></button
-        >
-        {#if !minimal}
-          <button
-            type="button"
-            class="rte-toggle"
-            aria-expanded={toolbarOpen}
-            aria-controls="rte-toolbar-{name}"
-            onclick={() => (toolbarOpen = !toolbarOpen)}
-            ><span>Lainnya</span><ChevronDown size={16} /></button
-          >
-        {/if}
-      {/if}
-    </div>
-
-    {#if !minimal}
-      <div class="rte-tabs" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'visual'}
-          class="rte-tab"
-          class:on={mode === 'visual'}
-          onclick={() => setMode('visual')}>Visual</button
-        >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'html'}
-          class="rte-tab"
-          class:on={mode === 'html'}
-          onclick={() => setMode('html')}>HTML</button
-        >
+{#snippet inspector()}
+  {#if currentBlock}
+    {@const BlockIcon = blockIcons[currentBlock.kind] ?? Pilcrow}
+    <div class="rte-ins">
+      <div class="rte-ins-head">
+        <BlockIcon size={20} />
+        <div>
+          <strong>{currentBlock.label}</strong>
+          <p class="rte-ins-desc">{blockDescriptions[currentBlock.kind]}</p>
+        </div>
       </div>
-    {/if}
 
-    {#if blockInfo && mode === 'visual'}
-      <div class="rte-blockbar" role="toolbar" aria-label="Pengaturan blok">
-        {#if blockInfo.kind === 'image'}
-          <span class="rte-bar-title">Gambar</span>
-          {#each [{ align: 'left', label: 'Rata kiri', icon: AlignLeft }, { align: 'center', label: 'Rata tengah', icon: AlignCenter }, { align: 'right', label: 'Rata kanan', icon: AlignRight }] as option (option.align)}
-            <button
-              type="button"
-              class="rte-btn"
-              class:on={blockInfo.attrs.align === option.align}
-              title={option.label}
-              onclick={() =>
-                patchBlock({
-                  align: option.align,
-                  width:
-                    option.align !== 'center' && !blockInfo?.attrs.width
-                      ? 50
-                      : blockInfo?.attrs.width,
-                })}><option.icon size={16} /></button
-            >
-          {/each}
+      {#if blockInfo?.kind === 'image'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Perataan</span>
+          {@render alignButtons(setAlign)}
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Lebar</span>
           <Select
             inline
             searchable={false}
@@ -1246,38 +1294,48 @@
             value={blockInfo.attrs.width ? String(blockInfo.attrs.width) : null}
             onchange={(next) => patchBlock({ width: Number(next) || null })}
           />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Teks alternatif</span>
           <input
-            class="form-control form-control-sm rte-field"
+            class="form-control form-control-sm"
             placeholder="Teks alternatif"
             aria-label="Teks alternatif"
             value={blockInfo.attrs.alt ?? ''}
             oninput={(event) => patchBlock({ alt: event.currentTarget.value })}
           />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Keterangan</span>
           <input
-            class="form-control form-control-sm rte-field"
+            class="form-control form-control-sm"
             placeholder="Keterangan gambar"
             aria-label="Keterangan gambar"
             value={blockInfo.attrs.caption ?? ''}
             oninput={(event) =>
               patchBlock({ caption: event.currentTarget.value })}
           />
-          <button
-            type="button"
-            class="rte-btn"
-            title="Ganti gambar"
-            onclick={() => openPicker('replace')}><Replace size={16} /></button
-          >
-        {:else if blockInfo.kind === 'buttonBlock'}
-          <span class="rte-bar-title">Tombol</span>
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary align-self-start"
+          onclick={() => openPicker('replace')}>Ganti gambar</button
+        >
+      {:else if blockInfo?.kind === 'buttonBlock'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Teks tombol</span>
           <input
-            class="form-control form-control-sm rte-field"
+            class="form-control form-control-sm"
             placeholder="Teks tombol"
             aria-label="Teks tombol"
             value={blockInfo.attrs.text ?? ''}
             oninput={(event) => patchBlock({ text: event.currentTarget.value })}
           />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Tautan</span>
           <input
-            class="form-control form-control-sm rte-field"
+            class="form-control form-control-sm"
             placeholder="https://..."
             aria-label="Alamat tautan tombol"
             value={blockInfo.attrs.href ?? ''}
@@ -1287,6 +1345,9 @@
               patchBlock({ href });
             }}
           />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Gaya</span>
           <Select
             inline
             required
@@ -1298,18 +1359,14 @@
             value={blockInfo.attrs.variant}
             onchange={(next) => patchBlock({ variant: next })}
           />
-          {#each [{ align: 'left', label: 'Rata kiri', icon: AlignLeft }, { align: 'center', label: 'Rata tengah', icon: AlignCenter }, { align: 'right', label: 'Rata kanan', icon: AlignRight }] as option (option.align)}
-            <button
-              type="button"
-              class="rte-btn"
-              class:on={blockInfo.attrs.align === option.align}
-              title={option.label}
-              onclick={() => patchBlock({ align: option.align })}
-              ><option.icon size={16} /></button
-            >
-          {/each}
-        {:else if blockInfo.kind === 'codeBlock'}
-          <span class="rte-bar-title">Kode</span>
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Perataan</span>
+          {@render alignButtons(setAlign)}
+        </div>
+      {:else if blockInfo?.kind === 'codeBlock'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Bahasa</span>
           <Select
             inline
             size="sm"
@@ -1320,9 +1377,12 @@
             value={blockInfo.attrs.language || null}
             onchange={(next) => patchBlock({ language: next || null })}
           />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Judul</span>
           <input
             type="text"
-            class="form-control form-control-sm rte-field"
+            class="form-control form-control-sm"
             aria-label="Judul blok kode"
             placeholder="Judul (mis. User.php)"
             maxlength="60"
@@ -1332,6 +1392,9 @@
                 title: normalizeCodeTitle(event.currentTarget.value),
               })}
           />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Tema</span>
           <Select
             inline
             size="sm"
@@ -1342,127 +1405,455 @@
             value={blockInfo.attrs.theme || null}
             onchange={(next) => patchBlock({ theme: next || null })}
           />
-          <div class="rte-code-preview wysiwyg-content-wrapper">
-            <span class="rte-code-preview-label">Pratinjau</span>
-            <pre data-code-theme={blockInfo.attrs.theme ?? undefined}><code
-                use:codePreview={{
-                  source:
-                    editor?.state.doc.nodeAt(blockInfo.pos)?.textContent ?? '',
-                  language: blockInfo.attrs.language ?? null,
-                }}></code></pre>
+        </div>
+        <div class="rte-code-preview wysiwyg-content-wrapper">
+          <span class="rte-code-preview-label">Pratinjau</span>
+          <pre data-code-theme={blockInfo.attrs.theme ?? undefined}><code
+              use:codePreview={{
+                source:
+                  editor?.state.doc.nodeAt(blockInfo.pos)?.textContent ?? '',
+                language: blockInfo.attrs.language ?? null,
+              }}></code></pre>
+        </div>
+      {:else if blockInfo?.kind === 'callout'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Jenis</span>
+          <div class="rte-ins-row">
+            {#each CALLOUT_TYPES as type (type)}
+              <button
+                type="button"
+                class="rte-chip is-{type}"
+                class:on={blockInfo.attrs.type === type}
+                onclick={() => patchBlock({ type })}
+                >{calloutLabels[type]}</button
+              >
+            {/each}
           </div>
-        {:else}
-          <span class="rte-bar-title">Callout</span>
-          {#each CALLOUT_TYPES as type (type)}
-            <button
-              type="button"
-              class="rte-chip is-{type}"
-              class:on={blockInfo.attrs.type === type}
-              onclick={() => patchBlock({ type })}>{calloutLabels[type]}</button
-            >
-          {/each}
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary align-self-start"
+          title="Keluarkan isi dari callout"
+          onclick={() => editor?.chain().focus().lift('callout').run()}
+          >Lepas kotak</button
+        >
+      {:else if currentBlock.kind === 'paragraph' || currentBlock.kind === 'heading'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Perataan teks</span>
+          {@render alignButtons(setAlign)}
+        </div>
+        {#if currentBlock.kind === 'heading'}
+          <div class="rte-ins-group">
+            <span class="rte-ins-label">Tingkat judul</span>
+            <div class="rte-ins-row">
+              {#each headingLevels as level (level)}
+                <button
+                  type="button"
+                  class="rte-chip"
+                  class:on={active('heading', { level })}
+                  onclick={() =>
+                    editor?.chain().focus().setHeading({ level }).run()}
+                  >H{level}</button
+                >
+              {/each}
+            </div>
+          </div>
+        {/if}
+      {/if}
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger align-self-start"
+        onclick={() => deleteBlock()}
+      >
+        <Trash size={14} /> Hapus blok
+      </button>
+    </div>
+  {:else}
+    <p class="rte-ins-empty">Pilih sebuah blok untuk mengubah pengaturannya.</p>
+  {/if}
+{/snippet}
+
+<div
+  class="rte"
+  class:is-invalid={invalid}
+  class:rte-minimal={minimal}
+  class:rte-shell={shell}
+>
+  <input type="hidden" {name} value={html} />
+
+  <div class="rte-top">
+    {#if shell}
+      <InertiaLink
+        href={backHref}
+        class="rte-btn rte-btn-lg"
+        title="Kembali"
+        aria-label="Kembali"><ChevronLeft size={20} /></InertiaLink
+      >
+    {/if}
+
+    {#if mode === 'visual' && editor}
+      <div class="rte-tools" role="toolbar" aria-label="Alat dokumen">
+        {#if !minimal}
           <button
             type="button"
-            class="rte-chip"
-            title="Keluarkan isi dari callout"
-            onclick={() => editor?.chain().focus().lift('callout').run()}
-            >Lepas kotak</button
+            class="rte-btn rte-btn-lg rte-inserter-toggle"
+            class:on={menu.open && menu.source === 'top'}
+            title="Sisipkan blok"
+            aria-label="Sisipkan blok"
+            aria-expanded={menu.open && menu.source === 'top'}
+            data-rte-trigger
+            onmousedown={(event) => event.preventDefault()}
+            onclick={openTopInserter}><Plus size={18} /></button
           >
         {/if}
         <button
           type="button"
-          class="rte-btn rte-bar-delete"
-          title="Hapus blok"
-          onclick={() =>
-            blockInfo &&
-            deleteBlock({
-              pos: blockInfo.pos,
-              size: editor?.state.doc.nodeAt(blockInfo.pos)?.nodeSize ?? 0,
-            })}><Trash size={16} /></button
+          class="rte-btn rte-btn-lg"
+          title="Urungkan"
+          disabled={!editor.can().undo()}
+          onclick={() => editor?.chain().focus().undo().run()}
+          ><Undo2 size={18} /></button
         >
+        <button
+          type="button"
+          class="rte-btn rte-btn-lg"
+          title="Ulangi"
+          disabled={!editor.can().redo()}
+          onclick={() => editor?.chain().focus().redo().run()}
+          ><Redo2 size={18} /></button
+        >
+      </div>
+    {/if}
+
+    {#if shell}
+      <div class="rte-doc-title" title={documentTitle}>
+        {documentTitle || 'Tanpa judul'}<span> · {rootLabel}</span>
+      </div>
+    {/if}
+
+    <div class="rte-top-end">
+      {#if !minimal}
+        <div class="rte-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'visual'}
+            class="rte-tab"
+            class:on={mode === 'visual'}
+            onclick={() => setMode('visual')}>Visual</button
+          >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'html'}
+            class="rte-tab"
+            class:on={mode === 'html'}
+            onclick={() => setMode('html')}>HTML</button
+          >
+        </div>
+      {/if}
+
+      {#if shell}
+        {@render actions?.()}
+        <button
+          type="button"
+          class="rte-btn rte-btn-lg rte-sidebar-toggle"
+          class:on={sidebarOpen}
+          title="Pengaturan"
+          aria-label="Pengaturan"
+          aria-pressed={sidebarOpen}
+          onclick={() => (sidebarOpen = !sidebarOpen)}
+          ><PanelRight size={18} /></button
+        >
+      {/if}
+    </div>
+
+    {#if !shell && blockInfo && mode === 'visual'}
+      <div class="rte-blockbar" role="group" aria-label="Pengaturan blok">
+        {@render inspector()}
       </div>
     {/if}
   </div>
 
-  <div class="rte-body" hidden={mode !== 'visual'} bind:this={element}></div>
+  <div class="rte-main">
+    <div class="rte-scroll">
+      <div class="rte-doc" bind:this={host}>
+        {#if shell}{@render header?.()}{/if}
 
-  {#if codeBadge.visible}
-    <div
-      class="rte-code-badge"
-      style="top: {codeBadge.top}px; right: {codeBadge.right}px"
-    >
-      <Select
-        inline
-        size="sm"
-        ariaLabel="Ubah bahasa blok kode"
-        placeholder="Otomatis"
-        items={languageItems}
-        value={blockInfo?.attrs.language || null}
-        onchange={(next) => setCodeLanguage(next ? String(next) : '')}
-      />
-      <Select
-        inline
-        size="sm"
-        ariaLabel="Ubah tema blok kode"
-        placeholder={defaultThemeLabel}
-        items={themeItems}
-        value={blockInfo?.attrs.theme || null}
-        onchange={(next) => {
-          patchBlock({ theme: next || null });
-          editor?.commands.focus();
-        }}
-      />
+        <div
+          class="rte-body"
+          hidden={mode !== 'visual'}
+          bind:this={element}
+        ></div>
+
+        {#if codeBadge.visible}
+          <div
+            class="rte-code-badge"
+            style="top: {codeBadge.top}px; right: {codeBadge.right}px"
+          >
+            <Select
+              inline
+              size="sm"
+              ariaLabel="Ubah bahasa blok kode"
+              placeholder="Otomatis"
+              items={languageItems}
+              value={blockInfo?.attrs.language || null}
+              onchange={(next) => setCodeLanguage(next ? String(next) : '')}
+            />
+            <Select
+              inline
+              size="sm"
+              ariaLabel="Ubah tema blok kode"
+              placeholder={defaultThemeLabel}
+              items={themeItems}
+              value={blockInfo?.attrs.theme || null}
+              onchange={(next) => {
+                patchBlock({ theme: next || null });
+                editor?.commands.focus();
+              }}
+            />
+          </div>
+        {/if}
+
+        {#if !minimal && mode === 'visual'}
+          {#if inserter.visible && !menu.open}
+            <button
+              type="button"
+              class="rte-inserter"
+              title="Sisipkan blok"
+              aria-label="Sisipkan blok"
+              style="top: {inserter.top}px; left: {inserter.left}px"
+              onmousedown={(event) => event.preventDefault()}
+              onclick={openButtonMenu}><Plus size={16} /></button
+            >
+          {/if}
+
+          {#if menu.open}
+            <div
+              class="rte-menu"
+              class:is-fixed={menu.source === 'top'}
+              role="listbox"
+              tabindex="-1"
+              aria-label="Sisipkan blok"
+              style="top: {menu.top}px; left: {menu.left}px"
+              bind:this={menuEl}
+              onmousedown={(event) => {
+                if (!(event.target instanceof HTMLInputElement))
+                  event.preventDefault();
+              }}
+            >
+              {#if menu.source === 'top'}
+                <label class="rte-menu-search">
+                  <Search size={14} />
+                  <!-- svelte-ignore a11y_autofocus -->
+                  <input
+                    type="search"
+                    placeholder="Cari blok"
+                    aria-label="Cari blok"
+                    autofocus
+                    bind:value={menu.query}
+                    oninput={() => (menu.index = 0)}
+                    onkeydown={(event) => handleMenuKey(event, true)}
+                  />
+                </label>
+              {/if}
+              {#each filteredBlocks as item, position (item.label)}
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={position === menu.index}
+                  class="rte-menu-item"
+                  class:on={position === menu.index}
+                  onmouseenter={() => (menu.index = position)}
+                  onclick={() => runBlock(item)}
+                >
+                  <item.icon size={18} />
+                  <span
+                    ><strong>{item.label}</strong><small>{item.hint}</small
+                    ></span
+                  >
+                </button>
+              {:else}
+                <p class="rte-menu-empty">Blok tidak ditemukan</p>
+              {/each}
+            </div>
+          {/if}
+        {/if}
+
+        {#if mode === 'html'}
+          <textarea
+            class="rte-html"
+            spellcheck="false"
+            aria-label="Kode HTML"
+            bind:value={html}></textarea>
+        {/if}
+
+        {#if shell}{@render after?.()}{/if}
+      </div>
     </div>
-  {/if}
 
-  {#if !minimal && mode === 'visual'}
-    {#if inserter.visible && !menu.open}
-      <button
-        type="button"
-        class="rte-inserter"
-        title="Sisipkan blok"
-        aria-label="Sisipkan blok"
-        style="top: {inserter.top}px"
-        onmousedown={(event) => event.preventDefault()}
-        onclick={openButtonMenu}><Plus size={16} /></button
-      >
-    {/if}
-
-    {#if menu.open}
-      <div
-        class="rte-menu"
-        role="listbox"
-        tabindex="-1"
-        aria-label="Sisipkan blok"
-        style="top: {menu.top}px; left: {menu.left}px"
-        onmousedown={(event) => event.preventDefault()}
-      >
-        {#each filteredBlocks as item, position (item.label)}
+    {#if shell && sidebarOpen}
+      <aside class="rte-sidebar" aria-label="Pengaturan">
+        <div class="rte-side-tabs" role="tablist">
           <button
             type="button"
-            role="option"
-            aria-selected={position === menu.index}
-            class="rte-menu-item"
-            class:on={position === menu.index}
-            onmouseenter={() => (menu.index = position)}
-            onclick={() => runBlock(item)}
+            role="tab"
+            aria-selected={sidebarTab === 'document'}
+            class="rte-side-tab"
+            class:on={sidebarTab === 'document'}
+            onclick={() => (sidebarTab = 'document')}>{rootLabel}</button
           >
-            <item.icon size={18} />
-            <span><strong>{item.label}</strong><small>{item.hint}</small></span>
-          </button>
-        {:else}
-          <p class="rte-menu-empty">Blok tidak ditemukan</p>
-        {/each}
-      </div>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={sidebarTab === 'block'}
+            class="rte-side-tab"
+            class:on={sidebarTab === 'block'}
+            onclick={() => (sidebarTab = 'block')}>Blok</button
+          >
+          <button
+            type="button"
+            class="rte-btn rte-side-close"
+            title="Tutup pengaturan"
+            aria-label="Tutup pengaturan"
+            onclick={() => (sidebarOpen = false)}><X size={18} /></button
+          >
+        </div>
+        <div class="rte-side-body">
+          {#if sidebarTab === 'document'}
+            {@render settings?.()}
+          {:else}
+            {@render inspector()}
+          {/if}
+        </div>
+      </aside>
     {/if}
-  {/if}
+  </div>
 
-  {#if mode === 'html'}
-    <textarea
-      class="rte-html"
-      spellcheck="false"
-      aria-label="Kode HTML"
-      bind:value={html}></textarea>
+  {#if blockTb.visible && mode === 'visual' && editor}
+    <div
+      class="rte-blocktb"
+      role="toolbar"
+      aria-label="Pemformatan blok"
+      tabindex="-1"
+      style="top: {blockTb.top}px; left: {blockTb.left}px"
+      onmousedown={(event) => event.preventDefault()}
+    >
+      <div class="rte-tb-group">
+        {#if !minimal}
+          {@const TypeIcon =
+            blockIcons[currentBlock?.kind ?? 'paragraph'] ?? Pilcrow}
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            title="Ubah jenis blok"
+            aria-label="Ubah jenis blok"
+            data-rte-trigger
+            onclick={(event) => openToolbarMenu('type', event)}
+            ><TypeIcon size={18} /></button
+          >
+          <div class="rte-tb-move">
+            <button
+              type="button"
+              class="rte-btn"
+              title="Pindah ke atas"
+              disabled={!canMove(-1)}
+              onclick={() => moveBlock(-1)}><ArrowUp size={14} /></button
+            >
+            <button
+              type="button"
+              class="rte-btn"
+              title="Pindah ke bawah"
+              disabled={!canMove(1)}
+              onclick={() => moveBlock(1)}><ArrowDown size={14} /></button
+            >
+          </div>
+        {/if}
+      </div>
+      <div class="rte-tb-group">
+        {#if !minimal}
+          {@const CurrentAlign =
+            alignIcons[
+              (['center', 'right'] as const).find((align) =>
+                isAligned(align),
+              ) ?? 'left'
+            ]}
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            title="Perataan"
+            aria-label="Perataan"
+            data-rte-trigger
+            onclick={(event) => openToolbarMenu('align', event)}
+            ><CurrentAlign size={18} /></button
+          >
+        {/if}
+      </div>
+      <div class="rte-tb-group">
+        <button
+          type="button"
+          class="rte-btn rte-btn-lg"
+          class:on={active('bold')}
+          title="Tebal"
+          onclick={() => editor?.chain().focus().toggleBold().run()}
+          ><Bold size={18} /></button
+        >
+        <button
+          type="button"
+          class="rte-btn rte-btn-lg"
+          class:on={active('italic')}
+          title="Miring"
+          onclick={() => editor?.chain().focus().toggleItalic().run()}
+          ><Italic size={18} /></button
+        >
+        {#if !minimal}
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            class:on={active('link')}
+            title="Tautan"
+            onclick={setLink}><Link size={18} /></button
+          >
+        {:else}
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            class:on={active('bulletList')}
+            title="Daftar poin"
+            onclick={() => editor?.chain().focus().toggleBulletList().run()}
+            ><List size={18} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            class:on={active('orderedList')}
+            title="Daftar angka"
+            onclick={() => editor?.chain().focus().toggleOrderedList().run()}
+            ><ListOrdered size={18} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            class:on={active('blockquote')}
+            title="Kutipan"
+            onclick={() => editor?.chain().focus().toggleBlockquote().run()}
+            ><Quote size={18} /></button
+          >
+        {/if}
+      </div>
+      <div class="rte-tb-group">
+        <button
+          type="button"
+          class="rte-btn rte-btn-lg"
+          title="Opsi lainnya"
+          aria-label="Opsi lainnya"
+          data-rte-trigger
+          onclick={(event) => openToolbarMenu('context', event)}
+          ><EllipsisVertical size={18} /></button
+        >
+      </div>
+    </div>
   {/if}
 
   {#if ctx.open && contextGroups.length > 0}
@@ -1488,8 +1879,9 @@
             disabled={item.disabled}
             onclick={() => runContext(item)}
           >
-            <item.icon size={16} />
+            {#if item.icon}<item.icon size={16} />{/if}
             <span>{item.label}</span>
+            {#if item.shortcut}<kbd>{item.shortcut}</kbd>{/if}
           </button>
         {/each}
       {/each}
@@ -1497,8 +1889,15 @@
   {/if}
 
   <div class="rte-footer">
-    <span>{words} kata</span>
-    {#if uploading}<span>Mengunggah gambar...</span>{/if}
+    <span class="rte-crumbs">
+      <span>{rootLabel}</span>
+      {#if currentBlock}<span aria-hidden="true">›</span>
+        <span class="rte-crumb-current">{currentBlock.label}</span>{/if}
+    </span>
+    <span class="rte-footer-end">
+      {#if uploading}<span>Mengunggah gambar...</span>{/if}
+      <span>{words} kata</span>
+    </span>
   </div>
 </div>
 
@@ -1513,7 +1912,10 @@
 
 <style>
   .rte {
-    border: 1px solid var(--neo-border-color);
+    --rte-line: var(--neo-border-color);
+    --rte-bar-h: 3.5rem;
+
+    border: 1px solid var(--rte-line);
     border-radius: 0.5rem;
     background: var(--neo-body-bg);
     position: relative;
@@ -1521,195 +1923,199 @@
   .rte.is-invalid {
     border-color: var(--neo-form-invalid-border-color, #dc3545);
   }
+
+  /* Top bar (document tools) */
   .rte-top {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.5rem;
-    border-bottom: 1px solid var(--neo-border-color);
-    background: var(--neo-tertiary-bg);
+    align-items: center;
+    gap: 0.25rem;
+    min-height: var(--rte-bar-h);
+    padding: 0 0.5rem;
+    border-bottom: 1px solid var(--rte-line);
+    background: var(--neo-body-bg);
     border-radius: 0.5rem 0.5rem 0 0;
     position: sticky;
     top: 0;
     z-index: 5;
   }
-  .rte-blockbar {
-    display: flex;
-    flex: 0 0 100%;
-    flex-wrap: wrap;
-    align-items: center;
-    order: 3;
-    gap: 0.375rem;
-    padding: 0.375rem;
-    border-top: 1px solid var(--neo-border-color);
-    background: var(--neo-body-bg);
-    border-radius: 0 0 0 0;
-  }
-  .rte-bar-title {
-    padding: 0 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--neo-secondary-color);
-  }
-  .rte-field {
-    width: 11rem;
-  }
-  .rte-code-badge {
-    position: absolute;
-    z-index: 4;
-    display: flex;
-    gap: 0.25rem;
-  }
-  .rte-code-badge :global(.neo-select) {
-    min-width: 8.5rem;
-    font-size: 0.75rem;
-  }
-  .rte-code-preview {
-    flex: 0 0 100%;
-    order: 9;
-    position: relative;
-  }
-  .rte-code-preview pre {
-    max-height: 12rem;
-    margin: 0;
-    overflow: auto;
-    white-space: pre;
-  }
-  .rte-code-preview-label {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.5rem;
-    z-index: 1;
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--neo-secondary-color);
-  }
-  .rte-bar-delete {
-    margin-left: auto;
-    color: var(--neo-danger, #dc3545);
-  }
-  .rte-chip {
-    height: 2rem;
-    padding: 0 0.75rem;
-    border: 1px solid var(--neo-border-color);
-    border-radius: 999px;
-    background: transparent;
-    color: var(--neo-body-color);
-    font-size: 0.8125rem;
-  }
-  .rte-chip.on {
-    background: var(--neo-primary);
-    border-color: var(--neo-primary);
-    color: #fff;
-  }
-  .rte-context {
-    position: fixed;
-    z-index: 1080;
-    min-width: 13.5rem;
-    max-height: calc(100vh - 1rem);
-    overflow-y: auto;
-    padding: 0.25rem;
-    border: 1px solid var(--neo-border-color);
-    border-radius: 0.5rem;
-    background: var(--neo-body-bg);
-    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.2);
-  }
-  .rte-context-sep {
-    margin: 0.25rem 0;
-    border: 0;
-    border-top: 1px solid var(--neo-border-color);
-    opacity: 1;
-  }
-  .rte-context-item {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    width: 100%;
-    padding: 0.375rem 0.625rem;
-    border: 0;
-    border-radius: 0.375rem;
-    background: transparent;
-    color: var(--neo-body-color);
-    font-size: 0.875rem;
-    text-align: left;
-  }
-  .rte-context-item:hover:not(:disabled) {
-    background: var(--neo-secondary-bg);
-  }
-  .rte-context-item.on {
-    color: var(--neo-primary);
-    font-weight: 600;
-  }
-  .rte-context-item.danger {
-    color: var(--neo-danger, #dc3545);
-  }
-  .rte-context-item:disabled {
-    opacity: 0.4;
-  }
-  .rte-toggle {
-    display: inline-flex;
-    order: 1;
-    align-items: center;
-    gap: 0.25rem;
-    margin-left: 0.25rem;
-    padding: 0 0.625rem;
-    height: 2rem;
-    border: 1px solid var(--neo-border-color);
-    border-radius: 0.375rem;
-    background: var(--neo-body-bg);
-    color: var(--neo-body-color);
-    font-size: 0.8125rem;
-  }
-  .rte-toggle :global(svg) {
-    transition: transform 0.15s;
-  }
-  .rte-toggle[aria-expanded='true'] :global(svg) {
-    transform: rotate(180deg);
-  }
-  .rte-adv {
-    order: 2;
-  }
-  .rte-toolbar:not(.open) .rte-adv {
-    display: none;
-  }
-  :global(.admin-shell) .rte-top {
+  :global(.admin-shell) .rte:not(.rte-shell) .rte-top {
     top: 69px;
   }
+  .rte-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+  }
+  .rte-top-end {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+  .rte-doc-title {
+    flex: 0 1 28rem;
+    min-width: 0;
+    margin: 0 auto;
+    padding: 0.4rem 1rem;
+    overflow: hidden;
+    border-radius: 0.375rem;
+    background: var(--neo-tertiary-bg);
+    font-size: 0.8125rem;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rte-doc-title span {
+    color: var(--neo-secondary-color);
+  }
+
+  .rte-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: var(--neo-body-color);
+    text-decoration: none;
+  }
+  .rte-btn-lg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .rte-btn:hover:not(:disabled) {
+    background: var(--neo-secondary-bg);
+  }
+  .rte-btn.on {
+    background: var(--neo-emphasis-color);
+    color: var(--neo-body-bg);
+  }
+  .rte-btn:disabled {
+    opacity: 0.35;
+  }
+  .rte-inserter-toggle {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.25rem;
+    border-radius: 0.25rem;
+    background: var(--neo-primary);
+    color: #fff;
+  }
+  .rte-inserter-toggle:hover:not(:disabled),
+  .rte-inserter-toggle.on {
+    background: var(--neo-primary);
+    color: #fff;
+    filter: brightness(0.9);
+  }
+  .rte-tabs {
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--rte-line);
+    border-radius: 0.375rem;
+  }
+  .rte-tab {
+    border: 0;
+    background: transparent;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--neo-secondary-color);
+  }
+  .rte-tab + .rte-tab {
+    border-left: 1px solid var(--rte-line);
+  }
+  .rte-tab.on {
+    background: var(--neo-emphasis-color);
+    color: var(--neo-body-bg);
+  }
+
+  /* Floating block toolbar */
+  .rte-blocktb {
+    position: fixed;
+    z-index: 1040;
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--neo-emphasis-color);
+    border-radius: 0.125rem;
+    background: var(--neo-body-bg);
+    box-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 0.12);
+  }
+  .rte-tb-group {
+    display: flex;
+    align-items: center;
+    padding: 0 0.125rem;
+  }
+  .rte-tb-group:empty {
+    display: none;
+  }
+  .rte-tb-group + .rte-tb-group {
+    border-left: 1px solid var(--rte-line);
+  }
+  .rte-tb-move {
+    display: flex;
+    flex-direction: column;
+  }
+  .rte-tb-move .rte-btn {
+    width: 1.5rem;
+    height: 1.25rem;
+  }
+
+  /* Inline appender and block menu */
   .rte-inserter {
     position: absolute;
-    left: 0.25rem;
     z-index: 3;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
-    margin-top: 0.1rem;
-    border: 1px solid var(--neo-border-color);
-    border-radius: 50%;
-    background: var(--neo-body-bg);
-    color: var(--neo-secondary-color);
+    margin-top: 0.35rem;
+    border: 0;
+    border-radius: 0.125rem;
+    background: var(--neo-emphasis-color);
+    color: var(--neo-body-bg);
   }
   .rte-inserter:hover {
     background: var(--neo-primary);
-    border-color: var(--neo-primary);
     color: #fff;
   }
   .rte-menu {
     position: absolute;
     z-index: 6;
-    width: 16rem;
-    max-height: 18rem;
+    width: 17rem;
+    max-height: 22rem;
     overflow-y: auto;
     padding: 0.25rem;
-    border: 1px solid var(--neo-border-color);
-    border-radius: 0.5rem;
+    border: 1px solid var(--rte-line);
+    border-radius: 0.25rem;
     background: var(--neo-body-bg);
     box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.15);
+  }
+  .rte-menu.is-fixed {
+    position: fixed;
+    z-index: 1060;
+  }
+  .rte-menu-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0.25rem 0.5rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--rte-line);
+    border-radius: 0.25rem;
+    color: var(--neo-secondary-color);
+  }
+  .rte-menu-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.4rem 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--neo-body-color);
+    font-size: 0.875rem;
   }
   .rte-menu-item {
     display: flex;
@@ -1718,7 +2124,7 @@
     width: 100%;
     padding: 0.4rem 0.5rem;
     border: 0;
-    border-radius: 0.375rem;
+    border-radius: 0.25rem;
     background: transparent;
     color: var(--neo-body-color);
     text-align: left;
@@ -1740,62 +2146,74 @@
     margin: 0;
     padding: 0.5rem;
   }
-  .rte-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.125rem;
-    padding: 0.375rem;
-    flex: 1;
-    min-height: 2.75rem;
+
+  /* Context / dropdown menu */
+  .rte-context {
+    position: fixed;
+    z-index: 1080;
+    min-width: 14rem;
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+    padding: 0.25rem 0;
+    border: 1px solid var(--neo-emphasis-color);
+    border-radius: 0.125rem;
+    background: var(--neo-body-bg);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.2);
   }
-  .rte-select {
-    width: auto;
-    min-width: 8.5rem;
-  }
-  .rte-sep {
-    width: 1px;
-    height: 1.25rem;
-    margin: 0 0.25rem;
-    background: var(--neo-border-color);
-  }
-  .rte-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
+  .rte-context-sep {
+    margin: 0.25rem 0;
     border: 0;
-    border-radius: 0.375rem;
+    border-top: 1px solid var(--neo-emphasis-color);
+    opacity: 1;
+  }
+  .rte-context-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.375rem 1rem;
+    border: 0;
     background: transparent;
     color: var(--neo-body-color);
+    font-size: 0.8125rem;
+    text-align: left;
   }
-  .rte-btn:hover:not(:disabled) {
+  .rte-context-item span {
+    flex: 1;
+  }
+  .rte-context-item kbd {
+    padding: 0;
+    background: transparent;
+    color: var(--neo-secondary-color);
+    font-size: 0.75rem;
+  }
+  .rte-context-item:hover:not(:disabled),
+  .rte-context-item:focus-visible {
     background: var(--neo-secondary-bg);
   }
-  .rte-btn.on {
-    background: var(--neo-primary);
-    color: #fff;
+  .rte-context-item.on {
+    color: var(--neo-primary);
+    font-weight: 600;
   }
-  .rte-btn:disabled {
+  .rte-context-item.danger {
+    color: var(--neo-danger, #dc3545);
+  }
+  .rte-context-item:disabled {
     opacity: 0.4;
   }
-  .rte-tabs {
+
+  /* Canvas */
+  .rte-main {
     display: flex;
-    align-self: stretch;
+    min-height: 0;
   }
-  .rte-tab {
-    border: 0;
-    border-left: 1px solid var(--neo-border-color);
-    background: transparent;
-    padding: 0 1rem;
-    font-size: 0.875rem;
-    color: var(--neo-secondary-color);
+  .rte-scroll {
+    flex: 1;
+    min-width: 0;
   }
-  .rte-tab.on {
-    background: var(--neo-body-bg);
-    color: var(--neo-body-color);
-    font-weight: 600;
+  .rte-doc {
+    position: relative;
   }
   .rte-body {
     min-height: 26rem;
@@ -1806,8 +2224,11 @@
   }
   .rte-body :global(.rte-content) {
     min-height: 26rem;
-    padding: 1.25rem 1.5rem;
+    padding: 1.25rem 2.5rem 1.25rem 1.5rem;
     outline: none;
+  }
+  .rte-minimal .rte-body :global(.rte-content) {
+    padding-right: 1.5rem;
   }
   .rte-body :global(.rte-content .ProseMirror-selectednode) {
     outline: 2px solid var(--neo-primary);
@@ -1818,6 +2239,10 @@
     height: 0;
     color: var(--neo-secondary-color);
     pointer-events: none;
+  }
+  .rte-body :global(.rte-content > *:focus-within),
+  .rte-body :global(.rte-content > .has-focus) {
+    outline: none;
   }
   .rte-html {
     display: block;
@@ -1832,14 +2257,307 @@
     font-family: var(--neo-font-monospace);
     font-size: 0.875rem;
   }
+
+  /* Shell: Gutenberg-style layout filling the admin content area */
+  .rte-shell {
+    --rte-nav-h: 69px;
+  }
+  .rte-shell .rte-top {
+    top: var(--rte-nav-h);
+    flex-wrap: nowrap;
+    padding: 0 0.75rem;
+  }
+  .rte-shell .rte-main {
+    align-items: flex-start;
+  }
+  .rte-shell .rte-sidebar {
+    position: sticky;
+    top: calc(var(--rte-nav-h) + var(--rte-bar-h));
+    max-height: calc(100svh - var(--rte-nav-h) - var(--rte-bar-h) - 3.5rem);
+  }
+  .rte-shell .rte-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+  }
+  .rte-shell .rte-doc {
+    width: min(100%, 44rem);
+    margin: 0 auto;
+    padding: 4rem 1rem 8rem;
+  }
+  .rte-shell .rte-body,
+  .rte-shell .rte-body :global(.rte-content) {
+    min-height: 16rem;
+  }
+  .rte-shell .rte-body :global(.rte-content) {
+    padding: 0 2.25rem 0 0;
+    font-size: 1.25rem;
+    line-height: 1.7;
+  }
+  .rte-shell .rte-html {
+    min-height: 24rem;
+    border: 1px solid var(--rte-line);
+    border-radius: 0.25rem;
+  }
+  .rte-doc :global(.gb-title) {
+    display: block;
+    width: 100%;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    border: 0;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    background: transparent;
+    color: var(--neo-body-color);
+    font-size: 2.5rem;
+    font-weight: 400;
+    line-height: 1.25;
+    field-sizing: content;
+  }
+  .rte-doc :global(.gb-title::placeholder) {
+    color: var(--neo-secondary-color);
+    opacity: 0.7;
+  }
+
+  /* Sidebar */
+  .rte-sidebar {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    width: 17.5rem;
+    border-left: 1px solid var(--rte-line);
+    background: var(--neo-body-bg);
+  }
+  .rte-side-tabs {
+    display: flex;
+    align-items: stretch;
+    flex: none;
+    height: 3rem;
+    padding: 0 0.25rem 0 0;
+    border-bottom: 1px solid var(--rte-line);
+  }
+  .rte-side-tab {
+    padding: 0 1rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--neo-body-color);
+    font-size: 0.8125rem;
+  }
+  .rte-side-tab.on {
+    border-bottom-color: var(--neo-emphasis-color);
+    font-weight: 600;
+  }
+  .rte-side-close {
+    align-self: center;
+    margin-left: auto;
+  }
+  .rte-sidebar {
+    overflow: hidden;
+  }
+  .rte-side-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .rte-sidebar :global(.gb-panel) {
+    border-bottom: 1px solid var(--rte-line);
+  }
+  .rte-sidebar :global(.gb-panel > summary) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+  }
+  .rte-sidebar :global(.gb-panel > summary::-webkit-details-marker) {
+    display: none;
+  }
+  .rte-sidebar :global(.gb-panel > summary::after) {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-right: 0.2rem;
+    border-right: 1.5px solid currentcolor;
+    border-bottom: 1.5px solid currentcolor;
+    transform: rotate(45deg);
+    transition: transform 0.15s;
+  }
+  .rte-sidebar :global(.gb-panel[open] > summary::after) {
+    transform: rotate(-135deg);
+  }
+  .rte-sidebar :global(.gb-panel-body) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0 1rem 1rem;
+    font-size: 0.8125rem;
+  }
+  .rte-sidebar :global(.gb-label) {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--neo-secondary-color);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  /* Inspector (block settings) */
+  .rte-ins {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  .rte-ins-head {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .rte-ins-head :global(svg) {
+    flex: none;
+    margin-top: 0.1rem;
+  }
+  .rte-ins-desc {
+    margin: 0.25rem 0 0;
+    color: var(--neo-secondary-color);
+    font-size: 0.8125rem;
+  }
+  .rte-ins-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .rte-ins-label {
+    color: var(--neo-secondary-color);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .rte-ins-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .rte-ins-empty {
+    margin: 0;
+    padding: 1rem;
+    color: var(--neo-secondary-color);
+    font-size: 0.8125rem;
+  }
+  .rte-chip {
+    height: 2rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--rte-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--neo-body-color);
+    font-size: 0.8125rem;
+  }
+  .rte-chip.on {
+    background: var(--neo-emphasis-color);
+    border-color: var(--neo-emphasis-color);
+    color: var(--neo-body-bg);
+  }
+  .rte-code-preview {
+    position: relative;
+  }
+  .rte-code-preview pre {
+    max-height: 12rem;
+    margin: 0;
+    overflow: auto;
+    white-space: pre;
+  }
+  .rte-code-preview-label {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.5rem;
+    z-index: 1;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--neo-secondary-color);
+  }
+  .rte-code-badge {
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    gap: 0.25rem;
+  }
+  .rte-code-badge :global(.neo-select) {
+    min-width: 8.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Inline inspector (non-shell editors) */
+  .rte-blockbar {
+    flex: 0 0 100%;
+    order: 3;
+    border-top: 1px solid var(--rte-line);
+  }
+  .rte-blockbar .rte-ins {
+    flex-flow: row wrap;
+    align-items: flex-end;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0.25rem;
+  }
+  .rte-blockbar .rte-ins-desc {
+    display: none;
+  }
+  .rte-blockbar .rte-ins-head {
+    align-items: center;
+  }
+  .rte-blockbar .rte-code-preview {
+    flex: 0 0 100%;
+  }
+
+  /* Breadcrumb footer */
   .rte-footer {
     display: flex;
+    flex: none;
+    align-items: center;
     justify-content: space-between;
-    padding: 0.375rem 0.75rem;
-    border-top: 1px solid var(--neo-border-color);
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--rte-line);
     border-radius: 0 0 0.5rem 0.5rem;
-    background: var(--neo-tertiary-bg);
+    background: var(--neo-body-bg);
     font-size: 0.8125rem;
     color: var(--neo-secondary-color);
+  }
+  .rte-crumbs {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .rte-crumbs > :first-child,
+  .rte-crumb-current {
+    color: var(--neo-body-color);
+  }
+  .rte-footer-end {
+    display: flex;
+    gap: 1rem;
+  }
+
+  @media (width <= 991.98px) {
+    .rte-shell .rte-sidebar {
+      position: fixed;
+      inset: 0 0 0 auto;
+      z-index: 1050;
+      max-height: none;
+      width: min(100%, 20rem);
+      box-shadow: -0.5rem 0 1.5rem rgb(0 0 0 / 0.15);
+    }
+    .rte-shell .rte-doc-title {
+      display: none;
+    }
+    .rte-shell .rte-body :global(.rte-content) {
+      font-size: 1.125rem;
+    }
+    .rte-doc :global(.gb-title) {
+      font-size: 1.875rem;
+    }
   }
 </style>

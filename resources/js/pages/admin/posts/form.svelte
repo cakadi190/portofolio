@@ -1,7 +1,6 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import ExternalLink from '@lucide/svelte/icons/external-link';
-  import { Form, Link } from '@inertiajs/svelte';
+  import { Form } from '@inertiajs/svelte';
   import { flushSync } from 'svelte';
   import AppHead from '@/components/app-head.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
@@ -44,6 +43,9 @@
   // svelte-ignore state_referenced_locally
   let isPublished = $state(post?.is_published ?? false);
 
+  // svelte-ignore state_referenced_locally
+  let title = $state(post?.title ?? '');
+
   const heading = $derived(post ? 'Ubah Artikel' : 'Tulis Artikel Baru');
 
   function setStatus(published: boolean): void {
@@ -60,189 +62,186 @@
   class="post-editor"
 >
   {#snippet children({ errors, processing })}
-    <div
-      class="d-flex align-items-center justify-content-between gap-3 mb-3 flex-wrap"
-    >
-      <Link
-        href={index().url}
-        class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2"
+    {#snippet postHeader()}
+      <textarea
+        id="post-title"
+        name="title"
+        class="gb-title"
+        class:is-invalid={!!errors.title}
+        aria-label="Judul artikel"
+        placeholder="Tambahkan judul"
+        rows="1"
+        required
+        bind:value={title}
+        onkeydown={(event) => {
+          if (event.key === 'Enter') event.preventDefault();
+        }}></textarea>
+      <Field.Feedback message={errors.title} />
+    {/snippet}
+
+    {#snippet contentFeedback()}
+      <Field.Feedback message={errors.content} />
+    {/snippet}
+
+    {#snippet postActions()}
+      <input
+        type="hidden"
+        name="is_published"
+        value={isPublished ? '1' : '0'}
+      />
+      <button
+        type="submit"
+        class="btn btn-sm btn-outline-secondary"
+        disabled={processing}
+        onclick={() => setStatus(false)}
       >
-        <ArrowLeft size={14} />
-        Semua Artikel
-      </Link>
-      <h1 class="h5 mb-0">{heading}</h1>
-    </div>
+        {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
+      </button>
+      <button
+        type="submit"
+        class="btn btn-sm btn-primary"
+        disabled={processing}
+        onclick={() => setStatus(true)}
+      >
+        {post?.is_published ? 'Perbarui' : 'Terbitkan'}
+      </button>
+    {/snippet}
 
-    <div class="row g-4">
-      <div class="col-lg-9 d-flex flex-column gap-3">
-        <div>
-          <input
-            id="post-title"
-            name="title"
-            type="text"
-            class="form-control form-control-lg fw-semibold"
-            class:is-invalid={!!errors.title}
-            placeholder="Tambahkan judul"
-            value={post?.title ?? ''}
-            required
-          />
-          <Field.Feedback message={errors.title} />
+    {#snippet postSettings()}
+      <details class="gb-panel" open>
+        <summary>Terbitkan</summary>
+        <div class="gb-panel-body">
+          <div>
+            Status:
+            <span
+              class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
+            >
+              {isPublished ? 'Terbit' : 'Draf'}
+            </span>
+          </div>
+          <div>
+            <label class="gb-label" for="post-published_at"
+              >Tanggal Terbit</label
+            >
+            <DatePicker
+              id="post-published_at"
+              name="published_at"
+              value={post?.published_at ?? null}
+              invalid={!!errors.published_at}
+              withTime
+            />
+            <Field.Feedback message={errors.published_at} />
+          </div>
         </div>
+      </details>
 
-        <div class="d-flex align-items-center gap-2 small">
-          <label for="post-slug" class="text-muted text-nowrap"
-            >Permalink:</label
-          >
-          <input
-            id="post-slug"
-            name="slug"
-            type="text"
-            class="form-control form-control-sm"
-            class:is-invalid={!!errors.slug}
-            placeholder="Otomatis dari judul"
-            value={post?.slug ?? ''}
-          />
+      <details class="gb-panel" open>
+        <summary>Tautan</summary>
+        <div class="gb-panel-body">
+          <div>
+            <label class="gb-label" for="post-slug">Permalink</label>
+            <input
+              id="post-slug"
+              name="slug"
+              type="text"
+              class="form-control form-control-sm"
+              class:is-invalid={!!errors.slug}
+              placeholder="Otomatis dari judul"
+              value={post?.slug ?? ''}
+            />
+            <Field.Feedback message={errors.slug} />
+          </div>
           {#if post?.is_published}
             <a
               href={show(post.slug).url}
               target="_blank"
               rel="noopener"
-              class="text-nowrap"
-              title="Lihat artikel"
+              class="d-inline-flex align-items-center gap-1"
             >
-              <ExternalLink size={14} />
+              Lihat artikel <ExternalLink size={14} />
             </a>
           {/if}
         </div>
-        <Field.Feedback message={errors.slug} />
+      </details>
 
-        <div>
-          <RichTextEditor
-            name="content"
-            value={post?.content ?? ''}
-            invalid={!!errors.content}
+      <details class="gb-panel" open>
+        <summary>Penulis</summary>
+        <div class="gb-panel-body">
+          <Select
+            id="post-user_id"
+            name="user_id"
+            items={authors.map((a) => ({ value: a.id, label: a.name }))}
+            value={post ? post.user_id : null}
+            invalid={!!errors.user_id}
+            placeholder="Saya sendiri"
           />
-          <Field.Feedback message={errors.content} />
+          <Field.Feedback message={errors.user_id} />
         </div>
+      </details>
 
-        <div class="card">
-          <div class="card-header fw-semibold">Ringkasan</div>
-          <div class="card-body">
-            <textarea
-              name="excerpt"
-              aria-label="Ringkasan artikel"
-              class="form-control"
-              class:is-invalid={!!errors.excerpt}
-              rows="3"
-              maxlength="255"
-              placeholder="Ringkasan singkat yang tampil di daftar artikel"
-              value={post?.excerpt ?? ''}></textarea>
-            <Field.Feedback message={errors.excerpt} />
-          </div>
+      <details class="gb-panel" open>
+        <summary>Gambar Sampul</summary>
+        <div class="gb-panel-body">
+          <MediaField
+            name="cover_image"
+            value={post?.cover_image ?? null}
+            invalid={!!errors.cover_image}
+          />
+          <Field.Feedback message={errors.cover_image} />
         </div>
-      </div>
+      </details>
 
-      <aside class="col-lg-3 d-flex flex-column gap-3">
-        <div class="card">
-          <div class="card-header fw-semibold">Terbitkan</div>
-          <div class="card-body d-flex flex-column gap-3">
-            <input
-              type="hidden"
-              name="is_published"
-              value={isPublished ? '1' : '0'}
-            />
-
-            <div class="small">
-              Status:
-              <span
-                class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
-              >
-                {isPublished ? 'Terbit' : 'Draf'}
-              </span>
-            </div>
-
-            <Field.Group>
-              <Field.Label for="post-published_at">Tanggal Terbit</Field.Label>
-              <DatePicker
-                id="post-published_at"
-                name="published_at"
-                value={post?.published_at ?? null}
-                invalid={!!errors.published_at}
-                withTime
-              />
-              <Field.Feedback message={errors.published_at} />
-            </Field.Group>
-
-            <div class="d-flex flex-column gap-2">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                disabled={processing}
-                onclick={() => setStatus(true)}
-              >
-                {post?.is_published ? 'Perbarui' : 'Terbitkan'}
-              </button>
-              <button
-                type="submit"
-                class="btn btn-outline-secondary"
-                disabled={processing}
-                onclick={() => setStatus(false)}
-              >
-                {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
-              </button>
-            </div>
-          </div>
+      <details class="gb-panel" open>
+        <summary>Ringkasan</summary>
+        <div class="gb-panel-body">
+          <textarea
+            name="excerpt"
+            aria-label="Ringkasan artikel"
+            class="form-control form-control-sm"
+            class:is-invalid={!!errors.excerpt}
+            rows="4"
+            maxlength="255"
+            placeholder="Ringkasan singkat yang tampil di daftar artikel"
+            value={post?.excerpt ?? ''}></textarea>
+          <Field.Feedback message={errors.excerpt} />
         </div>
+      </details>
 
-        <div class="card">
-          <div class="card-header fw-semibold">Penulis</div>
-          <div class="card-body">
-            <Select
-              id="post-user_id"
-              name="user_id"
-              items={authors.map((a) => ({ value: a.id, label: a.name }))}
-              value={post ? post.user_id : null}
-              invalid={!!errors.user_id}
-              placeholder="Saya sendiri"
-            />
-            <Field.Feedback message={errors.user_id} />
-          </div>
+      <details class="gb-panel" open>
+        <summary>Kategori</summary>
+        <div class="gb-panel-body">
+          <MultiCheck
+            name="categories"
+            options={categories.map((c) => ({ value: c.id, label: c.name }))}
+            selected={post?.categories.map((c) => c.id) ?? []}
+          />
         </div>
+      </details>
 
-        <div class="card">
-          <div class="card-header fw-semibold">Gambar Sampul</div>
-          <div class="card-body">
-            <MediaField
-              name="cover_image"
-              value={post?.cover_image ?? null}
-              invalid={!!errors.cover_image}
-            />
-            <Field.Feedback message={errors.cover_image} />
-          </div>
+      <details class="gb-panel" open>
+        <summary>Tag</summary>
+        <div class="gb-panel-body">
+          <MultiCheck
+            name="tags"
+            options={tags.map((t) => ({ value: t.id, label: t.name }))}
+            selected={post?.tags.map((t) => t.id) ?? []}
+          />
         </div>
+      </details>
+    {/snippet}
 
-        <div class="card">
-          <div class="card-header fw-semibold">Kategori</div>
-          <div class="card-body">
-            <MultiCheck
-              name="categories"
-              options={categories.map((c) => ({ value: c.id, label: c.name }))}
-              selected={post?.categories.map((c) => c.id) ?? []}
-            />
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header fw-semibold">Tag</div>
-          <div class="card-body">
-            <MultiCheck
-              name="tags"
-              options={tags.map((t) => ({ value: t.id, label: t.name }))}
-              selected={post?.tags.map((t) => t.id) ?? []}
-            />
-          </div>
-        </div>
-      </aside>
-    </div>
+    <RichTextEditor
+      shell
+      name="content"
+      value={post?.content ?? ''}
+      invalid={!!errors.content}
+      backHref={index().url}
+      documentTitle={title}
+      rootLabel="Artikel"
+      header={postHeader}
+      settings={postSettings}
+      actions={postActions}
+      after={contentFeedback}
+    />
   {/snippet}
 </Form>

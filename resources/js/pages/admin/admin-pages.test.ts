@@ -201,7 +201,7 @@ describe('admin forms', () => {
     });
 
     expect(document.title).toContain('Tulis Artikel Baru');
-    expect(document.querySelector('input[name="title"]')).not.toBeNull();
+    expect(document.querySelector('textarea[name="title"]')).not.toBeNull();
   });
 
   it('ClarificationForm renders the create heading and lets sources be added and removed', async () => {
