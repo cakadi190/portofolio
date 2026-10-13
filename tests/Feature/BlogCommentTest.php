@@ -149,7 +149,7 @@ test('deleting a post or a user preserves what should remain', function () {
     $comment->user->delete();
     expect($comment->refresh()->user_id)->toBeNull();
 
-    $comment->post->delete();
+    $comment->post->forceDelete();
     expect(BlogComment::count())->toBe(0);
 });
 

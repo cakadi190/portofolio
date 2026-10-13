@@ -10,11 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
     /** @use HasFactory<PostFactory> */
-    use AutoGenerateSlug, HasFactory, RecordsActivity;
+    use AutoGenerateSlug, HasFactory, RecordsActivity, SoftDeletes;
 
     protected string $slugSource = 'title';
 

@@ -1,7 +1,8 @@
 <script lang="ts">
   import ExternalLink from '@lucide/svelte/icons/external-link';
-  import { Form } from '@inertiajs/svelte';
+  import { Form, router } from '@inertiajs/svelte';
   import { flushSync } from 'svelte';
+  import ModalConfirmation from '@/components/modal-confirmation.svelte';
   import AppHead from '@/components/app-head.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import { Field } from '@/components/ui/field';
@@ -9,7 +10,12 @@
   import Select from '@/components/ui/select.svelte';
   import MultiCheck from '@/components/ui/multi-check.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
-  import { index, store, update } from '@/wayfinder/routes/admin/posts';
+  import {
+    destroy,
+    index,
+    store,
+    update,
+  } from '@/wayfinder/routes/admin/posts';
   import { show } from '@/wayfinder/routes/blog';
 
   type Option = { id: number; name: string };
@@ -47,6 +53,19 @@
   let title = $state(post?.title ?? '');
 
   let actionsOpen = $state(false);
+  let trashOpen = $state(false);
+  let trashing = $state(false);
+
+  function moveToTrash(): void {
+    if (!post) return;
+
+    trashing = true;
+    router.delete(destroy(post.id).url, {
+      onFinish: () => {
+        trashing = false;
+      },
+    });
+  }
 
   const heading = $derived(post ? 'Ubah Artikel' : 'Tulis Artikel Baru');
 
@@ -95,7 +114,10 @@
       <Field.Feedback message={errors.content} />
     {/snippet}
 
-    {#snippet postActions()}
+    {#snippet postActions(editor: {
+      mode: 'visual' | 'html';
+      setMode: (next: 'visual' | 'html') => void;
+    })}
       <input
         type="hidden"
         name="is_published"
@@ -128,6 +150,18 @@
             style="top: 100%; right: 0; z-index: 1060"
           >
             <button
+              type="button"
+              role="menuitem"
+              class="dropdown-item d-lg-none"
+              onclick={() => {
+                editor.setMode(editor.mode === 'visual' ? 'html' : 'visual');
+                actionsOpen = false;
+              }}
+            >
+              {editor.mode === 'visual' ? 'Editor HTML' : 'Editor Visual'}
+            </button>
+            <div class="dropdown-divider d-lg-none"></div>
+            <button
               type="submit"
               role="menuitem"
               class="dropdown-item"
@@ -138,9 +172,32 @@
             >
               {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
             </button>
+            {#if post}
+              <div class="dropdown-divider"></div>
+              <button
+                type="button"
+                role="menuitem"
+                class="dropdown-item text-danger"
+                onclick={() => {
+                  trashOpen = true;
+                  actionsOpen = false;
+                }}
+              >
+                Pindahkan ke sampah
+              </button>
+            {/if}
           </div>
         {/if}
       </div>
+
+      <ModalConfirmation
+        bind:open={trashOpen}
+        title="Pindahkan artikel ke sampah?"
+        description="Artikel tidak lagi tampil di situs dan bisa dipulihkan dari tab Sampah."
+        processing={trashing}
+        confirmLabel="Pindahkan"
+        actions={{ confirm: moveToTrash }}
+      />
     {/snippet}
 
     {#snippet postSettings()}

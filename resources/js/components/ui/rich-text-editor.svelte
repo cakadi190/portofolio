@@ -99,7 +99,9 @@
     /** Content of the "document" tab of the shell sidebar. */
     settings?: Snippet;
     /** Buttons on the right of the shell top bar (e.g. save). */
-    actions?: Snippet;
+    actions?: Snippet<
+      [{ mode: 'visual' | 'html'; setMode: (next: 'visual' | 'html') => void }]
+    >;
     /** Rendered below the content (e.g. validation feedback). */
     after?: Snippet;
   } = $props();
@@ -1581,7 +1583,7 @@
       {/if}
 
       {#if shell}
-        {@render actions?.()}
+        {@render actions?.({ mode, setMode })}
         <button
           type="button"
           class="rte-btn rte-btn-lg rte-sidebar-toggle"
@@ -2589,7 +2591,8 @@
     .rte-shell .rte-side-inner {
       width: 100%;
     }
-    .rte-shell .rte-doc-title {
+    .rte-shell .rte-doc-title,
+    .rte-shell .rte-tabs {
       display: none;
     }
     .rte-shell .rte-body :global(.rte-content) {

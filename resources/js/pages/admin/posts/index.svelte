@@ -1,11 +1,17 @@
 <script lang="ts">
-  import { Link } from '@inertiajs/svelte';
+  import { Link, router } from '@inertiajs/svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import PostAuthorModal from '@/components/admin/post-author-modal.svelte';
   import AppHead from '@/components/app-head.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
-  import { create, destroy, edit, index } from '@/wayfinder/routes/admin/posts';
+  import {
+    create,
+    destroy,
+    edit,
+    index,
+    restore,
+  } from '@/wayfinder/routes/admin/posts';
   import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Post = {
@@ -25,8 +31,15 @@
     posts,
     filters,
     authors,
-  }: { posts: Paginated<Post>; filters: TableFilters; authors: Author[] } =
-    $props();
+    trashed,
+    trashedCount,
+  }: {
+    posts: Paginated<Post>;
+    filters: TableFilters;
+    authors: Author[];
+    trashed: boolean;
+    trashedCount: number;
+  } = $props();
 
   let authorOpen = $state(false);
   let authorPost = $state<Post | null>(null);
@@ -46,10 +59,25 @@
   createLabel="Tulis Artikel"
 />
 
+<ul class="nav nav-pills mb-3 gap-2">
+  <li class="nav-item">
+    <Link href={index().url} class={`nav-link ${trashed ? '' : 'active'}`}
+      >Semua</Link
+    >
+  </li>
+  <li class="nav-item">
+    <Link
+      href={index({ query: { trashed: 1 } }).url}
+      class={`nav-link ${trashed ? 'active' : ''}`}
+      >Sampah{trashedCount > 0 ? ` (${trashedCount})` : ''}</Link
+    >
+  </li>
+</ul>
+
 <DataTable
   data={posts}
   {filters}
-  url={index().url}
+  url={trashed ? index({ query: { trashed: 1 } }).url : index().url}
   columns={[
     { label: 'Judul', key: 'title', sortable: true },
     { label: 'Penulis' },
@@ -58,8 +86,10 @@
     { label: 'Kategori' },
     { label: 'Aksi', align: 'end' },
   ]}
-  emptyTitle="Belum ada artikel"
-  emptyText="Tulis artikel pertama Anda."
+  emptyTitle={trashed ? 'Sampah kosong' : 'Belum ada artikel'}
+  emptyText={trashed
+    ? 'Artikel yang dipindahkan ke sampah muncul di sini.'
+    : 'Tulis artikel pertama Anda.'}
 >
   {#snippet row(post)}
     <tr>
@@ -105,14 +135,36 @@
       </td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
-          <Link
-            href={edit(post.id).url}
-            class="btn btn-sm btn-outline-secondary">Ubah</Link
-          >
-          <AdminDeleteButton
-            href={destroy(post.id).url}
-            label={`Hapus artikel "${post.title}"?`}
-          />
+          {#if trashed}
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              onclick={() =>
+                router.patch(
+                  restore(post.id).url,
+                  {},
+                  { preserveScroll: true },
+                )}>Pulihkan</button
+            >
+            <AdminDeleteButton
+              href={destroy(post.id).url}
+              label={`Hapus permanen artikel "${post.title}"?`}
+              buttonLabel="Hapus permanen"
+              confirmLabel="Hapus permanen"
+            />
+          {:else}
+            <Link
+              href={edit(post.id).url}
+              class="btn btn-sm btn-outline-secondary">Ubah</Link
+            >
+            <AdminDeleteButton
+              href={destroy(post.id).url}
+              label={`Pindahkan artikel "${post.title}" ke sampah?`}
+              description="Artikel tidak lagi tampil di situs dan bisa dipulihkan dari tab Sampah."
+              buttonLabel="Sampah"
+              confirmLabel="Pindahkan"
+            />
+          {/if}
         </div>
       </td>
     </tr>

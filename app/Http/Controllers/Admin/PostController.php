@@ -22,9 +22,14 @@ class PostController extends Controller
 
     public function index(Request $request): Response
     {
+        $trashed = $request->boolean('trashed');
+
         return Inertia::render('admin/posts/index', [
+            'trashed' => $trashed,
+            'trashedCount' => Post::onlyTrashed()->count(),
             'posts' => $this->paginateTable(
                 Post::query()
+                    ->when($trashed, fn ($query) => $query->onlyTrashed())
                     ->with(['tags:id,name', 'categories:id,name', 'author:id,name'])
                     ->withCount(['tags', 'categories'])
                     ->orderByDesc('created_at'),
@@ -87,13 +92,27 @@ class PostController extends Controller
         return back();
     }
 
+    /**
+     * Move a post to the trash; a post already in the trash is deleted for good.
+     */
     public function destroy(Post $post): RedirectResponse
     {
-        $post->delete();
+        $permanent = $post->trashed();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil dihapus.']);
+        $permanent ? $post->forceDelete() : $post->delete();
 
-        return to_route('admin.posts.index');
+        Inertia::flash('toast', ['type' => 'success', 'message' => $permanent ? 'Artikel dihapus permanen.' : 'Artikel dipindahkan ke sampah.']);
+
+        return to_route('admin.posts.index', $permanent ? ['trashed' => 1] : []);
+    }
+
+    public function restore(Post $post): RedirectResponse
+    {
+        $post->restore();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil dipulihkan.']);
+
+        return to_route('admin.posts.index', ['trashed' => 1]);
     }
 
     private function syncRelations(Post $post, PostRequest $request): void

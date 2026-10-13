@@ -61,6 +61,25 @@ test('a post can be deleted', function () {
         ->delete(route('admin.posts.destroy', $post))
         ->assertRedirect(route('admin.posts.index'));
 
+    $this->assertSoftDeleted('posts', ['id' => $post->id]);
+});
+
+test('a trashed post can be restored or deleted permanently', function () {
+    $admin = User::factory()->admin()->create();
+    $post = Post::factory()->create();
+
+    $this->actingAs($admin)->delete(route('admin.posts.destroy', $post));
+    $this->actingAs($admin)->get(route('blog.show', $post))->assertNotFound();
+    $this->actingAs($admin)->get(route('admin.posts.index', ['trashed' => 1]))->assertOk();
+
+    $this->actingAs($admin)
+        ->patch(route('admin.posts.restore', $post))
+        ->assertRedirect(route('admin.posts.index', ['trashed' => 1]));
+    expect($post->fresh()->trashed())->toBeFalse();
+
+    $post->delete();
+    $this->actingAs($admin)->delete(route('admin.posts.destroy', $post));
+
     $this->assertDatabaseMissing('posts', ['id' => $post->id]);
 });
 

@@ -7,10 +7,14 @@
     href,
     label = 'Hapus data ini?',
     description = 'Tindakan ini tidak dapat dibatalkan.',
+    buttonLabel = 'Hapus',
+    confirmLabel = 'Hapus',
   }: {
     href: string;
     label?: string;
     description?: string;
+    buttonLabel?: string;
+    confirmLabel?: string;
   } = $props();
 
   let open = $state(false);
@@ -34,7 +38,7 @@
   onclick={() => (open = true)}
 >
   <Trash2 size={14} />
-  Hapus
+  {buttonLabel}
 </button>
 
 <ModalConfirmation
@@ -42,6 +46,6 @@
   title={label}
   {description}
   {processing}
-  confirmLabel="Hapus"
+  {confirmLabel}
   actions={{ confirm: destroy }}
 />
