@@ -12,7 +12,7 @@ test('a pdf certification opens in the dedicated viewer page with its details', 
         'file' => 'certifications/aws.pdf',
     ]);
 
-    $this->get(route('certification.show', $certification->slug))
+    $this->get(route('certificates.show', $certification->slug))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('certification/show')
@@ -30,23 +30,35 @@ test('the slug resolves by id even when the title part is stale', function () {
 
     expect($certification->slug)->toBe($certification->id.'-old-title');
 
-    $this->get('/certification/'.$certification->id.'-renamed')->assertOk();
+    $this->get('/certificates/'.$certification->id.'-renamed')->assertOk();
 });
 
-test('an image certification and unknown slugs are not found', function () {
-    $image = Certification::factory()->create(['file' => 'certifications/badge.png']);
+test('an image certification opens a plain detail page', function () {
+    $image = Certification::factory()->create(['title' => 'Badge', 'file' => 'certifications/badge.png']);
 
-    $this->get(route('certification.show', $image->slug))->assertNotFound();
-    $this->get('/certification/999')->assertNotFound();
-    $this->get('/certification/not-a-slug')->assertNotFound();
+    $this->get(route('certificates.show', $image->slug))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('certification/detail')
+            ->where('imageUrl', '/storage/certifications/badge.png')
+            ->where('info.0', ['label' => 'Nama sertifikat', 'value' => 'Badge']));
 });
 
-test('the about page links only pdf certifications to the viewer page', function () {
+test('unknown slugs are not found', function () {
+    $this->get('/certificates/999')->assertNotFound();
+    $this->get('/certificates/not-a-slug')->assertNotFound();
+});
+
+test('the legacy certification url redirects permanently', function () {
+    $this->get('/certification/5-foo')->assertRedirect('/certificates/5-foo')->assertStatus(301);
+});
+
+test('the about page links every certification to its page', function () {
     $pdf = Certification::factory()->create(['file' => 'certifications/a.pdf']);
     $image = Certification::factory()->create(['file' => 'certifications/b.png']);
 
     $this->get(route('about.me'))
         ->assertInertia(fn ($page) => $page
-            ->where('certifications', fn ($items) => $items->firstWhere('id', $pdf->id)['pageUrl'] === route('certification.show', $pdf->slug)
-                && $items->firstWhere('id', $image->id)['pageUrl'] === null));
+            ->where('certifications', fn ($items) => $items->firstWhere('id', $pdf->id)['pageUrl'] === route('certificates.show', $pdf->slug)
+                && $items->firstWhere('id', $image->id)['pageUrl'] === route('certificates.show', $image->slug)));
 });

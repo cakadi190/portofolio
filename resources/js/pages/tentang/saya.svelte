@@ -6,10 +6,7 @@
   import { Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import FileText from '@lucide/svelte/icons/file-text';
-  import SidePanel from '@/components/side-panel.svelte';
   import HeaderPage from '@/components/header-page.svelte';
-  import Lightbox from '@/components/ui/lightbox.svelte';
-  import { formatDate } from '@/lib/utils';
 
   type Certification = {
     id: number;
@@ -21,7 +18,7 @@
     credentialUrl: string | null;
     file: string | null;
     isPdf: boolean;
-    pageUrl: string | null;
+    pageUrl: string;
   };
 
   let {
@@ -35,29 +32,6 @@
     totalProjects: number;
     certifications: Certification[];
   } = $props();
-
-  let lightboxOpen = $state(false);
-  let lightboxIndex = $state(0);
-
-  const lightboxImages = $derived(
-    certifications
-      .filter((certification) => certification.file && !certification.isPdf)
-      .map((certification) => ({ url: certification.file as string, title: certification.title })),
-  );
-
-  let infoOpen = $state(false);
-  let infoCertification = $state<Certification | null>(null);
-
-  function openInfo(certification: Certification): void {
-    infoCertification = certification;
-    infoOpen = true;
-  }
-
-  function openLightbox(certification: Certification): void {
-    infoOpen = false;
-    lightboxIndex = lightboxImages.findIndex((image) => image.url === certification.file);
-    lightboxOpen = true;
-  }
 
   const skillset = [
     { icon: 'devicon:laravel', name: 'Laravel' },
@@ -225,48 +199,12 @@
                         class="card-body d-flex align-items-center justify-content-between gap-3"
                       >
                         <h5 class="mb-0">{certification.title}</h5>
-                        {#if certification.pageUrl}
-                          <Link
-                            href={certification.pageUrl}
-                            class="btn btn-sm btn-outline-primary d-none d-md-inline-block flex-shrink-0"
-                          >
-                            Lihat
-                          </Link>
-                        {:else}
-                          <button
-                            type="button"
-                            class="btn btn-sm btn-outline-primary d-none d-md-inline-block flex-shrink-0"
-                            onclick={() => openInfo(certification)}
-                          >
-                            Info
-                          </button>
-                        {/if}
-                        <div class="dropdown d-md-none flex-shrink-0">
-                          <button
-                            type="button"
-                            class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            aria-label="Aksi sertifikasi"
-                          >
-                            Aksi
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                              {#if certification.pageUrl}
-                                <Link href={certification.pageUrl} class="dropdown-item">Lihat sertifikat</Link>
-                              {:else}
-                                <button
-                                  type="button"
-                                  class="dropdown-item"
-                                  onclick={() => openInfo(certification)}
-                                >
-                                  Informasi
-                                </button>
-                              {/if}
-                            </li>
-                          </ul>
-                        </div>
+                        <Link
+                          href={certification.pageUrl}
+                          class="btn btn-sm btn-outline-primary flex-shrink-0"
+                        >
+                          Lihat
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -308,39 +246,3 @@
     </div>
   </section>
 </div>
-
-<Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
-
-<SidePanel bind:open={infoOpen} title={infoCertification?.title ?? ''} subtitle={infoCertification?.issuer}>
-  {#snippet children()}
-    {#if infoCertification}
-      <p class="small mb-2">
-        Terbit {formatDate(infoCertification.issuedAt)}{infoCertification.expiresAt
-          ? ` · Berlaku hingga ${formatDate(infoCertification.expiresAt)}`
-          : ''}
-      </p>
-      {#if infoCertification.credentialId}
-        <p class="small opacity-75 mb-2">ID: {infoCertification.credentialId}</p>
-      {/if}
-      <div class="d-flex flex-wrap gap-2 mt-3">
-        {#if infoCertification.file}
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            onclick={() => infoCertification && openLightbox(infoCertification)}
-          >
-            Lihat sertifikat
-          </button>
-        {/if}
-        {#if infoCertification.credentialUrl}
-          <a
-            href={infoCertification.credentialUrl}
-            target="_blank"
-            rel="noopener"
-            class="btn btn-outline-primary btn-sm">Verifikasi kredensial</a
-          >
-        {/if}
-      </div>
-    {/if}
-  {/snippet}
-</SidePanel>

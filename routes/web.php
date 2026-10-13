@@ -92,13 +92,14 @@ Route::prefix('about')->name('about.')->group(function () {
 });
 
 Route::post('pdf-trust', PdfTrustController::class)->middleware('throttle:60,1')->name('pdf-trust');
-Route::get('certification/{slug}', [CertificationController::class, 'show'])->name('certification.show');
+Route::get('certificates/{slug}', [CertificationController::class, 'show'])->name('certificates.show');
 
 Route::prefix('resources')->name('resources.')->group(function () {
     Route::get('coffee-shops', [CoffeeShopController::class, 'index'])->name('coffee-shops.index');
 });
 
 // Legacy Indonesian URLs, permanently redirected so indexed links keep working.
+Route::permanentRedirect('certification/{slug}', '/certificates/{slug}');
 Route::permanentRedirect('karir', '/career');
 Route::permanentRedirect('pendidikan', '/education');
 Route::permanentRedirect('penghargaan', '/awards');

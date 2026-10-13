@@ -11,13 +11,13 @@ use Inertia\Response;
 class CertificationController extends Controller
 {
     /**
-     * Show the PDF viewer for a certification whose file is a PDF; images stay in the lightbox on /about.
+     * Show a certification: PDFs open in the document viewer, images in a plain detail page.
      */
     public function show(string $slug): Response
     {
         $certification = Certification::findBySlug($slug);
 
-        abort_unless($certification?->is_pdf && $certification->file, 404);
+        abort_unless($certification?->file, 404);
 
         $info = [
             ['label' => 'Nama sertifikat', 'value' => $certification->title],
@@ -35,6 +35,15 @@ class CertificationController extends Controller
 
         if ($certification->credential_url) {
             $info[] = ['label' => 'Verifikasi kredensial', 'value' => 'Buka tautan', 'href' => $certification->credential_url];
+        }
+
+        if (! $certification->is_pdf) {
+            return Inertia::render('certification/detail', [
+                'title' => $certification->title,
+                'description' => "Sertifikat {$certification->title} dari {$certification->issuer}.",
+                'imageUrl' => ImageService::url($certification->file),
+                'info' => $info,
+            ]);
         }
 
         return Inertia::render('certification/show', [
