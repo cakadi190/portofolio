@@ -201,9 +201,9 @@
                         <h5 class="mb-0">{certification.title}</h5>
                         <Link
                           href={certification.pageUrl}
-                          class="btn btn-sm btn-outline-primary flex-shrink-0"
+                          class="btn btn-sm btn-primary flex-shrink-0"
                         >
-                          Lihat
+                          Show Certificate
                         </Link>
                       </div>
                     </div>
