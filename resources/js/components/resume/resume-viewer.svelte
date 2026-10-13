@@ -2,6 +2,8 @@
   import { onMount, tick } from 'svelte';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Copy from '@lucide/svelte/icons/copy';
+  import TextCursor from '@lucide/svelte/icons/text-cursor';
+  import SquareDashed from '@lucide/svelte/icons/square-dashed-mouse-pointer';
   import Check from '@lucide/svelte/icons/check';
   import LinkIcon from '@lucide/svelte/icons/link';
   import ImageIcon from '@lucide/svelte/icons/image';
@@ -53,6 +55,8 @@
   const GAP = 16;
 
   let status = $state<'loading' | 'ready' | 'error'>('loading');
+  let fitted = $state(false);
+  let tool = $state<'text' | 'area'>('text');
   let tab = $state<Tab>('outline');
   let zoom = $state(1);
   let zoomMode = $state<ZoomMode>('fit-width');
@@ -68,7 +72,7 @@
   let selection = $state<(Box & { text: string; busy: boolean }) | null>(null);
   let note = $state('');
   let sidebar = $state(typeof window !== 'undefined' && window.innerWidth >= 992);
-  let mobileSearch = $state(false);
+  let searchInput = $state<HTMLInputElement | null>(null);
   let activeHit = $state(-1);
   let links = $state.raw<Record<number, PageLink[]>>({});
   let searchToken = 0;
@@ -260,6 +264,11 @@
   };
 
   const wheelZoom = (node: HTMLElement) => {
+    let frame = 0;
+    let factor = 1;
+    let anchor = { x: 0, y: 0 };
+
+    // Wheel events fire faster than frames on high-rate mice; apply one zoom step per frame so slow machines never queue layouts.
     const handler = (event: WheelEvent): void => {
       if (!event.ctrlKey) {
         return;
@@ -267,12 +276,26 @@
 
       event.preventDefault();
       const box = node.getBoundingClientRect();
-      setZoom(zoom * Math.exp(-event.deltaY * 0.01), 'custom', { x: event.clientX - box.left, y: event.clientY - box.top });
+      factor *= Math.exp(-event.deltaY * 0.01);
+      anchor = { x: event.clientX - box.left, y: event.clientY - box.top };
+
+      if (frame === 0) {
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          setZoom(zoom * factor, 'custom', anchor);
+          factor = 1;
+        });
+      }
     };
 
     node.addEventListener('wheel', handler, { passive: false });
 
-    return { destroy: () => node.removeEventListener('wheel', handler) };
+    return {
+      destroy: () => {
+        cancelAnimationFrame(frame);
+        node.removeEventListener('wheel', handler);
+      },
+    };
   };
 
   /** Two-finger pinch inside the viewer only; the browser's own page pinch is disabled here via touch-action. */
@@ -495,7 +518,7 @@
   const startDrag = (event: PointerEvent, number: number): void => {
     const target = event.target as HTMLElement;
 
-    if (event.button !== 0 || event.pointerType === 'touch' || target.closest('.rv-text > span, .rv-text .markedContent span, .rv-link, .rv-sel-actions')) {
+    if (tool !== 'area' || event.button !== 0 || event.pointerType === 'touch' || target.closest('.rv-link, .rv-sel-actions')) {
       return;
     }
 
@@ -612,7 +635,22 @@
     }
   };
 
+  const focusSearch = async (): Promise<void> => {
+    sidebar = true;
+    tab = 'search';
+    await tick();
+    searchInput?.focus();
+    searchInput?.select();
+  };
+
   const onKeydown = (event: KeyboardEvent): void => {
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'f') {
+      event.preventDefault();
+      void focusSearch();
+
+      return;
+    }
+
     if (event.key === 'Escape') {
       selection = null;
       drag = null;
@@ -743,6 +781,7 @@
         await tick();
       }
 
+      fitted = true;
       resizeObserver = new ResizeObserver(() => {
         if (zoomMode !== 'custom') {
           applyFit(zoomMode);
@@ -768,7 +807,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="rv" data-zoom-mode={zoomMode}>
+<div class="rv" class:rv-fitted={fitted} data-tool={tool} data-zoom-mode={zoomMode}>
   <header class="rv-bar">
     <button type="button" class="rv-back" onclick={onclose} aria-label="Kembali" data-tip="Kembali">
       <ArrowLeft size={18} /><span class="rv-label">Kembali</span>
@@ -779,14 +818,6 @@
       <strong>{title}</strong>
       {#if subtitle}<small>{subtitle}</small>{/if}
     </div>
-
-    <button type="button" class="rv-icon rv-search-toggle" onclick={() => (mobileSearch = !mobileSearch)} aria-label="Cari dalam dokumen"><Search size={18} /></button>
-
-    <form class="rv-search" class:open={mobileSearch} onsubmit={(event) => { event.preventDefault(); stepHit(1); }}>
-      <Search size={14} />
-      <input type="search" placeholder="Cari dalam dokumen" bind:value={query} aria-label="Cari dalam dokumen" onkeydown={(event) => { if (event.key === 'Enter' && event.shiftKey) { event.preventDefault(); stepHit(-1); } }} />
-      {#if searched}<span class="rv-count">{searching ? '…' : hits.length === 0 ? '0' : `${activeHit + 1}/${hits.length}`}</span>{/if}
-    </form>
 
     {#if profiles.length > 1}
       <nav class="rv-profiles" aria-label="Pilih jenis CV">
@@ -805,6 +836,11 @@
       </div>
 
       <div class="rv-group">
+        <button type="button" class="rv-icon" class:on={tool === 'text'} aria-pressed={tool === 'text'} onclick={() => { tool = 'text'; selection = null; drag = null; }} aria-label="Pilih teks" data-tip="Pilih teks"><TextCursor size={16} /></button>
+        <button type="button" class="rv-icon" class:on={tool === 'area'} aria-pressed={tool === 'area'} onclick={() => { tool = 'area'; window.getSelection()?.removeAllRanges(); }} aria-label="Pilih area" data-tip="Pilih area (kotak)"><SquareDashed size={16} /></button>
+      </div>
+
+      <div class="rv-group">
         <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label="Perkecil" data-tip="Perkecil" data-zoom-out><Minus size={14} /></button>
         <span class="rv-page" data-zoom-value aria-live="polite" data-tip={MODE_LABELS[zoomMode]}>{Math.round(zoom * 100)}%</span>
         <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label="Perbesar" data-tip="Perbesar" data-zoom-in><Plus size={14} /></button>
@@ -813,8 +849,10 @@
       </div>
     </div>
 
-    <a class="rv-download" href={url} download={downloadName} aria-label="Unduh PDF" data-tip="Unduh PDF"><Download size={16} /><span class="rv-label">Unduh PDF</span></a>
-    <button type="button" class="rv-copy" class:done={copied} onclick={copyLink} aria-label="Salin tautan" data-tip={copied ? 'Tautan tersalin!' : 'Salin tautan'}>{#if copied}<Check size={16} />{:else}<LinkIcon size={16} />{/if}</button>
+    <div class="rv-actions">
+      <a class="rv-download" href={url} download={downloadName} aria-label="Unduh PDF" data-tip="Unduh PDF"><Download size={16} /><span class="rv-label">Unduh PDF</span></a>
+      <button type="button" class="rv-copy" class:done={copied} onclick={copyLink} aria-label="Salin tautan" data-tip={copied ? 'Tautan tersalin!' : 'Salin tautan'}>{#if copied}<Check size={16} />{:else}<LinkIcon size={16} />{/if}</button>
+    </div>
   </header>
 
   <button type="button" class="rv-backdrop" class:open={sidebar} onclick={() => (sidebar = false)} aria-label="Tutup panel" tabindex={sidebar ? 0 : -1}></button>
@@ -826,6 +864,14 @@
           <button type="button" role="tab" aria-selected={tab === key} class:active={tab === key} onclick={() => (tab = key as Tab)}>{label}</button>
         {/each}
       </div>
+
+      {#if tab === 'search'}
+        <form class="rv-search" onsubmit={(event) => { event.preventDefault(); stepHit(1); }}>
+          <Search size={14} />
+          <input bind:this={searchInput} type="search" name="rv-search" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Cari dalam dokumen" bind:value={query} aria-label="Cari dalam dokumen" onkeydown={(event) => { if (event.key === 'Enter' && event.shiftKey) { event.preventDefault(); stepHit(-1); } }} />
+          {#if searched}<span class="rv-count">{searching ? '…' : hits.length === 0 ? '0' : `${activeHit + 1}/${hits.length}`}</span>{/if}
+        </form>
+      {/if}
 
       <div class="rv-panel" use:perfectScrollbar>
         {#if tab === 'outline'}
@@ -914,23 +960,30 @@
 </div>
 
 <style>
+  .rv:not(.rv-fitted) .rv-main:has(.rv-sheet) { opacity: 0; }
+  .rv-main { transition: opacity 0.25s ease; }
   .rv { display: flex; flex-direction: column; height: 100%; color: var(--neo-body-color); font-size: 0.875rem; background: var(--neo-tertiary-bg); }
   .rv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.75rem 1rem; color: #fff; background: var(--neo-primary); }
   .rv-back { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.875rem; font-weight: 600; color: var(--neo-primary); cursor: pointer; background: #fff; border: 0; border-radius: 0.5rem; }
   .rv-title { display: flex; flex: 1 1 14rem; flex-direction: column; min-width: 0; }
   .rv-title strong { font-size: 1rem; }
   .rv-title small { overflow: hidden; color: #cbd5e1; font-size: 0.7rem; text-overflow: ellipsis; white-space: nowrap; }
-  .rv-search { display: flex; flex: 0 1 22rem; align-items: center; gap: 0.5rem; padding: 0 0.875rem; background: rgba(255, 255, 255, 0.12); border-radius: 999px; }
-  .rv-search input { flex: 1; min-width: 0; padding: 0.5rem 0; color: #fff; background: transparent; border: 0; outline: 0; }
-  .rv-search input::placeholder { color: #cbd5e1; }
+  .rv-search { display: flex; align-items: center; gap: 0.5rem; margin: 0.75rem 0.75rem 0; padding: 0 0.875rem; color: var(--neo-body-color); background: var(--neo-tertiary-bg, rgba(0, 0, 0, 0.05)); border: 1px solid var(--neo-border-color); border-radius: 999px; }
+  .rv-side > .rv-search { box-sizing: border-box; width: calc(100% - 1.5rem); }
+  .rv-search input::-webkit-search-cancel-button { display: none; }
+  .rv-search:focus-within { border-color: var(--neo-primary); }
+  .rv-search input { flex: 1; min-width: 0; padding: 0.5rem 0; color: inherit; background: transparent; border: 0; outline: 0; }
+  .rv-search input::placeholder { color: var(--neo-secondary-color); }
   .rv-group { display: flex; align-items: center; gap: 0.25rem; }
   .rv-page { min-width: 4.5rem; font-size: 0.8rem; font-weight: 600; text-align: center; }
   .rv-icon { display: inline-grid; width: 1.75rem; height: 1.75rem; color: #fff; cursor: pointer; background: transparent; border: 0; border-radius: 0.375rem; place-items: center; }
   .rv-icon:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); }
   .rv-icon:disabled { opacity: 0.4; cursor: default; }
-  .rv-download { padding: 0.5rem 1rem; font-weight: 700; color: #fff; text-decoration: none; background: var(--neo-primary-text-emphasis); border-radius: 999px; }
-  .rv-copy { display: inline-grid; width: 2.25rem; height: 2.25rem; padding: 0; color: #fff; cursor: pointer; background: transparent; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 999px; place-items: center; transition: background 0.2s ease, color 0.2s ease; }
-  .rv-copy.done { color: var(--neo-primary-text-emphasis); background: #fff; }
+  .rv-actions { display: flex; gap: 0.25rem; padding: 0.1875rem; background: rgba(255, 255, 255, 0.12); border-radius: 999px; }
+  .rv-download { padding: 0.3125rem 0.875rem; font-size: 0.8rem; font-weight: 600; color: #fff; text-decoration: none; background: var(--neo-primary-text-emphasis); border-radius: 999px; }
+  .rv-copy { display: inline-grid; width: 1.9rem; height: 1.9rem; padding: 0; color: #fff; cursor: pointer; background: transparent; border: 0; border-radius: 999px; place-items: center; transition: background 0.2s ease, color 0.2s ease; }
+  .rv-copy:hover { background: rgba(255, 255, 255, 0.18); }
+  .rv-copy.done { color: var(--neo-primary); background: #fff; }
   .rv-body { display: flex; flex: 1; min-height: 0; }
   .rv-side { display: flex; flex: 0 0 20rem; width: 20rem; overflow: hidden; transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease, visibility 0.25s; flex-direction: column; min-height: 0; background: var(--neo-body-bg); border-right: 1px solid var(--neo-border-color); }
   .rv-side > * { width: 20rem; }
@@ -964,8 +1017,8 @@
   .rv-profiles button.on { color: var(--neo-primary); background: #fff; }
   .rv-icon:focus-visible, .rv-back:focus-visible, .rv-download:focus-visible, .rv-copy:focus-visible, .rv-profiles button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   .rv-controls .rv-icon:focus-visible { outline-color: var(--neo-primary); }
-  .rv-sheet { position: relative; margin-right: auto; margin-left: auto; background: #fff; transition: width 0.2s ease-out, height 0.2s ease-out; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); }
-  .rv-text { position: absolute; top: 0; left: 0; overflow: clip; line-height: 1; text-align: initial; transform-origin: 0 0; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); transition: transform 0.2s ease-out; }
+  .rv-sheet { position: relative; margin-right: auto; margin-left: auto; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); }
+  .rv-text { position: absolute; top: 0; left: 0; overflow: clip; line-height: 1; text-align: initial; transform-origin: 0 0; --total-scale-factor: 1; --scale-round-x: 1px; --scale-round-y: 1px; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); will-change: transform; }
   .rv-text :global(:is(span, br)) { position: absolute; color: transparent; white-space: pre; cursor: text; transform-origin: 0 0; user-select: text; }
   .rv-text > :global(:not(.markedContent)), .rv-text :global(.markedContent span:not(.markedContent)) { --font-height: 0; --scale-x: 1; --rotate: 0deg; font-size: calc(var(--text-scale-factor) * var(--font-height)); transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
   .rv-text :global(.markedContent) { display: contents; }
@@ -973,6 +1026,8 @@
   .rv-text :global(.endOfContent) { position: absolute; inset: 100% 0 0; display: block; cursor: default; user-select: none; }
   .rv-text:global(.selecting) :global(.endOfContent) { top: 0; }
   .rv-sheet canvas { user-select: none; }
+  .rv[data-tool='area'] .rv-text { pointer-events: none; }
+  .rv[data-tool='area'] .rv-sheet { cursor: crosshair; }
   .rv-marquee { position: absolute; z-index: 2; pointer-events: none; background: rgba(var(--neo-primary-rgb), 0.1); border: 1.5px dashed var(--neo-primary); }
   .rv-sel-actions { position: absolute; z-index: 3; display: flex; gap: 0.25rem; padding: 0.25rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 0.5rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); cursor: default; }
   .rv-sel-actions button { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.625rem; font-size: 0.8rem; font-weight: 600; color: inherit; white-space: nowrap; cursor: pointer; background: transparent; border: 0; border-radius: 0.375rem; }
@@ -987,7 +1042,6 @@
   }
 
   .rv-side:not(.open) { flex-basis: 0; width: 0; border-right-width: 0; opacity: 0; visibility: hidden; }
-  .rv-search-toggle { display: none; }
   .rv-backdrop { display: none; }
   .rv-controls .rv-icon { width: 2rem; height: 2rem; }
   .rv-controls .rv-group { gap: 0.125rem; }
@@ -1010,7 +1064,6 @@
     .rv-side > * { width: min(20rem, 86vw); }
     .rv-backdrop { position: fixed; z-index: 29; inset: 0; display: block; background: rgba(0, 0, 0, 0.4); border: 0; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
     .rv-backdrop.open { opacity: 1; pointer-events: auto; }
-    .rv-search { flex-basis: 100%; order: 5; }
     .rv-profiles { flex-basis: 100%; order: 6; justify-content: stretch; }
     .rv-profiles button { flex: 1; }
   }
@@ -1021,9 +1074,6 @@
     .rv-back, .rv-download { display: inline-grid; width: 2.25rem; height: 2.25rem; padding: 0; place-items: center; border-radius: 999px; }
     .rv-title { flex: 1 1 0; }
     .rv-title strong { overflow: hidden; font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
-    .rv-search-toggle { display: inline-grid; }
-    .rv-search { display: none; }
-    .rv-search.open { display: flex; }
     .rv-main { padding: 0.75rem 0.75rem calc(6rem + env(safe-area-inset-bottom)); }
   }
 </style>

@@ -69,6 +69,16 @@
             .dropdown-menu:not(.show) { display: none; }
         </style>
 
+        @if (request()->routeIs('resume.show', 'resume.profile'))
+            {{-- Anti-FOUC for the PDF viewer: paint its shell and preload the PDF before the JS bundle boots. --}}
+            <link rel="preload" as="fetch" href="{{ request()->route('profile') ? route('resume.profile.pdf', request()->route('profile')) : route('resume.pdf') }}" crossorigin="use-credentials">
+            <style>
+                html, body { height: 100%; margin: 0; overflow: hidden; }
+                body { background: var(--neo-tertiary-bg, #f1f5f9); }
+                #app:empty::before { display: block; height: 3.75rem; content: ''; background: #22c55e; }
+            </style>
+        @endif
+
         <x-analytics />
         <x-sentry />
 
