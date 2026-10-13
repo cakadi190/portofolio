@@ -933,6 +933,7 @@
   .rv-copy.done { color: var(--neo-primary-text-emphasis); background: #fff; }
   .rv-body { display: flex; flex: 1; min-height: 0; }
   .rv-side { display: flex; flex: 0 0 20rem; width: 20rem; overflow: hidden; transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease, visibility 0.25s; flex-direction: column; min-height: 0; background: var(--neo-body-bg); border-right: 1px solid var(--neo-border-color); }
+  .rv-side > * { width: 20rem; }
   .rv-tabs { display: flex; border-bottom: 1px solid var(--neo-border-color); }
   .rv-tabs button { flex: 1; padding: 0.75rem 0; font-weight: 600; color: var(--neo-secondary-color); cursor: pointer; background: transparent; border: 0; border-bottom: 2px solid transparent; }
   .rv-tabs button.active { color: var(--neo-primary); border-bottom-color: var(--neo-primary); }
@@ -1006,6 +1007,7 @@
   @media (max-width: 991.98px) {
     .rv-side, .rv-side:not(.open) { position: fixed; z-index: 30; top: 0; bottom: 0; left: 0; flex-basis: auto; width: min(20rem, 86vw); border-right-width: 1px; opacity: 1; visibility: visible; box-shadow: 0 0 40px rgba(0, 0, 0, 0.35); transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1); transform: translateX(-105%); }
     .rv-side.open { transform: translateX(0); }
+    .rv-side > * { width: min(20rem, 86vw); }
     .rv-backdrop { position: fixed; z-index: 29; inset: 0; display: block; background: rgba(0, 0, 0, 0.4); border: 0; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
     .rv-backdrop.open { opacity: 1; pointer-events: auto; }
     .rv-search { flex-basis: 100%; order: 5; }
