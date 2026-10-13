@@ -2,8 +2,10 @@
   import { onMount, tick } from 'svelte';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Copy from '@lucide/svelte/icons/copy';
+  import Check from '@lucide/svelte/icons/check';
+  import LinkIcon from '@lucide/svelte/icons/link';
   import ImageIcon from '@lucide/svelte/icons/image';
-      import Download from '@lucide/svelte/icons/download';
+  import Download from '@lucide/svelte/icons/download';
   import List from '@lucide/svelte/icons/list';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -768,10 +770,10 @@
 
 <div class="rv" data-zoom-mode={zoomMode}>
   <header class="rv-bar">
-    <button type="button" class="rv-back" onclick={onclose} aria-label="Kembali">
+    <button type="button" class="rv-back" onclick={onclose} aria-label="Kembali" data-tip="Kembali">
       <ArrowLeft size={18} /><span class="rv-label">Kembali</span>
     </button>
-    <button type="button" class="rv-icon rv-menu" onclick={() => (sidebar = !sidebar)} aria-label="Tampilkan atau sembunyikan panel" aria-expanded={sidebar}><List size={20} /></button>
+    <button type="button" class="rv-icon rv-menu" onclick={() => (sidebar = !sidebar)} aria-label="Tampilkan atau sembunyikan panel" aria-expanded={sidebar} data-tip="Panel samping"><List size={20} /></button>
 
     <div class="rv-title">
       <strong>{title}</strong>
@@ -799,20 +801,20 @@
       <div class="rv-group">
         <button type="button" class="rv-icon" onclick={() => goTo(current - 1)} disabled={current <= 1} aria-label="Halaman sebelumnya"><ChevronLeft size={18} /></button>
         <span class="rv-page"><span class="rv-label">Hal. </span>{current} / {total || '-'}</span>
-        <button type="button" class="rv-icon" onclick={() => goTo(current + 1)} disabled={current >= total} aria-label="Halaman berikutnya"><ChevronRight size={18} /></button>
+        <button type="button" class="rv-icon" onclick={() => goTo(current + 1)} disabled={current >= total} aria-label="Halaman berikutnya" data-tip="Halaman berikutnya"><ChevronRight size={18} /></button>
       </div>
 
       <div class="rv-group">
-        <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label="Perkecil" data-zoom-out><Minus size={14} /></button>
-        <span class="rv-page" data-zoom-value aria-live="polite" title={MODE_LABELS[zoomMode]}>{Math.round(zoom * 100)}%</span>
-        <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label="Perbesar" data-zoom-in><Plus size={14} /></button>
-        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-width'} aria-pressed={zoomMode === 'fit-width'} onclick={() => applyFit('fit-width')} aria-label="Sesuai lebar" title="Sesuai lebar"><MoveHorizontal size={16} /></button>
-        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-page'} aria-pressed={zoomMode === 'fit-page'} onclick={() => applyFit('fit-page')} aria-label="Sesuai halaman" title="Sesuai halaman"><Maximize size={15} /></button>
+        <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label="Perkecil" data-tip="Perkecil" data-zoom-out><Minus size={14} /></button>
+        <span class="rv-page" data-zoom-value aria-live="polite" data-tip={MODE_LABELS[zoomMode]}>{Math.round(zoom * 100)}%</span>
+        <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label="Perbesar" data-tip="Perbesar" data-zoom-in><Plus size={14} /></button>
+        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-width'} aria-pressed={zoomMode === 'fit-width'} onclick={() => applyFit('fit-width')} aria-label="Sesuai lebar" data-tip="Sesuai lebar"><MoveHorizontal size={16} /></button>
+        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-page'} aria-pressed={zoomMode === 'fit-page'} onclick={() => applyFit('fit-page')} aria-label="Sesuai halaman" data-tip="Sesuai halaman"><Maximize size={15} /></button>
       </div>
     </div>
 
-    <a class="rv-download" href={url} download={downloadName} aria-label="Unduh PDF"><Download size={16} /><span class="rv-label">Unduh PDF</span></a>
-    <button type="button" class="rv-copy" onclick={copyLink}>{copied ? 'Tersalin!' : 'Salin tautan'}</button>
+    <a class="rv-download" href={url} download={downloadName} aria-label="Unduh PDF" data-tip="Unduh PDF"><Download size={16} /><span class="rv-label">Unduh PDF</span></a>
+    <button type="button" class="rv-copy" class:done={copied} onclick={copyLink} aria-label="Salin tautan" data-tip={copied ? 'Tautan tersalin!' : 'Salin tautan'}>{#if copied}<Check size={16} />{:else}<LinkIcon size={16} />{/if}</button>
   </header>
 
   <button type="button" class="rv-backdrop" class:open={sidebar} onclick={() => (sidebar = false)} aria-label="Tutup panel" tabindex={sidebar ? 0 : -1}></button>
@@ -926,8 +928,9 @@
   .rv-icon { display: inline-grid; width: 1.75rem; height: 1.75rem; color: #fff; cursor: pointer; background: transparent; border: 0; border-radius: 0.375rem; place-items: center; }
   .rv-icon:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); }
   .rv-icon:disabled { opacity: 0.4; cursor: default; }
-  .rv-download { padding: 0.5rem 0.875rem; font-weight: 700; color: #fff; text-decoration: none; background: var(--neo-primary-text-emphasis); border-radius: 0.5rem; }
-  .rv-copy { padding: 0.5rem 0.875rem; font-weight: 600; color: #fff; cursor: pointer; background: transparent; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 0.5rem; }
+  .rv-download { padding: 0.5rem 1rem; font-weight: 700; color: #fff; text-decoration: none; background: var(--neo-primary-text-emphasis); border-radius: 999px; }
+  .rv-copy { display: inline-grid; width: 2.25rem; height: 2.25rem; padding: 0; color: #fff; cursor: pointer; background: transparent; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 999px; place-items: center; transition: background 0.2s ease, color 0.2s ease; }
+  .rv-copy.done { color: var(--neo-primary-text-emphasis); background: #fff; }
   .rv-body { display: flex; flex: 1; min-height: 0; }
   .rv-side { display: flex; flex: 0 0 20rem; width: 20rem; overflow: hidden; transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease, visibility 0.25s; flex-direction: column; min-height: 0; background: var(--neo-body-bg); border-right: 1px solid var(--neo-border-color); }
   .rv-tabs { display: flex; border-bottom: 1px solid var(--neo-border-color); }
@@ -985,7 +988,19 @@
   .rv-side:not(.open) { flex-basis: 0; width: 0; border-right-width: 0; opacity: 0; visibility: hidden; }
   .rv-search-toggle { display: none; }
   .rv-backdrop { display: none; }
-  .rv-controls { display: contents; }
+  .rv-controls .rv-icon { width: 2rem; height: 2rem; }
+  .rv-controls .rv-group { gap: 0.125rem; }
+  .rv-controls { position: fixed; z-index: 20; bottom: calc(1rem + env(safe-area-inset-bottom)); right: 0; left: 0; width: fit-content; max-width: calc(100% - 1rem); margin-inline: auto; flex-wrap: wrap; justify-content: center; display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 999px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2); }
+  .rv-controls .rv-icon { color: inherit; }
+  .rv-controls .rv-icon.on { color: var(--neo-primary-text-emphasis); background: var(--neo-primary-bg-subtle); }
+  .rv-controls .rv-icon:hover:not(:disabled) { background: var(--neo-primary-bg-subtle); }
+  .rv-controls .rv-page { min-width: 2.5rem; font-size: 0.75rem; }
+  .rv-controls .rv-group + .rv-group { padding-left: 0.375rem; border-left: 1px solid var(--neo-border-color); }
+  .rv-controls { gap: 0.25rem; }
+  .rv-main { padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after { position: absolute; z-index: 50; top: calc(100% + 0.5rem); left: 50%; padding: 0.25rem 0.5rem; font-size: 0.7rem; font-weight: 600; line-height: 1.2; color: #fff; white-space: nowrap; pointer-events: none; content: attr(data-tip); background: #111827; border-radius: 0.375rem; transform: translateX(-50%); }
+  .rv-controls [data-tip]:hover::after, .rv-controls [data-tip]:focus-visible::after { top: auto; bottom: calc(100% + 0.75rem); }
   .rv-download { display: inline-flex; align-items: center; gap: 0.375rem; }
 
   @media (max-width: 991.98px) {
@@ -1000,21 +1015,13 @@
 
   @media (max-width: 767.98px) {
     .rv-bar { flex-wrap: wrap; gap: 0.5rem; padding: 0.625rem 0.75rem; }
-    .rv-label, .rv-title small, .rv-copy { display: none; }
+    .rv-label, .rv-title small { display: none; }
     .rv-back, .rv-download { display: inline-grid; width: 2.25rem; height: 2.25rem; padding: 0; place-items: center; border-radius: 999px; }
     .rv-title { flex: 1 1 0; }
     .rv-title strong { overflow: hidden; font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
     .rv-search-toggle { display: inline-grid; }
     .rv-search { display: none; }
     .rv-search.open { display: flex; }
-    .rv-main { padding: 0.75rem 0.75rem calc(8rem + env(safe-area-inset-bottom)); }
-    .rv-controls .rv-icon { width: 2rem; height: 2rem; }
-    .rv-controls .rv-group { gap: 0.125rem; }
-    .rv-controls { position: fixed; z-index: 20; bottom: calc(1rem + env(safe-area-inset-bottom)); right: 0; left: 0; width: fit-content; max-width: calc(100% - 1rem); margin-inline: auto; flex-wrap: wrap; justify-content: center; display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 999px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2); }
-    .rv-controls .rv-icon { color: inherit; }
-    .rv-controls .rv-icon.on { color: var(--neo-primary-text-emphasis); background: var(--neo-primary-bg-subtle); }
-    .rv-controls .rv-icon:hover:not(:disabled) { background: var(--neo-primary-bg-subtle); }
-    .rv-controls .rv-page { min-width: 2.5rem; font-size: 0.75rem; }
-    .rv-controls .rv-group + .rv-group { padding-left: 0.375rem; border-left: 1px solid var(--neo-border-color); }
+    .rv-main { padding: 0.75rem 0.75rem calc(6rem + env(safe-area-inset-bottom)); }
   }
 </style>
