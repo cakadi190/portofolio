@@ -157,6 +157,10 @@ class BlogController extends Controller
         $published = Post::query()->where('is_published', true);
         $date = $post->published_at;
 
+        if ($date === null) {
+            return ['previous' => null, 'next' => null];
+        }
+
         $older = (clone $published)
             ->where(fn ($query) => $query
                 ->where('published_at', '<', $date)

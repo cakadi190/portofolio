@@ -762,6 +762,10 @@
       const loaded: PDFPageProxy[] = [];
 
       for (let number = 1; number <= doc.numPages; number++) {
+        if (cancelled) {
+          return;
+        }
+
         loaded.push(await doc.getPage(number));
       }
 
@@ -771,8 +775,8 @@
 
       pages = loaded;
       status = 'ready';
-      void loadOutline(doc);
-      void loadLinks(doc, loaded);
+      loadOutline(doc).catch(() => {});
+      loadLinks(doc, loaded).catch(() => {});
       await tick();
 
       if (scroller) {
