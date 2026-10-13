@@ -185,12 +185,12 @@
   .form-confirmed {
     // Color-per-state variable system: swap one custom property instead of
     // branching every rule that cares about validity.
-    --#{$prefix}-state-color: var(--bs-border-color);
-    --#{$prefix}-confirm-bg: var(--bs-body-bg);
+    --#{$prefix}-state-color: var(--neo-border-color);
+    --#{$prefix}-confirm-bg: var(--neo-body-bg);
 
     // Same dark-mode tokens as .form-control (see _base.scss), so the wrapper
     // reads as one regular input instead of a faint outline around two.
-    [data-bs-theme='dark'] & {
+    :global([data-bs-theme='dark']) & {
       --#{$prefix}-state-color: rgba(255, 255, 255, 0.22);
       --#{$prefix}-confirm-bg: var(--#{$prefix}-surface-inset);
     }

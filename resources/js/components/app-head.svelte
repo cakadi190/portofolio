@@ -3,14 +3,22 @@
 
   let {
     title = '',
+    brandFirst = false,
     children,
   }: {
     title?: string;
+    brandFirst?: boolean;
     children?: Snippet;
   } = $props();
 
   const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-  const fullTitle = $derived(title ? `${title} • ${appName}` : appName);
+  const fullTitle = $derived(
+    !title
+      ? appName
+      : brandFirst
+        ? `${appName} • ${title}`
+        : `${title} • ${appName}`,
+  );
 </script>
 
 <svelte:head>

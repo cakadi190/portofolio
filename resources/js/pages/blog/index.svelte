@@ -15,13 +15,24 @@
     categories: { name: string; color: string | null }[];
   };
 
-  let { posts }: { posts: Paginated<Post> } = $props();
+  let {
+    posts,
+    activeCategory = null,
+  }: {
+    posts: Paginated<Post>;
+    activeCategory?: { id: number; name: string } | null;
+  } = $props();
 </script>
 
 <AppHead title="Artikel" />
 
 <div id="articles-page">
-  <HeaderPage title="Artikel" subtitle="Berikut daftar artikel yang saya tulis." />
+  <HeaderPage
+    title="Artikel"
+    subtitle={activeCategory
+      ? `Artikel dalam kategori ${activeCategory.name}.`
+      : 'Berikut daftar artikel yang saya tulis.'}
+  />
 
   <section class="need-space pt-0">
     <div class="container">

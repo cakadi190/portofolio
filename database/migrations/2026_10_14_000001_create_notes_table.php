@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('notes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('title');
+            $table->string('slug')->unique();
+            $table->string('excerpt')->nullable();
+            $table->longText('content');
+            $table->boolean('is_published')->default(false);
+            $table->dateTime('published_at')->nullable();
+            $table->timestamps();
+
+            $table->index(['is_published', 'published_at']);
+        });
+
+        Schema::create('note_tag', function (Blueprint $table) {
+            $table->foreignId('note_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('tag_id')->constrained()->cascadeOnDelete();
+
+            $table->primary(['note_id', 'tag_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('note_tag');
+        Schema::dropIfExists('notes');
+    }
+};

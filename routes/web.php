@@ -11,13 +11,16 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisclaimerController;
 use App\Http\Controllers\EducationController;
+use App\Http\Controllers\GuestbookController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PortfolioReviewController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SpeakingController;
+use App\Http\Controllers\StatisticController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -53,6 +56,19 @@ Route::prefix('blog')->name('blog.')->group(function () {
         ->middleware(['auth', 'verified', 'throttle:10,1'])
         ->name('comments.store');
 });
+
+Route::prefix('notes')->name('notes.')->group(function () {
+    Route::get('/', [NoteController::class, 'index'])->name('index');
+    Route::get('{note:slug}', [NoteController::class, 'show'])->name('show');
+});
+
+Route::get('statistic', [StatisticController::class, 'index'])->name('statistic.index');
+Route::permanentRedirect('statistics', '/statistic');
+
+Route::get('guestbook', [GuestbookController::class, 'index'])->name('guestbook.index');
+Route::post('guestbook', [GuestbookController::class, 'store'])
+    ->middleware(['auth', 'verified', 'throttle:10,1'])
+    ->name('guestbook.store');
 
 Route::prefix('clarifications')->name('clarifications.')->group(function () {
     Route::get('/', [ClarificationController::class, 'index'])->name('index');

@@ -286,7 +286,7 @@
                   <a href="#certification" class="nav-link py-3 w-100 text-start">Sertifikasi</a>
                 </li>
                 <li class="nav-item">
-                  <Link href="/tentang/skill" class="nav-link py-3 w-100 text-start">Perkakas</Link>
+                  <a href="#skills" class="nav-link py-3 w-100 text-start">Perkakas</a>
                 </li>
               </ul>
             </div>

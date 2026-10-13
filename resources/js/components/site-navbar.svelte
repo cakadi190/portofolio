@@ -23,7 +23,13 @@
         { name: 'Karir', href: '/karir' },
       ],
     },
-    { name: 'Blog', href: '/blog' },
+    {
+      name: 'Bacaan',
+      children: [
+        { name: 'Artikel dan Bacaan', href: '/blog' },
+        { name: 'Catatan Singkat', href: '/notes' },
+      ],
+    },
     { name: 'Kontak Saya', href: '/kontak' },
   ];
 

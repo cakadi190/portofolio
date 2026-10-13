@@ -6,6 +6,10 @@
   import HeaderPage from '@/components/header-page.svelte';
   import BlogComments from '@/components/blog/blog-comments.svelte';
   import type { BlogCommentNode } from '@/components/blog/types';
+  import { Link } from '@inertiajs/svelte';
+  import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+  import ChevronRight from '@lucide/svelte/icons/chevron-right';
+  import { index } from '@/wayfinder/routes/blog';
 
   type Post = {
     slug: string;
@@ -19,10 +23,27 @@
     tags: string[];
   };
 
+  type PostLink = { title: string; slug: string; publishedAt?: string | null };
+  type Category = {
+    id: number;
+    name: string;
+    color: string | null;
+    count: number;
+  };
+
   let {
     post,
     comments,
-  }: { post: Post; comments: BlogCommentNode[] } = $props();
+    otherPosts,
+    categories,
+    adjacent,
+  }: {
+    post: Post;
+    comments: BlogCommentNode[];
+    otherPosts: PostLink[];
+    categories: Category[];
+    adjacent: { previous: PostLink | null; next: PostLink | null };
+  } = $props();
 
   const publishedLabel = $derived(
     post.publishedAt
@@ -91,7 +112,53 @@
               </div>
             </div>
             <div class="col-md-4">
-              <div class="card sticky-top rounded-4">
+              <div class="sticky-top d-flex flex-column gap-4">
+              <div class="card rounded-4">
+                <div class="card-header p-4">
+                  <h4 class="mb-0">Artikel Lainnya</h4>
+                </div>
+                {#if otherPosts.length}
+                  <ul class="list-group list-group-flush rounded-bottom-4">
+                    {#each otherPosts as other (other.slug)}
+                      <li class="list-group-item">
+                        <Link
+                          href={`/blog/${other.slug}`}
+                          class="text-decoration-none"
+                        >
+                          {other.title}
+                        </Link>
+                      </li>
+                    {/each}
+                  </ul>
+                {:else}
+                  <div class="card-body opacity-75">
+                    Belum ada artikel lain.
+                  </div>
+                {/if}
+              </div>
+
+              <div class="card rounded-4">
+                <div class="card-header p-4">
+                  <h4 class="mb-0">Kategori</h4>
+                </div>
+                {#if categories.length}
+                  <div class="card-body d-flex flex-wrap gap-2">
+                    {#each categories as category (category.id)}
+                      <Link
+                        href={index({ query: { category: category.id } }).url}
+                        class="badge text-decoration-none"
+                        style={`background-color: ${category.color ?? '#6c757d'}`}
+                      >
+                        {category.name} ({category.count})
+                      </Link>
+                    {/each}
+                  </div>
+                {:else}
+                  <div class="card-body opacity-75">Belum ada kategori.</div>
+                {/if}
+              </div>
+
+              <div class="card rounded-4">
                 <div class="card-header p-4">
                   <h4 class="mb-0">Tag</h4>
                 </div>
@@ -107,6 +174,7 @@
                   </div>
                 {/if}
               </div>
+              </div>
             </div>
           </div>
 
@@ -114,6 +182,40 @@
             Artikel ini adalah pendapat pribadi penulis, bukan nasihat
             profesional. Lihat <a href="/disclaimer">penyangkalan</a>.
           </p>
+
+          <nav
+            class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-5 pt-4 border-top"
+            aria-label="Navigasi artikel"
+          >
+            {#if adjacent.previous}
+              <Link
+                href={`/blog/${adjacent.previous.slug}`}
+                class="btn btn-outline-secondary d-flex align-items-center gap-2 text-start"
+                rel="prev"
+              >
+                <ChevronLeft size={18} />
+                <span>
+                  <small class="d-block opacity-75">Artikel sebelumnya</small>
+                  {adjacent.previous.title}
+                </span>
+              </Link>
+            {:else}
+              <span></span>
+            {/if}
+            {#if adjacent.next}
+              <Link
+                href={`/blog/${adjacent.next.slug}`}
+                class="btn btn-outline-secondary d-flex align-items-center justify-content-end gap-2 text-end"
+                rel="next"
+              >
+                <span>
+                  <small class="d-block opacity-75">Artikel berikutnya</small>
+                  {adjacent.next.title}
+                </span>
+                <ChevronRight size={18} />
+              </Link>
+            {/if}
+          </nav>
 
           <BlogComments {comments} postSlug={post.slug} />
         </div>

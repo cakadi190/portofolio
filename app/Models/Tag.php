@@ -22,4 +22,12 @@ class Tag extends Model
     {
         return $this->belongsToMany(Post::class);
     }
+
+    /**
+     * @return BelongsToMany<Note, $this>
+     */
+    public function notes(): BelongsToMany
+    {
+        return $this->belongsToMany(Note::class);
+    }
 }

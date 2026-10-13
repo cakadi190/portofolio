@@ -43,7 +43,7 @@
   }: { portfolios?: Portfolio[]; speakings?: Speaking[]; posts?: Post[] } = $props();
 </script>
 
-<AppHead title="Beranda" />
+<AppHead title={"Catatan Seorang Wirausahawan Muda & Software Engineer"} brandFirst />
 
 <div id="homepage">
   <HeaderHome />

@@ -153,3 +153,15 @@ test('the homepage lists speaking engagements, upcoming first', function () {
         ->where('speakings.0.id', $upcoming->id)
         ->where('speakings.1.id', $past->id));
 });
+
+test('the homepage title puts the site name before the tagline', function () {
+    $name = config('app.name');
+
+    $this->get(route('home'))
+        ->assertSee('<title>'.e("{$name} • Catatan Seorang Wirausahawan Muda & Software Engineer").'</title>', escape: false);
+});
+
+test('other pages keep the page title before the site name', function () {
+    $this->get(route('about.me'))
+        ->assertSee('<title>'.e('Tentang Saya • '.config('app.name')).'</title>', escape: false);
+});

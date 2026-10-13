@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clarification;
+use App\Models\Note;
 use App\Models\Portfolio;
 use App\Models\Post;
 use App\Services\ImageService;
@@ -38,6 +39,7 @@ class SitemapController extends Controller
     {
         $lastmods = [
             'blog.index' => $this->latest(Post::query()->where('is_published', true)),
+            'notes.index' => $this->latest(Note::query()->published()),
             'portfolios.index' => $this->latest(Portfolio::query()),
             'clarifications.index' => $this->latest(Clarification::query()->published()),
         ];

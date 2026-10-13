@@ -84,7 +84,12 @@ class SeoService
 
         $siteName = (string) config('app.name');
         $pageTitle = $this->overrides['title'] ?? $page['title'] ?? null;
-        $title = $pageTitle ? "{$pageTitle} • {$siteName}" : $siteName;
+        $brandFirst = (bool) ($page['brand_first'] ?? false) && ! isset($this->overrides['title']);
+        $title = match (true) {
+            blank($pageTitle) => $siteName,
+            $brandFirst => "{$siteName} • {$pageTitle}",
+            default => "{$pageTitle} • {$siteName}",
+        };
         $description = $this->plainText(
             $this->overrides['description'] ?? $page['description'] ?? $this->settings->get('seo_description', config('seo.description')),
         );

@@ -1,4 +1,5 @@
 <script lang="ts" generics="T extends { id: number }">
+  import EmptyState from '@/components/empty-state.svelte';
   import Select from '@/components/ui/select.svelte';
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
@@ -163,13 +164,15 @@
 
 {#if variant === 'grid'}
   {#if data.data.length === 0}
-    <div class="text-center py-5">
-      <h5>{isFiltered ? 'Tidak ada hasil' : emptyTitle}</h5>
-      <p class="text-muted mb-0">
-        {isFiltered
+    <div class="py-4">
+      <EmptyState
+        wrapped={false}
+        type={isFiltered ? 'warning' : 'info'}
+        title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
+        text={isFiltered
           ? `Tidak ada data yang cocok dengan "${filters.search}".`
           : emptyText}
-      </p>
+      />
     </div>
   {:else}
     <div class="row g-3">
@@ -220,10 +223,15 @@
           {@render row(item)}
         {:else}
           <tr>
-            <td colspan={columns.length} class="text-center text-muted py-5">
-              {isFiltered
-                ? `Tidak ada data yang cocok dengan "${filters.search}".`
-                : emptyText}
+            <td colspan={columns.length} class="py-4">
+              <EmptyState
+                wrapped={false}
+                type={isFiltered ? 'warning' : 'info'}
+                title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
+                text={isFiltered
+                  ? `Tidak ada data yang cocok dengan "${filters.search}".`
+                  : emptyText}
+              />
             </td>
           </tr>
         {/each}

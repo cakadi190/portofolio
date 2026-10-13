@@ -50,11 +50,11 @@ describe('adminMenu', () => {
     }
   });
 
-  it('limits redaktur to the dashboard and blogging section', () => {
+  it('limits redaktur to the dashboard, blogging and notes sections', () => {
     const labels = adminMenu('/admin', 'redaktur')
       .filter((entry): entry is AdminSidebarMenuItem => entry.type !== 'header')
       .map((item) => item.label);
 
-    expect(labels).toEqual(['Dasbor', 'Blog']);
+    expect(labels).toEqual(['Dasbor', 'Blog', 'Catatan & Buku Tamu']);
   });
 });

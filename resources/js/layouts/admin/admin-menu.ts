@@ -9,6 +9,7 @@ import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 import Contact from '@lucide/svelte/icons/contact';
 import Images from '@lucide/svelte/icons/images';
 import Mic from '@lucide/svelte/icons/mic';
+import NotebookPen from '@lucide/svelte/icons/notebook-pen';
 import Newspaper from '@lucide/svelte/icons/newspaper';
 import Settings from '@lucide/svelte/icons/settings';
 import User from '@lucide/svelte/icons/user';
@@ -48,6 +49,14 @@ export function adminMenu(
       link('Komentar Blog', '/admin/blog-comments'),
     ],
   };
+  const notes: AdminSidebarEntry = {
+    label: 'Catatan & Buku Tamu',
+    icon: NotebookPen,
+    children: [
+      link('Catatan Singkat', '/admin/notes'),
+      link('Buku Tamu', '/admin/guestbook-entries'),
+    ],
+  };
 
   if (accountType !== 'admin') {
     return [
@@ -55,6 +64,7 @@ export function adminMenu(
       dashboard,
       { type: 'header', label: 'Blog' },
       blog,
+      notes,
     ];
   }
 
@@ -103,6 +113,7 @@ export function adminMenu(
       ],
     },
     blog,
+    notes,
     {
       label: 'Kedai Kopi',
       icon: Coffee,

@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Note;
+use App\Models\Tag;
+use App\Services\HtmlSanitizer;
+use App\Services\SeoService;
+use App\Services\Visitors\PageViewCounter;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class NoteController extends Controller
+{
+    public function __construct(private readonly PageViewCounter $views) {}
+
+    /**
+     * Show the published notes, optionally narrowed to one tag.
+     */
+    public function index(Request $request): Response
+    {
+        $activeTag = $request->query('tag');
+        $activeTag = is_string($activeTag) && $activeTag !== '' ? $activeTag : null;
+
+        $notes = Note::query()
+            ->published()
+            ->with('tags:id,name')
+            ->when($activeTag, fn ($query) => $query->whereHas('tags', fn ($tags) => $tags->where('name', $activeTag)))
+            ->latest('published_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        $views = $this->views->forPaths($notes->getCollection()->map(fn (Note $note): string => "/notes/{$note->slug}")->all());
+
+        return Inertia::render('notes/index', [
+            'notes' => $notes->through(fn (Note $note): array => [
+                'title' => $note->title,
+                'slug' => $note->slug,
+                'excerpt' => $note->excerpt,
+                'publishedAt' => $note->published_at,
+                'views' => $views["/notes/{$note->slug}"] ?? 0,
+                'tags' => $note->tags->pluck('name'),
+            ]),
+            'tags' => Tag::query()
+                ->whereHas('notes', fn ($query) => $query->published())
+                ->orderBy('name')
+                ->pluck('name'),
+            'activeTag' => $activeTag,
+        ]);
+    }
+
+    /**
+     * Show a single published note.
+     */
+    public function show(Note $note, SeoService $seo): Response
+    {
+        abort_unless($note->is_published, 404);
+
+        $note->load('tags:id,name');
+
+        $description = $note->excerpt ?: Str::limit(strip_tags($note->content), 200);
+
+        $seo->set([
+            'title' => $note->title,
+            'description' => $description,
+            'type' => 'article',
+            'published_time' => $note->published_at?->toAtomString(),
+            'modified_time' => $note->updated_at?->toAtomString(),
+            'tags' => $note->tags->pluck('name')->all(),
+        ]);
+
+        return Inertia::render('notes/show', [
+            'note' => [
+                'slug' => $note->slug,
+                'title' => $note->title,
+                'excerpt' => $note->excerpt,
+                'content' => HtmlSanitizer::clean($note->content),
+                'publishedAt' => $note->published_at,
+                'readingMinutes' => $note->readingMinutes(),
+                'views' => $this->views->forPath("/notes/{$note->slug}"),
+                'tags' => $note->tags->pluck('name'),
+            ],
+        ]);
+    }
+}

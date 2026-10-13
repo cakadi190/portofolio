@@ -10,7 +10,9 @@ use App\Http\Controllers\Admin\ClarificationController;
 use App\Http\Controllers\Admin\CoffeePlaceController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\EducationController;
+use App\Http\Controllers\Admin\GuestbookEntryController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\NoteController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\PortfolioController;
 use App\Http\Controllers\Admin\PortfolioGalleryController;
@@ -36,6 +38,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('post-categories', PostCategoryController::class)->parameters(['post-categories' => 'postCategory'])->only($only);
         Route::patch('posts/{post}/author', [PostController::class, 'updateAuthor'])->name('posts.author.update');
         Route::resource('posts', PostController::class)->parameters(['posts' => 'post'])->only([...$only, 'create', 'edit']);
+        Route::resource('notes', NoteController::class)->parameters(['notes' => 'note'])->only([...$only, 'create', 'edit']);
+        Route::resource('guestbook-entries', GuestbookEntryController::class)->parameters(['guestbook-entries' => 'guestbookEntry'])->only(['index', 'update', 'destroy']);
         Route::resource('tags', TagController::class)->parameters(['tags' => 'tag'])->only($only);
 
         // The post editor's media picker and uploader.

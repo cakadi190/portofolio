@@ -43,7 +43,8 @@ return [
 
     'pages' => [
         'home' => [
-            'title' => 'Beranda',
+            'title' => 'Catatan Seorang Wirausahawan Muda & Software Engineer',
+            'brand_first' => true,
             'description' => 'Seorang Fullstack Web Developer yang berbasis di Kabupaten Ngawi yang suka sekali dengan desain dan juga hal yang berbau teknologi.',
             'changefreq' => 'weekly',
             'priority' => '1.0',
@@ -77,6 +78,24 @@ return [
             'description' => 'Kumpulan artikel Cak Adi tentang pengembangan web, teknologi, desain, dan pengalaman membangun produk digital.',
             'changefreq' => 'daily',
             'priority' => '0.9',
+        ],
+        'notes.index' => [
+            'title' => 'Catatan Singkat',
+            'description' => 'Catatan pribadi Cak Adi yang tidak cukup panjang untuk jadi artikel: potongan kode, trik, dan hal kecil yang berguna.',
+            'changefreq' => 'weekly',
+            'priority' => '0.7',
+        ],
+        'guestbook.index' => [
+            'title' => 'Buku Tamu',
+            'description' => 'Tinggalkan pesan, sapaan, atau kesan Anda di buku tamu Catatan Cak Adi.',
+            'changefreq' => 'daily',
+            'priority' => '0.5',
+        ],
+        'statistic.index' => [
+            'title' => 'Statistik Situs',
+            'description' => 'Angka tayangan halaman situs, artikel blog, dan catatan singkat Catatan Cak Adi.',
+            'changefreq' => 'daily',
+            'priority' => '0.4',
         ],
         'clarifications.index' => [
             'title' => 'Klarifikasi',

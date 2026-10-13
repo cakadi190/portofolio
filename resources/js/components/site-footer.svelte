@@ -1,11 +1,14 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
   import { Link } from '@inertiajs/svelte';
-  import { skills, site } from '@/wayfinder/routes/about';
+  import { me as about, site } from '@/wayfinder/routes/about';
   import { index as awards } from '@/wayfinder/routes/awards';
   import { index as blog } from '@/wayfinder/routes/blog';
   import { index as career } from '@/wayfinder/routes/career';
   import { index as disclaimer } from '@/wayfinder/routes/disclaimer';
+  import { index as guestbook } from '@/wayfinder/routes/guestbook';
+  import { index as notesIndex } from '@/wayfinder/routes/notes';
+  import { index as statistic } from '@/wayfinder/routes/statistic';
   import { index as education } from '@/wayfinder/routes/education';
   import { index as portfolios } from '@/wayfinder/routes/portfolios';
   import { index as coffeeShops } from '@/wayfinder/routes/resources/coffee-shops';
@@ -47,7 +50,7 @@
     { label: 'Pendidikan', href: education().url },
     { label: 'Penghargaan', href: awards().url },
     { label: 'Pembicara', href: speaking().url },
-    { label: 'Skill & Perkakas', href: skills().url },
+    { label: 'Skill & Perkakas', href: `${about().url}#skills` },
     { label: 'Layanan', href: services().url },
     { label: 'Portofolio Saya', href: portfolios().url },
     { label: 'Karir', href: career().url },
@@ -55,6 +58,9 @@
 
   const resourceLinks = [
     { label: 'Blog Pribadi', href: blog().url },
+    { label: 'Catatan Singkat', href: notesIndex().url },
+    { label: 'Buku Tamu', href: guestbook().url },
+    { label: 'Statistik', href: statistic().url },
     { label: 'Klarifikasi', href: clarifications().url },
     { label: 'Referensi Ngoding', href: '#' },
     { label: 'Contekan Kode', href: '#' },

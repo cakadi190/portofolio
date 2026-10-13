@@ -120,7 +120,7 @@ describe('AppIndex (home)', () => {
     render(AppIndex, { portfolios: [], posts: [] });
 
     expect(document.getElementById('homepage')).not.toBeNull();
-    expect(document.title).toContain('Beranda');
+    expect(document.title).toMatch(/^.+ • Catatan Seorang Wirausahawan Muda & Software Engineer$/);
     expect(screen.getByText(/Belum ada artikel/)).toBeTruthy();
     expect(screen.getByText(/Belum ada portofolio/)).toBeTruthy();
   });
@@ -395,6 +395,15 @@ describe('PortfolioIndex', () => {
   });
 });
 
+const sidebar = {
+  otherPosts: [{ title: 'Artikel Lain', slug: 'artikel-lain' }],
+  categories: [{ id: 1, name: 'Teknologi', color: null, count: 3 }],
+  adjacent: {
+    previous: { title: 'Artikel Lama', slug: 'artikel-lama' },
+    next: null,
+  },
+};
+
 describe('BlogShow', () => {
   const post = {
     slug: 'judul-artikel',
@@ -410,7 +419,12 @@ describe('BlogShow', () => {
   };
 
   it('renders content, meta, tags and highlights code', () => {
-    render(BlogShow, { post, comments: [] });
+    render(BlogShow, { post, comments: [], ...sidebar });
+
+    expect(screen.getByRole('link', { name: 'Artikel Lain' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Teknologi \(3\)/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Artikel Lama/ })).toBeTruthy();
+    expect(screen.queryByText('Artikel berikutnya')).toBeNull();
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Judul Artikel' }),
@@ -425,6 +439,7 @@ describe('BlogShow', () => {
 
   it('handles unpublished posts without tags or cover', () => {
     render(BlogShow, {
+      ...sidebar,
       comments: [],
       post: {
         ...post,
@@ -445,6 +460,7 @@ describe('BlogShow', () => {
 
   it('shows a nested comment thread with a login prompt for guests', () => {
     render(BlogShow, {
+      ...sidebar,
       post,
       comments: [
         {
