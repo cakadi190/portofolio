@@ -7,6 +7,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * Central entry point for the media library: every uploaded file is stored
@@ -48,10 +50,18 @@ class MediaService
         $filename = $this->kebabFilename($originalName);
 
         if (str_starts_with((string) $file->getMimeType(), 'image/') && $file->getMimeType() !== 'image/svg+xml') {
-            $image = $this->images->fromContents($file->getContent())->scaleDown(1920, 1920);
-            $path = $image->save($directory, 'webp', 80, 400, $filename);
-            $width = $image->get()?->width();
-            $height = $image->get()?->height();
+            try {
+                $image = $this->images->fromContents($file->getContent())->scaleDown(1920, 1920);
+                $path = $image->save($directory, 'webp', 80, 400, $filename);
+                $width = $image->get()?->width();
+                $height = $image->get()?->height();
+            } catch (Throwable $exception) {
+                report($exception);
+
+                throw ValidationException::withMessages([
+                    'file' => 'Gambar tidak dapat diproses server (kemungkinan resolusi atau profil warnanya terlalu besar). Perkecil resolusinya atau ekspor ulang sebagai JPG/WebP, lalu coba lagi.',
+                ]);
+            }
             $mime = 'image/webp';
             $size = Storage::disk('public')->size($path);
         } else {

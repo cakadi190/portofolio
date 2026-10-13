@@ -30,7 +30,11 @@ export async function uploadMedia(file: File): Promise<MediaItem> {
 
     const message =
       payload?.errors?.file?.[0] ??
-      'Unggahan gagal. Gunakan JPG, PNG, WebP, GIF, atau PDF maksimal 10 MB.';
+      (response.status === 413
+        ? 'Berkas terlalu besar untuk server. Perkecil ukurannya (maksimal 10 MB).'
+        : response.status >= 500
+          ? 'Server gagal memproses unggahan. Coba lagi, atau perkecil resolusi gambar.'
+          : 'Unggahan gagal. Gunakan JPG, PNG, WebP, GIF, atau PDF maksimal 10 MB.');
 
     toast.error(message);
 

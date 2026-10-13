@@ -102,3 +102,14 @@ test('stored files get a kebab-case name derived from the original name', functi
     expect($paths[0])->toMatch('#^media/\d{4}/\d{2}/foto-profil-2024-[a-z0-9]{8}\.webp$#')
         ->and($paths[1])->toMatch('#^media/\d{4}/\d{2}/surat-lamaran-kerja-[a-z0-9]{8}\.pdf$#');
 });
+
+test('an image the server cannot decode returns a readable validation error instead of a 500', function () {
+    $broken = UploadedFile::fake()->createWithContent('rusak.png', 'bukan gambar sungguhan');
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson(route('admin.media.store'), ['file' => $broken])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('file');
+
+    expect(Media::query()->count())->toBe(0);
+});
