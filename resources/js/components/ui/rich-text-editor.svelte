@@ -16,6 +16,7 @@
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+  import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
   import PanelRight from '@lucide/svelte/icons/panel-right';
   import Search from '@lucide/svelte/icons/search';
   import X from '@lucide/svelte/icons/x';
@@ -38,6 +39,8 @@
   import StarterKit from '@tiptap/starter-kit';
   import { Link as InertiaLink } from '@inertiajs/svelte';
   import { onMount, type Snippet } from 'svelte';
+  import { useAdminSidebarState } from '@/layouts/admin/sidebar-state.svelte';
+  import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
   import {
     ButtonBlock,
@@ -100,6 +103,18 @@
     /** Rendered below the content (e.g. validation feedback). */
     after?: Snippet;
   } = $props();
+
+  /** Admin sidebar toggle, since the shell replaces the admin navbar. */
+  // svelte-ignore state_referenced_locally
+  const adminSidebar = shell
+    ? (() => {
+        try {
+          return useAdminSidebarState();
+        } catch {
+          return null;
+        }
+      })()
+    : null;
 
   let element = $state<HTMLDivElement>();
   let editor = $state.raw<Editor>();
@@ -388,7 +403,7 @@
     }
 
     const rect = dom.getBoundingClientRect();
-    const floor = shell ? 126 : 72;
+    const floor = shell ? 70 : 72;
 
     const isLaidOut = rect.height > 0;
 
@@ -1483,6 +1498,17 @@
   <input type="hidden" {name} value={html} />
 
   <div class="rte-top">
+    {#if shell && adminSidebar && (!adminSidebar.isDesktop || adminSidebar.collapsed)}
+      <button
+        type="button"
+        class="rte-btn rte-btn-lg"
+        title="Buka/tutup menu admin"
+        aria-label="Buka/tutup menu admin"
+        onclick={() => adminSidebar.toggle()}
+        ><PanelLeftOpen size={18} /></button
+      >
+    {/if}
+
     {#if shell}
       <InertiaLink
         href={backHref}
@@ -1682,50 +1708,53 @@
         {/if}
 
         {#if mode === 'html'}
-          <textarea
-            class="rte-html"
-            spellcheck="false"
-            aria-label="Kode HTML"
-            bind:value={html}></textarea>
+          <HtmlCodeEditor bind:value={html} ariaLabel="Kode HTML" />
         {/if}
 
         {#if shell}{@render after?.()}{/if}
       </div>
     </div>
 
-    {#if shell && sidebarOpen}
-      <aside class="rte-sidebar" aria-label="Pengaturan">
-        <div class="rte-side-tabs" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={sidebarTab === 'document'}
-            class="rte-side-tab"
-            class:on={sidebarTab === 'document'}
-            onclick={() => (sidebarTab = 'document')}>{rootLabel}</button
-          >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={sidebarTab === 'block'}
-            class="rte-side-tab"
-            class:on={sidebarTab === 'block'}
-            onclick={() => (sidebarTab = 'block')}>Blok</button
-          >
-          <button
-            type="button"
-            class="rte-btn rte-side-close"
-            title="Tutup pengaturan"
-            aria-label="Tutup pengaturan"
-            onclick={() => (sidebarOpen = false)}><X size={18} /></button
-          >
-        </div>
-        <div class="rte-side-body">
-          {#if sidebarTab === 'document'}
-            {@render settings?.()}
-          {:else}
-            {@render inspector()}
-          {/if}
+    {#if shell}
+      <aside
+        class="rte-sidebar"
+        class:is-open={sidebarOpen}
+        aria-label="Pengaturan"
+        inert={!sidebarOpen}
+      >
+        <div class="rte-side-inner">
+          <div class="rte-side-tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={sidebarTab === 'document'}
+              class="rte-side-tab"
+              class:on={sidebarTab === 'document'}
+              onclick={() => (sidebarTab = 'document')}>{rootLabel}</button
+            >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={sidebarTab === 'block'}
+              class="rte-side-tab"
+              class:on={sidebarTab === 'block'}
+              onclick={() => (sidebarTab = 'block')}>Blok</button
+            >
+            <button
+              type="button"
+              class="rte-btn rte-side-close"
+              title="Tutup pengaturan"
+              aria-label="Tutup pengaturan"
+              onclick={() => (sidebarOpen = false)}><X size={18} /></button
+            >
+          </div>
+          <div class="rte-side-body">
+            {#if sidebarTab === 'document'}
+              {@render settings?.()}
+            {:else}
+              {@render inspector()}
+            {/if}
+          </div>
         </div>
       </aside>
     {/if}
@@ -1912,8 +1941,10 @@
 
 <style>
   .rte {
-    --rte-line: var(--neo-border-color);
+    --rte-line: rgba(var(--neo-body-color-rgb), 0.14);
     --rte-bar-h: 3.5rem;
+    --rte-side-w: 17.5rem;
+    --rte-foot-h: 2.75rem;
 
     border: 1px solid var(--rte-line);
     border-radius: 0.5rem;
@@ -1977,7 +2008,7 @@
     width: 2rem;
     height: 2rem;
     border: 0;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     background: transparent;
     color: var(--neo-body-color);
     text-decoration: none;
@@ -2000,7 +2031,7 @@
     width: 2rem;
     height: 2rem;
     margin-right: 0.25rem;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     background: var(--neo-primary);
     color: #fff;
   }
@@ -2037,10 +2068,10 @@
     z-index: 1040;
     display: flex;
     align-items: stretch;
-    border: 1px solid var(--neo-emphasis-color);
-    border-radius: 0.125rem;
+    border: 1px solid var(--rte-line);
+    border-radius: 0.75rem;
     background: var(--neo-body-bg);
-    box-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 0.12);
+    box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 0.1);
   }
   .rte-tb-group {
     display: flex;
@@ -2073,7 +2104,7 @@
     height: 1.5rem;
     margin-top: 0.35rem;
     border: 0;
-    border-radius: 0.125rem;
+    border-radius: 0.5rem;
     background: var(--neo-emphasis-color);
     color: var(--neo-body-bg);
   }
@@ -2089,9 +2120,9 @@
     overflow-y: auto;
     padding: 0.25rem;
     border: 1px solid var(--rte-line);
-    border-radius: 0.25rem;
+    border-radius: 0.75rem;
     background: var(--neo-body-bg);
-    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.15);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.12);
   }
   .rte-menu.is-fixed {
     position: fixed;
@@ -2104,7 +2135,7 @@
     margin: 0.25rem 0.25rem 0.5rem;
     padding: 0 0.5rem;
     border: 1px solid var(--rte-line);
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     color: var(--neo-secondary-color);
   }
   .rte-menu-search input {
@@ -2124,7 +2155,7 @@
     width: 100%;
     padding: 0.4rem 0.5rem;
     border: 0;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     background: transparent;
     color: var(--neo-body-color);
     text-align: left;
@@ -2155,16 +2186,16 @@
     max-width: calc(100vw - 1rem);
     max-height: calc(100vh - 1rem);
     overflow-y: auto;
-    padding: 0.25rem 0;
-    border: 1px solid var(--neo-emphasis-color);
-    border-radius: 0.125rem;
+    padding: 0.375rem;
+    border: 1px solid var(--rte-line);
+    border-radius: 0.75rem;
     background: var(--neo-body-bg);
     box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.2);
   }
   .rte-context-sep {
-    margin: 0.25rem 0;
+    margin: 0.375rem 0.25rem;
     border: 0;
-    border-top: 1px solid var(--neo-emphasis-color);
+    border-top: 1px solid var(--rte-line);
     opacity: 1;
   }
   .rte-context-item {
@@ -2172,8 +2203,9 @@
     align-items: center;
     gap: 0.625rem;
     width: 100%;
-    padding: 0.375rem 1rem;
+    padding: 0.375rem 0.75rem;
     border: 0;
+    border-radius: 0.5rem;
     background: transparent;
     color: var(--neo-body-color);
     font-size: 0.8125rem;
@@ -2244,23 +2276,19 @@
   .rte-body :global(.rte-content > .has-focus) {
     outline: none;
   }
-  .rte-html {
-    display: block;
-    width: 100%;
-    min-height: 26rem;
-    padding: 1rem 1.25rem;
-    border: 0;
-    outline: none;
-    resize: vertical;
-    background: var(--neo-body-bg);
-    color: var(--neo-body-color);
-    font-family: var(--neo-font-monospace);
-    font-size: 0.875rem;
-  }
 
   /* Shell: Gutenberg-style layout filling the admin content area */
   .rte-shell {
-    --rte-nav-h: 69px;
+    --rte-nav-h: 0px;
+
+    border: 0;
+    border-radius: 0;
+  }
+  .rte-shell .rte-top {
+    border-radius: 0;
+  }
+  .rte-shell .rte-footer {
+    border-radius: 0;
   }
   .rte-shell .rte-top {
     top: var(--rte-nav-h);
@@ -2273,9 +2301,10 @@
   .rte-shell .rte-sidebar {
     position: sticky;
     top: calc(var(--rte-nav-h) + var(--rte-bar-h));
-    max-height: calc(100svh - var(--rte-nav-h) - var(--rte-bar-h) - 3.5rem);
+    height: calc(100svh - 1rem - var(--rte-bar-h) - var(--rte-foot-h));
   }
   .rte-shell .rte-footer {
+    height: var(--rte-foot-h);
     position: sticky;
     bottom: 0;
     z-index: 4;
@@ -2293,11 +2322,6 @@
     padding: 0 2.25rem 0 0;
     font-size: 1.25rem;
     line-height: 1.7;
-  }
-  .rte-shell .rte-html {
-    min-height: 24rem;
-    border: 1px solid var(--rte-line);
-    border-radius: 0.25rem;
   }
   .rte-doc :global(.gb-title) {
     display: block;
@@ -2323,9 +2347,18 @@
   /* Sidebar */
   .rte-sidebar {
     flex: none;
+    width: 0;
+    overflow: hidden;
+    transition: width 0.25s ease;
+  }
+  .rte-sidebar.is-open {
+    width: var(--rte-side-w);
+  }
+  .rte-side-inner {
     display: flex;
     flex-direction: column;
-    width: 17.5rem;
+    height: 100%;
+    width: var(--rte-side-w);
     border-left: 1px solid var(--rte-line);
     background: var(--neo-body-bg);
   }
@@ -2352,9 +2385,6 @@
   .rte-side-close {
     align-self: center;
     margin-left: auto;
-  }
-  .rte-sidebar {
-    overflow: hidden;
   }
   .rte-side-body {
     flex: 1;
@@ -2546,9 +2576,18 @@
       position: fixed;
       inset: 0 0 0 auto;
       z-index: 1050;
-      max-height: none;
       width: min(100%, 20rem);
+      height: auto;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
       box-shadow: -0.5rem 0 1.5rem rgb(0 0 0 / 0.15);
+    }
+    .rte-shell .rte-sidebar.is-open {
+      width: min(100%, 20rem);
+      transform: none;
+    }
+    .rte-shell .rte-side-inner {
+      width: 100%;
     }
     .rte-shell .rte-doc-title {
       display: none;

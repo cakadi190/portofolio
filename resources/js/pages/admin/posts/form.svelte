@@ -46,6 +46,8 @@
   // svelte-ignore state_referenced_locally
   let title = $state(post?.title ?? '');
 
+  let actionsOpen = $state(false);
+
   const heading = $derived(post ? 'Ubah Artikel' : 'Tulis Artikel Baru');
 
   function setStatus(published: boolean): void {
@@ -53,6 +55,16 @@
     flushSync();
   }
 </script>
+
+<svelte:window
+  onpointerdown={(event) => {
+    if (!(event.target as HTMLElement).closest('[data-actions-trigger]'))
+      actionsOpen = false;
+  }}
+  onkeydown={(event) => {
+    if (event.key === 'Escape') actionsOpen = false;
+  }}
+/>
 
 <AppHead title={heading} />
 
@@ -89,22 +101,46 @@
         name="is_published"
         value={isPublished ? '1' : '0'}
       />
-      <button
-        type="submit"
-        class="btn btn-sm btn-outline-secondary"
-        disabled={processing}
-        onclick={() => setStatus(false)}
-      >
-        {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
-      </button>
-      <button
-        type="submit"
-        class="btn btn-sm btn-primary"
-        disabled={processing}
-        onclick={() => setStatus(true)}
-      >
-        {post?.is_published ? 'Perbarui' : 'Terbitkan'}
-      </button>
+      <div class="btn-group position-relative">
+        <button
+          type="submit"
+          class="btn btn-sm btn-primary"
+          disabled={processing}
+          onclick={() => setStatus(true)}
+        >
+          {post?.is_published ? 'Perbarui' : 'Terbitkan'}
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+          aria-label="Pilihan simpan"
+          aria-haspopup="menu"
+          aria-expanded={actionsOpen}
+          data-actions-trigger
+          disabled={processing}
+          onclick={() => (actionsOpen = !actionsOpen)}
+        ></button>
+        {#if actionsOpen}
+          <div
+            class="dropdown-menu dropdown-menu-end show rounded-3 shadow-sm"
+            role="menu"
+            data-actions-trigger
+            style="top: 100%; right: 0; z-index: 1060"
+          >
+            <button
+              type="submit"
+              role="menuitem"
+              class="dropdown-item"
+              onclick={() => {
+                setStatus(false);
+                actionsOpen = false;
+              }}
+            >
+              {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
+            </button>
+          </div>
+        {/if}
+      </div>
     {/snippet}
 
     {#snippet postSettings()}

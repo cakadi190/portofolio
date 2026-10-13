@@ -56,6 +56,19 @@
     }
   }
 
+  // Full-bleed WYSIWYG editor page (rich-text-editor.svelte in `shell` mode): the editor brings its own top bar and breadcrumb footer.
+  // `:has()` (not a JS-added class) so the SSR/first paint already omits them.
+  &:has(.rte-shell) main[data-main-scroll] {
+    .navbar,
+    > .footer {
+      display: none;
+    }
+
+    .content-inner {
+      padding: 0;
+    }
+  }
+
   &.sidebar-scroll-locked {
     overflow: hidden;
   }

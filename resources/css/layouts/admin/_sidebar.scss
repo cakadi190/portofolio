@@ -628,6 +628,22 @@
             transform var(--neo-sidebar-transition-duration) ease;
         }
 
+        // Inside the floating panel the active item is a standalone pill,
+        // not the notched tab that merges into the page background.
+        .sm-submenu .sm-link {
+          border-radius: 99rem;
+        }
+
+        .sm-submenu .sm-item--active > .sm-link {
+          width: calc(100% - 1rem);
+          margin-inline: 0.5rem;
+
+          &::before,
+          &::after {
+            display: none;
+          }
+        }
+
         // Nested (level 2+) submenus inside the floating panel stay
         // accordion, in-flow.
         .sm-submenu .sm-submenu {

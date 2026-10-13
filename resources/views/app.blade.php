@@ -82,10 +82,17 @@
         <x-analytics />
         <x-sentry />
 
-        {{-- The resume page's own chunk CSS is otherwise only injected by JS after boot; link it in <head> so the viewer is styled on first paint. --}}
-        @vite(request()->routeIs('resume.show', 'resume.profile')
-            ? ['resources/css/app.scss', 'resources/js/app.ts', 'resources/js/pages/resume/index.svelte']
-            : ['resources/css/app.scss', 'resources/js/app.ts'])
+        {{-- A page's own chunk CSS is otherwise only injected by JS after boot; link it in <head> so these pages are styled on first paint. --}}
+        @php
+            $entries = ['resources/css/app.scss', 'resources/js/app.ts'];
+
+            if (request()->routeIs('resume.show', 'resume.profile')) {
+                $entries[] = 'resources/js/pages/resume/index.svelte';
+            } elseif (request()->routeIs('admin.posts.create', 'admin.posts.edit')) {
+                $entries[] = 'resources/js/pages/admin/posts/form.svelte';
+            }
+        @endphp
+        @vite($entries)
         <x-seo />
         <x-inertia::head />
     </head>

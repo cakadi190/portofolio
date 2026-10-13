@@ -65,7 +65,6 @@ class SitemapController extends Controller
     {
         $urls = Post::query()
             ->where('is_published', true)
-            ->where('published_at', '<=', now())
             ->latest('published_at')
             ->get(['id', 'title', 'slug', 'cover_image', 'published_at', 'updated_at'])
             ->map(fn (Post $post): array => [
