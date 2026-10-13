@@ -14,6 +14,7 @@ class ErrorPageService
         401 => ['title' => 'Sesi Anda Berakhir', 'text' => 'Silakan masuk kembali untuk melanjutkan.', 'image' => '403'],
         403 => ['title' => 'Akses Ditolak', 'text' => 'Anda tidak memiliki izin untuk membuka halaman ini.', 'image' => '403'],
         404 => ['title' => 'Tidak Ditemukan', 'text' => 'Halaman yang Anda cari tidak tersedia atau sudah dipindahkan.', 'image' => '404'],
+        405 => ['title' => 'Metode Tidak Diizinkan', 'text' => 'Halaman ini tidak dapat dibuka dengan cara tersebut.', 'image' => '400'],
         419 => ['title' => 'Sesi Kedaluwarsa', 'text' => 'Muat ulang halaman lalu coba lagi.', 'image' => '400'],
         429 => ['title' => 'Terlalu Banyak Permintaan', 'text' => 'Coba lagi sebentar lagi.', 'image' => '429'],
         500 => ['title' => 'Ups, Terjadi Kesalahan', 'text' => 'Saat ini kami sedang memperbaiki kesalahan ini.', 'image' => '500'],

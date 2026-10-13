@@ -22,7 +22,7 @@ test('every mapped status has a copied illustration', function (int $status) {
     $props = app(ErrorPageService::class)->propsFor($status);
 
     expect(public_path($props['image']))->toBeFile();
-})->with([400, 401, 403, 404, 419, 429, 500, 503]);
+})->with([400, 401, 403, 404, 405, 419, 429, 500, 503]);
 
 test('unmapped statuses have no dedicated page', function () {
     expect(app(ErrorPageService::class)->propsFor(418))->toBeNull();

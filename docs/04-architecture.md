@@ -80,7 +80,7 @@ Middleware `MinifyHtmlResponse` (grup `web`) memadatkan spasi dan menghapus kome
 
 ## Halaman error
 
-Respons error 400/401/403/404/419/429/500/503 pada request web (non-JSON) dirender sebagai halaman Inertia `resources/js/pages/error.svelte` lewat `$exceptions->respond()` di `bootstrap/app.php`. Judul, teks, dan ilustrasi (`public/images/errors/*.svg`, diambil dari proyek Nuxt) dipetakan di `App\Services\ErrorPageService`. Saat `APP_DEBUG=true`, error 500 tetap memakai halaman debug Laravel.
+Respons error 400/401/403/404/405/419/429/500/503 pada request web (non-JSON) dirender sebagai halaman Inertia `resources/js/pages/error.svelte` lewat `$exceptions->respond()` di `bootstrap/app.php`. Judul, teks, dan ilustrasi (`public/images/errors/*.svg`, diambil dari proyek Nuxt) dipetakan di `App\Services\ErrorPageService`. Saat `APP_DEBUG=true`, error 500 tetap memakai halaman debug Laravel.
 
 ## Notifikasi (toast)
 
