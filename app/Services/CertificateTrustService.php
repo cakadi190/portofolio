@@ -92,7 +92,7 @@ class CertificateTrustService
     {
         $roots = [];
 
-        foreach (glob($directory.'/*.{pem,crt,cer,txt}', GLOB_BRACE) ?: [] as $file) {
+        foreach (array_filter(glob($directory.'/*') ?: [], fn (string $path): bool => is_file($path) && in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['pem', 'crt', 'cer', 'txt'], true)) as $file) {
             preg_match_all('/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/s', (string) file_get_contents($file), $matches);
 
             foreach ($matches[0] as $pem) {
