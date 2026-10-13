@@ -40,6 +40,7 @@ describe('Dashboard', () => {
           tags_total: 0,
           comments_pending: 0,
           comments_total: 0,
+          monthly: [{ month: '2026-10', posts: 0, comments: 0 }],
           recent_posts: [],
         },
         site: null,
@@ -47,7 +48,8 @@ describe('Dashboard', () => {
       },
     });
 
-    expect(screen.getByRole('heading', { name: 'Dasbor' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /^Selamat (pagi|siang|sore|malam)/ })).toBeTruthy();
+    expect(screen.getByText('Semua beres. Tidak ada yang menunggu tindakanmu.')).toBeTruthy();
     expect(document.title).toContain('Dasbor');
   });
 });

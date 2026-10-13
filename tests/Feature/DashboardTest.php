@@ -3,6 +3,7 @@
 use App\Models\Post;
 use App\Models\SpeakingEngagement;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 test('guests are redirected to the login page', function () {
     $response = $this->get(route('dashboard'));
@@ -27,11 +28,28 @@ test('admins get the full summary including site data and system info', function
             ->has('summary.system.php_version'));
 });
 
+test('admins get a zero-filled traffic series with human views only', function () {
+    DB::table('visitor_daily_stats')->insert([
+        ['day' => now()->toDateString(), 'path' => '/blog', 'is_bot' => false, 'page_views' => 7],
+        ['day' => now()->toDateString(), 'path' => '/blog', 'is_bot' => true, 'page_views' => 50],
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('dashboard'))
+        ->assertInertia(fn ($page) => $page
+            ->has('summary.site.traffic.series', 14)
+            ->where('summary.site.traffic.today', 7)
+            ->where('summary.site.traffic.top_pages.0.path', '/blog'));
+});
+
 test('redaktur only get blog figures', function () {
+    Post::factory()->create(['created_at' => now()]);
+
     $this->actingAs(User::factory()->redaktur()->create())
         ->get(route('dashboard'))
         ->assertInertia(fn ($page) => $page
-            ->has('summary.blog')
+            ->has('summary.blog.monthly', 6)
+            ->where('summary.blog.monthly.5.posts', 1)
             ->where('summary.site', null)
             ->where('summary.system', null));
 });

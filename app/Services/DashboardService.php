@@ -58,6 +58,7 @@ class DashboardService
             'tags_total' => Tag::count(),
             'comments_pending' => BlogComment::where('status', BlogCommentStatus::Pending)->count(),
             'comments_total' => BlogComment::count(),
+            'monthly' => $this->monthlyBlogActivity(),
             'recent_posts' => Post::with('author:id,name')
                 ->latest()
                 ->limit(5)
@@ -117,6 +118,7 @@ class DashboardService
                     ])
                     ->all(),
             ],
+            'traffic' => $this->traffic(),
             'ratings_pending' => PortfolioRating::where('is_approved', false)->count(),
             'upcoming_speaking' => SpeakingEngagement::published()
                 ->where('starts_at', '>=', $now)
@@ -129,6 +131,79 @@ class DashboardService
                     'organizer' => $engagement->organizer,
                     'starts_at' => $engagement->starts_at->format('Y-m-d H:i'),
                 ])
+                ->all(),
+        ];
+    }
+
+    /**
+     * Posts written and comments received per month for the last 6 months.
+     *
+     * @return list<array{month: string, posts: int, comments: int}>
+     */
+    private function monthlyBlogActivity(): array
+    {
+        $start = now()->startOfMonth()->subMonths(5);
+
+        $countByMonth = fn (string $model): array => $model::where('created_at', '>=', $start)
+            ->pluck('created_at')
+            ->countBy(fn ($date): string => $date->format('Y-m'))
+            ->all();
+
+        $posts = $countByMonth(Post::class);
+        $comments = $countByMonth(BlogComment::class);
+
+        return collect(range(0, 5))
+            ->map(function (int $offset) use ($start, $posts, $comments): array {
+                $month = $start->copy()->addMonths($offset)->format('Y-m');
+
+                return ['month' => $month, 'posts' => $posts[$month] ?? 0, 'comments' => $comments[$month] ?? 0];
+            })
+            ->all();
+    }
+
+    /**
+     * Human page views for the last 14 days (zero-filled) plus the top pages.
+     *
+     * @return array{series: list<array{day: string, views: int}>, total: int, today: int, previous_total: int, top_pages: list<array{path: string, views: int}>}
+     */
+    private function traffic(): array
+    {
+        $days = 14;
+        $from = now()->subDays($days - 1)->toDateString();
+        $previousFrom = now()->subDays($days * 2 - 1)->toDateString();
+
+        $perDay = DB::table('visitor_daily_stats')
+            ->where('is_bot', false)
+            ->where('day', '>=', $from)
+            ->groupBy('day')
+            ->selectRaw('day, sum(page_views) as views')
+            ->pluck('views', 'day');
+
+        $series = collect(range($days - 1, 0))
+            ->map(fn (int $ago): array => [
+                'day' => now()->subDays($ago)->toDateString(),
+                'views' => (int) ($perDay[now()->subDays($ago)->toDateString()] ?? 0),
+            ])
+            ->all();
+
+        return [
+            'series' => $series,
+            'total' => array_sum(array_column($series, 'views')),
+            'today' => end($series)['views'],
+            'previous_total' => (int) DB::table('visitor_daily_stats')
+                ->where('is_bot', false)
+                ->where('day', '>=', $previousFrom)
+                ->where('day', '<', $from)
+                ->sum('page_views'),
+            'top_pages' => DB::table('visitor_daily_stats')
+                ->where('is_bot', false)
+                ->where('day', '>=', $from)
+                ->groupBy('path')
+                ->selectRaw('path, sum(page_views) as views')
+                ->orderByDesc('views')
+                ->limit(5)
+                ->get()
+                ->map(fn (object $row): array => ['path' => $row->path, 'views' => (int) $row->views])
                 ->all(),
         ];
     }

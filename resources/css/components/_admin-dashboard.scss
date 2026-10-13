@@ -1,0 +1,115 @@
+// Admin dashboard (/admin)
+.dash-hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: var(--bs-border-radius-xl);
+  color: #fff;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
+}
+
+.dash-chip {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: #fff;
+  text-decoration: none;
+  background: rgb(255 255 255 / 0.18);
+
+  &:hover {
+    background: rgb(255 255 255 / 0.3);
+  }
+}
+
+.dash-stat {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:is(a):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bs-box-shadow);
+  }
+}
+
+.dash-stat-alert {
+  border-color: var(--bs-danger-border-subtle);
+}
+
+.dash-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--bs-border-radius-lg);
+
+  @each $tone in (primary, success, warning, danger, info) {
+    &-#{$tone} {
+      color: var(--bs-#{$tone}-text-emphasis);
+      background: var(--bs-#{$tone}-bg-subtle);
+    }
+  }
+}
+
+.dash-bars {
+  display: flex;
+  align-items: stretch;
+  gap: 0.375rem;
+  height: 10rem;
+}
+
+.dash-bar-col {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.dash-bar {
+  width: 100%;
+  border-radius: 0.375rem 0.375rem 0.125rem 0.125rem;
+  background: linear-gradient(180deg, #7c3aed, #4f46e5);
+  opacity: 0.85;
+  transition: opacity 0.15s;
+
+  .dash-bar-col:hover & {
+    opacity: 1;
+  }
+}
+
+.dash-bar-label {
+  font-size: 0.6875rem;
+  color: var(--bs-secondary-color);
+}
+
+.dash-pair {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.dash-bar-alt {
+  background: linear-gradient(180deg, #f472b6, #db2777);
+}
+
+.dash-dot {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+
+  &-posts {
+    background: #6d28d9;
+  }
+
+  &-comments {
+    background: #db2777;
+  }
+}
