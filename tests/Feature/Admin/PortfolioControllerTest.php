@@ -114,3 +114,14 @@ test('a portfolio can be deleted while its image stays in the library', function
     $this->assertDatabaseMissing('portfolios', ['id' => $portfolio->id]);
     Storage::disk('public')->assertExists($media->path);
 });
+
+test('a technology can be created on the fly from the portfolio editor', function () {
+    $admin = User::factory()->admin()->create();
+
+    $id = $this->actingAs($admin)->postJson(route('admin.technologies.quick'), ['name' => 'Bun'])
+        ->assertCreated()->json('id');
+
+    $this->assertDatabaseHas('technologies', ['id' => $id, 'name' => 'Bun']);
+    $this->actingAs($admin)->postJson(route('admin.technologies.quick'), ['name' => 'Bun'])
+        ->assertOk()->assertJsonPath('id', $id);
+});

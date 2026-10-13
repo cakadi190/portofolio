@@ -61,3 +61,18 @@ test('blogging staff manage notes and the author is recorded', function () {
     $this->actingAs($staff)->delete(route('admin.notes.destroy', $note))->assertRedirect(route('admin.notes.index'));
     expect(Note::count())->toBe(0);
 });
+
+test('a note can be assigned to another author and defaults to the current user', function () {
+    $admin = User::factory()->admin()->create();
+    $other = User::factory()->redaktur()->create();
+
+    $this->actingAs($admin)->post(route('admin.notes.store'), [
+        'title' => 'Milik redaktur', 'content' => '<p>x</p>', 'is_published' => '0', 'user_id' => $other->id,
+    ])->assertRedirect();
+    $this->actingAs($admin)->post(route('admin.notes.store'), [
+        'title' => 'Milik saya', 'content' => '<p>x</p>', 'is_published' => '0',
+    ])->assertRedirect();
+
+    expect(Note::query()->where('title', 'Milik redaktur')->value('user_id'))->toBe($other->id)
+        ->and(Note::query()->where('title', 'Milik saya')->value('user_id'))->toBe($admin->id);
+});

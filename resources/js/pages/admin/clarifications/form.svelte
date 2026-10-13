@@ -1,17 +1,25 @@
 <script lang="ts">
-  import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import Plus from '@lucide/svelte/icons/plus';
   import Trash from '@lucide/svelte/icons/trash';
-  import { Form, Link } from '@inertiajs/svelte';
+  import { Form, router } from '@inertiajs/svelte';
   import { flushSync } from 'svelte';
   import AppHead from '@/components/app-head.svelte';
+  import EditorPanel from '@/components/admin/editor-panel.svelte';
+  import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
+  import EditorTitle from '@/components/admin/editor-title.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import { Field } from '@/components/ui/field';
   import MediaField from '@/components/media/media-field.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import Select from '@/components/ui/select.svelte';
-  import { index, preview, store, update } from '@/wayfinder/routes/admin/clarifications';
+  import {
+    destroy,
+    index,
+    preview,
+    store,
+    update,
+  } from '@/wayfinder/routes/admin/clarifications';
   import { show } from '@/wayfinder/routes/clarifications';
 
   type Source = { title: string; url: string };
@@ -54,6 +62,8 @@
 
   // svelte-ignore state_referenced_locally
   let isPublished = $state(clarification?.is_published ?? false);
+  // svelte-ignore state_referenced_locally
+  let title = $state(clarification?.title ?? '');
   let isWithdrawn = $state(!!clarification?.withdrawn_at);
   // svelte-ignore state_referenced_locally
   let sources = $state((clarification?.sources ?? []).map(withKey));
@@ -63,6 +73,19 @@
   const heading = $derived(
     clarification ? 'Ubah Klarifikasi' : 'Tulis Klarifikasi Baru',
   );
+
+  let deleting = $state(false);
+
+  function deleteClarification(): void {
+    if (!clarification) return;
+
+    deleting = true;
+    router.delete(destroy(clarification.id).url, {
+      onFinish: () => {
+        deleting = false;
+      },
+    });
+  }
 
   function setStatus(published: boolean): void {
     isPublished = published;
@@ -78,113 +101,51 @@
   class="post-editor"
 >
   {#snippet children({ errors, processing })}
-    <div
-      class="d-flex align-items-center justify-content-between gap-3 mb-3 flex-wrap"
-    >
-      <Link
-        href={index().url}
-        class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2"
-      >
-        <ArrowLeft size={14} />
-        Semua Klarifikasi
-      </Link>
-      <h1 class="h5 mb-0">{heading}</h1>
-    </div>
+    {#snippet clarificationHeader()}
+      <EditorTitle
+        name="title"
+        bind:value={title}
+        placeholder="Judul klarifikasi"
+        ariaLabel="Judul klarifikasi"
+        error={errors.title}
+      />
 
-    <div class="row g-4">
-      <div class="col-lg-9 d-flex flex-column gap-3">
-        <div>
-          <input
-            id="clarification-title"
-            name="title"
-            type="text"
-            class="form-control form-control-lg fw-semibold"
-            class:is-invalid={!!errors.title}
-            placeholder="Judul klarifikasi"
-            value={clarification?.title ?? ''}
-            required
-          />
-          <Field.Feedback message={errors.title} />
-        </div>
-
-        <div class="d-flex align-items-center gap-2 small">
-          <label for="clarification-slug" class="text-muted text-nowrap"
-            >Permalink:</label
-          >
-          <input
-            id="clarification-slug"
-            name="slug"
-            type="text"
-            class="form-control form-control-sm"
-            class:is-invalid={!!errors.slug}
-            placeholder="Otomatis dari judul"
-            value={clarification?.slug ?? ''}
-          />
-          {#if clarification}
-            <a
-              href={preview(clarification.id).url}
-              target="_blank"
-              rel="noopener"
-              class="text-nowrap small"
-              title="Pratinjau (termasuk draf)"
-            >
-              Pratinjau
-            </a>
-          {/if}
-          {#if clarification?.is_published}
-            <a
-              href={show(clarification.slug).url}
-              target="_blank"
-              rel="noopener"
-              class="text-nowrap"
-              title="Lihat klarifikasi"
-            >
-              <ExternalLink size={14} />
-            </a>
-          {/if}
-        </div>
-        <Field.Feedback message={errors.slug} />
-
-        <div class="card">
-          <div class="card-header fw-semibold">Klaim yang beredar</div>
-          <div class="card-body d-flex flex-column gap-3">
-            <div>
-              <textarea
-                name="claim"
-                aria-label="Klaim yang beredar"
-                class="form-control"
-                class:is-invalid={!!errors.claim}
-                rows="3"
-                maxlength="1000"
-                placeholder="Tulis klaim persis seperti yang beredar"
-                value={clarification?.claim ?? ''}></textarea>
-              <Field.Feedback message={errors.claim} />
-            </div>
-            <div>
-              <input
-                name="claim_origin"
-                type="text"
-                aria-label="Asal klaim"
-                class="form-control"
-                class:is-invalid={!!errors.claim_origin}
-                maxlength="255"
-                placeholder="Asal klaim, mis. platform dan tanggal (tanpa menyebut akun pribadi)"
-                value={clarification?.claim_origin ?? ''}
-              />
-              <Field.Feedback message={errors.claim_origin} />
-            </div>
+      <div class="card mb-4">
+        <div class="card-header fw-semibold">Klaim yang beredar</div>
+        <div class="card-body d-flex flex-column gap-3">
+          <div>
+            <textarea
+              name="claim"
+              aria-label="Klaim yang beredar"
+              class="form-control"
+              class:is-invalid={!!errors.claim}
+              rows="3"
+              maxlength="1000"
+              placeholder="Tulis klaim persis seperti yang beredar"
+              value={clarification?.claim ?? ''}></textarea>
+            <Field.Feedback message={errors.claim} />
+          </div>
+          <div>
+            <input
+              name="claim_origin"
+              type="text"
+              aria-label="Asal klaim"
+              class="form-control"
+              class:is-invalid={!!errors.claim_origin}
+              maxlength="255"
+              placeholder="Asal klaim, mis. platform dan tanggal (tanpa menyebut akun pribadi)"
+              value={clarification?.claim_origin ?? ''}
+            />
+            <Field.Feedback message={errors.claim_origin} />
           </div>
         </div>
+      </div>
+    {/snippet}
 
-        <div>
-          <RichTextEditor
-            name="content"
-            value={clarification?.content ?? ''}
-            invalid={!!errors.content}
-          />
-          <Field.Feedback message={errors.content} />
-        </div>
+    {#snippet clarificationAfter()}
+      <Field.Feedback message={errors.content} />
 
+      <div class="d-flex flex-column gap-4 mt-4">
         <div class="card">
           <div class="card-header fw-semibold">Permintaan maaf</div>
           <div class="card-body">
@@ -326,133 +287,168 @@
           </div>
         </div>
       </div>
+    {/snippet}
 
-      <aside class="col-lg-3 d-flex flex-column gap-3">
-        <div class="card">
-          <div class="card-header fw-semibold">Penarikan</div>
-          <div class="card-body d-flex flex-column gap-2">
-            <input type="hidden" name="is_withdrawn" value={isWithdrawn ? '1' : '0'} />
-            <div class="form-check">
-              <input
-                id="clarification-withdrawn"
-                type="checkbox"
-                class="form-check-input"
-                bind:checked={isWithdrawn}
-              />
-              <label for="clarification-withdrawn" class="form-check-label"
-                >Tarik klarifikasi ini</label
-              >
-            </div>
-            <textarea
-              name="withdrawal_note"
-              class="form-control form-control-sm"
-              class:is-invalid={!!errors.withdrawal_note}
-              rows="3"
-              placeholder="Alasan penarikan (opsional, tampil publik)"
-              value={clarification?.withdrawal_note ?? ''}
-            ></textarea>
-            <Field.Feedback message={errors.withdrawal_note} />
-          </div>
+    {#snippet clarificationActions(editor: {
+      mode: 'visual' | 'html';
+      setMode: (next: 'visual' | 'html') => void;
+    })}
+      <EditorSaveMenu
+        label="Klarifikasi"
+        {processing}
+        exists={!!clarification}
+        {isPublished}
+        persistedPublished={clarification?.is_published ?? false}
+        mode={editor.mode}
+        setMode={editor.setMode}
+        onStatus={setStatus}
+        danger={{
+          label: 'Hapus klarifikasi',
+          title: 'Hapus klarifikasi ini?',
+          description:
+            'Klarifikasi dihapus permanen. Bila hanya ingin menyembunyikannya, gunakan penarikan.',
+          confirmLabel: 'Hapus',
+          processing: deleting,
+          run: deleteClarification,
+        }}
+      />
+    {/snippet}
+
+    {#snippet clarificationSettings()}
+      <EditorPanel title="Terbitkan">
+        <div>
+          Status:
+          <span
+            class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
+          >
+            {isPublished ? 'Terbit' : 'Draf'}
+          </span>
         </div>
-
-        <div class="card">
-          <div class="card-header fw-semibold">Terbitkan</div>
-          <div class="card-body d-flex flex-column gap-3">
-            <input
-              type="hidden"
-              name="is_published"
-              value={isPublished ? '1' : '0'}
-            />
-
-            <div class="small">
-              Status:
-              <span
-                class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
-              >
-                {isPublished ? 'Terbit' : 'Draf'}
-              </span>
-            </div>
-
-            <Field.Group>
-              <Field.Label for="clarification-published_at"
-                >Tanggal Terbit</Field.Label
-              >
-              <DatePicker
-                id="clarification-published_at"
-                name="published_at"
-                value={clarification?.published_at ?? null}
-                invalid={!!errors.published_at}
-                withTime
-              />
-              <Field.Feedback message={errors.published_at} />
-            </Field.Group>
-
-            <div class="d-flex flex-column gap-2">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                disabled={processing}
-                onclick={() => setStatus(true)}
-              >
-                {clarification?.is_published ? 'Perbarui' : 'Terbitkan'}
-              </button>
-              <button
-                type="submit"
-                class="btn btn-outline-secondary"
-                disabled={processing}
-                onclick={() => setStatus(false)}
-              >
-                {clarification?.is_published
-                  ? 'Kembalikan ke Draf'
-                  : 'Simpan Draf'}
-              </button>
-            </div>
-          </div>
+        <div>
+          <label class="gb-label" for="clarification-published_at"
+            >Tanggal Terbit</label
+          >
+          <DatePicker
+            id="clarification-published_at"
+            name="published_at"
+            value={clarification?.published_at ?? null}
+            invalid={!!errors.published_at}
+            withTime
+          />
+          <Field.Feedback message={errors.published_at} />
         </div>
+      </EditorPanel>
 
-        <div class="card">
-          <div class="card-header fw-semibold">Vonis</div>
-          <div class="card-body">
-            <Select
-              id="clarification-verdict"
-              name="verdict"
-              items={verdicts}
-              value={clarification?.verdict ?? 'unverified'}
-              required
-              invalid={!!errors.verdict}
-            />
-            <Field.Feedback message={errors.verdict} />
-          </div>
+      <EditorPanel title="Tautan">
+        <div>
+          <label class="gb-label" for="clarification-slug">Permalink</label>
+          <input
+            id="clarification-slug"
+            name="slug"
+            type="text"
+            class="form-control form-control-sm"
+            class:is-invalid={!!errors.slug}
+            placeholder="Otomatis dari judul"
+            value={clarification?.slug ?? ''}
+          />
+          <Field.Feedback message={errors.slug} />
         </div>
+        {#if clarification}
+          <a
+            href={preview(clarification.id).url}
+            target="_blank"
+            rel="noopener"
+            title="Pratinjau (termasuk draf)"
+          >
+            Pratinjau
+          </a>
+        {/if}
+        {#if clarification?.is_published}
+          <a
+            href={show(clarification.slug).url}
+            target="_blank"
+            rel="noopener"
+            class="d-inline-flex align-items-center gap-1"
+          >
+            Lihat klarifikasi <ExternalLink size={14} />
+          </a>
+        {/if}
+      </EditorPanel>
 
-        <div class="card">
-          <div class="card-header fw-semibold">Ringkasan</div>
-          <div class="card-body">
-            <textarea
-              name="summary"
-              aria-label="Ringkasan klarifikasi"
-              class="form-control"
-              class:is-invalid={!!errors.summary}
-              rows="3"
-              maxlength="255"
-              placeholder="Ringkasan singkat untuk daftar dan hasil pencarian"
-              value={clarification?.summary ?? ''}></textarea>
-            <Field.Feedback message={errors.summary} />
-          </div>
-        </div>
+      <EditorPanel title="Vonis">
+        <Select
+          id="clarification-verdict"
+          name="verdict"
+          items={verdicts}
+          value={clarification?.verdict ?? 'unverified'}
+          required
+          invalid={!!errors.verdict}
+        />
+        <Field.Feedback message={errors.verdict} />
+      </EditorPanel>
 
-        <div class="card">
-          <div class="card-header fw-semibold">Gambar Sampul</div>
-          <div class="card-body">
-            <MediaField
-              name="cover_image"
-              value={clarification?.cover_image ?? null}
-              invalid={!!errors.cover_image}
-            />
-            <Field.Feedback message={errors.cover_image} />
-          </div>
+      <EditorPanel title="Ringkasan">
+        <textarea
+          name="summary"
+          aria-label="Ringkasan klarifikasi"
+          class="form-control form-control-sm"
+          class:is-invalid={!!errors.summary}
+          rows="4"
+          maxlength="255"
+          placeholder="Ringkasan singkat untuk daftar dan hasil pencarian"
+          value={clarification?.summary ?? ''}></textarea>
+        <Field.Feedback message={errors.summary} />
+      </EditorPanel>
+
+      <EditorPanel title="Gambar Sampul">
+        <MediaField
+          name="cover_image"
+          value={clarification?.cover_image ?? null}
+          invalid={!!errors.cover_image}
+        />
+        <Field.Feedback message={errors.cover_image} />
+      </EditorPanel>
+
+      <EditorPanel title="Penarikan" open={isWithdrawn}>
+        <input
+          type="hidden"
+          name="is_withdrawn"
+          value={isWithdrawn ? '1' : '0'}
+        />
+        <div class="form-check">
+          <input
+            id="clarification-withdrawn"
+            type="checkbox"
+            class="form-check-input"
+            bind:checked={isWithdrawn}
+          />
+          <label for="clarification-withdrawn" class="form-check-label"
+            >Tarik klarifikasi ini</label
+          >
         </div>
-      </aside>
-    </div>
+        <textarea
+          name="withdrawal_note"
+          class="form-control form-control-sm"
+          class:is-invalid={!!errors.withdrawal_note}
+          rows="3"
+          placeholder="Alasan penarikan (opsional, tampil publik)"
+          value={clarification?.withdrawal_note ?? ''}></textarea>
+        <Field.Feedback message={errors.withdrawal_note} />
+      </EditorPanel>
+    {/snippet}
+
+    <RichTextEditor
+      shell
+      name="content"
+      value={clarification?.content ?? ''}
+      invalid={!!errors.content}
+      backHref={index().url}
+      documentTitle={title}
+      rootLabel="Klarifikasi"
+      header={clarificationHeader}
+      settings={clarificationSettings}
+      actions={clarificationActions}
+      after={clarificationAfter}
+    />
   {/snippet}
 </Form>

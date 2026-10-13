@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PostCategoryRequest;
 use App\Models\PostCategory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -35,6 +36,17 @@ class PostCategoryController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Kategori artikel berhasil ditambahkan.']);
 
         return to_route('admin.post-categories.index');
+    }
+
+    /**
+     * Create a category from the post editor; an existing name is reused.
+     */
+    public function quick(Request $request): JsonResponse
+    {
+        $name = trim($request->validate(['name' => ['required', 'string', 'max:255']])['name']);
+        $category = PostCategory::query()->firstOrCreate(['name' => $name]);
+
+        return response()->json($category->only(['id', 'name']), $category->wasRecentlyCreated ? 201 : 200);
     }
 
     public function update(PostCategoryRequest $request, PostCategory $postCategory): RedirectResponse

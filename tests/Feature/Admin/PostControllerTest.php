@@ -144,3 +144,29 @@ test('a regular user cannot become a post author', function () {
         ->patch(route('admin.posts.author.update', $post), ['user_id' => User::factory()->create()->id])
         ->assertSessionHasErrors('user_id');
 });
+
+test('tags and categories can be created on the fly from the editor and reused on a post', function () {
+    $admin = User::factory()->admin()->create();
+
+    $tag = $this->actingAs($admin)->postJson(route('admin.tags.quick'), ['name' => 'Baru'])
+        ->assertCreated()->json();
+    $category = $this->actingAs($admin)->postJson(route('admin.post-categories.quick'), ['name' => 'Kategori Baru'])
+        ->assertCreated()->json();
+
+    $this->assertDatabaseHas('tags', ['id' => $tag['id'], 'name' => 'Baru']);
+    $this->assertDatabaseHas('post_categories', ['id' => $category['id'], 'name' => 'Kategori Baru']);
+
+    $this->actingAs($admin)->postJson(route('admin.tags.quick'), ['name' => 'Baru'])
+        ->assertOk()->assertJsonPath('id', $tag['id']);
+
+    $this->actingAs($admin)->post(route('admin.posts.store'), [
+        'title' => 'Dengan taksonomi baru',
+        'content' => '<p>Isi</p>',
+        'is_published' => '0',
+        'tags' => [$tag['id']],
+        'categories' => [$category['id']],
+    ])->assertRedirect();
+
+    expect(Post::query()->where('title', 'Dengan taksonomi baru')->first()->tags->pluck('id')->all())->toBe([$tag['id']]);
+    $this->actingAs($admin)->postJson(route('admin.tags.quick'), ['name' => ''])->assertUnprocessable();
+});

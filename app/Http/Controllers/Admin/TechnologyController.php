@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\TechnologyRequest;
 use App\Models\Technology;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -35,6 +36,17 @@ class TechnologyController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Teknologi berhasil ditambahkan.']);
 
         return to_route('admin.technologies.index');
+    }
+
+    /**
+     * Create a technology from the portfolio editor; an existing name is reused.
+     */
+    public function quick(Request $request): JsonResponse
+    {
+        $name = trim($request->validate(['name' => ['required', 'string', 'max:255']])['name']);
+        $technology = Technology::query()->firstOrCreate(['name' => $name]);
+
+        return response()->json($technology->only(['id', 'name']), $technology->wasRecentlyCreated ? 201 : 200);
     }
 
     public function update(TechnologyRequest $request, Technology $technology): RedirectResponse

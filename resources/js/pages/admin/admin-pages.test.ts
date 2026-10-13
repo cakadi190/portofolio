@@ -272,6 +272,6 @@ describe('admin forms', () => {
       careers: [],
     });
 
-    expect(document.querySelector('input[name="name"]')).not.toBeNull();
+    expect(document.querySelector('textarea[name="name"]')).not.toBeNull();
   });
 });

@@ -35,6 +35,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('can:manage-blog')->group(function () use ($only) {
         Route::get('calendar-events', CalendarEventController::class)->name('calendar-events');
         Route::resource('blog-comments', BlogCommentController::class)->parameters(['blog-comments' => 'blogComment'])->only(['index', 'show', 'update', 'destroy']);
+        Route::post('post-categories/quick', [PostCategoryController::class, 'quick'])->name('post-categories.quick');
+        Route::post('tags/quick', [TagController::class, 'quick'])->name('tags.quick');
         Route::resource('post-categories', PostCategoryController::class)->parameters(['post-categories' => 'postCategory'])->only($only);
         Route::patch('posts/{post}/author', [PostController::class, 'updateAuthor'])->name('posts.author.update');
         Route::patch('posts/{post}/restore', [PostController::class, 'restore'])->withTrashed()->name('posts.restore');
@@ -72,6 +74,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('portfolio-ratings', PortfolioRatingController::class)->parameters(['portfolio-ratings' => 'portfolioRating'])->only($only);
         Route::resource('services', ServiceController::class)->parameters(['services' => 'service'])->only(['index', 'edit', 'update']);
         Route::resource('speaking-engagements', SpeakingEngagementController::class)->parameters(['speaking-engagements' => 'speakingEngagement'])->only($only);
+        Route::post('technologies/quick', [TechnologyController::class, 'quick'])->name('technologies.quick');
         Route::resource('technologies', TechnologyController::class)->parameters(['technologies' => 'technology'])->only($only);
         Route::resource('users', UserController::class)->parameters(['users' => 'user'])->only($only);
     });

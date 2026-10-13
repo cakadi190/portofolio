@@ -9,34 +9,79 @@
     options,
     selected = [],
     searchable = true,
+    onCreate,
   }: {
     name: string;
     options: { value: number; label: string }[];
     selected?: number[];
     searchable?: boolean;
+    /** When set, a missing search term can be added as a new option. */
+    onCreate?: (name: string) => Promise<void>;
   } = $props();
 
   let query = $state('');
+  let creating = $state(false);
 
   const needle = $derived(query.trim().toLowerCase());
   const hasMatch = $derived(
     options.some((option) => option.label.toLowerCase().includes(needle)),
   );
+  const canCreate = $derived(
+    !!onCreate &&
+      needle !== '' &&
+      !options.some((option) => option.label.toLowerCase() === needle),
+  );
+
+  async function create(): Promise<void> {
+    if (!onCreate || !canCreate || creating) return;
+
+    creating = true;
+
+    try {
+      await onCreate(query.trim());
+      query = '';
+    } catch {
+      // The caller already reported the failure.
+    } finally {
+      creating = false;
+    }
+  }
 </script>
 
-{#if searchable && options.length > 0}
+{#if searchable && (options.length > 0 || onCreate)}
   <input
     type="search"
     class="form-control form-control-sm mb-2"
-    placeholder="Cari…"
+    placeholder={onCreate ? 'Cari atau tambah…' : 'Cari…'}
     aria-label="Cari opsi"
     bind:value={query}
+    onkeydown={(event) => {
+      if (event.key !== 'Enter') return;
+
+      event.preventDefault();
+      void create();
+    }}
   />
+{/if}
+
+{#if canCreate}
+  <button
+    type="button"
+    class="btn btn-sm btn-outline-primary mb-2 text-start text-truncate"
+    disabled={creating}
+    onclick={create}
+  >
+    + Tambah “{query.trim()}”
+  </button>
 {/if}
 
 <div class="multi-check">
   {#if options.length === 0}
-    <p class="text-muted small mb-0">Belum ada data.</p>
+    <p class="text-muted small mb-0">
+      {onCreate
+        ? 'Belum ada data. Ketik nama untuk menambahkan.'
+        : 'Belum ada data.'}
+    </p>
   {:else}
     {#if !hasMatch}
       <p class="text-muted small mb-0">Tidak ada hasil.</p>
