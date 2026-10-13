@@ -1,5 +1,10 @@
 <script lang="ts">
+  import Code from '@lucide/svelte/icons/code';
   import ExternalLink from '@lucide/svelte/icons/external-link';
+  import FileText from '@lucide/svelte/icons/file-text';
+  import PenLine from '@lucide/svelte/icons/pen-line';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
+  import Undo2 from '@lucide/svelte/icons/undo-2';
   import { Form, router } from '@inertiajs/svelte';
   import { flushSync } from 'svelte';
   import ModalConfirmation from '@/components/modal-confirmation.svelte';
@@ -123,7 +128,7 @@
         name="is_published"
         value={isPublished ? '1' : '0'}
       />
-      <div class="btn-group position-relative">
+      <div class="btn-group dropdown">
         <button
           type="submit"
           class="btn btn-sm btn-primary"
@@ -143,50 +148,81 @@
           onclick={() => (actionsOpen = !actionsOpen)}
         ></button>
         {#if actionsOpen}
-          <div
-            class="dropdown-menu dropdown-menu-end show rounded-3 shadow-sm"
+          <ul
+            class="dropdown-menu dropdown-menu-end show"
             role="menu"
             data-actions-trigger
-            style="top: 100%; right: 0; z-index: 1060"
+            style="top: 100%; right: 0; z-index: 1060; min-width: 15rem"
           >
-            <button
-              type="button"
-              role="menuitem"
-              class="dropdown-item d-lg-none"
-              onclick={() => {
-                editor.setMode(editor.mode === 'visual' ? 'html' : 'visual');
-                actionsOpen = false;
-              }}
-            >
-              {editor.mode === 'visual' ? 'Editor HTML' : 'Editor Visual'}
-            </button>
-            <div class="dropdown-divider d-lg-none"></div>
-            <button
-              type="submit"
-              role="menuitem"
-              class="dropdown-item"
-              onclick={() => {
-                setStatus(false);
-                actionsOpen = false;
-              }}
-            >
-              {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
-            </button>
-            {#if post}
-              <div class="dropdown-divider"></div>
+            <li>
+              <div
+                class="d-flex align-items-center gap-3 px-3 py-2 mb-2 rounded-3"
+                style="background: var(--neo-surface-inset)"
+              >
+                <span
+                  class="d-flex align-items-center justify-content-center rounded-circle"
+                  style="width: 40px; height: 40px; background: var(--neo-surface-raised)"
+                >
+                  <FileText size={18} aria-hidden="true" />
+                </span>
+                <div>
+                  <strong class="d-block">Artikel</strong>
+                  <span
+                    class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
+                    >{isPublished ? 'Terbit' : 'Draf'}</span
+                  >
+                </div>
+              </div>
+            </li>
+            <li class="d-lg-none">
               <button
                 type="button"
                 role="menuitem"
-                class="dropdown-item text-danger"
+                class="dropdown-item"
                 onclick={() => {
-                  trashOpen = true;
+                  editor.setMode(editor.mode === 'visual' ? 'html' : 'visual');
                   actionsOpen = false;
                 }}
               >
-                Pindahkan ke sampah
+                {#if editor.mode === 'visual'}
+                  <Code size={16} aria-hidden="true" /> Editor HTML
+                {:else}
+                  <PenLine size={16} aria-hidden="true" /> Editor Visual
+                {/if}
               </button>
+            </li>
+            <li>
+              <button
+                type="submit"
+                role="menuitem"
+                class="dropdown-item"
+                onclick={() => {
+                  setStatus(false);
+                  actionsOpen = false;
+                }}
+              >
+                <Undo2 size={16} aria-hidden="true" />
+                {post?.is_published ? 'Kembalikan ke Draf' : 'Simpan Draf'}
+              </button>
+            </li>
+            {#if post}
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="dropdown-item dropdown-item-danger"
+                  onclick={() => {
+                    trashOpen = true;
+                    actionsOpen = false;
+                  }}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                  Pindahkan ke sampah
+                </button>
+              </li>
             {/if}
-          </div>
+          </ul>
         {/if}
       </div>
 
