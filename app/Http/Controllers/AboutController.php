@@ -33,7 +33,7 @@ class AboutController extends Controller
                     'credentialUrl' => $certification->credential_url,
                     'file' => ImageService::url($certification->file),
                     'isPdf' => $certification->is_pdf,
-                    'pageUrl' => route('certificates.show', $certification->slug),
+                    'pageUrl' => route('certifications.show', $certification->slug),
                 ]),
         ]);
     }

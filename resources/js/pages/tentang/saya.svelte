@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
+  import Eye from '@lucide/svelte/icons/eye';
   import Medal from '@lucide/svelte/icons/medal';
   import Handshake from '@lucide/svelte/icons/handshake';
   import Briefcase from '@lucide/svelte/icons/briefcase';
@@ -201,9 +202,16 @@
                         <h5 class="mb-0">{certification.title}</h5>
                         <Link
                           href={certification.pageUrl}
-                          class="btn btn-sm btn-primary flex-shrink-0"
+                          class="btn btn-sm btn-primary flex-shrink-0 d-none d-md-inline-block"
                         >
                           Show Certificate
+                        </Link>
+                        <Link
+                          href={certification.pageUrl}
+                          class="btn btn-sm btn-primary flex-shrink-0 d-md-none"
+                          aria-label="Lihat sertifikat {certification.title}"
+                        >
+                          <Eye size={18} />
                         </Link>
                       </div>
                     </div>

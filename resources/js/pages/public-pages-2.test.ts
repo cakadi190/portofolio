@@ -155,7 +155,7 @@ describe('AboutMe', () => {
           credentialUrl: 'https://cred.test',
           file: null,
           isPdf: false,
-          pageUrl: '/certificates/1-sertifikat-laravel',
+          pageUrl: '/certifications/1-sertifikat-laravel',
         },
       ],
     });
