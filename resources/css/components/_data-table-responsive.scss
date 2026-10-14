@@ -40,6 +40,17 @@
         text-align: start;
       }
 
+      // Long multi-line content (name + address): label on top, value below.
+      &.dt-cell-stack {
+        display: block;
+        text-align: start !important;
+
+        &[data-label]::before {
+          display: block;
+          margin-bottom: 0.25rem;
+        }
+      }
+
       &[colspan] {
         display: block;
         text-align: center !important;

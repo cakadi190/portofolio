@@ -116,7 +116,7 @@
           <span class="text-muted">&mdash;</span>
         {/if}
       </td>
-      <td>
+      <td class="dt-cell-stack">
         <div class="fw-semibold">{place.name}</div>
         <div class="text-muted small">{place.address}</div>
       </td>

@@ -78,9 +78,8 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Nama', key: 'name', sortable: true },
+    { label: 'Nama & Tempat', key: 'name', sortable: true },
     { label: 'Jenjang', key: 'level', sortable: true },
-    { label: 'Tempat', key: 'place', sortable: true },
     { label: 'Periode', key: 'start_date', sortable: true },
     { label: 'Aksi', align: 'end' },
   ]}
@@ -89,9 +88,11 @@
 >
   {#snippet row(education)}
     <tr>
-      <td>{education.name}</td>
+      <td class="dt-cell-stack">
+        <div class="fw-semibold">{education.name}</div>
+        <div class="text-muted small">{education.place}</div>
+      </td>
       <td>{levelLabels[education.level] ?? education.level}</td>
-      <td>{education.place}</td>
       <td
         >{formatDate(education.start_date)} &ndash; {education.end_date
           ? formatDate(education.end_date)

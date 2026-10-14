@@ -2627,7 +2627,12 @@
     .rte-shell .rte-tabs {
       display: none;
     }
+    .rte-shell .rte-doc {
+      width: 100%;
+      padding: 2rem 1rem 6rem;
+    }
     .rte-shell .rte-body :global(.rte-content) {
+      padding-right: 0;
       font-size: 1.125rem;
     }
     .rte-doc :global(.gb-title) {
