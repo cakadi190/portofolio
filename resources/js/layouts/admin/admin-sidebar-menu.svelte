@@ -37,8 +37,15 @@
   }
 
   const query = $derived(sidebar.searchQuery.trim().toLowerCase());
+  /**
+   * Keeps each entry's position in the unfiltered list so branch ids and each
+   * keys stay stable while searching; keying by the filtered index made a
+   * row reuse another entry's DOM (and link) as the list shrank.
+   */
   const visibleEntries = $derived(
-    query ? entries.filter((entry) => matchesSearch(entry, query)) : entries,
+    entries
+      .map((entry, position) => ({ entry, position }))
+      .filter(({ entry }) => !query || matchesSearch(entry, query)),
   );
 
   const isFlyoutMode = $derived(
@@ -172,13 +179,13 @@
 </script>
 
 <ul class="sm-menu" class:sm-menu--nested={level > 1}>
-  {#each visibleEntries as entry, index (branchId(index))}
+  {#each visibleEntries as { entry, position } (branchId(position))}
     {#if entry.type === 'header'}
       <li class="sm-header" role="presentation">
         <span>{entry.label}</span>
       </li>
     {:else}
-      {@const id = branchId(index)}
+      {@const id = branchId(position)}
       {@const hasChildren = (entry.children?.length ?? 0) > 0}
       {@const childActive = hasActiveDescendant(entry)}
       {@const open = hasChildren && isOpen(id, childActive)}
