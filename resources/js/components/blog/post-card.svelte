@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Link } from '@inertiajs/svelte';
-  import Pencil from '@lucide/svelte/icons/pencil';
   import { show as showAuthor } from '@/wayfinder/routes/blog/authors';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
   import { show as showPost } from '@/wayfinder/routes/blog';
@@ -95,19 +94,6 @@
             {tag.name}
           </Link>
         {/each}
-      </div>
-    {/if}
-
-    {#if post.editUrl}
-      <div class="mt-auto pt-2">
-        <Link
-          href={post.editUrl}
-          class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 position-relative"
-        >
-          <Pencil size={14} aria-hidden="true" />
-          Edit Artikel
-          <span class="visually-hidden">: {post.title}</span>
-        </Link>
       </div>
     {/if}
   </div>

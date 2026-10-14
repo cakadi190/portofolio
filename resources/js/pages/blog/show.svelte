@@ -9,7 +9,9 @@
   import { Link } from '@inertiajs/svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
+  import Folder from '@lucide/svelte/icons/folder';
   import Pencil from '@lucide/svelte/icons/pencil';
+  import TagIcon from '@lucide/svelte/icons/tag';
   import type { BlogPostCard } from '@/components/blog/types';
   import { show as showAuthor } from '@/wayfinder/routes/blog/authors';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
@@ -96,26 +98,31 @@
                 </div>
               {/if}
 
-              {#each post.categories as category (category.slug)}
-                <Link
-                  href={showCategory(category.slug).url}
-                  class="badge text-decoration-none"
-                  style={`background-color: ${category.color ?? '#6c757d'}`}
-                >
-                  {category.name}
-                </Link>
-              {/each}
-            </div>
+              {#if post.categories.length}
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <Folder size={16} class="opacity-75" aria-hidden="true" />
+                  {#each post.categories as category (category.slug)}
+                    <Link
+                      href={showCategory(category.slug).url}
+                      class="badge text-decoration-none"
+                      style={`background-color: ${category.color ?? '#6c757d'}`}
+                    >
+                      {category.name}
+                    </Link>
+                  {/each}
+                </div>
+              {/if}
 
-            {#if post.editUrl}
-              <Link
-                href={post.editUrl}
-                class="btn btn-primary d-inline-flex align-items-center gap-2"
-              >
-                <Pencil size={16} aria-hidden="true" />
-                Edit Artikel
-              </Link>
-            {/if}
+              {#if post.editUrl}
+                <Link
+                  href={post.editUrl}
+                  class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
+                >
+                  <Pencil size={14} aria-hidden="true" />
+                  Edit Artikel
+                </Link>
+              {/if}
+            </div>
           </div>
 
           <div class="row flex-column-reverse flex-md-row gy-5">
@@ -200,7 +207,23 @@
             </div>
           </div>
 
-          <p class="small opacity-75 mt-5">
+          {#if post.tags.length}
+            <p
+              class="d-flex flex-wrap align-items-center gap-2 small mt-5 mb-2"
+            >
+              <TagIcon size={16} class="opacity-75" aria-hidden="true" />
+              <span>
+                {#each post.tags as tag, index (tag.slug)}
+                  <Link href={showTag(tag.slug).url}>{tag.name}</Link>{index <
+                  post.tags.length - 1
+                    ? ', '
+                    : ''}
+                {/each}
+              </span>
+            </p>
+          {/if}
+
+          <p class="small opacity-75 mt-2">
             Artikel ini adalah pendapat pribadi penulis, bukan nasihat
             profesional. Lihat <a href="/disclaimer">penyangkalan</a>.
           </p>

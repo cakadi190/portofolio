@@ -32,6 +32,10 @@
   color: var(--neo-body-color);
   border: 1px solid rgba(var(--neo-body-color-rgb), 0.125);
   font-weight: 500;
+
+  &:hover {
+    color: var(--neo-body-color);
+  }
 }
 
 .wrapper > .card {

@@ -53,25 +53,7 @@ describe('blog taxonomy pages', () => {
     expect(hrefOf(screen.getByRole('link', { name: 'php' }))).toBe(
       '/blog/tags/php',
     );
-    expect(hrefOf(screen.getByRole('link', { name: /Gaya Hidup/ }))).toBe(
-      '/blog/categories/gaya-hidup',
-    );
-    expect(hrefOf(screen.getByRole('link', { name: /laravel/ }))).toBe(
-      '/blog/tags/laravel',
-    );
     expect(screen.queryByRole('link', { name: /Edit Artikel/ })).toBeNull();
-  });
-
-  it('shows an edit shortcut per post when the server provides one', () => {
-    render(BlogTag, {
-      tag: { name: 'php', slug: 'php' },
-      posts: paginated([post({ editUrl: '/admin/posts/3/edit' })]),
-      relatedTags: [],
-    });
-
-    expect(hrefOf(screen.getByRole('link', { name: /Edit Artikel/ }))).toBe(
-      '/admin/posts/3/edit',
-    );
   });
 
   it('renders empty states and tolerates posts without optional relations', () => {

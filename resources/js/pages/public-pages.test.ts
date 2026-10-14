@@ -481,7 +481,7 @@ describe('BlogShow', () => {
     ).toBeTruthy();
     expect(screen.getByText('artikel')).toBeTruthy();
     expect(screen.getByText('Tech')).toBeTruthy();
-    expect(hrefOf(screen.getByRole('link', { name: 'php' }))).toBe(
+    expect(hrefOf(screen.getAllByRole('link', { name: 'php' })[0])).toBe(
       '/blog/tags/php',
     );
     expect(hrefOf(screen.getByRole('link', { name: 'Tech' }))).toBe(

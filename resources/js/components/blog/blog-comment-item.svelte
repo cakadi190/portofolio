@@ -27,7 +27,9 @@
     onReply: (id: number | null) => void;
   } = $props();
 
-  const initial = $derived(comment.author.trim().charAt(0).toUpperCase() || '?');
+  const initial = $derived(
+    comment.author.trim().charAt(0).toUpperCase() || '?',
+  );
   let collapsed = $state(false);
 
   const postedAt = $derived(

@@ -20,12 +20,12 @@
   <EmptyState title={emptyTitle} text={emptyText} />
 {:else}
   <InfiniteFeed data="posts">
-  <div class="row">
-    {#each posts.data as post (post.slug)}
-      <div class="col-md-6 col-lg-4 mb-4">
-        <PostCard {post} />
-      </div>
-    {/each}
-  </div>
+    <div class="row">
+      {#each posts.data as post (post.slug)}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <PostCard {post} />
+        </div>
+      {/each}
+    </div>
   </InfiniteFeed>
 {/if}
