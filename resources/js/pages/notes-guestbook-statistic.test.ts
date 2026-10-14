@@ -67,23 +67,26 @@ describe('NotesShow', () => {
 describe('GuestbookPage', () => {
   it('renders nested entries and asks guests for a name and email', () => {
     render(GuestbookPage, {
-      entries: [
-        {
-          id: 1,
-          body: 'Halo dunia',
-          author: 'Budi',
-          createdAt: '2026-10-05T00:00:00Z',
-          replies: [
-            {
-              id: 2,
-              body: 'Halo juga',
-              author: 'Cak Adi',
-              createdAt: '2026-10-06T00:00:00Z',
-              replies: [],
-            },
-          ],
-        },
-      ],
+      entries: {
+        data: [
+          {
+            id: 1,
+            body: 'Halo dunia',
+            author: 'Budi',
+            createdAt: '2026-10-05T00:00:00Z',
+            replies: [
+              {
+                id: 2,
+                body: 'Halo juga',
+                author: 'Cak Adi',
+                createdAt: '2026-10-06T00:00:00Z',
+                replies: [],
+              },
+            ],
+          },
+        ],
+      },
+      totalEntries: 2,
     });
 
     expect(screen.getByText('Halo dunia')).toBeTruthy();

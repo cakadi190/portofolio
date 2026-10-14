@@ -104,14 +104,30 @@ describe('MediaPickerModal', () => {
     expect(toast.error).toHaveBeenCalled();
   });
 
-  it('pages through the library', async () => {
-    const fetchMock = mockLibrary([media(1)], 3);
+  it('loads the next page when the end sentinel is visible', async () => {
+    let observerCallback: ((entries: object[]) => void) | undefined;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: (entries: object[]) => void) {
+          observerCallback = callback;
+        }
+        observe = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    const fetchMock = vi.fn().mockImplementation(async (url: string) => ({
+      ok: true,
+      json: async () => ({
+        data: [media(String(url).includes('page=2') ? 2 : 1)],
+        last_page: 3,
+      }),
+    }));
+    vi.stubGlobal('fetch', fetchMock);
     render(MediaPickerModal, { open: true, onSelect: vi.fn() });
 
-    await screen.findByText('Halaman 1 dari 3');
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Berikutnya', hidden: true }),
-    );
+    await screen.findByText('file-1');
+    observerCallback?.([{ isIntersecting: true }]);
 
     await vi.waitFor(() =>
       expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('page=2'),

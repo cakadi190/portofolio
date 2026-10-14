@@ -1,6 +1,13 @@
 import { cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+vi.mock(
+  '../../../node_modules/@inertiajs/svelte/dist/components/InfiniteScroll.svelte',
+  async () => ({
+    default: (await import('./stubs/infinite-scroll-stub.svelte')).default,
+  }),
+);
+
 /**
  * jsdom lacks several browser APIs the app relies on. Minimal stand-ins keep
  * components mountable; individual tests override them when behavior matters.

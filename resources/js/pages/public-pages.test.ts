@@ -303,7 +303,6 @@ describe('BlogIndex', () => {
     expect(hrefOf(screen.getByRole('link', { name: /satu/ }))).toBe(
       '/blog/satu',
     );
-    expect(screen.getByText('Halaman 1 dari 2')).toBeTruthy();
   });
 });
 
@@ -465,7 +464,12 @@ describe('BlogShow', () => {
   };
 
   it('renders content, meta, tags and highlights code', () => {
-    render(BlogShow, { post, comments: [], ...sidebar });
+    render(BlogShow, {
+      post,
+      comments: { data: [] },
+      totalComments: 0,
+      ...sidebar,
+    });
 
     expect(screen.getByRole('link', { name: 'Artikel Lain' })).toBeTruthy();
     expect(screen.getByRole('link', { name: /Teknologi \(3\)/ })).toBeTruthy();
@@ -495,7 +499,8 @@ describe('BlogShow', () => {
   it('shows the edit button only when the server provides an edit url', () => {
     render(BlogShow, {
       post: { ...post, editUrl: '/admin/posts/7/edit' },
-      comments: [],
+      comments: { data: [] },
+      totalComments: 0,
       ...sidebar,
     });
 
@@ -507,7 +512,8 @@ describe('BlogShow', () => {
   it('handles unpublished posts without tags or cover', () => {
     render(BlogShow, {
       ...sidebar,
-      comments: [],
+      comments: { data: [] },
+      totalComments: 0,
       post: {
         ...post,
         publishedAt: null,
@@ -529,23 +535,26 @@ describe('BlogShow', () => {
     render(BlogShow, {
       ...sidebar,
       post,
-      comments: [
-        {
-          id: 1,
-          body: 'Komentar utama',
-          author: 'Budi',
-          createdAt: '2024-05-18T00:00:00Z',
-          replies: [
-            {
-              id: 2,
-              body: 'Balasan bersarang',
-              author: 'Sari',
-              createdAt: '2024-05-19T00:00:00Z',
-              replies: [],
-            },
-          ],
-        },
-      ],
+      comments: {
+        data: [
+          {
+            id: 1,
+            body: 'Komentar utama',
+            author: 'Budi',
+            createdAt: '2024-05-18T00:00:00Z',
+            replies: [
+              {
+                id: 2,
+                body: 'Balasan bersarang',
+                author: 'Sari',
+                createdAt: '2024-05-19T00:00:00Z',
+                replies: [],
+              },
+            ],
+          },
+        ],
+      },
+      totalComments: 2,
     });
 
     expect(screen.getByText('Komentar (2)')).toBeTruthy();
