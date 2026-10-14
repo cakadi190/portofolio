@@ -85,6 +85,11 @@ export default defineConfig({
       ],
     },
   },
+  ssr: {
+    // The runtime image has no node_modules, so Bun resolves externals from
+    // its global cache, where tiptap's peers (@tiptap/extensions) are missing.
+    noExternal: [/^@tiptap\//, /^prosemirror-/],
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./resources/js', import.meta.url)),

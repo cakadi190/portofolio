@@ -713,6 +713,10 @@
     const collected: Record<number, PageLink[]> = {};
 
     for (const [index, page] of loaded.entries()) {
+      if (doc !== pdf) {
+        return;
+      }
+
       const notes = (await page.getAnnotations()) as { subtype?: string; rect?: Rect; url?: string; dest?: unknown }[];
       const list: PageLink[] = [];
 
@@ -736,7 +740,9 @@
       collected[index + 1] = list;
     }
 
-    links = collected;
+    if (doc === pdf) {
+      links = collected;
+    }
   };
 
   $effect(() => {
@@ -767,6 +773,10 @@
     const items: OutlineItem[] = [];
     const walk = async (nodes: Awaited<ReturnType<PDFDocumentProxy['getOutline']>>, depth: number): Promise<void> => {
       for (const node of nodes ?? []) {
+        if (doc !== pdf) {
+          return;
+        }
+
         try {
           const dest = typeof node.dest === 'string' ? await pdf.getDestination(node.dest) : node.dest;
           const page = dest ? (await pdf.getPageIndex(dest[0])) + 1 : 1;
@@ -779,7 +789,10 @@
     };
 
     await walk(await pdf.getOutline(), 0);
-    outline = items;
+
+    if (doc === pdf) {
+      outline = items;
+    }
   };
 
   onMount(() => {
@@ -863,7 +876,8 @@
       clearTimeout(zoomTimer);
       cancelAnimationFrame(zoomFrame);
       terminateOcrWorker();
-      void loadingTask?.destroy();
+      doc = null;
+      void loadingTask?.destroy().catch(() => {});
     };
   });
 </script>
