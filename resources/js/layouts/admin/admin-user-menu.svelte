@@ -74,7 +74,7 @@
             <img
               src={avatarUrl}
               alt={userName ?? ''}
-              class="w-100 rounded h-100 object-fit-cover"
+              class="w-100 rounded-circle h-100 object-fit-cover"
             />
           {:else}
             <AppLogoIcon height={20} aria-hidden="true" />
