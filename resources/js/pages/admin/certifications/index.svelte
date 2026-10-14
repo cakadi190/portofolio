@@ -10,7 +10,7 @@
   import MediaField from '@/components/media/media-field.svelte';
   import { Form } from '@inertiajs/svelte';
   import { formatDate, storageUrl } from '@/lib/utils';
-  import { show as showCertification } from '@/wayfinder/routes/certification';
+  import { show as showCertification } from '@/wayfinder/routes/certifications';
   import {
     destroy,
     index,

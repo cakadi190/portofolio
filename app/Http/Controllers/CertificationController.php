@@ -46,6 +46,8 @@ class CertificationController extends Controller
             ]);
         }
 
+        request()->attributes->set('pdfViewer', true);
+
         return Inertia::render('certification/show', [
             'title' => $certification->title,
             'description' => "Sertifikat {$certification->title} dari {$certification->issuer}.",

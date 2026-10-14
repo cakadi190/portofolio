@@ -69,9 +69,11 @@
             .dropdown-menu:not(.show) { display: none; }
         </style>
 
-        @if (request()->routeIs('resume.show', 'resume.profile', 'certification.show'))
+        @php($isCertificationViewer = request()->routeIs('certifications.show') && request()->attributes->get('pdfViewer') === true)
+
+        @if (request()->routeIs('resume.show', 'resume.profile') || $isCertificationViewer)
             {{-- Anti-FOUC for the PDF viewer: paint its shell (and preload the generated resume PDF) before the JS bundle boots. --}}
-            @unless (request()->routeIs('certification.show'))
+            @unless ($isCertificationViewer)
                 <link rel="preload" as="fetch" href="{{ request()->route('profile') ? route('resume.profile.pdf', request()->route('profile')) : route('resume.pdf') }}" crossorigin="use-credentials">
             @endunless
             <style>
@@ -90,7 +92,7 @@
 
             if (request()->routeIs('resume.show', 'resume.profile')) {
                 $entries[] = 'resources/js/pages/resume/index.svelte';
-            } elseif (request()->routeIs('certification.show')) {
+            } elseif ($isCertificationViewer) {
                 $entries[] = 'resources/js/pages/certification/show.svelte';
             } elseif (request()->routeIs('admin.posts.create', 'admin.posts.edit')) {
                 $entries[] = 'resources/js/pages/admin/posts/form.svelte';
