@@ -13,7 +13,6 @@
   import TaxonomySelect from '@/components/ui/taxonomy-select.svelte';
   import {
     destroy,
-    index,
     store,
     update,
   } from '@/wayfinder/routes/admin/notes';
@@ -198,7 +197,6 @@
       name="content"
       value={note?.content ?? ''}
       invalid={!!errors.content}
-      backHref={index().url}
       viewHref={note?.is_published && note.slug ? show(note.slug).url : null}
       documentTitle={title}
       rootLabel="Catatan"

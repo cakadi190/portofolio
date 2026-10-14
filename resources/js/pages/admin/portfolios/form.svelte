@@ -12,7 +12,6 @@
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import {
     destroy,
-    index,
     store,
     update,
   } from '@/wayfinder/routes/admin/portfolios';
@@ -232,7 +231,6 @@
       name="description"
       value={portfolio?.description ?? ''}
       invalid={!!errors.description}
-      backHref={index().url}
       viewHref={portfolio?.slug ? show(portfolio.slug).url : null}
       documentTitle={name}
       rootLabel="Portofolio"

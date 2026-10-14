@@ -14,7 +14,6 @@
   import TaxonomySelect from '@/components/ui/taxonomy-select.svelte';
   import {
     destroy,
-    index,
     store,
     update,
   } from '@/wayfinder/routes/admin/posts';
@@ -228,7 +227,6 @@
       name="content"
       value={post?.content ?? ''}
       invalid={!!errors.content}
-      backHref={index().url}
       viewHref={post?.slug ? (post.is_published ? show(post.slug).url : previewUrl) : null}
       documentTitle={title}
       rootLabel="Artikel"

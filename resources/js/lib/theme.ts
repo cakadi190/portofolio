@@ -5,11 +5,15 @@ export type Theme = 'light' | 'dark';
 
 /** Flips the document between light and dark, remembers the choice when storage allows, and returns the new theme. */
 export function toggleDocumentTheme(): Theme {
-  const next: Theme =
+  return setDocumentTheme(
     document.documentElement.getAttribute('data-bs-theme') === 'dark'
       ? 'light'
-      : 'dark';
+      : 'dark',
+  );
+}
 
+/** Applies the given theme to the document, remembers the choice when storage allows, and returns it. */
+export function setDocumentTheme(next: Theme): Theme {
   document.documentElement.setAttribute('data-bs-theme', next);
 
   try {

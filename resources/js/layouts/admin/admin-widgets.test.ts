@@ -159,6 +159,18 @@ describe('AdminUserMenu', () => {
     ).toBeTruthy();
   });
 
+  it('switches the theme from the dropdown', async () => {
+    document.documentElement.setAttribute('data-bs-theme', 'light');
+    render(AdminUserMenu, { userName: 'Adi' });
+
+    await fireEvent.click(screen.getByLabelText('Mode gelap'));
+
+    expect(document.documentElement.getAttribute('data-bs-theme')).toBe(
+      'dark',
+    );
+    document.documentElement.removeAttribute('data-bs-theme');
+  });
+
   it('falls back to a dash and shows the avatar when present', () => {
     const { unmount } = render(AdminUserMenu, {});
     expect(screen.getAllByText('—').length).toBeGreaterThan(0);

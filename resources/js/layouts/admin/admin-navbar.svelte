@@ -4,9 +4,7 @@
   import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
   import AdminClock from './admin-clock.svelte';
   import AdminFullscreenToggle from './admin-fullscreen-toggle.svelte';
-  import AdminLanguageSwitcher from './admin-language-switcher.svelte';
   import AdminNotificationBell from './admin-notification-bell.svelte';
-  import ThemeToggler from '@/components/theme-toggler.svelte';
   import AdminUserMenu from './admin-user-menu.svelte';
   import { useAdminSidebarState } from './sidebar-state.svelte';
 
@@ -45,14 +43,6 @@
 
     <li class="nav-item">
       <AdminNotificationBell />
-    </li>
-
-    <li class="nav-item">
-      <ThemeToggler />
-    </li>
-
-    <li class="nav-item">
-      <AdminLanguageSwitcher />
     </li>
 
     <AdminUserMenu userName={user.name} userEmail={user.email} userAvatar={user.avatar} />

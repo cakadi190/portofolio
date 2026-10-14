@@ -2,9 +2,12 @@
   import { Link } from '@inertiajs/svelte';
   import KeyRound from '@lucide/svelte/icons/key-round';
   import LogOut from '@lucide/svelte/icons/log-out';
+  import Moon from '@lucide/svelte/icons/moon';
+  import Sun from '@lucide/svelte/icons/sun';
   import UserRound from '@lucide/svelte/icons/user-round';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
   import LogoutAction from '@/components/logout-action.svelte';
+  import { setDocumentTheme, type Theme } from '@/lib/theme';
   import { storageUrl } from '@/lib/utils';
 
   let {
@@ -20,6 +23,25 @@
   } = $props();
 
   const avatarUrl = $derived(storageUrl(userAvatar));
+
+  const locales = [
+    { code: 'id', flag: 'fi-id', label: 'ID' },
+    { code: 'en', flag: 'fi-us', label: 'EN' },
+  ] as const;
+
+  let currentLocale = $state<(typeof locales)[number]['code']>('id');
+  let theme = $state<Theme>('light');
+
+  $effect(() => {
+    theme =
+      document.documentElement.getAttribute('data-bs-theme') === 'dark'
+        ? 'dark'
+        : 'light';
+  });
+
+  function chooseTheme(next: Theme): void {
+    theme = setDocumentTheme(next);
+  }
 </script>
 
 <li class="nav-item dropdown userinfo">
@@ -63,6 +85,45 @@
           <p class="mb-0 text-muted">{userEmail}</p>
         </div>
       </Link>
+    </li>
+
+    <li><hr class="dropdown-divider" /></li>
+
+    <li class="userinfo-segment" role="group" aria-label="Tema">
+      <button
+        type="button"
+        class:active={theme === 'light'}
+        aria-label="Mode terang"
+        aria-pressed={theme === 'light'}
+        data-track="theme_toggle"
+        onclick={() => chooseTheme('light')}
+      >
+        <Sun size={16} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class:active={theme === 'dark'}
+        aria-label="Mode gelap"
+        aria-pressed={theme === 'dark'}
+        data-track="theme_toggle"
+        onclick={() => chooseTheme('dark')}
+      >
+        <Moon size={16} aria-hidden="true" />
+      </button>
+    </li>
+
+    <li class="userinfo-segment" role="group" aria-label="Bahasa">
+      {#each locales as locale (locale.code)}
+        <button
+          type="button"
+          class:active={currentLocale === locale.code}
+          aria-pressed={currentLocale === locale.code}
+          onclick={() => (currentLocale = locale.code)}
+        >
+          <span class="fi {locale.flag} fis border" aria-hidden="true"></span>
+          {locale.label}
+        </button>
+      {/each}
     </li>
 
     <li><hr class="dropdown-divider" /></li>

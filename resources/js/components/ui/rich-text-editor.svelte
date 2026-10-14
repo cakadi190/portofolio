@@ -14,7 +14,6 @@
   import Heading3 from '@lucide/svelte/icons/heading-3';
   import ImageIcon from '@lucide/svelte/icons/image';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
-  import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
@@ -38,7 +37,6 @@
   import TextAlign from '@tiptap/extension-text-align';
   import { NodeSelection } from '@tiptap/pm/state';
   import StarterKit from '@tiptap/starter-kit';
-  import { Link as InertiaLink } from '@inertiajs/svelte';
   import { onMount, type Snippet } from 'svelte';
   import { useAdminSidebarState } from '@/layouts/admin/sidebar-state.svelte';
   import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
@@ -74,7 +72,6 @@
     invalid = false,
     minimal = false,
     shell = false,
-    backHref = '',
     documentTitle = '',
     rootLabel = 'Dokumen',
     viewHref = null,
@@ -92,7 +89,6 @@
     /** Gutenberg-style full-screen editor: top bar, canvas and a settings sidebar. */
     shell?: boolean;
     /** Target of the back arrow in the shell top bar. */
-    backHref?: string;
     /** Title shown in the centre of the shell top bar. */
     documentTitle?: string;
     /** First crumb of the breadcrumb under the canvas. */
@@ -1518,15 +1514,6 @@
       >
     {/if}
 
-    {#if shell}
-      <InertiaLink
-        href={backHref}
-        class="rte-btn rte-btn-lg"
-        title="Kembali"
-        aria-label="Kembali"><ChevronLeft size={20} /></InertiaLink
-      >
-    {/if}
-
     {#if mode === 'visual' && editor}
       <div class="rte-tools" role="toolbar" aria-label="Alat dokumen">
         {#if !minimal}
@@ -2325,6 +2312,10 @@
 
     border: 0;
     border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100%;
   }
   .rte-shell .rte-top {
     border-radius: 0;
@@ -2338,7 +2329,8 @@
     padding: 0 0.75rem;
   }
   .rte-shell .rte-main {
-    align-items: flex-start;
+    align-items: stretch;
+    flex: 1;
   }
   .rte-shell .rte-sidebar {
     position: sticky;
