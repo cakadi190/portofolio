@@ -1,9 +1,18 @@
 <script lang="ts">
   import Bell from '@lucide/svelte/icons/bell';
   import BellOff from '@lucide/svelte/icons/bell-off';
+  import { onMount } from 'svelte';
   import { portal } from '@/lib/dom';
 
   let { count = 0 }: { count?: number } = $props();
+
+  // The panel is portaled to <body> by JS, so rendering it during SSR only
+  // leaks its text into the navbar until hydration (FOUC).
+  let mounted = $state(false);
+
+  onMount(() => {
+    mounted = true;
+  });
 </script>
 
 <button
@@ -26,6 +35,7 @@
   {/if}
 </button>
 
+{#if mounted}
 <div
   use:portal
   class="offcanvas offcanvas-end notification-offcanvas"
@@ -53,3 +63,4 @@
     </div>
   </div>
 </div>
+{/if}

@@ -14,7 +14,12 @@ export type BlogCategoryRef = {
   color: string | null;
 };
 export type BlogTagRef = { name: string; slug: string };
-export type BlogAuthorRef = { name: string; slug: string | null };
+export type BlogAuthorRef = {
+  name: string;
+  slug: string | null;
+  /** Storage path of the author's avatar; null when none is set. */
+  avatar?: string | null;
+};
 
 /** Public card payload of a post, as built by `PresentsBlogPosts::postCard()`. */
 export type BlogPostCard = {

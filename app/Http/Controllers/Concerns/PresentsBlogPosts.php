@@ -41,7 +41,7 @@ trait PresentsBlogPosts
             'excerpt' => $post->excerpt,
             'coverImage' => ImageService::thumbnailUrl($post->cover_image),
             'publishedAt' => $post->published_at,
-            'author' => $post->author ? ['name' => $post->author->name, 'slug' => $post->author->slug] : null,
+            'author' => $post->author ? ['name' => $post->author->name, 'slug' => $post->author->slug, 'avatar' => $post->author->avatar] : null,
             'categories' => $post->categories->map(fn ($category): array => [
                 'name' => $category->name,
                 'slug' => $category->slug,
