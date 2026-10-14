@@ -9,12 +9,14 @@
     description = 'Tindakan ini tidak dapat dibatalkan.',
     buttonLabel = 'Hapus',
     confirmLabel = 'Hapus',
+    class: className = 'btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1',
   }: {
     href: string;
     label?: string;
     description?: string;
     buttonLabel?: string;
     confirmLabel?: string;
+    class?: string;
   } = $props();
 
   let open = $state(false);
@@ -34,7 +36,7 @@
 
 <button
   type="button"
-  class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+  class={className}
   onclick={() => (open = true)}
 >
   <Trash2 size={14} />

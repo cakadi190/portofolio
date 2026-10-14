@@ -207,7 +207,7 @@ class BlogController extends Controller
         $roots = $post->comments()
             ->approved()
             ->whereNull('parent_id')
-            ->with('user:id,name')
+            ->with('user:id,name,avatar')
             ->oldest()
             ->paginate(self::COMMENT_ROOTS_PER_PAGE);
 
@@ -215,7 +215,7 @@ class BlogController extends Controller
             $roots->getCollection(),
             fn (Collection $parentIds): Collection => $post->comments()
                 ->approved()
-                ->with('user:id,name')
+                ->with('user:id,name,avatar')
                 ->whereIn('parent_id', $parentIds)
                 ->oldest()
                 ->get(),
@@ -223,6 +223,7 @@ class BlogController extends Controller
                 'id' => $comment->id,
                 'body' => HtmlSanitizer::richText($comment->body),
                 'author' => $comment->user?->name ?? 'Pengguna terhapus',
+                'authorAvatar' => $comment->user?->avatar,
                 'createdAt' => $comment->created_at,
                 'replies' => $replies,
             ],

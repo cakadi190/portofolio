@@ -1,5 +1,6 @@
 <script lang="ts">
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import ThreadAvatar from '@/components/thread-avatar.svelte';
   import GuestbookForm from './guestbook-form.svelte';
   import GuestbookItem from './guestbook-item.svelte';
   import type { GuestbookNode } from './types';
@@ -19,7 +20,6 @@
     onReply: (id: number | null) => void;
   } = $props();
 
-  const initial = $derived(entry.author.trim().charAt(0).toUpperCase() || '?');
   let collapsed = $state(false);
 
   const postedAt = $derived(
@@ -33,23 +33,21 @@
 
 <li id={`pesan-${entry.id}`} class="thread-node">
   <div class="thread-card">
-    <span class="thread-avatar" aria-hidden="true">{initial}</span>
+    <ThreadAvatar name={entry.author} src={entry.authorAvatar} />
     <div class="flex-grow-1" style="min-width: 0">
-      <div
-        class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
-      >
+      <div class="thread-meta">
         <strong>{entry.author}</strong>
-        <small class="opacity-75">{postedAt}</small>
+        <small>{postedAt}</small>
       </div>
 
       <!-- The server whitelists this markup (HtmlSanitizer::richText) on write and again on read. -->
-      <div class="thread-body mb-3">
+      <div class="thread-body">
         {@html entry.body}
       </div>
 
       <button
           type="button"
-          class="btn btn-sm btn-outline-secondary"
+          class="thread-action"
           aria-expanded={replyingTo === entry.id}
           onclick={() => onReply(replyingTo === entry.id ? null : entry.id)}
         >

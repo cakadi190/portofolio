@@ -25,7 +25,7 @@ class GuestbookEntryController extends Controller
 
         $threads = $this->paginateTable(
             GuestbookEntry::query()
-                ->with('user:id,name,email')
+                ->with('user:id,name,email,avatar')
                 ->whereNull('parent_id')
                 ->when($status, fn ($query) => $query->where('status', $status))
                 ->latest(),
@@ -94,7 +94,7 @@ class GuestbookEntryController extends Controller
 
         while ($level->isNotEmpty()) {
             $children = GuestbookEntry::query()
-                ->with('user:id,name,email')
+                ->with('user:id,name,email,avatar')
                 ->whereIn('parent_id', $level)
                 ->oldest()
                 ->get();

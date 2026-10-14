@@ -28,7 +28,7 @@ class BlogCommentController extends Controller
         return Inertia::render('admin/blog-comments/index', [
             'blogComments' => Inertia::scroll($this->paginateTable(
                 BlogComment::query()
-                    ->with(['post:id,title,slug', 'user:id,name,email', 'parent:id,body'])
+                    ->with(['post:id,title,slug', 'user:id,name,email,avatar', 'parent:id,body'])
                     ->withCount('replies')
                     ->when($status, fn ($query) => $query->where('status', $status))
                     ->latest(),
@@ -48,7 +48,7 @@ class BlogCommentController extends Controller
     {
         Gate::authorize('view', $blogComment);
 
-        $blogComment->load(['post:id,title,slug', 'user:id,name,email']);
+        $blogComment->load(['post:id,title,slug', 'user:id,name,email,avatar']);
 
         return Inertia::render('admin/blog-comments/show', [
             'blogComment' => $this->present($blogComment),
@@ -97,7 +97,7 @@ class BlogCommentController extends Controller
             'status' => $comment->status->value,
             'depth' => $depth,
             'created_at' => $comment->created_at,
-            'user' => $comment->user ? $comment->user->only(['id', 'name', 'email']) : null,
+            'user' => $comment->user ? $comment->user->only(['id', 'name', 'email', 'avatar']) : null,
             'post' => $comment->relationLoaded('post') ? $comment->post->only(['id', 'title', 'slug']) : null,
         ];
     }
@@ -114,7 +114,7 @@ class BlogCommentController extends Controller
         $current = $comment;
 
         while ($current->parent_id !== null && ! in_array($current->parent_id, $seen, true)) {
-            $current = BlogComment::query()->with('user:id,name,email')->find($current->parent_id);
+            $current = BlogComment::query()->with('user:id,name,email,avatar')->find($current->parent_id);
 
             if ($current === null) {
                 break;
@@ -135,7 +135,7 @@ class BlogCommentController extends Controller
     private function descendants(BlogComment $root): array
     {
         $byParent = BlogComment::query()
-            ->with('user:id,name,email')
+            ->with('user:id,name,email,avatar')
             ->whereIn('id', $this->descendantIds($root))
             ->oldest()
             ->get()

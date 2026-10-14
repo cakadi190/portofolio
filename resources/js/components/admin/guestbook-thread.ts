@@ -5,7 +5,7 @@ export type GuestbookAdminNode = {
   raw_body: string;
   status: string;
   created_at: string;
-  user: { id: number; name: string; email: string } | null;
+  user: { id: number; name: string; email: string; avatar: string | null } | null;
   guest_name: string | null;
   guest_email: string | null;
   replies: GuestbookAdminNode[];

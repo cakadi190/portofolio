@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import ThreadAvatar from '@/components/thread-avatar.svelte';
   import Turnstile from '@/components/turnstile.svelte';
   import { Field } from '@/components/ui/field';
   import RichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
@@ -27,9 +28,6 @@
     onReply: (id: number | null) => void;
   } = $props();
 
-  const initial = $derived(
-    comment.author.trim().charAt(0).toUpperCase() || '?',
-  );
   let collapsed = $state(false);
 
   const postedAt = $derived(
@@ -43,23 +41,21 @@
 
 <li class="thread-node" id={`komentar-${comment.id}`}>
   <div class="thread-card">
-    <span class="thread-avatar" aria-hidden="true">{initial}</span>
+    <ThreadAvatar name={comment.author} src={comment.authorAvatar} />
     <div class="flex-grow-1" style="min-width: 0">
-      <div
-        class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
-      >
+      <div class="thread-meta">
         <strong>{comment.author}</strong>
-        <small class="opacity-75">{postedAt}</small>
+        <small>{postedAt}</small>
       </div>
 
-      <div class="thread-body mb-3">
+      <div class="thread-body">
         {@html comment.body}
       </div>
 
       {#if canComment}
         <button
           type="button"
-          class="btn btn-sm btn-outline-secondary"
+          class="thread-action"
           aria-expanded={replyingTo === comment.id}
           onclick={() => onReply(replyingTo === comment.id ? null : comment.id)}
         >

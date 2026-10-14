@@ -4,6 +4,7 @@
   import Pencil from '@lucide/svelte/icons/pencil';
   import Reply from '@lucide/svelte/icons/reply';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
+  import ThreadAvatar from '@/components/thread-avatar.svelte';
   import GuestbookThreadNode from '@/components/admin/guestbook-thread-node.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import { Field } from '@/components/ui/field';
@@ -33,26 +34,21 @@
   const author = $derived(
     entry.user?.name ?? entry.guest_name ?? 'Pengguna terhapus',
   );
-  const initial = $derived(author.trim().charAt(0).toUpperCase() || '?');
   const isReplying = $derived(replyingTo === entry.id);
   let collapsed = $state(false);
 </script>
 
 <li id={`pesan-${entry.id}`} class="thread-node">
   <div class="thread-card" class:is-muted={entry.status !== 'approved'}>
-    <span
-      class="thread-avatar"
-      class:is-staff={!!entry.user}
-      aria-hidden="true">{initial}</span
-    >
+    <ThreadAvatar name={author} src={entry.user?.avatar} isStaff={!!entry.user} />
 
     <div class="flex-grow-1" style="min-width: 0">
-      <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+      <div class="thread-meta">
         <strong>{author}</strong>
         {#if entry.guest_email}
-          <small class="opacity-75">{entry.guest_email} · tamu</small>
+          <small>{entry.guest_email} · tamu</small>
         {:else if entry.user}
-          <small class="opacity-75">{entry.user.email}</small>
+          <small>{entry.user.email}</small>
         {/if}
         <span
           class="badge"
@@ -62,18 +58,16 @@
         >
           {statusLabel(entry.status)}
         </span>
-        <small class="opacity-75 ms-md-auto"
-          >{formatDate(entry.created_at)}</small
-        >
+        <small>{formatDate(entry.created_at)}</small>
       </div>
 
       <!-- The server whitelists this markup (HtmlSanitizer::richText) before sending it. -->
-      <div class="thread-body mb-2">{@html entry.body}</div>
+      <div class="thread-body">{@html entry.body}</div>
 
-      <div class="d-flex flex-wrap gap-2">
+      <div class="thread-actions">
         <button
           type="button"
-          class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+          class="thread-action"
           aria-expanded={isReplying}
           onclick={() => onReply(isReplying ? null : entry.id)}
         >
@@ -82,12 +76,13 @@
         </button>
         <button
           type="button"
-          class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+          class="thread-action"
           onclick={() => onEdit(entry)}
         >
           <Pencil size={14} aria-hidden="true" /> Ubah
         </button>
         <AdminDeleteButton
+          class="thread-action is-danger"
           href={destroy(entry.id).url}
           label={`Hapus pesan #${entry.id}?`}
           description="Balasan pesan ini tidak ikut dihapus, melainkan naik satu tingkat."

@@ -66,7 +66,7 @@ class GuestbookController extends Controller
         $roots = GuestbookEntry::query()
             ->approved()
             ->whereNull('parent_id')
-            ->with('user:id,name')
+            ->with('user:id,name,avatar')
             ->latest()
             ->paginate(self::ROOTS_PER_PAGE);
 
@@ -74,7 +74,7 @@ class GuestbookController extends Controller
             $roots->getCollection(),
             fn (Collection $parentIds): Collection => GuestbookEntry::query()
                 ->approved()
-                ->with('user:id,name')
+                ->with('user:id,name,avatar')
                 ->whereIn('parent_id', $parentIds)
                 ->oldest()
                 ->get(),
@@ -82,6 +82,7 @@ class GuestbookController extends Controller
                 'id' => $entry->id,
                 'body' => HtmlSanitizer::richText($entry->body),
                 'author' => $entry->user?->name ?? $entry->guest_name ?? 'Pengguna terhapus',
+                'authorAvatar' => $entry->user?->avatar,
                 'createdAt' => $entry->created_at,
                 'replies' => $replies,
             ],
