@@ -20,7 +20,7 @@
             var loadGtag = function () {
                 var script = document.createElement('script');
                 script.async = true;
-                script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(@json($measurementId));
+                script.src = {!! json_encode('https://www.googletagmanager.com/gtag/js?id='.urlencode($measurementId), JSON_UNESCAPED_SLASHES) !!};
                 document.head.appendChild(script);
             };
             if ('requestIdleCallback' in window) {
