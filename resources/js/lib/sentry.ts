@@ -150,6 +150,8 @@ export function initializeSentry(): void {
       Sentry.browserTracingIntegration(),
       ...(profiling ? [Sentry.browserProfilingIntegration()] : []),
     ],
+    // Keep transaction-level scrubbing (beforeSendTransaction) working.
+    traceLifecycle: 'static',
     tracesSampleRate: limited ? 0 : config.tracesSampleRate,
     profileSessionSampleRate: profiling ? config.profilesSampleRate : 0,
     // Only same-origin requests carry trace headers; third parties never see them.

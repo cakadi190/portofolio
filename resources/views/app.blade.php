@@ -61,7 +61,6 @@
             only revealed by Bootstrap JS hidden until the stylesheet arrives.
         --}}
         <link rel="preload" as="image" href="/images/brands/logo-white.svg" type="image/svg+xml">
-        <link rel="preload" as="image" href="/images/brands/icon-color.svg" type="image/svg+xml">
         <link rel="preload" as="image" href="/images/brands/logo-color.svg" type="image/svg+xml">
         <style>
             .offcanvas:not(.show):not(.showing):not(.hiding) { visibility: hidden; }
