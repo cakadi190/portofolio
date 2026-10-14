@@ -7,8 +7,8 @@ use App\Http\Controllers\Concerns\PresentsBlogPosts;
 use App\Models\BlogComment;
 use App\Models\Post;
 use App\Models\PostCategory;
+use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
-use App\Services\ImageService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -57,7 +57,8 @@ class BlogController extends Controller
 
         $post->load($this->cardRelations());
 
-        $coverImage = ImageService::url($post->cover_image);
+        $cover = ContentImageOptimizer::cover($post->cover_image);
+        $coverImage = $cover['src'];
 
         $seo->set([
             ...($isPreview ? ['robots' => 'noindex,nofollow'] : []),
@@ -90,7 +91,10 @@ class BlogController extends Controller
         return Inertia::render('blog/show', [
             'post' => [
                 ...$this->postCard($post, $this->canEditPosts($request)),
-                'content' => HtmlSanitizer::clean($post->content),
+                'coverImage' => $cover['src'],
+                'coverImageSrcset' => $cover['srcset'],
+                'coverImageSize' => $cover['width'] ? ['width' => $cover['width'], 'height' => $cover['height']] : null,
+                'content' => ContentImageOptimizer::optimize(HtmlSanitizer::clean($post->content)),
             ],
             'comments' => Inertia::scroll(fn () => $this->commentPage($post)),
             'totalComments' => $post->comments()->approved()->count(),

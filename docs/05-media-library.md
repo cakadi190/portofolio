@@ -54,6 +54,7 @@ Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**:
 ## Batasan yang diketahui
 
 - Belum ada folder/kategori media atau versi/ganti berkas. Varian ukuran hanya satu: thumbnail 640 px. `ImageService::thumbnailUrl()` dipakai payload kartu (beranda, daftar blog, portofolio, kedai kopi) dan jatuh balik ke gambar asli bila thumbnail tidak ada; media lama diisi lewat `php artisan media:thumbnails`. Thumbnail ikut terhapus saat media dihapus.
+- Gambar di dalam isi artikel/portofolio/catatan/klarifikasi/layanan diproses `ContentImageOptimizer` setelah `HtmlSanitizer` (lebar/tinggi dari tabel `media`, `loading="lazy"`, `decoding="async"`, `srcset` 640 px bila thumbnail ada); sampul artikel memakai `ContentImageOptimizer::cover()`.
 - Pelacakan pemakaian berbasis pemindaian kolom, bukan relasi; kolom tak terdaftar tidak terlindungi.
 - Belum ada pembersihan media yatim otomatis.
 - `system_settings.seo_image` menyimpan path di kolom terenkripsi sehingga tidak terpindai `USAGES`; media itu bisa terhapus dari Pustaka Media tanpa peringatan (SEO jatuh balik ke gambar bawaan hanya bila setting dikosongkan).

@@ -201,6 +201,21 @@ describe('CardCoffee', () => {
 });
 
 describe('Turnstile', () => {
+  /** The widget loads lazily; this makes the slot count as already near the viewport. */
+  const intersectImmediately = () =>
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(
+          private callback: (entries: { isIntersecting: boolean }[]) => void,
+        ) {}
+        observe() {
+          this.callback([{ isIntersecting: true }]);
+        }
+        disconnect() {}
+      },
+    );
+
   it('renders nothing without a site key', () => {
     const { container } = render(Turnstile, {});
 
@@ -214,6 +229,7 @@ describe('Turnstile', () => {
       reset: vi.fn(),
       remove: vi.fn(),
     };
+    intersectImmediately();
     render(Turnstile, { error: 'Gagal verifikasi' });
 
     expect(screen.getByText('Gagal verifikasi')).toBeTruthy();
@@ -241,6 +257,7 @@ describe('Turnstile', () => {
       remove: vi.fn(),
     };
     (window as unknown as { turnstile: unknown }).turnstile = turnstile;
+    intersectImmediately();
     const { unmount } = render(Turnstile, {});
     await vi.waitFor(() => expect(turnstile.render).toHaveBeenCalled());
 
@@ -250,6 +267,26 @@ describe('Turnstile', () => {
     unmount();
     expect(turnstile.remove).toHaveBeenCalledWith('w1');
     expect(state.stop).toHaveBeenCalled();
+  });
+});
+
+describe('Turnstile (deferred loading)', () => {
+  it('does not fetch the Cloudflare script until the visitor starts using the form', () => {
+    document.getElementById('cloudflare-turnstile')?.remove();
+    delete (window as unknown as { turnstile?: unknown }).turnstile;
+    state.page.props = { turnstileSiteKey: 'site-key' };
+    const form = document.createElement('form');
+    document.body.appendChild(form);
+
+    render(Turnstile, { target: form, props: {} });
+
+    // The IntersectionObserver stub from setup never reports a visible slot.
+    expect(document.getElementById('cloudflare-turnstile')).toBeNull();
+
+    form.dispatchEvent(new Event('focusin'));
+
+    expect(document.getElementById('cloudflare-turnstile')).not.toBeNull();
+    form.remove();
   });
 });
 

@@ -53,17 +53,51 @@
       }
     });
 
-    if (siteKey && container) {
+    // The widget (and Cloudflare's ~600 KB challenge script) is fetched only when
+    // the field is about to scroll into view or the visitor starts using the
+    // form, so it never competes with first paint or counts against TBT.
+    let started = false;
+    let observer: IntersectionObserver | null = null;
+    const form = container?.closest('form') ?? null;
+
+    const start = () => {
+      if (started || !siteKey || !container) {
+        return;
+      }
+
+      started = true;
+      observer?.disconnect();
+      form?.removeEventListener('focusin', start);
+      form?.removeEventListener('pointerdown', start);
+
       const target = container;
       loadScript()
         .then(() => {
           widgetId = turnstile()?.render(target, { sitekey: siteKey, theme: 'auto' });
         })
         .catch(() => {});
+    };
+
+    if (siteKey && container) {
+      form?.addEventListener('focusin', start, { once: true });
+      form?.addEventListener('pointerdown', start, { once: true });
+
+      if (typeof IntersectionObserver === 'undefined') {
+        start();
+      } else {
+        observer = new IntersectionObserver(
+          (entries) => entries.some((entry) => entry.isIntersecting) && start(),
+          { rootMargin: '300px' },
+        );
+        observer.observe(container);
+      }
     }
 
     return () => {
       stopListening();
+      observer?.disconnect();
+      form?.removeEventListener('focusin', start);
+      form?.removeEventListener('pointerdown', start);
       if (widgetId) {
         turnstile()?.remove(widgetId);
       }
@@ -73,9 +107,16 @@
 
 {#if siteKey}
   <div>
-    <div bind:this={container}></div>
+    <div bind:this={container} class="turnstile-slot"></div>
     {#if error}
       <div class="text-danger small mt-1">{error}</div>
     {/if}
   </div>
 {/if}
+
+<style>
+  /* Turnstile's normal widget is 65px tall; reserving it keeps the form from shifting when it loads. */
+  .turnstile-slot {
+    min-height: 65px;
+  }
+</style>

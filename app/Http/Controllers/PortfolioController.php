@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Portfolio;
 use App\Models\PortfolioGallery;
 use App\Models\PortfolioRating;
+use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
@@ -75,7 +76,7 @@ class PortfolioController extends Controller
             'portfolio' => [
                 'name' => $portfolio->name,
                 'shortDesc' => $portfolio->short_desc,
-                'description' => HtmlSanitizer::clean($portfolio->description),
+                'description' => ContentImageOptimizer::optimize(HtmlSanitizer::clean($portfolio->description)),
                 'image' => ImageService::url($portfolio->image),
                 'demoLink' => $portfolio->demo_link,
                 'sourceCode' => $portfolio->source_code,

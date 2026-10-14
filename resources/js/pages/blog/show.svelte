@@ -18,7 +18,11 @@
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
   import { show as showTag } from '@/wayfinder/routes/blog/tags';
 
-  type Post = BlogPostCard & { content: string };
+  type Post = BlogPostCard & {
+    content: string;
+    coverImageSrcset?: string | null;
+    coverImageSize?: { width: number; height: number } | null;
+  };
 
   type PostLink = { title: string; slug: string; publishedAt?: string | null };
   type Category = {
@@ -72,7 +76,13 @@
           {#if post.coverImage}
             <img
               src={post.coverImage}
-              class="w-100 rounded-4 border overflow-hidden mt-4 mt-md-0"
+              srcset={post.coverImageSrcset ?? undefined}
+              sizes="(min-width: 1200px) 1140px, 100vw"
+              width={post.coverImageSize?.width}
+              height={post.coverImageSize?.height}
+              fetchpriority="high"
+              decoding="async"
+              class="w-100 h-auto rounded-4 border overflow-hidden mt-4 mt-md-0"
               alt={post.title}
             />
           {/if}

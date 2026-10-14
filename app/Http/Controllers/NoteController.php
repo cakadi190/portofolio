@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Note;
 use App\Models\Tag;
+use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
 use App\Services\SeoService;
 use App\Services\Visitors\PageViewCounter;
@@ -76,7 +77,7 @@ class NoteController extends Controller
                 'slug' => $note->slug,
                 'title' => $note->title,
                 'excerpt' => $note->excerpt,
-                'content' => HtmlSanitizer::clean($note->content),
+                'content' => ContentImageOptimizer::optimize(HtmlSanitizer::clean($note->content)),
                 'publishedAt' => $note->published_at,
                 'readingMinutes' => $note->readingMinutes(),
                 'views' => $this->views->forPath("/notes/{$note->slug}"),
