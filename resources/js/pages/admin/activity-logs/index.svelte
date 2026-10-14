@@ -3,6 +3,8 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import EmptyState from '@/components/empty-state.svelte';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
   import { Link, router } from '@inertiajs/svelte';
   import { index, show, exportMethod } from '@/wayfinder/routes/admin/activity-logs';
   import InfiniteFeed from '@/components/infinite-feed.svelte';
@@ -73,6 +75,12 @@
     return { ...result, ...extra };
   }
 
+  let filtersOpen = $state(false);
+
+  const activeFilterCount = $derived(
+    Object.entries(form).filter(([key, value]) => key !== 'search' && value !== '').length,
+  );
+
   function apply(event: Event): void {
     event.preventDefault();
     router.get(index().url, query(), { preserveState: true, replace: true });
@@ -101,11 +109,29 @@
 
 <AdminPageHeader title="Log Aktivitas" subtitle="Jejak audit tindakan penting pada situs. Hanya admin yang dapat melihat." />
 
-<form class="card card-body mb-3" onsubmit={apply}>
+<form class="activity-filter" onsubmit={apply}>
+  <div class="activity-filter-bar">
+    <input class="form-control" type="search" placeholder="Cari deskripsi, event, atau ID request" bind:value={form.search} aria-label="Cari" />
+    <button
+      class="btn btn-outline-secondary activity-filter-toggle"
+      type="button"
+      aria-expanded={filtersOpen}
+      aria-controls="activity-filter-panel"
+      onclick={() => (filtersOpen = !filtersOpen)}
+    >
+      <SlidersHorizontal size={16} aria-hidden="true" />
+      <span class="d-none d-sm-inline">Filter</span>
+      {#if activeFilterCount > 0}
+        <span class="badge text-bg-primary">{activeFilterCount}</span>
+      {/if}
+      <ChevronDown size={16} aria-hidden="true" class="activity-filter-chevron" />
+    </button>
+    <button class="btn btn-primary" type="submit">Terapkan</button>
+  </div>
+
+  {#if filtersOpen}
+  <div class="activity-filter-panel" id="activity-filter-panel">
   <div class="row g-2">
-    <div class="col-md-4">
-      <input class="form-control" type="search" placeholder="Cari deskripsi, event, atau ID request" bind:value={form.search} aria-label="Cari" />
-    </div>
     <div class="col-md-2">
       <Select
         ariaLabel="Kategori"
@@ -164,11 +190,12 @@
       <input class="form-control" type="datetime-local" bind:value={form.to} aria-label="Sampai" />
     </div>
   </div>
-  <div class="d-flex gap-2 mt-3">
-    <button class="btn btn-primary" type="submit">Terapkan</button>
-    <button class="btn btn-outline-secondary" type="button" onclick={reset}>Atur ulang</button>
-    <a class="btn btn-outline-secondary ms-auto" href={exportUrl}>Ekspor CSV (maks. 5.000)</a>
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      <button class="btn btn-outline-secondary" type="button" onclick={reset}>Atur ulang</button>
+      <a class="btn btn-outline-secondary ms-auto" href={exportUrl}>Ekspor CSV (maks. 5.000)</a>
+    </div>
   </div>
+  {/if}
 </form>
 
 {#if activities.data.length === 0}
@@ -215,3 +242,40 @@
 
   <small class="text-muted">{activities.data.length} dari {totalActivities}</small>
 {/if}
+
+<style>
+  .activity-filter {
+    position: sticky;
+    top: 68px;
+    z-index: 5;
+    margin: 0 0 1rem;
+    padding: 0.5rem 0;
+    background: var(--neo-surface-raised);
+  }
+  .activity-filter-bar {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .activity-filter-bar .form-control {
+    flex: 1;
+    min-width: 0;
+  }
+  .activity-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    white-space: nowrap;
+  }
+  .activity-filter-toggle[aria-expanded='true'] :global(.activity-filter-chevron) {
+    transform: rotate(180deg);
+  }
+  .activity-filter-panel {
+    max-height: calc(100svh - 12rem);
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--neo-border-color);
+    border-radius: var(--neo-border-radius-lg);
+    background: var(--neo-surface-inset);
+  }
+</style>
