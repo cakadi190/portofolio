@@ -104,7 +104,7 @@
   }
 </script>
 
-{#snippet card(engagement: Engagement)}
+{#snippet card(engagement: Engagement, eager = false)}
   <div class="col-md-6 col-lg-4 reveal reveal-spring reveal-bottom">
     <article
       class="card card-speaking h-100 overflow-hidden rounded-4"
@@ -124,7 +124,9 @@
             src={storageUrl(engagement.poster)}
             alt={`Poster ${engagement.title}`}
             class="card-img-top"
-            loading="lazy"
+            loading={eager ? 'eager' : 'lazy'}
+            fetchpriority={eager ? 'high' : undefined}
+            decoding="async"
           />
         </button>
       {/if}
@@ -135,7 +137,7 @@
         </div>
 
         <div>
-          <h5 class="card-title mb-1">{engagement.title}</h5>
+          <h2 class="h5 card-title mb-1">{engagement.title}</h2>
           <p class="mb-0 opacity-75">{engagement.organizer}</p>
         </div>
 
@@ -194,8 +196,8 @@
   <section class="need-space pt-0">
     <div class="container">
       <div class="row g-4">
-        {#each engagements as engagement (engagement.id)}
-          {@render card(engagement)}
+        {#each engagements as engagement, index (engagement.id)}
+          {@render card(engagement, index === 0)}
         {:else}
           <p class="opacity-75">Belum ada acara yang terarsip.</p>
         {/each}

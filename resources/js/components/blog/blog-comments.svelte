@@ -31,7 +31,7 @@
   class="mt-5 pt-5 border-top"
   aria-labelledby="komentar-title"
 >
-  <h3 id="komentar-title" class="mb-4">Komentar ({total})</h3>
+  <h2 id="komentar-title" class="h3 mb-4">Komentar ({total})</h2>
 
   {#if canComment}
     {#key formKey}

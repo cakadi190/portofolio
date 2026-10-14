@@ -114,13 +114,21 @@
     border-color: var(--neo-primary);
   }
 
+  // Past events are muted with a grayscale filter and a faded poster only;
+  // fading the whole card would drop its text below the AA contrast ratio.
   &.is-past {
-    opacity: 0.6;
     filter: grayscale(0.6);
 
+    .card-speaking-poster {
+      opacity: 0.75;
+    }
+
     &:hover {
-      opacity: 1;
       filter: none;
+
+      .card-speaking-poster {
+        opacity: 1;
+      }
     }
   }
 

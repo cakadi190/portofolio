@@ -55,13 +55,13 @@
       </div>
 
       <div id="portfolios">
-        <h3 class="mb-4">Portofolio {service.name}</h3>
+        <h2 class="h3 mb-4">Portofolio {service.name}</h2>
 
         {#if portfolios.length > 0}
           <div class="row">
-            {#each portfolios as portfolio (portfolio.slug)}
+            {#each portfolios as portfolio, index (portfolio.slug)}
               <div class="col-md-6 col-lg-4 mb-4">
-                <CardPortfolio {...portfolio} />
+                <CardPortfolio {...portfolio} eager={index === 0} />
               </div>
             {/each}
           </div>

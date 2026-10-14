@@ -68,6 +68,9 @@
                       <div class="bg-white rounded-circle p-3">
                         <img
                           loading="lazy"
+                          decoding="async"
+                          width="160"
+                          height="160"
                           src={item.logo ?? '/images/education/default.png'}
                           alt={item.logo ? item.name : 'KEMENDIKBUD'}
                           class="w-100 ratio ratio-1x1"
@@ -76,7 +79,7 @@
                     </div>
                     <div class="col-8 col-md-9">
                       <div class="card-body">
-                        <h3 class="card-title mb-2">{item.name}</h3>
+                        <h2 class="h3 card-title mb-2">{item.name}</h2>
                         <div class="card-text flex-wrap align-items-center d-flex gap-2 mb-3">
                           {#if item.department}
                             <span>
@@ -128,7 +131,7 @@
                   <div class="d-flex gap-3 align-items-start align-items-md-center">
                     <CircleCheck size={48} />
                     <div class="content">
-                      <h3>{org.name}</h3>
+                      <h2 class="h3">{org.name}</h2>
                       {#if org.description}
                         <p class="mb-0">{org.description}</p>
                       {/if}
@@ -145,7 +148,7 @@
         <div class="col-md-4">
           <div class="card sticky-top overflow-hidden rounded-4 reveal reveal-spring reveal-bottom">
             <div class="card-header p-4">
-              <h4 class="mb-0">Navigasi</h4>
+              <h2 class="h4 mb-0">Navigasi</h2>
             </div>
             <div class="card-body">
               <div class="nav nav-pills flex-column align-items-stretch">

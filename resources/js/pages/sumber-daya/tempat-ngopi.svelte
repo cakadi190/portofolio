@@ -141,9 +141,9 @@
           <div class="col-md-12 mx-auto">
             <InfiniteFeed data="places">
             <div class="row">
-              {#each places.data as place (place.id)}
+              {#each places.data as place, index (place.id)}
                 <div class="col-md-6 col-lg-4 mb-4">
-                  <CardCoffee {...place} />
+                  <CardCoffee {...place} eager={index === 0} />
                 </div>
               {/each}
             </div>

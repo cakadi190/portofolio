@@ -35,9 +35,9 @@
           <div class="col-md-12 mx-auto">
             <InfiniteFeed data="portfolios">
             <div class="row">
-              {#each portfolios.data as portfolio (portfolio.slug)}
+              {#each portfolios.data as portfolio, index (portfolio.slug)}
                 <div class="col-md-6 col-lg-4 mb-4">
-                  <CardPortfolio {...portfolio} />
+                  <CardPortfolio {...portfolio} eager={index === 0} />
                 </div>
               {/each}
             </div>

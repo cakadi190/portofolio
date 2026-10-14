@@ -11,6 +11,8 @@
     tags: string[];
     author?: string | null;
     href?: string;
+    /** First card of a list: loaded eagerly with high priority (LCP candidate). */
+    eager?: boolean;
   };
 
   let {
@@ -22,6 +24,7 @@
     tags,
     author = null,
     href = `/blog/${slug}`,
+    eager = false,
   }: Props = $props();
 
   const category = $derived(categories[0]);
@@ -30,7 +33,14 @@
 <div class="wrapper">
   <Link {href} class="card h-100 overflow-hidden rounded-4 card-blog">
     {#if coverImage}
-      <img loading="lazy" src={coverImage} class="rounded-3 card-img-top" alt={title} />
+      <img
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : undefined}
+        decoding="async"
+        src={coverImage}
+        class="rounded-3 card-img-top"
+        alt={title}
+      />
     {/if}
 
     <div class="card-body p-4">

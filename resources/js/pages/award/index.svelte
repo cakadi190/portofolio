@@ -47,12 +47,12 @@
                 />
               </div>
               <div class="content">
-                <h5 class="mb-1">
+                <h2 class="h5 mb-1">
                   {award.eventName}
                   {#if isNew(award.awardedAt)}
                     <span class="badge bg-success ms-2">Baru</span>
                   {/if}
-                </h5>
+                </h2>
                 <p class="mb-0 opacity-75">{award.title}</p>
               </div>
               <div class="year ms-auto badge p-2 px-3 fw-normal lh-1 bg-primary rounded-pill" style="font-size: 1rem">

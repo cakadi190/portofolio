@@ -33,7 +33,7 @@
     <div class="col-lg-4">
       <div class="card rounded-4">
         <div class="card-body">
-          <h5 class="mb-3">Informasi</h5>
+          <h2 class="h5 mb-3">Informasi</h2>
           <dl class="mb-0">
             {#each info as row (row.label)}
               <dt class="small opacity-75">{row.label}</dt>

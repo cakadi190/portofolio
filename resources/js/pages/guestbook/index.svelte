@@ -34,7 +34,7 @@
             </p>
           </div>
 
-          <h3 class="mb-4">Pesan ({totalEntries})</h3>
+          <h2 class="h3 mb-4">Pesan ({totalEntries})</h2>
 
           {#if entries.data.length}
             <InfiniteScroll data="entries" buffer={300}>

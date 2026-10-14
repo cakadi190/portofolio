@@ -36,7 +36,7 @@
                 <Briefcase size={48} />
               </div>
               <div class="content">
-                <h5 class="mb-1">{exp.position}</h5>
+                <h2 class="h5 mb-1">{exp.position}</h2>
                 <small class="text-muted">{exp.company} | {exp.location}</small>
                 <p class="mb-0">
                   {formatDate(exp.startDate)} - {exp.endDate ? formatDate(exp.endDate) : 'Sekarang'}

@@ -26,6 +26,8 @@
     priceTierColor: string | null;
     facilities: string[];
     galleries: { url: string; title: string | null }[];
+    /** First card of a list: loaded eagerly with high priority (LCP candidate). */
+    eager?: boolean;
   };
 
   let {
@@ -49,6 +51,7 @@
     priceTierColor,
     facilities,
     galleries,
+    eager = false,
   }: Props = $props();
 
   let lightboxOpen = $state(false);
@@ -96,17 +99,23 @@
     class="card h-100 overflow-hidden rounded-4 text-start bg-transparent p-0 w-100"
   >
     <div class="rounded-3 card-img-top">
-      <img loading="lazy" src={image ?? '/images/coffee-default.webp'} alt={name} />
+      <img
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : undefined}
+        decoding="async"
+        src={image ?? '/images/coffee-default.webp'}
+        alt={name}
+      />
     </div>
 
     <div class="card-body p-4">
       <div class="d-flex gap-2 mb-2 align-items-center justify-content-between">
-        <h5 class="card-title mb-0">
+        <h2 class="h5 card-title mb-0">
           <span class="me-2">{name}</span>
           {#if isRecommended}
             <ThumbsUp size={16} class="text-warning" />
           {/if}
-        </h5>
+        </h2>
       </div>
 
       <div class="metadata">

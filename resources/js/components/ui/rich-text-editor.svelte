@@ -1176,6 +1176,8 @@
         attributes: {
           class: 'rte-content wysiwyg-content-wrapper',
           spellcheck: 'true',
+          // The contenteditable textbox needs an accessible name.
+          'aria-label': placeholder || 'Editor teks',
         },
         handleKeyDown: (_view, event) => handleMenuKey(event),
         handleDOMEvents: {

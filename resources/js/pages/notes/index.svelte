@@ -75,7 +75,7 @@
                     <div
                       class="d-flex flex-wrap justify-content-between align-items-start gap-2"
                     >
-                      <h5 class="card-title mb-0">{note.title}</h5>
+                      <h2 class="h5 card-title mb-0">{note.title}</h2>
                       <small
                         class="opacity-75 d-inline-flex align-items-center gap-1"
                         title="Jumlah tayangan"

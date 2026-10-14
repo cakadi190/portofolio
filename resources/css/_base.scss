@@ -815,6 +815,32 @@ $base-grid-breakpoints:
   color: #15803d !important;
 }
 
+// Brand-green text and outlines sit on white at only 2.3:1; the light theme
+// swaps them for the darker green (dark mode keeps the bright one, which
+// contrasts well on near-black). Solid backgrounds are handled by
+// `$min-contrast-ratio` in app.scss, except `.badge`, which hard-codes white.
+[data-bs-theme='light'] {
+  .btn-outline-primary {
+    --#{$prefix}-btn-color: #15803d;
+    --#{$prefix}-btn-border-color: #15803d;
+    --#{$prefix}-btn-hover-bg: #15803d;
+    --#{$prefix}-btn-hover-border-color: #15803d;
+    --#{$prefix}-btn-hover-color: #fff;
+    --#{$prefix}-btn-active-bg: #15803d;
+    --#{$prefix}-btn-active-border-color: #15803d;
+    --#{$prefix}-btn-active-color: #fff;
+  }
+}
+
+.badge {
+  &.bg-primary,
+  &.bg-success,
+  &.bg-info,
+  &.bg-warning {
+    color: #000;
+  }
+}
+
 a {
   color: var(--neo-body-color);
   text-decoration: underline;

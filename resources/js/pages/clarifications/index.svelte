@@ -76,7 +76,7 @@
       {:else}
         <InfiniteFeed data="clarifications">
         <div class="row">
-          {#each clarifications.data as item (item.slug)}
+          {#each clarifications.data as item, index (item.slug)}
             <div class="col-md-6 col-lg-4 mb-4">
               <Link
                 href={show(item.slug).url}
@@ -84,7 +84,9 @@
               >
                 {#if item.coverImage}
                   <img
-                    loading="lazy"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchpriority={index === 0 ? 'high' : undefined}
+                    decoding="async"
                     src={item.coverImage}
                     class="rounded-3 card-img-top"
                     alt={item.title}
@@ -95,7 +97,7 @@
                   <div class="mb-2">
                     <VerdictBadge label={item.verdictLabel} color={item.verdictColor} />
                   </div>
-                  <h5 class="card-title">{item.title}</h5>
+                  <h2 class="h5 card-title">{item.title}</h2>
                   <p class="small opacity-75 fst-italic mb-2">
                     Klaim: “{item.claim}”
                   </p>

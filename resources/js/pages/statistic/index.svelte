@@ -82,7 +82,7 @@
       </div>
 
       {#each groups as group (group.key)}
-        <h4 class="mb-3">{group.label}</h4>
+        <h2 class="h4 mb-3">{group.label}</h2>
         <div class="table-responsive mb-5">
           <table class="table align-middle">
             <thead>

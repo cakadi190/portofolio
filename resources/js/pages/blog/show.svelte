@@ -150,7 +150,7 @@
               <div class="sticky-sidebar d-flex flex-column gap-4">
                 <div class="card rounded-4 overflow-hidden">
                   <div class="card-header p-4">
-                    <h4 class="mb-0">Artikel Lainnya</h4>
+                    <h2 class="h4 mb-0">Artikel Lainnya</h2>
                   </div>
                   {#if otherPosts.length}
                     <ul class="list-group list-group-flush">
@@ -174,7 +174,7 @@
 
                 <div class="card rounded-4 overflow-hidden">
                   <div class="card-header p-4">
-                    <h4 class="mb-0">Kategori</h4>
+                    <h2 class="h4 mb-0">Kategori</h2>
                   </div>
                   {#if categories.length}
                     <div class="card-body d-flex flex-wrap gap-2">
@@ -195,7 +195,7 @@
 
                 <div class="card rounded-4 overflow-hidden">
                   <div class="card-header p-4">
-                    <h4 class="mb-0">Tag</h4>
+                    <h2 class="h4 mb-0">Tag</h2>
                   </div>
                   {#if post.tags.length}
                     <div class="card-body d-flex flex-wrap gap-2">

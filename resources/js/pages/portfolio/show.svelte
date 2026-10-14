@@ -122,7 +122,7 @@
           <div class="row flex-column-reverse flex-md-row gy-5">
             <div class="col-md-8">
               <div class="mb-5">
-                <h3 id="description">Deskripsi Proyek</h3>
+                <h2 id="description" class="h3">Deskripsi Proyek</h2>
                 {#if portfolio.description}
                   <div
                     class="wysiwyg-content-wrapper"
@@ -137,7 +137,7 @@
               </div>
 
               <div class="mb-5">
-                <h3 id="techstack">Dibangun Dengan</h3>
+                <h2 id="techstack" class="h3">Dibangun Dengan</h2>
 
                 <div class="d-flex gap-3 align-items-center flex-wrap">
                   {#each portfolio.technologies as tech (tech)}
@@ -147,7 +147,7 @@
               </div>
 
               <div class="mb-5" id="gallery">
-                <h3>Galeri dan Pratinjau Proyek</h3>
+                <h2 class="h3">Galeri dan Pratinjau Proyek</h2>
 
                 {#if portfolio.galleries.length > 0}
                   <div class="row g-3">
@@ -193,7 +193,7 @@
               </div>
 
               <div id="rating">
-                <h3>Penilaian Proyek Ini</h3>
+                <h2 class="h3">Penilaian Proyek Ini</h2>
 
                 {#if reviewSummary.count > 0}
                   <p class="d-flex align-items-center gap-2 mb-4">
@@ -233,7 +233,7 @@
                               {/each}
                             </span>
                           </div>
-                          <h5 class="h6">{review.title}</h5>
+                          <h3 class="h6">{review.title}</h3>
                           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                           <div>{@html review.comment}</div>
                           {#if review.createdAt}
@@ -251,7 +251,7 @@
 
                 <div class="card rounded-4">
                   <div class="card-body p-4">
-                    <h4 class="h5">Tulis Ulasan</h4>
+                    <h3 class="h5">Tulis Ulasan</h3>
                     <p class="opacity-75">
                       Semua kolom bertanda <span class="text-danger">*</span> wajib
                       diisi. Ulasan tampil setelah ditinjau.
@@ -393,7 +393,7 @@
             <div class="col-md-4">
               <div class="card sticky-top rounded-4">
                 <div class="card-header p-4">
-                  <h4 class="mb-0">Navigasi</h4>
+                  <h2 class="h4 mb-0">Navigasi</h2>
                 </div>
                 <div class="card-body">
                   <ul class="nav nav-pills flex-column align-items-stretch">

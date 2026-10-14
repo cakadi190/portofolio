@@ -7,7 +7,7 @@
   import { show as showTag } from '@/wayfinder/routes/blog/tags';
   import type { BlogPostCard } from './types';
 
-  let { post }: { post: BlogPostCard } = $props();
+  let { post, eager = false }: { post: BlogPostCard; eager?: boolean } = $props();
 
   const category = $derived(post.categories[0]);
 </script>
@@ -23,7 +23,9 @@
   >
     {#if post.coverImage}
       <img
-        loading="lazy"
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : undefined}
+        decoding="async"
         src={post.coverImage}
         class="rounded-3 card-img-top"
         alt={post.title}

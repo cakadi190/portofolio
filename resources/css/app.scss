@@ -61,7 +61,7 @@
   $cyan: #00a3ff,
 
   $primary: #22c55e,
-  $secondary: #95a4b8,
+  $secondary: #5f6f86,
   $success: #02b875,
   $info: #00a3ff,
   $warning: #ff9f1c,
@@ -75,7 +75,9 @@
   // (`#010016`) the catatancakadi Nuxt source actually renders in dark mode.
   $body-bg-dark: #090e18,
 
-  $min-contrast-ratio: 1.85,
+  // Bootstrap's default WCAG AA ratio: it makes solid buttons/badges use dark
+  // text on the light brand green, whose white-text contrast is only 2.3:1.
+  $min-contrast-ratio: 4.5,
 
   $border-color: rgba(#000000, 0.0875),
   $border-color-translucent: rgba(#000000, 0.075),

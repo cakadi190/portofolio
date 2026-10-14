@@ -143,7 +143,7 @@
           </div>
 
           <div id="history" class="pb-4 mb-4 border-bottom">
-            <h4>Sejarah Singkat</h4>
+            <h2 class="h4">Sejarah Singkat</h2>
 
             <p>
               Perjalanan saya sebagai programmer dimulai secara tidak sengaja pada pertengahan 2015 saat
@@ -172,7 +172,7 @@
           </div>
 
           <div id="skills" class="pb-5 mb-5 border-bottom">
-            <h4>Keahlian Saya</h4>
+            <h2 class="h4">Keahlian Saya</h2>
             <p class="opacity-75 mb-5">Keahlian profesional saya.</p>
 
             <div class="skill-main-wrapper">
@@ -186,7 +186,7 @@
           </div>
 
           <div id="certification">
-            <h4>Sertifikasi Saya</h4>
+            <h2 class="h4">Sertifikasi Saya</h2>
             {#if certifications.length === 0}
               <p class="opacity-75 mb-0">Belum ada sertifikasi yang ditambahkan saat ini.</p>
             {:else}
@@ -199,7 +199,7 @@
                       <div
                         class="card-body d-flex align-items-center justify-content-between gap-3"
                       >
-                        <h5 class="mb-0">{certification.title}</h5>
+                        <h3 class="h5 mb-0">{certification.title}</h3>
                         <Link
                           href={certification.pageUrl}
                           class="btn btn-sm btn-primary flex-shrink-0 d-none d-md-inline-block"
@@ -227,7 +227,7 @@
             style="--reveal-y: 40px; --reveal-duration: .35s"
           >
             <div class="card-header p-4">
-              <h4 class="mb-0">Navigasi</h4>
+              <h2 class="h4 mb-0">Navigasi</h2>
             </div>
             <div class="card-body">
               <ul class="nav nav-pills flex-column align-items-stretch">

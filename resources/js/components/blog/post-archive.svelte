@@ -21,9 +21,9 @@
 {:else}
   <InfiniteFeed data="posts">
     <div class="row">
-      {#each posts.data as post (post.slug)}
+      {#each posts.data as post, index (post.slug)}
         <div class="col-md-6 col-lg-4 mb-4">
-          <PostCard {post} />
+          <PostCard {post} eager={index === 0} />
         </div>
       {/each}
     </div>

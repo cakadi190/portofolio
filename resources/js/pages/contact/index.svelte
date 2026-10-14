@@ -58,7 +58,7 @@
           </div>
 
           <div class="mt-4 border-top pt-4" id="information">
-            <h4 class="mb-3">Informasi Kontak</h4>
+            <h2 class="h4 mb-3">Informasi Kontak</h2>
 
             <div class="card mb-4 overflow-hidden">
               <div class="table-responsive">
@@ -103,7 +103,7 @@
           </div>
 
           <div class="mt-4 border-top pt-4" id="socmed">
-            <h4 class="mb-3">Sosial Media</h4>
+            <h2 class="h4 mb-3">Sosial Media</h2>
             <p>
               Kalau kamu mau cari semua sosial mediaku, kamu bisa menggunakan pencarian
               <strong>@cakadi190 / @cakadi.id</strong> yang mana itu adalah nama pengguna di hampir semua
@@ -146,7 +146,7 @@
           </div>
 
           <div class="border-top pt-4 mt-4" id="form-contact">
-            <h3>Atau Kirim Pesan Melalui Form Ini</h3>
+            <h2 class="h3">Atau Kirim Pesan Melalui Form Ini</h2>
             <p class="opacity-75">
               Gunakan formulir dibawah ini dan terhubung dengan saya supaya lebih kenal, akrab dan bisa
               dapet proyek dadakan dari saya. Mohon jangan kirimkan pesan lebih dari 5x, karena bisa
@@ -222,7 +222,7 @@
         <div class="col-md-4">
           <div class="card sticky-top rounded-4 overflow-hidden">
             <div class="card-header p-4">
-              <h4 class="mb-0">Navigasi</h4>
+              <h2 class="h4 mb-0">Navigasi</h2>
             </div>
             <div class="card-body">
               <ul class="nav nav-pills flex-column align-items-stretch">
