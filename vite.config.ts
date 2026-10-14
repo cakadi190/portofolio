@@ -79,7 +79,7 @@ export default defineConfig({
                   // they stop competing with the LCP image and CSS.
                   bunny('Signika', {
                     weights: [400, 500, 600, 700],
-                    preload: [{ weight: 400 }, { weight: 600 }],
+                    preload: false,
                   }),
                   bunny('Roboto Slab', {
                     weights: [400, 500, 600],
