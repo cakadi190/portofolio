@@ -229,39 +229,41 @@
             profesional. Lihat <a href="/disclaimer">penyangkalan</a>.
           </p>
 
-          <nav
-            class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-5 pt-4 border-top"
-            aria-label="Navigasi artikel"
-          >
-            {#if adjacent.previous}
-              <Link
-                href={`/blog/${adjacent.previous.slug}`}
-                class="btn btn-outline-secondary d-flex align-items-center gap-2 text-start"
-                rel="prev"
-              >
-                <ChevronLeft size={18} />
-                <span>
-                  <small class="d-block opacity-75">Artikel sebelumnya</small>
-                  {adjacent.previous.title}
-                </span>
-              </Link>
-            {:else}
-              <span></span>
-            {/if}
-            {#if adjacent.next}
-              <Link
-                href={`/blog/${adjacent.next.slug}`}
-                class="btn btn-outline-secondary d-flex align-items-center justify-content-end gap-2 text-end"
-                rel="next"
-              >
-                <span>
-                  <small class="d-block opacity-75">Artikel berikutnya</small>
-                  {adjacent.next.title}
-                </span>
-                <ChevronRight size={18} />
-              </Link>
-            {/if}
-          </nav>
+          {#if adjacent.previous || adjacent.next}
+            <nav
+              class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-5 pt-4 border-top"
+              aria-label="Navigasi artikel"
+            >
+              {#if adjacent.previous}
+                <Link
+                  href={`/blog/${adjacent.previous.slug}`}
+                  class="btn btn-outline-secondary d-flex align-items-center gap-2 text-start"
+                  rel="prev"
+                >
+                  <ChevronLeft size={18} />
+                  <span>
+                    <small class="d-block opacity-75">Artikel sebelumnya</small>
+                    {adjacent.previous.title}
+                  </span>
+                </Link>
+              {:else}
+                <span></span>
+              {/if}
+              {#if adjacent.next}
+                <Link
+                  href={`/blog/${adjacent.next.slug}`}
+                  class="btn btn-outline-secondary d-flex align-items-center justify-content-end gap-2 text-end"
+                  rel="next"
+                >
+                  <span>
+                    <small class="d-block opacity-75">Artikel berikutnya</small>
+                    {adjacent.next.title}
+                  </span>
+                  <ChevronRight size={18} />
+                </Link>
+              {/if}
+            </nav>
+          {/if}
 
           <BlogComments {comments} total={totalComments} postSlug={post.slug} />
         </div>

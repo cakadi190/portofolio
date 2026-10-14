@@ -496,6 +496,29 @@ describe('BlogShow', () => {
     expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe('/blog');
   });
 
+  it('hides the previous/next navigation when the post has no neighbours', () => {
+    const props = { post, comments: { data: [] }, totalComments: 0 };
+
+    render(BlogShow, {
+      ...props,
+      ...sidebar,
+      adjacent: { previous: null, next: null },
+    });
+
+    expect(screen.queryByRole('navigation', { name: 'Navigasi artikel' })).toBeNull();
+  });
+
+  it('shows the previous/next navigation when a neighbour exists', () => {
+    render(BlogShow, {
+      post,
+      comments: { data: [] },
+      totalComments: 0,
+      ...sidebar,
+    });
+
+    expect(screen.getByRole('navigation', { name: 'Navigasi artikel' })).toBeTruthy();
+  });
+
   it('shows the edit button only when the server provides an edit url', () => {
     render(BlogShow, {
       post: { ...post, editUrl: '/admin/posts/7/edit' },
