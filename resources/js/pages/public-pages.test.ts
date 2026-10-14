@@ -490,7 +490,7 @@ describe('BlogShow', () => {
     expect(hrefOf(screen.getByRole('link', { name: 'Cakadi' }))).toBe(
       '/blog/authors/cakadi',
     );
-    expect(screen.queryByRole('link', { name: /Edit Artikel/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Edit artikel/i })).toBeNull();
     expect(screen.getAllByText(/2024/).length).toBeGreaterThan(0);
     expect(document.querySelector('code.hljs')).not.toBeNull();
     expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe('/blog');
@@ -527,7 +527,7 @@ describe('BlogShow', () => {
       ...sidebar,
     });
 
-    expect(hrefOf(screen.getByRole('link', { name: /Edit Artikel/ }))).toBe(
+    expect(hrefOf(screen.getByRole('link', { name: /Edit artikel/i }))).toBe(
       '/admin/posts/7/edit',
     );
   });
