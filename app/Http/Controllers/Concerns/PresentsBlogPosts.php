@@ -15,7 +15,7 @@ trait PresentsBlogPosts
      */
     protected function cardRelations(): array
     {
-        return ['categories:id,name,slug,color', 'tags:id,name,slug', 'author:id,name,slug'];
+        return ['categories:id,name,slug,color', 'tags:id,name,slug', 'author:id,name,slug,avatar'];
     }
 
     /**

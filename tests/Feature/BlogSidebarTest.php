@@ -2,6 +2,7 @@
 
 use App\Models\Post;
 use App\Models\PostCategory;
+use App\Models\User;
 
 test('the sidebar lists five other published posts, never the current or a draft', function () {
     $current = Post::factory()->create(['published_at' => now()->subDay()]);
@@ -53,4 +54,13 @@ test('the blog list can be narrowed to one category', function () {
         ->has('posts.data', 1)
         ->where('posts.data.0.title', 'Dalam kategori')
         ->where('activeCategory.name', 'Teknologi'));
+});
+
+test('the post detail payload carries the author avatar', function () {
+    $author = User::factory()->create(['avatar' => 'avatars/penulis.webp']);
+    $post = Post::factory()->create(['user_id' => $author->id, 'is_published' => true, 'published_at' => now()->subDay()]);
+
+    $this->get(route('blog.show', $post))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('post.author.avatar', 'avatars/penulis.webp'));
 });
