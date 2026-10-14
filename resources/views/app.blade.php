@@ -78,7 +78,7 @@
             @unless ($isCertificationViewer)
                 <link rel="preload" as="fetch" href="{{ request()->route('profile') ? route('resume.profile.pdf', request()->route('profile')) : route('resume.pdf') }}" crossorigin="use-credentials">
             @endunless
-            <style>
+            <style id="pdf-viewer-preboot">
                 html, body { height: 100%; margin: 0; overflow: hidden; }
                 body { background: var(--neo-tertiary-bg, #f1f5f9); }
                 #app:empty::before { display: block; height: 3.75rem; content: ''; background: #22c55e; }

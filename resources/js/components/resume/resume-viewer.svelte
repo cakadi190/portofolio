@@ -1,12 +1,8 @@
 <script lang="ts">
   import { flushSync, onMount, tick } from 'svelte';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-  import Copy from '@lucide/svelte/icons/copy';
-  import TextCursor from '@lucide/svelte/icons/text-cursor';
-  import SquareDashed from '@lucide/svelte/icons/square-dashed-mouse-pointer';
   import Check from '@lucide/svelte/icons/check';
   import LinkIcon from '@lucide/svelte/icons/link';
-  import ImageIcon from '@lucide/svelte/icons/image';
   import Download from '@lucide/svelte/icons/download';
   import List from '@lucide/svelte/icons/list';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
@@ -14,6 +10,7 @@
   import Minus from '@lucide/svelte/icons/minus';
   import Plus from '@lucide/svelte/icons/plus';
   import MoveHorizontal from '@lucide/svelte/icons/move-horizontal';
+  import MoreVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import Maximize from '@lucide/svelte/icons/maximize';
   import Search from '@lucide/svelte/icons/search';
   import Moon from '@lucide/svelte/icons/moon';
@@ -35,7 +32,6 @@
   type OutlineItem = { title: string; page: number; depth: number };
   type Hit = { page: number; rects: Rect[]; snippet: string; source: 'text' | 'ocr' };
   type TextRun = { str: string; transform: number[]; width: number; height: number };
-  type Box = { page: number; left: number; top: number; width: number; height: number };
   type PageLink = { rect: Rect; url?: string; page?: number };
 
   let {
@@ -65,7 +61,6 @@
 
   let status = $state<'loading' | 'ready' | 'error'>('loading');
   let fitted = $state(false);
-  let tool = $state<'text' | 'area'>('text');
   let tab = $state<Tab>('info');
   let zoom = $state(1);
   let zoomMode = $state<ZoomMode>('fit-width');
@@ -78,9 +73,6 @@
   let hits = $state<Hit[]>([]);
   let searched = $state(false);
   let searching = $state(false);
-  let drag = $state<Box | null>(null);
-  let selection = $state<(Box & { text: string; busy: boolean }) | null>(null);
-  let note = $state('');
   let sidebar = $state(typeof window !== 'undefined' && window.innerWidth >= 992);
   let searchInput = $state<HTMLInputElement | null>(null);
   let activeHit = $state(-1);
@@ -91,8 +83,6 @@
   const textCache = new Map<number, PageWord[]>();
   const textRendered = new Set<number>();
   let pdfjsModule: typeof import('pdfjs-dist') | null = null;
-  let dragOrigin: { x: number; y: number } | null = null;
-  let selectionId = 0;
   let pages = $state.raw<PDFPageProxy[]>([]);
   let scroller = $state<HTMLElement | null>(null);
 
@@ -512,7 +502,7 @@
       Array.from(event.touches).map((touch) => ({ x: touch.clientX, y: touch.clientY }));
 
     const onStart = (event: TouchEvent): void => {
-      if (event.touches.length === 2 && !drag) {
+      if (event.touches.length === 2) {
         const [a, b] = points(event);
         start = { distance: distanceBetween(a, b), zoom: zoomTarget };
       }
@@ -697,149 +687,7 @@
     return `left:${(left - minX) * zoom}px;top:${(maxY - top) * zoom}px;width:${(right - left) * zoom}px;height:${(top - bottom) * zoom}px`;
   };
 
-  const pageWords = async (number: number): Promise<PageWord[]> => {
-    let words = textCache.get(number);
-
-    if (!words) {
-      const content = await pages[number - 1].getTextContent();
-      words = textRunsToWords((content.items as unknown[]).filter((item): item is TextRun => typeof (item as TextRun).str === 'string'));
-      textCache.set(number, words);
-    }
-
-    if (words.reduce((total, word) => total + word.text.length, 0) >= 30) {
-      return words;
-    }
-
-    return ocrWords(await ocrCache.get(number, pages[number - 1]).catch(() => [] as OcrLine[]));
-  };
-
   const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
-
-  const sheetPoint = (event: PointerEvent, sheet: HTMLElement): { x: number; y: number } => {
-    const rect = sheet.getBoundingClientRect();
-
-    return { x: clamp(event.clientX - rect.left, 0, rect.width), y: clamp(event.clientY - rect.top, 0, rect.height) };
-  };
-
-  const startDrag = (event: PointerEvent, number: number): void => {
-    const target = event.target as HTMLElement;
-
-    if (tool !== 'area' || event.button !== 0 || event.pointerType === 'touch' || target.closest('.rv-link, .rv-sel-actions')) {
-      return;
-    }
-
-    window.getSelection()?.removeAllRanges();
-    const sheet = event.currentTarget as HTMLElement;
-    sheet.setPointerCapture(event.pointerId);
-    dragOrigin = sheetPoint(event, sheet);
-    selection = null;
-    note = '';
-    drag = { page: number, left: dragOrigin.x, top: dragOrigin.y, width: 0, height: 0 };
-  };
-
-  const moveDrag = (event: PointerEvent, number: number): void => {
-    if (!dragOrigin) {
-      return;
-    }
-
-    const point = sheetPoint(event, event.currentTarget as HTMLElement);
-    drag = {
-      page: number,
-      left: Math.min(dragOrigin.x, point.x),
-      top: Math.min(dragOrigin.y, point.y),
-      width: Math.abs(point.x - dragOrigin.x),
-      height: Math.abs(point.y - dragOrigin.y),
-    };
-  };
-
-  const endDrag = async (number: number): Promise<void> => {
-    const box = drag;
-    dragOrigin = null;
-    drag = null;
-
-    if (!box || box.width < 6 || box.height < 6) {
-      return;
-    }
-
-    const id = ++selectionId;
-    selection = { ...box, text: '', busy: true };
-
-    const [minX, , , maxY] = pages[number - 1].view;
-    const left = box.left / zoom + minX;
-    const right = (box.left + box.width) / zoom + minX;
-    const top = maxY - box.top / zoom;
-    const bottom = maxY - (box.top + box.height) / zoom;
-    const picked = (await pageWords(number)).filter((word) => {
-      const x = (word.rect[0] + word.rect[2]) / 2;
-      const y = (word.rect[1] + word.rect[3]) / 2;
-
-      return x >= left && x <= right && y >= bottom && y <= top;
-    });
-    let text = '';
-    let line = -1;
-
-    for (const word of picked) {
-      text += (text === '' ? '' : word.line !== line ? '\n' : ' ') + word.text;
-      line = word.line;
-    }
-
-    if (id === selectionId && selection) {
-      selection = { ...selection, text, busy: false };
-    }
-  };
-
-  const flash = (message: string): void => {
-    note = message;
-    setTimeout(() => (note = ''), 2000);
-  };
-
-  const copySelectionText = async (): Promise<void> => {
-    if (!selection?.text) {
-      flash('Tidak ada teks di area ini');
-
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(selection.text);
-      flash('Teks tersalin');
-    } catch {
-      flash('Gagal menyalin');
-    }
-  };
-
-  const copySelectionImage = async (): Promise<void> => {
-    const box = selection;
-    const canvas = box ? canvases.get(box.page) : undefined;
-
-    if (!box || !canvas) {
-      return;
-    }
-
-    const factor = canvas.width / (canvas.parentElement as HTMLElement).clientWidth;
-    const crop = document.createElement('canvas');
-    crop.width = Math.max(1, Math.round(box.width * factor));
-    crop.height = Math.max(1, Math.round(box.height * factor));
-    crop.getContext('2d')?.drawImage(canvas, box.left * factor, box.top * factor, box.width * factor, box.height * factor, 0, 0, crop.width, crop.height);
-
-    const blob = await new Promise<Blob | null>((resolve) => crop.toBlob(resolve, 'image/png'));
-
-    if (!blob) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      flash('Gambar tersalin');
-    } catch {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'cuplikan-cv.png';
-      link.click();
-      URL.revokeObjectURL(link.href);
-      flash('Gambar diunduh');
-    }
-  };
 
   const focusSearch = async (): Promise<void> => {
     sidebar = true;
@@ -858,17 +706,7 @@
     }
 
     if (event.key === 'Escape') {
-      selection = null;
-      drag = null;
-      dragOrigin = null;
     }
-  };
-
-  const bubbleStyle = (box: Box): string => {
-    const height = (pages[box.page - 1].view[3] - pages[box.page - 1].view[1]) * zoom;
-    const below = box.top + box.height + 52 <= height;
-
-    return `left:${box.left}px;top:${below ? box.top + box.height + 8 : Math.max(0, box.top - 46)}px`;
   };
 
   const loadLinks = async (pdf: PDFDocumentProxy, loaded: PDFPageProxy[]): Promise<void> => {
@@ -1032,7 +870,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="rv" class:rv-fitted={fitted} data-tool={tool} data-zoom-mode={zoomMode}>
+<div class="rv" class:rv-fitted={fitted} data-zoom-mode={zoomMode}>
   <header class="rv-bar">
     <button type="button" class="rv-back" onclick={onclose} aria-label="Kembali" data-tip="Kembali">
       <ArrowLeft size={18} /><span class="rv-label">Kembali</span>
@@ -1061,16 +899,16 @@
       </div>
 
       <div class="rv-group">
-        <button type="button" class="rv-icon" class:on={tool === 'text'} aria-pressed={tool === 'text'} onclick={() => { tool = 'text'; selection = null; drag = null; }} aria-label="Pilih teks" data-tip="Pilih teks"><TextCursor size={16} /></button>
-        <button type="button" class="rv-icon" class:on={tool === 'area'} aria-pressed={tool === 'area'} onclick={() => { tool = 'area'; window.getSelection()?.removeAllRanges(); }} aria-label="Pilih area" data-tip="Pilih area (kotak)"><SquareDashed size={16} /></button>
-      </div>
-
-      <div class="rv-group">
         <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label="Perkecil" data-tip="Perkecil" data-zoom-out><Minus size={14} /></button>
         <span class="rv-page" data-zoom-value aria-live="polite" data-tip={MODE_LABELS[zoomMode]}>{Math.round(zoom * 100)}%</span>
         <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label="Perbesar" data-tip="Perbesar" data-zoom-in><Plus size={14} /></button>
-        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-width'} aria-pressed={zoomMode === 'fit-width'} onclick={() => applyFit('fit-width')} aria-label="Sesuai lebar" data-tip="Sesuai lebar"><MoveHorizontal size={16} /></button>
-        <button type="button" class="rv-icon" class:on={zoomMode === 'fit-page'} aria-pressed={zoomMode === 'fit-page'} onclick={() => applyFit('fit-page')} aria-label="Sesuai halaman" data-tip="Sesuai halaman"><Maximize size={15} /></button>
+        <div class="dropdown dropup">
+          <button type="button" class="rv-icon" data-bs-toggle="dropdown" data-bs-offset="0,12" aria-expanded="false" aria-label="Opsi zoom" data-tip="Opsi zoom"><MoreVertical size={16} /></button>
+          <ul class="dropdown-menu dropdown-menu-end rv-zoommenu">
+            <li><button type="button" class="dropdown-item" class:active={zoomMode === 'fit-width'} onclick={() => applyFit('fit-width')}><MoveHorizontal size={16} /> Sesuai lebar</button></li>
+            <li><button type="button" class="dropdown-item" class:active={zoomMode === 'fit-page'} onclick={() => applyFit('fit-page')}><Maximize size={15} /> Sesuai halaman</button></li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -1159,10 +997,6 @@
             style:width="{size.width}px"
             style:height="{size.height}px"
             style:margin-bottom="{GAP}px"
-            onpointerdown={(event) => startDrag(event, index + 1)}
-            onpointermove={(event) => moveDrag(event, index + 1)}
-            onpointerup={() => void endDrag(index + 1)}
-            onpointercancel={() => void endDrag(index + 1)}
           >
             <canvas use:track={index + 1}></canvas>
             <div class="rv-text" style:transform="scale({zoom})" style:width="{page.view[2] - page.view[0]}px" style:height="{page.view[3] - page.view[1]}px"></div>
@@ -1180,22 +1014,6 @@
                 <button type="button" class="rv-link" aria-label="Ke halaman {link.page}" onclick={() => goTo(link.page ?? 1)} style={boxStyle(index + 1, link.rect)}></button>
               {/if}
             {/each}
-            {#if drag?.page === index + 1}
-              <div class="rv-marquee" style="left:{drag.left}px;top:{drag.top}px;width:{drag.width}px;height:{drag.height}px"></div>
-            {/if}
-            {#if selection?.page === index + 1}
-              <div class="rv-marquee" style="left:{selection.left}px;top:{selection.top}px;width:{selection.width}px;height:{selection.height}px"></div>
-              <div class="rv-sel-actions" style={bubbleStyle(selection)} role="toolbar" tabindex="-1" onpointerdown={(event) => event.stopPropagation()}>
-                {#if note}
-                  <span class="rv-note">{note}</span>
-                {:else if selection.busy}
-                  <span class="rv-note">Membaca area…</span>
-                {:else}
-                  <button type="button" onclick={copySelectionText}><Copy size={14} /> Salin teks</button>
-                  <button type="button" onclick={copySelectionImage}><ImageIcon size={14} /> Salin gambar</button>
-                {/if}
-              </div>
-            {/if}
           </div>
         {/each}
       {/if}
@@ -1279,13 +1097,7 @@
   .rv-text :global(.endOfContent) { position: absolute; inset: 100% 0 0; display: block; cursor: default; user-select: none; }
   .rv-text:global(.selecting) :global(.endOfContent) { top: 0; }
   .rv-sheet canvas { user-select: none; }
-  .rv[data-tool='area'] .rv-text { pointer-events: none; }
-  .rv[data-tool='area'] .rv-sheet { cursor: crosshair; }
-  .rv-marquee { position: absolute; z-index: 2; pointer-events: none; background: rgba(var(--neo-primary-rgb), 0.1); border: 1.5px dashed var(--neo-primary); }
-  .rv-sel-actions { position: absolute; z-index: 3; display: flex; gap: 0.25rem; padding: 0.25rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 0.5rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); cursor: default; }
-  .rv-sel-actions button { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.625rem; font-size: 0.8rem; font-weight: 600; color: inherit; white-space: nowrap; cursor: pointer; background: transparent; border: 0; border-radius: 0.375rem; }
-  .rv-sel-actions button:hover { background: var(--neo-primary-bg-subtle); }
-  .rv-note { padding: 0.375rem 0.625rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+  .rv-zoommenu .dropdown-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
   .rv-icon.on { background: rgba(255, 255, 255, 0.28); }
   .rv-state { margin-top: 3rem; text-align: center; color: var(--neo-secondary-color); }
 
