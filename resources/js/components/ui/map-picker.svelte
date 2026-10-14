@@ -1,6 +1,6 @@
 <script lang="ts">
   import 'leaflet/dist/leaflet.css';
-  import L from 'leaflet';
+  import type * as Leaflet from 'leaflet';
   import markerIcon from 'leaflet/dist/images/marker-icon.png';
   import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
   import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -27,7 +27,7 @@
     longitudeError?: string;
   } = $props();
 
-  const DEFAULT_CENTER: L.LatLngTuple = [-2.5489, 118.0149];
+  const DEFAULT_CENTER: Leaflet.LatLngTuple = [-2.5489, 118.0149];
   const DEFAULT_ZOOM = 5;
   const PLACED_ZOOM = 16;
 
@@ -36,8 +36,11 @@
   // svelte-ignore state_referenced_locally
   let lng = $state<string>(longitude === null ? '' : String(longitude));
   let container: HTMLDivElement;
-  let map: L.Map | undefined;
-  let marker: L.Marker | undefined;
+  // Leaflet touches `window` when evaluated, so it is imported on the client
+  // only (a static import would crash the Inertia SSR render).
+  let L: typeof Leaflet | undefined;
+  let map: Leaflet.Map | undefined;
+  let marker: Leaflet.Marker | undefined;
 
   function parseCoordinate(raw: string, limit: number): number | null {
     if (raw.trim() === '') {
@@ -56,7 +59,7 @@
   }
 
   function syncMarker(recenter: boolean): void {
-    if (!map) {
+    if (!map || !L) {
       return;
     }
 
@@ -70,7 +73,7 @@
       return;
     }
 
-    const position: L.LatLngTuple = [latValue, lngValue];
+    const position: Leaflet.LatLngTuple = [latValue, lngValue];
 
     if (marker) {
       marker.setLatLng(position);
@@ -95,33 +98,44 @@
   }
 
   onMount(() => {
-    L.Marker.prototype.options.icon = L.icon({
-      iconUrl: markerIcon,
-      iconRetinaUrl: markerIcon2x,
-      shadowUrl: markerShadow,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      shadowSize: [41, 41],
+    let disposed = false;
+    let observer: ResizeObserver | undefined;
+
+    void import('leaflet').then(({ default: leaflet }) => {
+      if (disposed) {
+        return;
+      }
+
+      L = leaflet;
+      L.Marker.prototype.options.icon = L.icon({
+        iconUrl: markerIcon,
+        iconRetinaUrl: markerIcon2x,
+        shadowUrl: markerShadow,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        shadowSize: [41, 41],
+      });
+
+      map = L.map(container, { center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM });
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap',
+      }).addTo(map);
+
+      map.on('click', (event: Leaflet.LeafletMouseEvent) => {
+        setCoordinates(event.latlng.lat, event.latlng.lng);
+      });
+
+      syncMarker(true);
+
+      observer = new ResizeObserver(() => map?.invalidateSize());
+      observer.observe(container);
     });
-
-    map = L.map(container, { center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM });
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap',
-    }).addTo(map);
-
-    map.on('click', (event: L.LeafletMouseEvent) => {
-      setCoordinates(event.latlng.lat, event.latlng.lng);
-    });
-
-    syncMarker(true);
-
-    const observer = new ResizeObserver(() => map?.invalidateSize());
-    observer.observe(container);
 
     return () => {
-      observer.disconnect();
+      disposed = true;
+      observer?.disconnect();
       map?.remove();
       map = undefined;
       marker = undefined;

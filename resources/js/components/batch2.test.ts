@@ -240,7 +240,7 @@ describe('CardPortfolio', () => {
 });
 
 describe('CoffeeMap', () => {
-  it('renders an accessible map container', () => {
+  it('renders an accessible map container', async () => {
     vi.stubGlobal(
       'ResizeObserver',
       class {
@@ -252,7 +252,10 @@ describe('CoffeeMap', () => {
     render(CoffeeMap, { latitude: '-7.4', longitude: 111.4, label: 'Kopi' });
 
     expect(screen.getByLabelText('Peta lokasi Kopi')).toBeTruthy();
-    expect(document.querySelector('.leaflet-container')).not.toBeNull();
+    // Leaflet is imported on the client only, so the map mounts asynchronously.
+    await vi.waitFor(() =>
+      expect(document.querySelector('.leaflet-container')).not.toBeNull(),
+    );
   });
 });
 

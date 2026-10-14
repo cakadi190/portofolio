@@ -106,14 +106,15 @@ describe('TimePicker', () => {
 });
 
 describe('MapPicker', () => {
-  it('renders the map and coordinate fields with initial values', () => {
+  it('renders the map and coordinate fields with initial values', async () => {
     render(MapPicker, { idPrefix: 'cp', latitude: -7.4, longitude: '111.4' });
 
     expect(screen.getByLabelText('Peta pemilih lokasi')).toBeTruthy();
     expect((screen.getByLabelText('Latitude') as HTMLInputElement).value).toBe('-7.4');
     expect((screen.getByLabelText('Longitude') as HTMLInputElement).value).toBe('111.4');
+    // Leaflet is imported on the client only, so the map mounts asynchronously.
+    await vi.waitFor(() => expect(document.querySelector('.leaflet-marker-icon')).not.toBeNull());
     expect(document.querySelector('.leaflet-container')).not.toBeNull();
-    expect(document.querySelector('.leaflet-marker-icon')).not.toBeNull();
   });
 
   it('places no marker without coordinates', () => {
@@ -124,6 +125,7 @@ describe('MapPicker', () => {
 
   it('follows typed coordinates and drops the marker for invalid input', async () => {
     render(MapPicker, { idPrefix: 'cp' });
+    await vi.waitFor(() => expect(document.querySelector('.leaflet-container')).not.toBeNull());
 
     await fireEvent.input(screen.getByLabelText('Latitude'), { target: { value: '-6.2' } });
     await fireEvent.input(screen.getByLabelText('Longitude'), { target: { value: '106.8' } });
