@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SystemSettingGroup;
 use App\Models\Media;
 use App\Models\SystemSetting;
 use App\Models\User;
@@ -93,4 +94,20 @@ test('seo settings reject malformed ids and unknown media', function () {
             'facebook_app_id' => 'abc',
         ])
         ->assertSessionHasErrors(['seo_image', 'google_analytics_id', 'facebook_app_id']);
+});
+
+test('toggles that are on by default declare it so an unsaved form does not switch them off', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.system-settings.index'))
+        ->assertInertia(function ($page) {
+            $fields = collect($page->toArray()['props']['groups'])->pluck('fields')->flatten(1)->keyBy('key');
+
+            expect($fields['visitor_store_ip']['default'])->toBeTrue()
+                ->and($fields['visitor_tracking_enabled']['default'])->toBeTrue()
+                ->and($fields['ipinfo_enabled'])->not->toHaveKey('default');
+        });
+});
+
+test('the monitoring tab is labelled Sentry', function () {
+    expect(SystemSettingGroup::Monitoring->label())->toBe('Sentry');
 });

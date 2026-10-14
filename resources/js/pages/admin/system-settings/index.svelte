@@ -25,6 +25,8 @@
     type: string;
     placeholder: string;
     note?: string;
+    /** Value shown for a toggle that has never been saved. */
+    default?: boolean;
     min?: number;
     max?: number;
     options?: { value: string; label: string }[];
@@ -136,7 +138,7 @@
                         {:else if field.type === 'toggle'}
                           <input type="hidden" name={field.key} value="0" />
                           <div class="form-check form-switch d-flex align-items-center gap-2 ps-0">
-                            <input class="form-check-input ms-0 mt-0 flex-shrink-0" type="checkbox" role="switch" id={`setting-${field.key}`} name={field.key} value="1" checked={values[field.key] === '1'} />
+                            <input class="form-check-input ms-0 mt-0 flex-shrink-0" type="checkbox" role="switch" id={`setting-${field.key}`} name={field.key} value="1" checked={(values[field.key] ?? (field.default ? '1' : '0')) === '1'} />
                             <label class="form-check-label fw-semibold" for={`setting-${field.key}`}>{field.label}</label>
                           </div>
                         {:else if field.type === 'select'}

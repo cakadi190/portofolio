@@ -28,7 +28,7 @@ enum SystemSettingGroup: string
             self::Security => 'Keamanan',
             self::VisitorAnalytics => 'Analitik Pengunjung',
             self::IpInfo => 'Integrasi IPInfo',
-            self::Monitoring => 'Pemantauan Error (Sentry)',
+            self::Monitoring => 'Sentry',
         };
     }
 
@@ -70,7 +70,7 @@ enum SystemSettingGroup: string
      * The fixed set of setting keys managed under this group. Input `type` is
      * one of text, email, tel, url, image (media library path), secret (masked text), gtag (Google tag ID), digits, toggle (0/1), integer or select (with `options`) and drives both validation and the form.
      *
-     * @return list<array{key: string, label: string, type: string, placeholder: string, note?: string, min?: int, max?: int, options?: list<array{value: string, label: string}>}>
+     * @return list<array{key: string, label: string, type: string, placeholder: string, default?: bool, note?: string, min?: int, max?: int, options?: list<array{value: string, label: string}>}>
      */
     public function fields(): array
     {
@@ -115,9 +115,9 @@ enum SystemSettingGroup: string
                 ['key' => 'turnstile_secret_key', 'label' => 'Turnstile Secret Key', 'type' => 'secret', 'placeholder' => '0x4AAAAAAA...', 'note' => 'Kunci rahasia untuk verifikasi di server. Kosongkan salah satu kunci untuk menonaktifkan Turnstile.'],
             ],
             self::VisitorAnalytics => [
-                ['key' => 'visitor_tracking_enabled', 'label' => 'Lacak pengunjung', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: aktif.'],
+                ['key' => 'visitor_tracking_enabled', 'default' => true, 'label' => 'Lacak pengunjung', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: aktif.'],
                 ['key' => 'visitor_bot_policy', 'label' => 'Kebijakan bot', 'type' => 'select', 'placeholder' => '', 'options' => [['value' => 'separate', 'label' => 'Catat terpisah dari manusia'], ['value' => 'exclude', 'label' => 'Abaikan sepenuhnya']], 'note' => 'Bawaan: catat terpisah.'],
-                ['key' => 'visitor_store_ip', 'label' => 'Simpan alamat IP', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: aktif. Jika nonaktif, IP tidak disimpan dan pengayaan IPInfo tidak dijalankan.'],
+                ['key' => 'visitor_store_ip', 'default' => true, 'label' => 'Simpan alamat IP', 'type' => 'toggle', 'placeholder' => '', 'note' => 'Bawaan: aktif. Jika nonaktif, IP tidak disimpan dan pengayaan IPInfo tidak dijalankan.'],
                 ['key' => 'visitor_excluded_paths', 'label' => 'Path yang dikecualikan', 'type' => 'text', 'placeholder' => 'admin,settings,up', 'note' => 'Awalan path dipisahkan koma, ditambahkan ke bawaan (admin, settings, up, storage, build).'],
                 ['key' => 'visitor_session_minutes', 'label' => 'Durasi sesi kunjungan (menit)', 'type' => 'integer', 'placeholder' => '30', 'min' => 5, 'max' => 1440, 'note' => 'Bawaan: 30. Tayangan setelah jeda lebih lama dihitung sebagai kunjungan baru.'],
                 ['key' => 'visitor_retention_days', 'label' => 'Retensi data pengunjung (hari)', 'type' => 'integer', 'placeholder' => '180', 'min' => 7, 'max' => 3650, 'note' => 'Bawaan: 180. Baris pengunjung/kunjungan/IP lebih lama dihapus; statistik harian agregat (tanpa data pribadi) dipertahankan.'],

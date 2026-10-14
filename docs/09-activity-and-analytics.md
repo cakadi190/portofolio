@@ -55,7 +55,7 @@ Rahasia (`*_token`, `turnstile_secret_key`) tersimpan terenkripsi, tidak pernah 
 
 ## Pemantauan error (Sentry)
 
-- Paket: `sentry/sentry-laravel` (backend) dan `@sentry/svelte` (frontend). Seluruh pengaturan ada di Pengaturan Sistem → tab "Pemantauan Error (Sentry)" (grup `monitoring`); nilai `.env` (`SENTRY_LARAVEL_DSN`, `SENTRY_FRONTEND_DSN`, `SENTRY_RELEASE`, `SENTRY_ENVIRONMENT`) hanya cadangan saat setting kosong.
+- Paket: `sentry/sentry-laravel` (backend) dan `@sentry/svelte` (frontend). Seluruh pengaturan ada di Pengaturan Sistem → tab "Sentry" (grup `monitoring`); nilai `.env` (`SENTRY_LARAVEL_DSN`, `SENTRY_FRONTEND_DSN`, `SENTRY_RELEASE`, `SENTRY_ENVIRONMENT`) hanya cadangan saat setting kosong.
 
 | Kunci | Bawaan |
 | --- | --- |
