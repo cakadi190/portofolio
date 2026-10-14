@@ -24,11 +24,11 @@ class ContactMessageController extends Controller
         );
 
         return Inertia::render('admin/contact-messages/index', [
-            'messages' => $messages->through(fn (ContactMessage $message): array => [
+            'messages' => Inertia::scroll($messages->through(fn (ContactMessage $message): array => [
                 ...$message->toArray(),
                 'reason' => $message->reason->value,
                 'reason_label' => $message->reason->label(),
-            ]),
+            ])),
             'filters' => $this->tableFilters($request, ['name', 'email', 'created_at']),
         ]);
     }

@@ -27,7 +27,7 @@ class PostController extends Controller
         return Inertia::render('admin/posts/index', [
             'trashed' => $trashed,
             'trashedCount' => Post::onlyTrashed()->count(),
-            'posts' => $this->paginateTable(
+            'posts' => Inertia::scroll($this->paginateTable(
                 Post::query()
                     ->when($trashed, fn ($query) => $query->onlyTrashed())
                     ->with(['tags:id,name', 'categories:id,name', 'author:id,name'])
@@ -36,7 +36,7 @@ class PostController extends Controller
                 $request,
                 ['title', 'author.name'],
                 ['title', 'is_published', 'published_at'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['title', 'is_published', 'published_at']),
             ...$this->options(),
         ]);

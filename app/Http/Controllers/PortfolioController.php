@@ -36,7 +36,7 @@ class PortfolioController extends Controller
             ]);
 
         return Inertia::render('portfolio/index', [
-            'portfolios' => $portfolios,
+            'portfolios' => Inertia::scroll($portfolios),
         ]);
     }
 

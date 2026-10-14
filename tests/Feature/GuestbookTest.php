@@ -47,7 +47,7 @@ test('submitted markup is reduced to a safe whitelist and legacy plain text is e
     GuestbookEntry::factory()->create(['body' => 'a < b & <script>alert(1)</script>']);
 
     $this->get(route('guestbook.index'))->assertInertia(fn ($page) => $page
-        ->where('entries', fn ($entries) => collect($entries)->every(fn ($entry) => ! str_contains($entry['body'], '<script'))));
+        ->where('entries.data', fn ($entries) => collect($entries)->every(fn ($entry) => ! str_contains($entry['body'], '<script'))));
 });
 
 test('replies nest and must target an approved entry', function () {
@@ -69,10 +69,10 @@ test('the guestbook shows only approved entries as a nested tree', function () {
 
     $this->get(route('guestbook.index'))->assertInertia(fn ($page) => $page
         ->component('guestbook/index')
-        ->has('entries', 1)
-        ->where('entries.0.body', 'Akar')
-        ->where('entries.0.replies.0.body', 'Anak')
-        ->where('entries.0.replies.0.replies.0.body', 'Cucu'));
+        ->has('entries.data', 1)
+        ->where('entries.data.0.body', 'Akar')
+        ->where('entries.data.0.replies.0.body', 'Anak')
+        ->where('entries.data.0.replies.0.replies.0.body', 'Cucu'));
 });
 
 test('deleting an entry lifts its replies one level', function () {

@@ -19,14 +19,14 @@ class PortfolioRatingController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/portfolio-ratings/index', [
-            'portfolioRatings' => $this->paginateTable(
+            'portfolioRatings' => Inertia::scroll($this->paginateTable(
                 PortfolioRating::query()
                     ->with('portfolio:id,name')
                     ->orderByDesc('created_at'),
                 $request,
                 ['comment', 'portfolio.name'],
                 ['rating', 'created_at'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['rating', 'created_at']),
             'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
         ]);

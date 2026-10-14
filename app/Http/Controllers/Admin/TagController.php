@@ -19,12 +19,12 @@ class TagController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/tags/index', [
-            'tags' => $this->paginateTable(
+            'tags' => Inertia::scroll($this->paginateTable(
                 Tag::query()->orderBy('name'),
                 $request,
                 ['name'],
                 ['name'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['name']),
         ]);
     }

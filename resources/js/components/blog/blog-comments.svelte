@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Form, Link, page } from '@inertiajs/svelte';
+  import { Form, InfiniteScroll, Link, page } from '@inertiajs/svelte';
   import Turnstile from '@/components/turnstile.svelte';
   import { Field } from '@/components/ui/field';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
@@ -10,9 +10,11 @@
 
   let {
     comments,
+    total,
     postSlug,
   }: {
-    comments: BlogCommentNode[];
+    comments: { data: BlogCommentNode[] };
+    total: number;
     postSlug: string;
   } = $props();
 
@@ -22,12 +24,6 @@
   let formKey = $state(0);
 
   const canComment = $derived(!!page.props.auth?.user);
-
-  function countAll(nodes: BlogCommentNode[]): number {
-    return nodes.reduce((sum, node) => sum + 1 + countAll(node.replies), 0);
-  }
-
-  const total = $derived(countAll(comments));
 </script>
 
 <section id="komentar" class="mt-5 pt-5 border-top" aria-labelledby="komentar-title">
@@ -81,9 +77,10 @@
     </div>
   {/if}
 
-  {#if comments.length}
+  {#if comments.data.length}
+    <InfiniteScroll data="comments" buffer={300}>
     <ul class="list-unstyled mb-0">
-      {#each comments as comment (comment.id)}
+      {#each comments.data as comment (comment.id)}
         <BlogCommentItem
           {comment}
           {postSlug}
@@ -93,6 +90,13 @@
         />
       {/each}
     </ul>
+      {#snippet loading()}
+        <div class="d-flex justify-content-center align-items-center gap-2 py-3 small opacity-75">
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          Memuat komentar…
+        </div>
+      {/snippet}
+    </InfiniteScroll>
   {:else}
     <p class="opacity-75">Belum ada komentar. Jadilah yang pertama.</p>
   {/if}

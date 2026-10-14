@@ -40,7 +40,7 @@ class ClarificationController extends Controller
             ]);
 
         return Inertia::render('clarifications/index', [
-            'clarifications' => $clarifications,
+            'clarifications' => Inertia::scroll($clarifications),
             'verdicts' => ClarificationVerdict::options(),
             'activeVerdict' => $verdict?->value,
         ]);

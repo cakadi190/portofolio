@@ -8,7 +8,7 @@
   import GuestbookEntryEditModal from '@/components/admin/guestbook-entry-edit-modal.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { index } from '@/wayfinder/routes/admin/guestbook-entries';
-  import type { Paginated, TableFilters } from '@/types/pagination';
+  import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -17,7 +17,7 @@
     filters,
     statuses,
   }: {
-    guestbookEntries: Paginated<GuestbookAdminNode>;
+    guestbookEntries: InfiniteList<GuestbookAdminNode>;
     filters: TableFilters & { status: string | null };
     statuses: Option[];
   } = $props();
@@ -37,7 +37,7 @@
         status: status ? String(status) : undefined,
         page: undefined,
       },
-      { preserveState: true, replace: true },
+      { preserveState: true, replace: true, reset: ['guestbookEntries'] },
     );
   }
 
@@ -54,25 +54,25 @@
   subtitle="Moderasi pesan dan balas langsung dalam utas percakapan."
 />
 
-<div class="mb-3">
-  <Select
-    inline
-    ariaLabel="Filter status"
-    placeholder="Semua status"
-    items={statuses}
-    value={filters.status || null}
-    onchange={filterStatus}
-  />
-</div>
-
 <DataTable
   variant="grid"
   data={guestbookEntries}
+  scrollKey="guestbookEntries"
   {filters}
   url={index().url}
   emptyTitle="Belum ada pesan"
   emptyText="Pesan dari pengunjung akan muncul di sini."
 >
+  {#snippet toolbar()}
+    <Select
+        inline
+        ariaLabel="Filter status"
+        placeholder="Semua status"
+        items={statuses}
+        value={filters.status || null}
+        onchange={filterStatus}
+      />
+  {/snippet}
   {#snippet row(thread)}
     <div class="col-12">
       <ul class="list-unstyled mb-0">

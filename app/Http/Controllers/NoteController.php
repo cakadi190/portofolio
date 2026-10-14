@@ -35,14 +35,14 @@ class NoteController extends Controller
         $views = $this->views->forPaths($notes->getCollection()->map(fn (Note $note): string => "/notes/{$note->slug}")->all());
 
         return Inertia::render('notes/index', [
-            'notes' => $notes->through(fn (Note $note): array => [
+            'notes' => Inertia::scroll($notes->through(fn (Note $note): array => [
                 'title' => $note->title,
                 'slug' => $note->slug,
                 'excerpt' => $note->excerpt,
                 'publishedAt' => $note->published_at,
                 'views' => $views["/notes/{$note->slug}"] ?? 0,
                 'tags' => $note->tags->pluck('name'),
-            ]),
+            ])),
             'tags' => Tag::query()
                 ->whereHas('notes', fn ($query) => $query->published())
                 ->orderBy('name')

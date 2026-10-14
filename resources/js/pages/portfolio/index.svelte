@@ -3,8 +3,8 @@
   import CardPortfolio from '@/components/card-portfolio.svelte';
   import EmptyState from '@/components/empty-state.svelte';
   import HeaderPage from '@/components/header-page.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
-  import type { Paginated } from '@/types/pagination';
+  import InfiniteFeed from '@/components/infinite-feed.svelte';
+  import type { InfiniteList } from '@/types/pagination';
 
   type Portfolio = {
     name: string;
@@ -15,7 +15,7 @@
     technologies: string[];
   };
 
-  let { portfolios }: { portfolios: Paginated<Portfolio> } = $props();
+  let { portfolios }: { portfolios: InfiniteList<Portfolio> } = $props();
 </script>
 
 <AppHead title="Portofolio" />
@@ -33,6 +33,7 @@
           <EmptyState title="Belum Ada Portofolio" text="Belum ada portofolio yang tersedia saat ini." />
         {:else}
           <div class="col-md-12 mx-auto">
+            <InfiniteFeed data="portfolios">
             <div class="row">
               {#each portfolios.data as portfolio (portfolio.slug)}
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -40,13 +41,7 @@
                 </div>
               {/each}
             </div>
-
-            <SimplePaginator
-              currentPage={portfolios.current_page}
-              lastPage={portfolios.last_page}
-              prevPageUrl={portfolios.prev_page_url}
-              nextPageUrl={portfolios.next_page_url}
-            />
+            </InfiniteFeed>
           </div>
         {/if}
       </div>

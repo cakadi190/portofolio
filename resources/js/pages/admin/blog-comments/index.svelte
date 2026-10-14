@@ -12,7 +12,7 @@
     index,
     show,
   } from '@/wayfinder/routes/admin/blog-comments';
-  import type { Paginated, TableFilters } from '@/types/pagination';
+  import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -33,7 +33,7 @@
     filters,
     statuses,
   }: {
-    blogComments: Paginated<Row>;
+    blogComments: InfiniteList<Row>;
     filters: TableFilters & { status: string | null };
     statuses: Option[];
   } = $props();
@@ -48,7 +48,7 @@
     router.get(
       index().url,
       { ...filters, status: status ? String(status) : undefined, page: undefined },
-      { preserveState: true, replace: true },
+      { preserveState: true, replace: true, reset: ['blogComments'] },
     );
   }
 
@@ -68,19 +68,9 @@
   subtitle="Moderasi komentar dan balasan pada artikel blog."
 />
 
-<div class="mb-3">
-  <Select
-    inline
-    ariaLabel="Filter status"
-    placeholder="Semua status"
-    items={statuses}
-    value={filters.status || null}
-    onchange={filterStatus}
-  />
-</div>
-
 <DataTable
   data={blogComments}
+  scrollKey="blogComments"
   {filters}
   url={index().url}
   columns={[
@@ -94,6 +84,16 @@
   emptyTitle="Belum ada komentar"
   emptyText="Komentar dari pembaca akan muncul di sini."
 >
+  {#snippet toolbar()}
+    <Select
+        inline
+        ariaLabel="Filter status"
+        placeholder="Semua status"
+        items={statuses}
+        value={filters.status || null}
+        onchange={filterStatus}
+      />
+  {/snippet}
   {#snippet row(comment)}
     <tr>
       <td style="max-width: 20rem;">

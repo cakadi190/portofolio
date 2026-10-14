@@ -18,12 +18,12 @@ class OrganizationController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/organizations/index', [
-            'organizations' => $this->paginateTable(
+            'organizations' => Inertia::scroll($this->paginateTable(
                 Organization::query()->orderByDesc('start_date'),
                 $request,
                 ['name'],
                 ['name', 'start_date'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['name', 'start_date']),
         ]);
     }

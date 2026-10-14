@@ -24,12 +24,12 @@ class UserController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/users/index', [
-            'users' => $this->paginateTable(
+            'users' => Inertia::scroll($this->paginateTable(
                 User::query()->orderBy('name'),
                 $request,
                 ['name', 'email', 'phone'],
                 ['name', 'email', 'account_type', 'phone'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['name', 'email', 'account_type', 'phone']),
             'accountTypes' => UserRole::options(),
             'genders' => Gender::options(),

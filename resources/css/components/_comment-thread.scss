@@ -1,0 +1,146 @@
+// Shared nested-comment ("thread") look for the admin guestbook, the public
+// guestbook and the blog comments: avatar + card, curved elbow connectors
+// between a reply and its parent, and a collapsible reply list.
+.thread-node {
+  --thread-line: var(--bs-border-color);
+  --thread-accent: var(--bs-primary);
+  --thread-avatar: 2.5rem;
+  --thread-gap: 1.5rem;
+
+  position: relative;
+  padding-top: 0.75rem;
+}
+
+.thread-card {
+  display: flex;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 1rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-within {
+    border-color: color-mix(in srgb, var(--thread-accent) 45%, var(--bs-border-color));
+    box-shadow: 0 0.25rem 1rem color-mix(in srgb, var(--thread-accent) 10%, transparent);
+  }
+
+  &.is-muted {
+    background: var(--bs-tertiary-bg);
+  }
+
+  &:target {
+    border-color: var(--thread-accent);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--thread-accent) 25%, transparent);
+  }
+}
+
+.thread-avatar {
+  display: inline-flex;
+  flex: 0 0 var(--thread-avatar);
+  align-items: center;
+  justify-content: center;
+  width: var(--thread-avatar);
+  height: var(--thread-avatar);
+  font-weight: 700;
+  color: var(--bs-secondary-color);
+  background: var(--bs-secondary-bg);
+  border-radius: 50%;
+  user-select: none;
+
+  &.is-staff {
+    color: #fff;
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    box-shadow: 0 0 0 2px var(--bs-body-bg), 0 0 0 4px #22c55e55;
+  }
+}
+
+.thread-body {
+  overflow-wrap: anywhere;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+.thread-toggle {
+  display: inline-flex;
+  gap: 0.375rem;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  margin-top: 0.5rem;
+  margin-left: calc(var(--thread-avatar) / 2 - 1px);
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 999px;
+
+  &:hover {
+    color: var(--thread-accent);
+    border-color: var(--thread-accent);
+  }
+}
+
+// Replies hang off a rail aligned with the parent's avatar centre.
+.thread-children {
+  padding: 0;
+  margin: 0 0 0 calc(1rem + var(--thread-avatar) / 2 - 1px);
+  list-style: none;
+
+  > .thread-node {
+    padding-left: var(--thread-gap);
+
+    // Curved elbow from the rail into this reply's avatar.
+    &::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(var(--thread-gap) - 0.25rem);
+      height: calc(0.75rem + 0.875rem + var(--thread-avatar) / 2);
+      content: '';
+      border-bottom: 2px solid var(--thread-line);
+      border-left: 2px solid var(--thread-line);
+      border-bottom-left-radius: 0.875rem;
+    }
+
+    // Rail continues down to the next sibling.
+    &:not(:last-child)::after {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      content: '';
+      border-left: 2px solid var(--thread-line);
+    }
+  }
+
+  // Past the visual depth limit replies stop indenting.
+  &.is-flat {
+    margin-left: 0;
+
+    > .thread-node {
+      padding-left: 0;
+
+      &::before,
+      &::after {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .thread-node {
+    --thread-avatar: 2rem;
+    --thread-gap: 1rem;
+  }
+
+  .thread-card {
+    gap: 0.625rem;
+    padding: 0.75rem;
+  }
+}

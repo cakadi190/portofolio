@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Reply from '@lucide/svelte/icons/reply';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -34,17 +35,18 @@
   );
   const initial = $derived(author.trim().charAt(0).toUpperCase() || '?');
   const isReplying = $derived(replyingTo === entry.id);
+  let collapsed = $state(false);
 </script>
 
-<li id={`pesan-${entry.id}`} class="gb-node">
-  <div class="gb-card" class:gb-card-muted={entry.status !== 'approved'}>
+<li id={`pesan-${entry.id}`} class="thread-node">
+  <div class="thread-card" class:is-muted={entry.status !== 'approved'}>
     <span
-      class="gb-avatar"
-      class:gb-avatar-staff={!!entry.user}
+      class="thread-avatar"
+      class:is-staff={!!entry.user}
       aria-hidden="true">{initial}</span
     >
 
-    <div class="flex-grow-1 min-w-0">
+    <div class="flex-grow-1" style="min-width: 0">
       <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
         <strong>{author}</strong>
         {#if entry.guest_email}
@@ -66,7 +68,7 @@
       </div>
 
       <!-- The server whitelists this markup (HtmlSanitizer::richText) before sending it. -->
-      <div class="gb-body mb-2">{@html entry.body}</div>
+      <div class="thread-body mb-2">{@html entry.body}</div>
 
       <div class="d-flex flex-wrap gap-2">
         <button
@@ -124,10 +126,24 @@
   </div>
 
   {#if entry.replies.length}
-    <ul
-      class="list-unstyled mb-0 gb-replies"
-      class:gb-indent={depth < MAX_VISUAL_DEPTH}
+    <button
+      type="button"
+      class="thread-toggle"
+      aria-expanded={!collapsed}
+      onclick={() => (collapsed = !collapsed)}
     >
+      <ChevronDown
+        size={14}
+        aria-hidden="true"
+        style={collapsed ? 'transform: rotate(-90deg)' : ''}
+      />
+      {collapsed ? 'Tampilkan' : 'Sembunyikan'}
+      {entry.replies.length} balasan
+    </button>
+  {/if}
+
+  {#if entry.replies.length && !collapsed}
+    <ul class="thread-children" class:is-flat={depth >= MAX_VISUAL_DEPTH - 1}>
       {#each entry.replies as child (child.id)}
         <GuestbookThreadNode
           entry={child}
@@ -141,55 +157,3 @@
     </ul>
   {/if}
 </li>
-
-<style>
-  .min-w-0 {
-    min-width: 0;
-  }
-
-  .gb-card {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-    padding: 0.875rem 1rem;
-    background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color);
-    border-radius: 1rem;
-  }
-
-  .gb-card-muted {
-    background: var(--bs-tertiary-bg);
-  }
-
-  .gb-avatar {
-    display: inline-flex;
-    flex: 0 0 2.25rem;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    font-weight: 700;
-    color: var(--bs-secondary-color);
-    background: var(--bs-secondary-bg);
-    border-radius: 50%;
-  }
-
-  .gb-avatar-staff {
-    color: #fff;
-    background: #16a34a;
-  }
-
-  .gb-body {
-    overflow-wrap: anywhere;
-  }
-
-  .gb-replies {
-    position: relative;
-  }
-
-  .gb-indent {
-    margin-left: 1.125rem;
-    padding-left: 1rem;
-    border-left: 2px solid var(--bs-border-color);
-  }
-</style>

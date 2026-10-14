@@ -1,19 +1,17 @@
 <script lang="ts">
+  import { InfiniteScroll } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import GuestbookItem from '@/components/guestbook/guestbook-item.svelte';
   import type { GuestbookNode } from '@/components/guestbook/types';
   import HeaderPage from '@/components/header-page.svelte';
   import GuestbookForm from '@/components/guestbook/guestbook-form.svelte';
 
-  let { entries }: { entries: GuestbookNode[] } = $props();
+  let {
+    entries,
+    totalEntries,
+  }: { entries: { data: GuestbookNode[] }; totalEntries: number } = $props();
 
   let replyingTo = $state<number | null>(null);
-
-  function countAll(nodes: GuestbookNode[]): number {
-    return nodes.reduce((sum, node) => sum + 1 + countAll(node.replies), 0);
-  }
-
-  const total = $derived(countAll(entries));
 </script>
 
 <AppHead title="Buku Tamu" />
@@ -36,11 +34,12 @@
             </p>
           </div>
 
-          <h3 class="mb-4">Pesan ({total})</h3>
+          <h3 class="mb-4">Pesan ({totalEntries})</h3>
 
-          {#if entries.length}
+          {#if entries.data.length}
+            <InfiniteScroll data="entries" buffer={300}>
             <ul class="list-unstyled mb-0">
-              {#each entries as entry (entry.id)}
+              {#each entries.data as entry (entry.id)}
                 <GuestbookItem
                   {entry}
                   {replyingTo}
@@ -48,6 +47,13 @@
                 />
               {/each}
             </ul>
+              {#snippet loading()}
+                <div class="d-flex justify-content-center align-items-center gap-2 py-3 small opacity-75">
+                  <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                  Memuat pesan…
+                </div>
+              {/snippet}
+            </InfiniteScroll>
           {:else}
             <p class="opacity-75">Belum ada pesan. Jadilah yang pertama.</p>
           {/if}

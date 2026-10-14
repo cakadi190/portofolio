@@ -4,14 +4,14 @@
   import type { BlogPostCard } from '@/components/blog/types';
   import EmptyState from '@/components/empty-state.svelte';
   import HeaderPage from '@/components/header-page.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
-  import type { Paginated } from '@/types/pagination';
+  import InfiniteFeed from '@/components/infinite-feed.svelte';
+  import type { InfiniteList } from '@/types/pagination';
 
   let {
     posts,
     activeCategory = null,
   }: {
-    posts: Paginated<BlogPostCard>;
+    posts: InfiniteList<BlogPostCard>;
     activeCategory?: { id: number; name: string } | null;
   } = $props();
 </script>
@@ -36,6 +36,7 @@
           />
         {:else}
           <div class="col-md-12 mx-auto">
+            <InfiniteFeed data="posts">
             <div class="row">
               {#each posts.data as post (post.slug)}
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -43,13 +44,7 @@
                 </div>
               {/each}
             </div>
-
-            <SimplePaginator
-              currentPage={posts.current_page}
-              lastPage={posts.last_page}
-              prevPageUrl={posts.prev_page_url}
-              nextPageUrl={posts.next_page_url}
-            />
+            </InfiniteFeed>
           </div>
         {/if}
       </div>

@@ -12,14 +12,14 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/technologies';
-  import type { Paginated, TableFilters } from '@/types/pagination';
+  import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Technology = { id: number; name: string };
 
   let {
     technologies,
     filters,
-  }: { filters: TableFilters; technologies: Paginated<Technology> } = $props();
+  }: { filters: TableFilters; technologies: InfiniteList<Technology> } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -41,6 +41,7 @@
 
 <DataTable
   data={technologies}
+  scrollKey="technologies"
   {filters}
   url={index().url}
   columns={[

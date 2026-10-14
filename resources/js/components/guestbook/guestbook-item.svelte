@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import GuestbookForm from './guestbook-form.svelte';
   import GuestbookItem from './guestbook-item.svelte';
   import type { GuestbookNode } from './types';
@@ -18,6 +19,9 @@
     onReply: (id: number | null) => void;
   } = $props();
 
+  const initial = $derived(entry.author.trim().charAt(0).toUpperCase() || '?');
+  let collapsed = $state(false);
+
   const postedAt = $derived(
     new Date(entry.createdAt).toLocaleDateString('id-ID', {
       day: 'numeric',
@@ -27,9 +31,10 @@
   );
 </script>
 
-<li id={`pesan-${entry.id}`}>
-  <div class="card rounded-4 mb-3">
-    <div class="card-body">
+<li id={`pesan-${entry.id}`} class="thread-node">
+  <div class="thread-card">
+    <span class="thread-avatar" aria-hidden="true">{initial}</span>
+    <div class="flex-grow-1" style="min-width: 0">
       <div
         class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
       >
@@ -38,7 +43,7 @@
       </div>
 
       <!-- The server whitelists this markup (HtmlSanitizer::richText) on write and again on read. -->
-      <div class="guestbook-body mb-3" style="overflow-wrap: anywhere;">
+      <div class="thread-body mb-3">
         {@html entry.body}
       </div>
 
@@ -66,14 +71,24 @@
   </div>
 
   {#if entry.replies.length}
-    <ul
-      class="list-unstyled mb-0"
-      class:ms-2={depth < MAX_VISUAL_DEPTH}
-      class:ms-md-4={depth < MAX_VISUAL_DEPTH}
-      class:ps-2={depth < MAX_VISUAL_DEPTH}
-      class:ps-md-3={depth < MAX_VISUAL_DEPTH}
-      class:border-start={depth < MAX_VISUAL_DEPTH}
+    <button
+      type="button"
+      class="thread-toggle"
+      aria-expanded={!collapsed}
+      onclick={() => (collapsed = !collapsed)}
     >
+      <ChevronDown
+        size={14}
+        aria-hidden="true"
+        style={collapsed ? 'transform: rotate(-90deg)' : ''}
+      />
+      {collapsed ? 'Tampilkan' : 'Sembunyikan'}
+      {entry.replies.length} balasan
+    </button>
+  {/if}
+
+  {#if entry.replies.length && !collapsed}
+    <ul class="thread-children" class:is-flat={depth >= MAX_VISUAL_DEPTH - 1}>
       {#each entry.replies as reply (reply.id)}
         <GuestbookItem
           entry={reply}

@@ -35,7 +35,8 @@ class BlogTaxonomyController extends Controller
 
         return Inertia::render('blog/category', [
             'category' => ['name' => $category->name, 'slug' => $category->slug, 'color' => $category->color],
-            'posts' => $posts,
+            'posts' => Inertia::scroll($posts),
+            'totalPosts' => $posts->total(),
             'relatedCategories' => $this->relatedCategories($category),
             'relatedTags' => $this->relatedTags(fn (Builder $query) => $query->whereHas('categories', fn ($categories) => $categories->whereKey($category->id))),
         ]);
@@ -50,7 +51,8 @@ class BlogTaxonomyController extends Controller
 
         return Inertia::render('blog/tag', [
             'tag' => ['name' => $tag->name, 'slug' => $tag->slug],
-            'posts' => $posts,
+            'posts' => Inertia::scroll($posts),
+            'totalPosts' => $posts->total(),
             'relatedTags' => $this->relatedTags(fn (Builder $query) => $query->whereHas('tags', fn ($tags) => $tags->whereKey($tag->id)), $tag->id),
         ]);
     }
@@ -94,7 +96,8 @@ class BlogTaxonomyController extends Controller
                 'slug' => $author->slug,
                 'avatar' => ImageService::url($author->avatar),
             ],
-            'posts' => $posts,
+            'posts' => Inertia::scroll($posts),
+            'totalPosts' => $posts->total(),
         ]);
     }
 

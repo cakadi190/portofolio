@@ -19,12 +19,12 @@ class TechnologyController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/technologies/index', [
-            'technologies' => $this->paginateTable(
+            'technologies' => Inertia::scroll($this->paginateTable(
                 Technology::query()->orderBy('name'),
                 $request,
                 ['name'],
                 ['name'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['name']),
         ]);
     }

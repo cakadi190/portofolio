@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\NestsReplies;
 use App\Http\Controllers\Concerns\PresentsBlogPosts;
 use App\Models\BlogComment;
 use App\Models\Post;
@@ -10,6 +11,7 @@ use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -17,7 +19,9 @@ use Inertia\Response;
 
 class BlogController extends Controller
 {
-    use PresentsBlogPosts;
+    use NestsReplies, PresentsBlogPosts;
+
+    private const int COMMENT_ROOTS_PER_PAGE = 10;
 
     /**
      * Show the paginated list of published posts.
@@ -37,7 +41,7 @@ class BlogController extends Controller
             ->through(fn (Post $post): array => $this->postCard($post, $canEdit));
 
         return Inertia::render('blog/index', [
-            'posts' => $posts,
+            'posts' => Inertia::scroll($posts),
             'activeCategory' => $categoryId ? PostCategory::query()->find($categoryId, ['id', 'name']) : null,
         ]);
     }
@@ -88,7 +92,8 @@ class BlogController extends Controller
                 ...$this->postCard($post, $this->canEditPosts($request)),
                 'content' => HtmlSanitizer::clean($post->content),
             ],
-            'comments' => $this->commentTree($post),
+            'comments' => Inertia::scroll(fn () => $this->commentPage($post)),
+            'totalComments' => $post->comments()->approved()->count(),
             'otherPosts' => $this->otherPosts($post),
             'categories' => $this->categoryList(),
             'adjacent' => $this->adjacentPosts($post),
@@ -188,30 +193,37 @@ class BlogController extends Controller
     }
 
     /**
-     * Approved comments as a nested tree. A reply whose ancestor is not
-     * approved is hidden together with that ancestor.
+     * One page of approved root comments with their approved reply trees. A
+     * reply whose ancestor is not approved is hidden together with that ancestor.
      *
-     * @return Collection<int, array<string, mixed>>
+     * @return LengthAwarePaginator<int, array<string, mixed>>
      */
-    private function commentTree(Post $post): Collection
+    private function commentPage(Post $post): LengthAwarePaginator
     {
-        $byParent = $post->comments()
+        $roots = $post->comments()
             ->approved()
+            ->whereNull('parent_id')
             ->with('user:id,name')
             ->oldest()
-            ->get()
-            ->groupBy('parent_id');
+            ->paginate(self::COMMENT_ROOTS_PER_PAGE);
 
-        $build = function (?int $parentId) use (&$build, $byParent): Collection {
-            return $byParent->get($parentId, collect())->map(fn (BlogComment $comment): array => [
+        $roots->setCollection($this->nestReplies(
+            $roots->getCollection(),
+            fn (Collection $parentIds): Collection => $post->comments()
+                ->approved()
+                ->with('user:id,name')
+                ->whereIn('parent_id', $parentIds)
+                ->oldest()
+                ->get(),
+            fn (BlogComment $comment, Collection $replies): array => [
                 'id' => $comment->id,
                 'body' => HtmlSanitizer::richText($comment->body),
                 'author' => $comment->user?->name ?? 'Pengguna terhapus',
                 'createdAt' => $comment->created_at,
-                'replies' => $build($comment->id)->values(),
-            ])->values();
-        };
+                'replies' => $replies,
+            ],
+        ));
 
-        return $build(null);
+        return $roots;
     }
 }

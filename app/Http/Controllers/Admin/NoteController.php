@@ -22,12 +22,12 @@ class NoteController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/notes/index', [
-            'notes' => $this->paginateTable(
+            'notes' => Inertia::scroll($this->paginateTable(
                 Note::query()->with('tags:id,name')->orderByDesc('created_at'),
                 $request,
                 ['title'],
                 ['title', 'is_published', 'published_at'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['title', 'is_published', 'published_at']),
         ]);
     }

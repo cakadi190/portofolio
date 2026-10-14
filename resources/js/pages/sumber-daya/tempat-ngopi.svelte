@@ -6,8 +6,8 @@
   import CardCoffee from '@/components/card-coffee.svelte';
   import EmptyState from '@/components/empty-state.svelte';
   import HeaderPage from '@/components/header-page.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
-  import type { Paginated } from '@/types/pagination';
+  import InfiniteFeed from '@/components/infinite-feed.svelte';
+  import type { InfiniteList } from '@/types/pagination';
 
   type CoffeePlace = {
     id: number;
@@ -37,7 +37,7 @@
     regions,
     filters,
   }: {
-    places: Paginated<CoffeePlace>;
+    places: InfiniteList<CoffeePlace>;
     regions: string[];
     filters: { region: string | null; search: string | null };
   } = $props();
@@ -139,6 +139,7 @@
           />
         {:else}
           <div class="col-md-12 mx-auto">
+            <InfiniteFeed data="places">
             <div class="row">
               {#each places.data as place (place.id)}
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -146,13 +147,7 @@
                 </div>
               {/each}
             </div>
-
-            <SimplePaginator
-              currentPage={places.current_page}
-              lastPage={places.last_page}
-              prevPageUrl={places.prev_page_url}
-              nextPageUrl={places.next_page_url}
-            />
+            </InfiniteFeed>
           </div>
         {/if}
       </div>

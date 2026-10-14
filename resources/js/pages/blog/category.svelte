@@ -7,16 +7,18 @@
   import { index } from '@/wayfinder/routes/blog';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
   import { show as showTag } from '@/wayfinder/routes/blog/tags';
-  import type { Paginated } from '@/types/pagination';
+  import type { InfiniteList } from '@/types/pagination';
 
   let {
     category,
     posts,
+    totalPosts,
     relatedCategories,
     relatedTags,
   }: {
     category: { name: string; slug: string; color: string | null };
-    posts: Paginated<BlogPostCard>;
+    posts: InfiniteList<BlogPostCard>;
+    totalPosts: number;
     relatedCategories: {
       name: string;
       slug: string;
@@ -33,7 +35,7 @@
   <HeaderPage
     backTo={index().url}
     title={category.name}
-    subtitle={`${posts.total} artikel dalam kategori ini.`}
+    subtitle={`${totalPosts} artikel dalam kategori ini.`}
   />
 
   <section class="need-space pt-0">

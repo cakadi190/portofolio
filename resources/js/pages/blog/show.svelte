@@ -29,12 +29,14 @@
   let {
     post,
     comments,
+    totalComments,
     otherPosts,
     categories,
     adjacent,
   }: {
     post: Post;
-    comments: BlogCommentNode[];
+    comments: { data: BlogCommentNode[] };
+    totalComments: number;
     otherPosts: PostLink[];
     categories: Category[];
     adjacent: { previous: PostLink | null; next: PostLink | null };
@@ -237,7 +239,7 @@
             {/if}
           </nav>
 
-          <BlogComments {comments} postSlug={post.slug} />
+          <BlogComments {comments} total={totalComments} postSlug={post.slug} />
         </div>
       </div>
     </div>

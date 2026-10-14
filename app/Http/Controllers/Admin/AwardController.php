@@ -19,12 +19,12 @@ class AwardController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/awards/index', [
-            'awards' => $this->paginateTable(
+            'awards' => Inertia::scroll($this->paginateTable(
                 Award::query()->orderByDesc('awarded_at')->orderByDesc('year'),
                 $request,
                 ['title', 'event_name', 'year', 'rank'],
                 ['title', 'event_name', 'type', 'year', 'rank'],
-            ),
+            )),
             'filters' => $this->tableFilters($request, ['title', 'event_name', 'type', 'year', 'rank']),
             'types' => AwardType::options(),
         ]);

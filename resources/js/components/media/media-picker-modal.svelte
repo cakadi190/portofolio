@@ -60,7 +60,7 @@
       }
 
       const payload = (await response.json()) as Paginated<MediaItem>;
-      items = payload.data;
+      items = page > 1 ? [...items, ...payload.data] : payload.data;
       lastPage = payload.last_page;
     } catch {
       error = 'Pustaka media gagal dimuat.';
@@ -89,9 +89,28 @@
     }, 300);
   }
 
-  function goTo(next: number): void {
-    page = next;
+  /** Loads the next page when the sentinel below the grid scrolls into view. */
+  function loadMore(): void {
+    if (loading || page >= lastPage) {
+      return;
+    }
+
+    page += 1;
     void load();
+  }
+
+  function observeEnd(node: HTMLElement) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          loadMore();
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(node);
+
+    return { destroy: () => observer.disconnect() };
   }
 
   async function upload(files: FileList | null): Promise<void> {
@@ -219,21 +238,14 @@
           {/each}
         </div>
 
-        {#if lastPage > 1}
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              disabled={page <= 1 || loading}
-              onclick={() => goTo(page - 1)}>Sebelumnya</button
-            >
-            <span class="small text-muted">Halaman {page} dari {lastPage}</span>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              disabled={page >= lastPage || loading}
-              onclick={() => goTo(page + 1)}>Berikutnya</button
-            >
+        {#if page < lastPage}
+          <div
+            class="d-flex justify-content-center align-items-center gap-2 py-3 small text-muted"
+            role="status"
+            use:observeEnd
+          >
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            Memuat lebih banyak…
           </div>
         {/if}
       {/if}

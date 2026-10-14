@@ -126,10 +126,10 @@ test('the blog page lists approved comments as a tree', function () {
     BlogComment::factory()->replyTo($root)->rejected()->create(['body' => 'Ditolak']);
 
     $this->get(route('blog.show', $post))->assertInertia(fn ($page) => $page
-        ->has('comments', 1)
-        ->where('comments.0.body', 'Akar')
-        ->has('comments.0.replies', 1)
-        ->where('comments.0.replies.0.replies.0.body', 'Cucu'));
+        ->has('comments.data', 1)
+        ->where('comments.data.0.body', 'Akar')
+        ->has('comments.data.0.replies', 1)
+        ->where('comments.data.0.replies.0.replies.0.body', 'Cucu'));
 });
 
 test('deleting a comment keeps its replies and lifts them one level', function () {

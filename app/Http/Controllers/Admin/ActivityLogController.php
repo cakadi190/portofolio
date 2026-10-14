@@ -36,7 +36,8 @@ class ActivityLogController extends Controller
             ->through(fn (Activity $activity): array => $this->row($activity));
 
         return Inertia::render('admin/activity-logs/index', [
-            'activities' => $activities,
+            'activities' => Inertia::scroll($activities),
+            'totalActivities' => $activities->total(),
             'filters' => [...$request->filters(), 'sort' => $sort, 'direction' => $direction, 'per_page' => $perPage],
             'options' => [
                 'log_names' => Activity::query()->distinct()->orderBy('log_name')->pluck('log_name')->filter()->values(),

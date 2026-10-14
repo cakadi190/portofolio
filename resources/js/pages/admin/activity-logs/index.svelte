@@ -5,7 +5,8 @@
   import EmptyState from '@/components/empty-state.svelte';
   import { Link, router } from '@inertiajs/svelte';
   import { index, show, exportMethod } from '@/wayfinder/routes/admin/activity-logs';
-  import type { Paginated } from '@/types/pagination';
+  import InfiniteFeed from '@/components/infinite-feed.svelte';
+  import type { InfiniteList } from '@/types/pagination';
 
   type ActivityRow = {
     id: number;
@@ -30,10 +31,12 @@
 
   let {
     activities,
+    totalActivities,
     filters,
     options,
   }: {
-    activities: Paginated<ActivityRow>;
+    activities: InfiniteList<ActivityRow>;
+    totalActivities: number;
     filters: Filters;
     options: {
       log_names: string[];
@@ -171,6 +174,7 @@
 {#if activities.data.length === 0}
   <EmptyState title="Tidak ada aktivitas" text="Tidak ada catatan yang cocok dengan filter." />
 {:else}
+  <InfiniteFeed data="activities">
   <div class="table-responsive">
     <table class="table table-hover align-middle">
       <thead>
@@ -207,12 +211,7 @@
       </tbody>
     </table>
   </div>
+  </InfiniteFeed>
 
-  <div class="d-flex justify-content-between align-items-center">
-    <small class="text-muted">{activities.from}–{activities.to} dari {activities.total}</small>
-    <div class="btn-group">
-      {#if activities.prev_page_url}<Link class="btn btn-outline-secondary" href={activities.prev_page_url}>Sebelumnya</Link>{/if}
-      {#if activities.next_page_url}<Link class="btn btn-outline-secondary" href={activities.next_page_url}>Berikutnya</Link>{/if}
-    </div>
-  </div>
+  <small class="text-muted">{activities.data.length} dari {totalActivities}</small>
 {/if}

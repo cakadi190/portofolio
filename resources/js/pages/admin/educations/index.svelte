@@ -16,7 +16,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/educations';
-  import type { Paginated, TableFilters } from '@/types/pagination';
+  import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -45,7 +45,7 @@
     filters,
   }: {
     filters: TableFilters;
-    educations: Paginated<Education>;
+    educations: InfiniteList<Education>;
     levels: Option[];
     scoreTypes: Option[];
   } = $props();
@@ -74,6 +74,7 @@
 
 <DataTable
   data={educations}
+  scrollKey="educations"
   {filters}
   url={index().url}
   columns={[

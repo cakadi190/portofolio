@@ -15,7 +15,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/awards';
-  import type { Paginated, TableFilters } from '@/types/pagination';
+  import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Award = {
     id: number;
@@ -34,7 +34,7 @@
     filters,
   }: {
     filters: TableFilters;
-    awards: Paginated<Award>;
+    awards: InfiniteList<Award>;
     types: { value: string; label: string }[];
   } = $props();
 
@@ -62,6 +62,7 @@
 
 <DataTable
   data={awards}
+  scrollKey="awards"
   {filters}
   url={index().url}
   columns={[

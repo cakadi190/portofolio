@@ -6,15 +6,17 @@
   import HeaderPage from '@/components/header-page.svelte';
   import { index } from '@/wayfinder/routes/blog';
   import { show as showTag } from '@/wayfinder/routes/blog/tags';
-  import type { Paginated } from '@/types/pagination';
+  import type { InfiniteList } from '@/types/pagination';
 
   let {
     tag,
     posts,
+    totalPosts,
     relatedTags,
   }: {
     tag: BlogTagRef;
-    posts: Paginated<BlogPostCard>;
+    posts: InfiniteList<BlogPostCard>;
+    totalPosts: number;
     relatedTags: (BlogTagRef & { count: number })[];
   } = $props();
 </script>
@@ -25,7 +27,7 @@
   <HeaderPage
     backTo={index().url}
     title={`#${tag.name}`}
-    subtitle={`${posts.total} artikel dengan tag ini.`}
+    subtitle={`${totalPosts} artikel dengan tag ini.`}
   />
 
   <section class="need-space pt-0">

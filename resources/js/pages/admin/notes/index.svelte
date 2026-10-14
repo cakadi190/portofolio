@@ -5,7 +5,7 @@
   import AppHead from '@/components/app-head.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { create, destroy, edit, index } from '@/wayfinder/routes/admin/notes';
-  import type { Paginated, TableFilters } from '@/types/pagination';
+  import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Note = {
     id: number;
@@ -15,7 +15,7 @@
     tags: { id: number; name: string }[];
   };
 
-  let { notes, filters }: { notes: Paginated<Note>; filters: TableFilters } =
+  let { notes, filters }: { notes: InfiniteList<Note>; filters: TableFilters } =
     $props();
 </script>
 
@@ -30,6 +30,7 @@
 
 <DataTable
   data={notes}
+  scrollKey="notes"
   {filters}
   url={index().url}
   columns={[

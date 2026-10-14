@@ -15,7 +15,7 @@
   import ModalConfirmation from '@/components/modal-confirmation.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import InfiniteFeed from '@/components/infinite-feed.svelte';
   import { Field } from '@/components/ui/field';
   import { formatBytes, uploadMedia } from '@/lib/media';
   import { toast } from '@/lib/toast';
@@ -23,13 +23,13 @@
   import { Form, router } from '@inertiajs/svelte';
   import { destroy, index, update } from '@/wayfinder/routes/admin/media';
   import type { MediaItem } from '@/types/media';
-  import type { Paginated } from '@/types/pagination';
+  import type { InfiniteList } from '@/types/pagination';
 
   let {
     media,
     filters,
   }: {
-    media: Paginated<MediaItem>;
+    media: InfiniteList<MediaItem>;
     filters: { search: string; type: 'all' | 'image' | 'document' };
   } = $props();
 
@@ -140,7 +140,7 @@
         await uploadMedia(file);
       }
 
-      router.reload({ only: ['media'] });
+      router.reload({ only: ['media'], reset: ['media'] });
     } catch (exception) {
       error =
         exception instanceof Error ? exception.message : 'Unggahan gagal.';
@@ -280,6 +280,7 @@
     <p class="mb-0">Unggah berkas pertama Anda.</p>
   </div>
 {:else}
+  <InfiniteFeed data="media">
   {#if view === 'grid'}
     <div class="media-grid">
       {#each media.data as item (item.id)}
@@ -427,15 +428,7 @@
       </div>
     </div>
   {/if}
-
-  <div class="mt-4">
-    <SimplePaginator
-      currentPage={media.current_page}
-      lastPage={media.last_page}
-      prevPageUrl={media.prev_page_url}
-      nextPageUrl={media.next_page_url}
-    />
-  </div>
+  </InfiniteFeed>
 {/if}
 
 <ModalConfirmation

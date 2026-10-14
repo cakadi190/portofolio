@@ -4,14 +4,16 @@
   import type { BlogPostCard } from '@/components/blog/types';
   import HeaderPage from '@/components/header-page.svelte';
   import { index } from '@/wayfinder/routes/blog';
-  import type { Paginated } from '@/types/pagination';
+  import type { InfiniteList } from '@/types/pagination';
 
   let {
     author,
     posts,
+    totalPosts,
   }: {
     author: { name: string; slug: string | null; avatar: string | null };
-    posts: Paginated<BlogPostCard>;
+    posts: InfiniteList<BlogPostCard>;
+    totalPosts: number;
   } = $props();
 
   const initial = $derived(author.name.trim().charAt(0).toUpperCase() || '?');
@@ -23,7 +25,7 @@
   <HeaderPage
     backTo={index().url}
     title={author.name}
-    subtitle={`${posts.total} artikel diterbitkan.`}
+    subtitle={`${totalPosts} artikel diterbitkan.`}
   >
     <div class="mt-4">
       {#if author.avatar}

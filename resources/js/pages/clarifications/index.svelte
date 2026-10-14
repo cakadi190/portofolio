@@ -4,8 +4,8 @@
   import VerdictBadge from '@/components/clarification/verdict-badge.svelte';
   import EmptyState from '@/components/empty-state.svelte';
   import HeaderPage from '@/components/header-page.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
-  import type { Paginated } from '@/types/pagination';
+  import InfiniteFeed from '@/components/infinite-feed.svelte';
+  import type { InfiniteList } from '@/types/pagination';
   import { index, show } from '@/wayfinder/routes/clarifications';
 
   type Clarification = {
@@ -25,7 +25,7 @@
     verdicts,
     activeVerdict,
   }: {
-    clarifications: Paginated<Clarification>;
+    clarifications: InfiniteList<Clarification>;
     verdicts: { value: string; label: string }[];
     activeVerdict: string | null;
   } = $props();
@@ -74,6 +74,7 @@
           text="Belum ada klarifikasi yang diterbitkan."
         />
       {:else}
+        <InfiniteFeed data="clarifications">
         <div class="row">
           {#each clarifications.data as item (item.slug)}
             <div class="col-md-6 col-lg-4 mb-4">
@@ -107,13 +108,7 @@
             </div>
           {/each}
         </div>
-
-        <SimplePaginator
-          currentPage={clarifications.current_page}
-          lastPage={clarifications.last_page}
-          prevPageUrl={clarifications.prev_page_url}
-          nextPageUrl={clarifications.next_page_url}
-        />
+        </InfiniteFeed>
       {/if}
     </div>
   </section>

@@ -3,25 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Enums\BlogCommentStatus;
+use App\Http\Controllers\Concerns\NestsReplies;
 use App\Http\Requests\StoreGuestbookEntryRequest;
 use App\Models\GuestbookEntry;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class GuestbookController extends Controller
 {
-    private const int MAX_ROOT_ENTRIES = 100;
+    use NestsReplies;
+
+    private const int ROOTS_PER_PAGE = 10;
 
     /**
-     * Show the newest approved messages with their nested replies.
+     * Show the newest approved messages with their nested replies, loaded page by page as the visitor scrolls.
      */
     public function index(): Response
     {
         return Inertia::render('guestbook/index', [
-            'entries' => $this->entryTree(),
+            'entries' => Inertia::scroll(fn () => $this->entryPage()),
+            'totalEntries' => GuestbookEntry::query()->approved()->count(),
         ]);
     }
 
@@ -52,30 +57,36 @@ class GuestbookController extends Controller
     }
 
     /**
-     * Approved entries as a nested tree. A reply whose ancestor is not
-     * approved is hidden together with that ancestor.
+     * One page of approved root messages, each with its approved reply tree.
      *
-     * @return Collection<int, array<string, mixed>>
+     * @return LengthAwarePaginator<int, array<string, mixed>>
      */
-    private function entryTree(): Collection
+    private function entryPage(): LengthAwarePaginator
     {
-        $byParent = GuestbookEntry::query()
+        $roots = GuestbookEntry::query()
             ->approved()
+            ->whereNull('parent_id')
             ->with('user:id,name')
-            ->oldest()
-            ->get()
-            ->groupBy('parent_id');
+            ->latest()
+            ->paginate(self::ROOTS_PER_PAGE);
 
-        $build = function (?int $parentId) use (&$build, $byParent): Collection {
-            return $byParent->get($parentId, collect())->map(fn (GuestbookEntry $entry): array => [
+        $roots->setCollection($this->nestReplies(
+            $roots->getCollection(),
+            fn (Collection $parentIds): Collection => GuestbookEntry::query()
+                ->approved()
+                ->with('user:id,name')
+                ->whereIn('parent_id', $parentIds)
+                ->oldest()
+                ->get(),
+            fn (GuestbookEntry $entry, Collection $replies): array => [
                 'id' => $entry->id,
                 'body' => HtmlSanitizer::richText($entry->body),
                 'author' => $entry->user?->name ?? $entry->guest_name ?? 'Pengguna terhapus',
                 'createdAt' => $entry->created_at,
-                'replies' => $build($entry->id)->values(),
-            ])->values();
-        };
+                'replies' => $replies,
+            ],
+        ));
 
-        return $build(null)->reverse()->take(self::MAX_ROOT_ENTRIES)->values();
+        return $roots;
     }
 }

@@ -26,7 +26,7 @@ class BlogCommentController extends Controller
         $status = BlogCommentStatus::tryFrom((string) $request->query('status', ''));
 
         return Inertia::render('admin/blog-comments/index', [
-            'blogComments' => $this->paginateTable(
+            'blogComments' => Inertia::scroll($this->paginateTable(
                 BlogComment::query()
                     ->with(['post:id,title,slug', 'user:id,name,email', 'parent:id,body'])
                     ->withCount('replies')
@@ -35,7 +35,7 @@ class BlogCommentController extends Controller
                 $request,
                 ['body', 'post.title', 'user.name'],
                 ['status', 'created_at'],
-            ),
+            )),
             'filters' => [...$this->tableFilters($request, ['status', 'created_at']), 'status' => $status?->value],
             'statuses' => BlogCommentStatus::options(),
         ]);

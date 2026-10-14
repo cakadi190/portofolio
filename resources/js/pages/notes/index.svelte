@@ -4,9 +4,9 @@
   import AppHead from '@/components/app-head.svelte';
   import EmptyState from '@/components/empty-state.svelte';
   import HeaderPage from '@/components/header-page.svelte';
-  import SimplePaginator from '@/components/simple-paginator.svelte';
+  import InfiniteFeed from '@/components/infinite-feed.svelte';
   import { index } from '@/wayfinder/routes/notes';
-  import type { Paginated } from '@/types/pagination';
+  import type { InfiniteList } from '@/types/pagination';
 
   type Note = {
     title: string;
@@ -21,7 +21,7 @@
     notes,
     tags,
     activeTag,
-  }: { notes: Paginated<Note>; tags: string[]; activeTag: string | null } =
+  }: { notes: InfiniteList<Note>; tags: string[]; activeTag: string | null } =
     $props();
 
   const numberFormat = new Intl.NumberFormat('id-ID');
@@ -64,6 +64,7 @@
               text="Belum ada catatan yang tersedia saat ini."
             />
           {:else}
+            <InfiniteFeed data="notes">
             <div class="d-flex flex-column gap-3">
               {#each notes.data as note (note.slug)}
                 <Link
@@ -97,13 +98,7 @@
                 </Link>
               {/each}
             </div>
-
-            <SimplePaginator
-              currentPage={notes.current_page}
-              lastPage={notes.last_page}
-              prevPageUrl={notes.prev_page_url}
-              nextPageUrl={notes.next_page_url}
-            />
+            </InfiniteFeed>
           {/if}
         </div>
       </div>

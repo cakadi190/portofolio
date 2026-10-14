@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Form } from '@inertiajs/svelte';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import Turnstile from '@/components/turnstile.svelte';
   import { Field } from '@/components/ui/field';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
@@ -26,6 +27,9 @@
     onReply: (id: number | null) => void;
   } = $props();
 
+  const initial = $derived(comment.author.trim().charAt(0).toUpperCase() || '?');
+  let collapsed = $state(false);
+
   const postedAt = $derived(
     new Date(comment.createdAt).toLocaleDateString('id-ID', {
       day: 'numeric',
@@ -35,9 +39,10 @@
   );
 </script>
 
-<li class="blog-comment" id={`komentar-${comment.id}`}>
-  <div class="card rounded-4 mb-3">
-    <div class="card-body">
+<li class="thread-node" id={`komentar-${comment.id}`}>
+  <div class="thread-card">
+    <span class="thread-avatar" aria-hidden="true">{initial}</span>
+    <div class="flex-grow-1" style="min-width: 0">
       <div
         class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
       >
@@ -45,7 +50,7 @@
         <small class="opacity-75">{postedAt}</small>
       </div>
 
-      <div class="blog-comment-body mb-3" style="overflow-wrap: anywhere;">
+      <div class="thread-body mb-3">
         {@html comment.body}
       </div>
 
@@ -94,14 +99,24 @@
   </div>
 
   {#if comment.replies.length}
-    <ul
-      class="list-unstyled mb-0"
-      class:ms-2={depth < MAX_VISUAL_DEPTH}
-      class:ms-md-4={depth < MAX_VISUAL_DEPTH}
-      class:ps-2={depth < MAX_VISUAL_DEPTH}
-      class:ps-md-3={depth < MAX_VISUAL_DEPTH}
-      class:border-start={depth < MAX_VISUAL_DEPTH}
+    <button
+      type="button"
+      class="thread-toggle"
+      aria-expanded={!collapsed}
+      onclick={() => (collapsed = !collapsed)}
     >
+      <ChevronDown
+        size={14}
+        aria-hidden="true"
+        style={collapsed ? 'transform: rotate(-90deg)' : ''}
+      />
+      {collapsed ? 'Tampilkan' : 'Sembunyikan'}
+      {comment.replies.length} balasan
+    </button>
+  {/if}
+
+  {#if comment.replies.length && !collapsed}
+    <ul class="thread-children" class:is-flat={depth >= MAX_VISUAL_DEPTH - 1}>
       {#each comment.replies as reply (reply.id)}
         <BlogCommentItem
           comment={reply}

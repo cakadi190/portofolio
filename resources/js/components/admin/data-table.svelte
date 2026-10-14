@@ -8,9 +8,10 @@
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import Search from '@lucide/svelte/icons/search';
   import X from '@lucide/svelte/icons/x';
-  import { router } from '@inertiajs/svelte';
+  import { InfiniteScroll, router } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
   import type {
+    InfiniteList,
     Paginated,
     TableColumn,
     TableFilters,
@@ -25,8 +26,10 @@
     emptyTitle = 'Belum ada data',
     emptyText = 'Data akan muncul di sini.',
     row,
+    scrollKey,
+    toolbar,
   }: {
-    data: Paginated<T>;
+    data: Paginated<T> | InfiniteList<T>;
     filters: TableFilters;
     /** Index route URL the table reloads against. */
     url: string;
@@ -35,6 +38,13 @@
     emptyTitle?: string;
     emptyText?: string;
     row: Snippet<[T]>;
+    /**
+     * Name of an `Inertia::scroll()` prop. When set, rows load as the user
+     * scrolls instead of through the pager, and `data` only carries `data`.
+     */
+    scrollKey?: string;
+    /** Extra controls (e.g. a status filter) shown left of the search box. */
+    toolbar?: Snippet;
   } = $props();
 
   const perPageOptions = [10, 25, 50, 100];
@@ -44,7 +54,8 @@
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   const isFiltered = $derived(filters.search !== '');
-  const pages = $derived(pageWindow(data.current_page, data.last_page));
+  const paged = $derived('current_page' in data ? data : null);
+  const pages = $derived(paged ? pageWindow(paged.current_page, paged.last_page) : []);
 
   let tbody = $state<HTMLTableSectionElement>();
 
@@ -72,12 +83,13 @@
       query.direction = next.direction;
     }
     if (next.per_page !== 10) query.per_page = next.per_page;
-    if (next.page > 1) query.page = next.page;
+    if (next.page > 1 && !scrollKey) query.page = next.page;
 
     router.get(url, query, {
       preserveState: true,
       preserveScroll: true,
       replace: true,
+      ...(scrollKey ? { reset: [scrollKey] } : {}),
     });
   }
 
@@ -125,6 +137,8 @@
   class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3"
 >
   <div class="d-flex align-items-center gap-2 small text-muted">
+    {@render toolbar?.()}
+    {#if !scrollKey}
     <label for="table-per-page">Tampilkan</label>
     <Select
       inline
@@ -137,6 +151,7 @@
       onchange={(next) => visit({ per_page: Number(next) })}
     />
     <span>data</span>
+    {/if}
   </div>
 
   <div class="input-group input-group-sm" style="max-width: 18rem;">
@@ -162,6 +177,7 @@
   </div>
 </div>
 
+{#snippet content()}
 {#if variant === 'grid'}
   {#if data.data.length === 0}
     <div class="py-4">
@@ -239,28 +255,44 @@
     </table>
   </div>
 {/if}
+{/snippet}
 
+{#if scrollKey}
+  <InfiniteScroll data={scrollKey}>
+    {@render content()}
+    {#snippet loading()}
+      <div class="d-flex justify-content-center align-items-center gap-2 py-3 small text-muted">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        Memuat lebih banyak…
+      </div>
+    {/snippet}
+  </InfiniteScroll>
+{:else}
+  {@render content()}
+{/if}
+
+{#if !scrollKey}
 <div
   class="d-flex flex-wrap align-items-center justify-content-between gap-3"
 >
   <span class="small text-muted">
-    {#if data.total > 0}
-      Menampilkan {data.from} sampai {data.to} dari {data.total} data
+    {#if paged && paged.total > 0}
+      Menampilkan {paged.from} sampai {paged.to} dari {paged.total} data
     {:else}
       Tidak ada data
     {/if}
   </span>
 
-  {#if data.last_page > 1}
+  {#if paged && !scrollKey && paged.last_page > 1}
     <nav aria-label="Paginasi tabel">
       <ul class="pagination pagination-sm mb-0">
-        <li class="page-item" class:disabled={data.current_page === 1}>
+        <li class="page-item" class:disabled={paged.current_page === 1}>
           <button
             type="button"
             class="page-link"
             aria-label="Sebelumnya"
-            disabled={data.current_page === 1}
-            onclick={() => visit({ page: data.current_page - 1 })}
+            disabled={paged.current_page === 1}
+            onclick={() => visit({ page: paged.current_page - 1 })}
           >
             <ChevronLeft size={14} />
           </button>
@@ -271,7 +303,7 @@
               <span class="page-link">&hellip;</span>
             </li>
           {:else}
-            <li class="page-item" class:active={page === data.current_page}>
+            <li class="page-item" class:active={page === paged.current_page}>
               <button
                 type="button"
                 class="page-link"
@@ -282,14 +314,14 @@
         {/each}
         <li
           class="page-item"
-          class:disabled={data.current_page === data.last_page}
+          class:disabled={paged.current_page === paged.last_page}
         >
           <button
             type="button"
             class="page-link"
             aria-label="Berikutnya"
-            disabled={data.current_page === data.last_page}
-            onclick={() => visit({ page: data.current_page + 1 })}
+            disabled={paged.current_page === paged.last_page}
+            onclick={() => visit({ page: paged.current_page + 1 })}
           >
             <ChevronRight size={14} />
           </button>
@@ -298,3 +330,4 @@
     </nav>
   {/if}
 </div>
+{/if}

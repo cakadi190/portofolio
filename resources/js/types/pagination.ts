@@ -26,3 +26,8 @@ export type TableColumn = {
   sortable?: boolean;
   align?: 'start' | 'end';
 };
+
+/** Shape of an `Inertia::scroll()` prop: only the loaded items, merged as pages arrive. */
+export type InfiniteList<T> = {
+  data: T[];
+};

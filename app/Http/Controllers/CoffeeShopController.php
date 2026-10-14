@@ -59,7 +59,7 @@ class CoffeeShopController extends Controller
             ]);
 
         return Inertia::render('sumber-daya/tempat-ngopi', [
-            'places' => $places,
+            'places' => Inertia::scroll($places),
             'regions' => CoffeePlace::query()->whereNotNull('region')->distinct()->orderBy('region')->pluck('region'),
             'filters' => [
                 'region' => $region,

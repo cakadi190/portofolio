@@ -18,7 +18,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/coffee-places';
-  import type { Paginated, TableFilters } from '@/types/pagination';
+  import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -52,7 +52,7 @@
     filters,
   }: {
     filters: TableFilters;
-    coffeePlaces: Paginated<CoffeePlace>;
+    coffeePlaces: InfiniteList<CoffeePlace>;
     wifiSpeeds: Option[];
     priceTiers: Option[];
     facilities: Option[];
@@ -89,6 +89,7 @@
 
 <DataTable
   data={coffeePlaces}
+  scrollKey="coffeePlaces"
   {filters}
   url={index().url}
   columns={[
@@ -151,7 +152,7 @@
       {...store.form()}
       class="d-flex flex-column gap-3"
       novalidate
-      options={{ preserveScroll: true, only: ['coffeePlaces', 'regions'] }}
+      options={{ preserveScroll: true, only: ['coffeePlaces', 'regions'], reset: ['coffeePlaces'] }}
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
@@ -352,7 +353,7 @@
         {...update.form(editingPlace.id)}
         class="d-flex flex-column gap-3"
         novalidate
-        options={{ preserveScroll: true, only: ['coffeePlaces', 'regions'] }}
+        options={{ preserveScroll: true, only: ['coffeePlaces', 'regions'], reset: ['coffeePlaces'] }}
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}
