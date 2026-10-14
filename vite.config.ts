@@ -31,14 +31,20 @@ export default defineConfig({
                 input: ['resources/css/app.scss', 'resources/js/app.ts'],
                 refresh: true,
                 fonts: [
+                  // Only the weights used above the fold (body text and the
+                  // hero title) are preloaded; the rest load on demand, so
+                  // they stop competing with the LCP image and CSS.
                   bunny('Signika', {
                     weights: [400, 500, 600, 700],
+                    preload: [{ weight: 400 }, { weight: 600 }],
                   }),
                   bunny('Roboto Slab', {
                     weights: [400, 500, 600],
+                    preload: false,
                   }),
                   bunny('JetBrains Mono', {
                     weights: [400],
+                    preload: false,
                   }),
                 ],
               }),

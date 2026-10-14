@@ -73,7 +73,7 @@ describe('app bootstrap', () => {
     expect(callCounts.initializeFlashToast).toBe(1);
     expect(callCounts.initializeAnalytics).toBe(1);
 
-    // Sentry is lazy-loaded once the page has loaded and gone idle.
+    // Sentry is lazy-loaded on first interaction or shortly after load.
     await vi.waitFor(() => expect(mocks.initializeSentry).toHaveBeenCalled(), {
       timeout: 6000,
     });

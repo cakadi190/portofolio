@@ -1,3 +1,4 @@
+import { addCollection } from '@iconify/svelte';
 import { createInertiaApp } from '@inertiajs/svelte';
 import AdminLayout from '@/layouts/admin-layout.svelte';
 import AppLayout from '@/layouts/app-layout.svelte';
@@ -6,6 +7,9 @@ import ResumeLayout from '@/layouts/resume-layout.svelte';
 import { initializeAnalytics } from '@/lib/analytics';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
+import { iconCollections } from '@/lib/icon-collections';
+
+iconCollections.forEach((collection) => addCollection(collection));
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -43,22 +47,40 @@ if (typeof document !== 'undefined') {
   initializeFlashToast();
 
   // Error and performance monitoring (Sentry), configured from system settings.
-  // The SDK is a separate chunk fetched once the page has loaded and gone idle,
-  // keeping it out of the critical path (LCP/TBT).
-  const startMonitoring = () =>
+  // The SDK is a separate chunk fetched on the first interaction, or 4 s after
+  // the page has loaded for passive readers, keeping it out of LCP/TBT.
+  const interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+  let monitoringStarted = false;
+
+  const startMonitoring = () => {
+    if (monitoringStarted) {
+      return;
+    }
+
+    monitoringStarted = true;
+    interactionEvents.forEach((name) =>
+      window.removeEventListener(name, startMonitoring),
+    );
     void import('@/lib/sentry').then(({ initializeSentry }) =>
       initializeSentry(),
     );
+  };
 
-  const whenIdle = () =>
-    'requestIdleCallback' in window
-      ? window.requestIdleCallback(startMonitoring, { timeout: 5000 })
-      : window.setTimeout(startMonitoring, 3000);
+  interactionEvents.forEach((name) =>
+    window.addEventListener(name, startMonitoring, {
+      once: true,
+      passive: true,
+    }),
+  );
 
   if (document.readyState === 'complete') {
-    whenIdle();
+    window.setTimeout(startMonitoring, 4000);
   } else {
-    window.addEventListener('load', whenIdle, { once: true });
+    window.addEventListener(
+      'load',
+      () => window.setTimeout(startMonitoring, 4000),
+      { once: true },
+    );
   }
 
   // Google Analytics: SPA page views plus click, form and scroll events.

@@ -80,7 +80,7 @@
         </div>
 
         <div class="d-flex pt-4 flex-column gap-2 reveal reveal-spring reveal-left">
-          <h5 class="text-center text-lg-start"><em>Tech Stack</em> Andalan Saya</h5>
+          <h2 class="h5 text-center text-lg-start"><em>Tech Stack</em> Andalan Saya</h2>
 
           <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
             {#each techStack as item, index (index)}

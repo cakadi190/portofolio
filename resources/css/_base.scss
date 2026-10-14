@@ -809,6 +809,12 @@ $base-grid-breakpoints:
 // used — underlining keeps them distinguishable without relying on color
 // alone, and only the (transient) hover state switches to $primary.
 // =============================================================================
+// The brand green (#22c55e) is only 2.3:1 on white; on the light theme body
+// text that uses `.text-primary` takes a darker green that passes WCAG AA.
+[data-bs-theme='light'] .text-primary {
+  color: #15803d !important;
+}
+
 a {
   color: var(--neo-body-color);
   text-decoration: underline;

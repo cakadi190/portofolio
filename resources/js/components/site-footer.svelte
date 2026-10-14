@@ -79,7 +79,7 @@
   <div class="container py-4">
     <div class="row gy-5">
       <div class="col-md-6">
-        <h5 class="h6">Tentang Saya</h5>
+        <h2 class="h6">Tentang Saya</h2>
         <p class="opacity-75">
           Saya adalah seorang fullstack developer yang suka sekali dengan desain
           dan juga tertarik di dunia teknologi. Saya adalah orang kelahiran
@@ -101,7 +101,7 @@
       </div>
 
       <div class="col-lg-2 col-6">
-        <h5 class="h6">Ke(-rjaan/gabut)-an Saya</h5>
+        <h2 class="h6">Ke(-rjaan/gabut)-an Saya</h2>
         <ul class="list-unstyled">
           {#each workLinks as link (link.label)}
             <li><Link href={link.href}>{link.label}</Link></li>
@@ -110,7 +110,7 @@
       </div>
 
       <div class="col-lg-2 col-6">
-        <h5 class="h6">Sumber Daya</h5>
+        <h2 class="h6">Sumber Daya</h2>
         <ul class="list-unstyled">
           {#each resourceLinks as link (link.label)}
             <li><Link href={link.href}>{link.label}</Link></li>
@@ -119,7 +119,7 @@
       </div>
 
       <div class="col-md-2">
-        <h5 class="h6">Tautan Lain-lain</h5>
+        <h2 class="h6">Tautan Lain-lain</h2>
         <ul class="list-unstyled">
           {#each otherLinks as link (link.label)}
             <li><Link href={link.href}>{link.label}</Link></li>

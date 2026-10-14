@@ -23,7 +23,7 @@
 
     <div class="card-body p-4">
       <div class="d-flex gap-2 mb-2 justify-content-between">
-        <h5 class="card-title mb-0">{name}</h5>
+        <h2 class="card-title h5 mb-0">{name}</h2>
         {#if service}
           <div>
             <span class="badge" style={`background-color: ${service.color ?? '#6c757d'}`}>

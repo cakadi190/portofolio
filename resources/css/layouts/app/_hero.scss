@@ -95,6 +95,10 @@
   }
 
   .tech-stack {
+    // Reserve the icon's box so late-arriving SVGs don't shift the layout (CLS).
+    display: inline-block;
+    min-width: 32px;
+    min-height: 32px;
     filter: grayscale(100%);
     transition: filter 0.2s;
     cursor: pointer;

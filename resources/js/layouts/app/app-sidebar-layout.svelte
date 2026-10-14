@@ -16,7 +16,9 @@
 <div id="site-shell">
   <SiteNavbar />
 
-  {@render children?.()}
+  <main id="main-content">
+    {@render children?.()}
+  </main>
 
   <SiteFooter />
   <BackToTop />

@@ -9,6 +9,10 @@
   min-height: 100vh;
 }
 
+#site-shell > main {
+  flex: 1 0 auto;
+}
+
 .site-footer {
   margin-top: auto;
 }
