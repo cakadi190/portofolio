@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { badgeStyle } from '@/lib/badge';
   import Calendar from '@lucide/svelte/icons/calendar';
   import User from '@lucide/svelte/icons/user';
   import AppHead from '@/components/app-head.svelte';
@@ -105,7 +106,7 @@
                     <Link
                       href={showCategory(category.slug).url}
                       class="badge text-decoration-none"
-                      style={`background-color: ${category.color ?? '#6c757d'}`}
+                      style={badgeStyle(category.color)}
                     >
                       {category.name}
                     </Link>
@@ -171,7 +172,7 @@
                         <Link
                           href={showCategory(category.slug).url}
                           class="badge text-decoration-none"
-                          style={`background-color: ${category.color ?? '#6c757d'}`}
+                          style={badgeStyle(category.color)}
                         >
                           {category.name} ({category.count})
                         </Link>

@@ -1,9 +1,9 @@
 ---
 name: wayfinder-development
-description: "ACTIVATE when working with Laravel Wayfinder, which generates TypeScript from a Laravel application: route and controller-action functions, form request types, Eloquent model interfaces, PHP enum types and constants, Inertia page props and shared data, broadcast channels and events, and Vite environment variables. Trigger when the user mentions Wayfinder, wayfinder:generate, @laravel/vite-plugin-wayfinder, config/wayfinder.php, the WayfinderIgnore attribute or a @wayfinder-ignore comment, or imports from @/wayfinder/. Also activate when a frontend needs typed URLs for Laravel routes, typed Inertia props, typed Echo channels or events, or when generated types are missing, stale or leaking data that should stay on the server. Do NOT activate for Ziggy, or for hand-written TypeScript with no Laravel backend behind it."
+description: 'ACTIVATE when working with Laravel Wayfinder, which generates TypeScript from a Laravel application: route and controller-action functions, form request types, Eloquent model interfaces, PHP enum types and constants, Inertia page props and shared data, broadcast channels and events, and Vite environment variables. Trigger when the user mentions Wayfinder, wayfinder:generate, @laravel/vite-plugin-wayfinder, config/wayfinder.php, the WayfinderIgnore attribute or a @wayfinder-ignore comment, or imports from @/wayfinder/. Also activate when a frontend needs typed URLs for Laravel routes, typed Inertia props, typed Echo channels or events, or when generated types are missing, stale or leaking data that should stay on the server. Do NOT activate for Ziggy, or for hand-written TypeScript with no Laravel backend behind it.'
 license: MIT
 metadata:
-  author: laravel
+    author: laravel
 ---
 
 # Laravel Wayfinder
@@ -30,13 +30,13 @@ For local development, install `@laravel/vite-plugin-wayfinder` and add `wayfind
 
 ## Import Paths
 
-| What | Where |
-| ---- | ----- |
+| What               | Where                                         |
+| ------------------ | --------------------------------------------- |
 | Controller actions | `@/wayfinder/<controller PHP namespace path>` |
-| Named routes | `@/wayfinder/routes/<name>` |
-| All types | `@/wayfinder/types` |
-| Enum constants | `@/wayfinder/App/Enums/<Enum>` |
-| Broadcast channels | `@/wayfinder/broadcast-channels` |
+| Named routes       | `@/wayfinder/routes/<name>`                   |
+| All types          | `@/wayfinder/types`                           |
+| Enum constants     | `@/wayfinder/App/Enums/<Enum>`                |
+| Broadcast channels | `@/wayfinder/broadcast-channels`              |
 
 Enums are split deliberately: the type lives in `types.d.ts` and the runtime constants in their own file. Use the type to constrain a value and the constant to compare one — never a bare string literal, which survives a rename of the PHP case.
 
@@ -45,8 +45,8 @@ Enums are split deliberately: the type lives in `types.d.ts` and the runtime con
 A route function returns `{ url, method }`. `.url()` returns the string alone.
 
 ```typescript
-PostController.show({ post: 1 });        // { url: '/posts/1', method: 'get' }
-PostController.show.url({ post: 1 });    // '/posts/1'
+PostController.show({ post: 1 }); // { url: '/posts/1', method: 'get' }
+PostController.show.url({ post: 1 }); // '/posts/1'
 PostController.index({ query: { page: 2 } });
 PostController.index({ mergeQuery: { page: 3 } });
 ```

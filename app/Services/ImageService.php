@@ -250,6 +250,72 @@ class ImageService
     }
 
     /**
+     * Width of the card-sized variant stored beside each uploaded image.
+     */
+    public const THUMBNAIL_WIDTH = 640;
+
+    /**
+     * Path of the thumbnail variant of a stored WebP image.
+     *
+     * @param  string  $path  Stored image path, e.g. "media/2026/10/foo.webp".
+     * @return string Variant path, e.g. "media/2026/10/foo-640w.webp".
+     */
+    public static function thumbnailPath(string $path): string
+    {
+        return preg_replace('/\.webp$/i', '-'.self::THUMBNAIL_WIDTH.'w.webp', $path) ?? $path;
+    }
+
+    /**
+     * Public URL for card-sized rendering: the thumbnail when one exists on the
+     * public disk, otherwise the original image.
+     *
+     * @param  string|null  $path  Stored image value.
+     * @return string|null Public URL, or null when nothing is stored.
+     */
+    public static function thumbnailUrl(?string $path): ?string
+    {
+        if (blank($path) || Str::startsWith($path, ['http://', 'https://', '/'])) {
+            return self::url($path);
+        }
+
+        $thumbnail = self::thumbnailPath($path);
+
+        return $thumbnail !== $path && Storage::disk('public')->exists($thumbnail)
+            ? self::url($thumbnail)
+            : self::url($path);
+    }
+
+    /**
+     * Create the thumbnail variant of a stored WebP image.
+     *
+     * @param  string  $path  Stored image path on the public disk.
+     * @return string|null Thumbnail path, or null when the image is missing, not WebP or already small enough.
+     */
+    public function createThumbnail(string $path): ?string
+    {
+        $disk = Storage::disk('public');
+        $thumbnail = self::thumbnailPath($path);
+
+        if ($thumbnail === $path || ! $disk->exists($path)) {
+            return null;
+        }
+
+        $image = $this->fromContents((string) $disk->get($path));
+
+        if (($image->get()?->width() ?? 0) <= self::THUMBNAIL_WIDTH) {
+            return null;
+        }
+
+        return $image->scaleDown(self::THUMBNAIL_WIDTH)->save(
+            dirname($thumbnail),
+            'webp',
+            75,
+            0,
+            pathinfo($thumbnail, PATHINFO_FILENAME),
+        );
+    }
+
+    /**
      * Delete a previously saved image from storage.
      *
      * @param  string  $path  Path to the file to delete, relative to the disk root.

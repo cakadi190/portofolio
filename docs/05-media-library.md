@@ -11,11 +11,11 @@ Terinspirasi pola "centralized file model" (satu model/tabel untuk semua berkas)
 
 ## Pemrosesan unggahan
 
-| Jenis                     | Perlakuan                                                                                            |
-| ------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Gambar (JPG/PNG/WebP/GIF) | Skala turun maks 1920×1920, encode WebP kualitas 80, kompres hingga ≤ ~400 KB. Lebar/tinggi dicatat. |
-| PDF                       | Disimpan apa adanya.                                                                                 |
-| Lainnya                   | Ditolak (validasi `mimes:jpg,jpeg,png,webp,gif,pdf`, maks 10 MB).                                    |
+| Jenis                     | Perlakuan                                                                                                                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gambar (JPG/PNG/WebP/GIF) | Skala turun maks 1920×1920, encode WebP kualitas 80, kompres hingga ≤ ~400 KB. Lebar/tinggi dicatat. Bila lebih lebar dari 640 px, dibuat juga thumbnail `<nama>-640w.webp` (kualitas 75) di folder yang sama. |
+| PDF                       | Disimpan apa adanya.                                                                                                                                                                                           |
+| Lainnya                   | Ditolak (validasi `mimes:jpg,jpeg,png,webp,gif,pdf`, maks 10 MB).                                                                                                                                              |
 
 Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**: slug nama asli + akhiran acak 8 karakter huruf kecil/angka (contoh `Foto Profil 2024.JPG` → `media/2026/10/foto-profil-2024-a1b2c3d4.webp`; nama kosong/tak valid → `file-<acak>`). Ekstensi huruf kecil; gambar selalu `.webp`. Nama asli tetap disimpan di kolom `media.name`. URL publik `/storage/<path>` via `ImageService::url()`.
 
@@ -52,7 +52,7 @@ Penyimpanan: disk `public`, folder `media/YYYY/MM/`, nama berkas **kebab-case**:
 
 ## Batasan yang diketahui
 
-- Belum ada folder/kategori media, versi/ganti berkas, atau varian ukuran (thumbnail).
+- Belum ada folder/kategori media atau versi/ganti berkas. Varian ukuran hanya satu: thumbnail 640 px. `ImageService::thumbnailUrl()` dipakai payload kartu (beranda, daftar blog, portofolio, kedai kopi) dan jatuh balik ke gambar asli bila thumbnail tidak ada; media lama diisi lewat `php artisan media:thumbnails`. Thumbnail ikut terhapus saat media dihapus.
 - Pelacakan pemakaian berbasis pemindaian kolom, bukan relasi; kolom tak terdaftar tidak terlindungi.
 - Belum ada pembersihan media yatim otomatis.
 - `system_settings.seo_image` menyimpan path di kolom terenkripsi sehingga tidak terpindai `USAGES`; media itu bisa terhapus dari Pustaka Media tanpa peringatan (SEO jatuh balik ke gambar bawaan hanya bila setting dikosongkan).

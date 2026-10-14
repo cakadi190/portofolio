@@ -4,7 +4,6 @@
  * (CRL/OCSP) or anchor the chain in a trust store, so it informs rather than replaces an official validator.
  */
 
-
 export type CertificateInfo = {
   subject: string;
   issuer: string;
@@ -117,7 +116,10 @@ const EC_CURVES: Record<string, { name: string; size: number }> = {
   '1.3.132.0.35': { name: 'P-521', size: 66 },
 };
 
-const CERTIFICATE_SIGNATURES: Record<string, { key: 'rsa' | 'ec'; hash: string }> = {
+const CERTIFICATE_SIGNATURES: Record<
+  string,
+  { key: 'rsa' | 'ec'; hash: string }
+> = {
   '1.2.840.113549.1.1.5': { key: 'rsa', hash: 'SHA-1' },
   '1.2.840.113549.1.1.11': { key: 'rsa', hash: 'SHA-256' },
   '1.2.840.113549.1.1.12': { key: 'rsa', hash: 'SHA-384' },
@@ -767,7 +769,12 @@ export async function extractPdfSignatures(
       const container = Uint8Array.from(
         (digits.match(/../g) ?? []).map((pair) => parseInt(pair, 16)),
       );
-      const parsed = await parseSignedData(bytes, container, ranges, resolveAnchor);
+      const parsed = await parseSignedData(
+        bytes,
+        container,
+        ranges,
+        resolveAnchor,
+      );
 
       if (!parsed) {
         continue;

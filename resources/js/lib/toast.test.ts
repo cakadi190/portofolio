@@ -15,14 +15,17 @@ describe('toast', () => {
     expect(lib[type]).toHaveBeenCalledWith('Pesan', { duration: 4000 });
   });
 
-  it.each(['warning', 'info'] as const)('fires a %s toast with an icon', (type) => {
-    toast[type]('Pesan');
+  it.each(['warning', 'info'] as const)(
+    'fires a %s toast with an icon',
+    (type) => {
+      toast[type]('Pesan');
 
-    expect(lib).toHaveBeenCalledWith(
-      'Pesan',
-      expect.objectContaining({ icon: expect.any(String), duration: 4000 }),
-    );
-  });
+      expect(lib).toHaveBeenCalledWith(
+        'Pesan',
+        expect.objectContaining({ icon: expect.any(String), duration: 4000 }),
+      );
+    },
+  );
 
   it('cancelled() defaults to an info message', () => {
     toast.cancelled();

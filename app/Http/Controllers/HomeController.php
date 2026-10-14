@@ -26,7 +26,7 @@ class HomeController extends Controller
                 ->map(fn (Portfolio $portfolio): array => [
                     'name' => $portfolio->name,
                     'slug' => $portfolio->slug,
-                    'image' => ImageService::url($portfolio->image),
+                    'image' => ImageService::thumbnailUrl($portfolio->image),
                     'shortDesc' => $portfolio->short_desc,
                     'services' => $portfolio->services->map(fn ($service): array => [
                         'name' => $service->name,
@@ -45,7 +45,7 @@ class HomeController extends Controller
                     'title' => $post->title,
                     'slug' => $post->slug,
                     'excerpt' => $post->excerpt,
-                    'coverImage' => ImageService::url($post->cover_image),
+                    'coverImage' => ImageService::thumbnailUrl($post->cover_image),
                     'author' => $post->author?->name,
                     'categories' => $post->categories->map(fn ($category): array => [
                         'name' => $category->name,

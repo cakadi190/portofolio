@@ -15,8 +15,14 @@ describe('EmptyState', () => {
   });
 
   it('applies the requested callout tone', () => {
-    render(EmptyState, { title: 'Hasil', text: 'Tidak cocok.', type: 'warning' });
+    render(EmptyState, {
+      title: 'Hasil',
+      text: 'Tidak cocok.',
+      type: 'warning',
+    });
 
-    expect(screen.getByRole('status').classList.contains('is-warning')).toBe(true);
+    expect(screen.getByRole('status').classList.contains('is-warning')).toBe(
+      true,
+    );
   });
 });

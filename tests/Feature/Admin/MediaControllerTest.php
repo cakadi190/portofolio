@@ -4,6 +4,7 @@ use App\Models\Certification;
 use App\Models\Media;
 use App\Models\Post;
 use App\Models\User;
+use App\Services\ImageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -112,4 +113,49 @@ test('an image the server cannot decode returns a readable validation error inst
         ->assertJsonValidationErrors('file');
 
     expect(Media::query()->count())->toBe(0);
+});
+
+test('a wide image also gets a card-sized thumbnail that is used for card urls', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('lebar.jpg', 1200, 800)])
+        ->assertCreated();
+
+    $media = Media::query()->firstOrFail();
+    $thumbnail = ImageService::thumbnailPath($media->path);
+
+    Storage::disk('public')->assertExists($thumbnail);
+    expect(ImageService::thumbnailUrl($media->path))->toBe('/storage/'.$thumbnail);
+});
+
+test('a small image gets no thumbnail and card urls fall back to the original', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('kecil.jpg', 300, 200)])
+        ->assertCreated();
+
+    $media = Media::query()->firstOrFail();
+
+    Storage::disk('public')->assertMissing(ImageService::thumbnailPath($media->path));
+    expect(ImageService::thumbnailUrl($media->path))->toBe('/storage/'.$media->path)
+        ->and(ImageService::thumbnailUrl('/images/foto.webp'))->toBe('/images/foto.webp')
+        ->and(ImageService::thumbnailUrl(null))->toBeNull();
+});
+
+test('deleting media removes its thumbnail too', function () {
+    $user = User::factory()->admin()->create();
+    $this->actingAs($user)->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('hapus.jpg', 1200, 800)]);
+    $media = Media::query()->firstOrFail();
+    $thumbnail = ImageService::thumbnailPath($media->path);
+
+    $this->actingAs($user)->delete(route('admin.media.destroy', $media));
+
+    Storage::disk('public')->assertMissing($thumbnail);
+});
+
+test('media:thumbnails backfills images uploaded before thumbnails existed', function () {
+    $media = Media::factory()->create(['mime_type' => 'image/webp', 'path' => 'media/2026/10/lama.webp']);
+    Storage::disk('public')->put($media->path, UploadedFile::fake()->image('lama.jpg', 1200, 800)->getContent());
+
+    $this->artisan('media:thumbnails')->assertSuccessful();
+
+    Storage::disk('public')->assertExists(ImageService::thumbnailPath($media->path));
 });

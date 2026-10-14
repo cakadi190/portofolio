@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { badgeStyle } from '@/lib/badge';
   import Icon from '@iconify/svelte';
   import { Link } from '@inertiajs/svelte';
   import { techIcon } from '@/lib/tech-icon';
@@ -26,7 +27,7 @@
         <h2 class="card-title h5 mb-0">{name}</h2>
         {#if service}
           <div>
-            <span class="badge" style={`background-color: ${service.color ?? '#6c757d'}`}>
+            <span class="badge" style={badgeStyle(service.color)}>
               {service.name}
             </span>
           </div>

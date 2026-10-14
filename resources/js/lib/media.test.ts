@@ -70,12 +70,17 @@ describe('uploadMedia', () => {
   it.each([
     [413, /terlalu besar untuk server/],
     [500, /Server gagal memproses/],
-  ])('explains a %i response instead of a generic failure', async (status, message) => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: false, status, json: async () => ({}) }),
-    );
+  ])(
+    'explains a %i response instead of a generic failure',
+    async (status, message) => {
+      vi.stubGlobal(
+        'fetch',
+        vi
+          .fn()
+          .mockResolvedValue({ ok: false, status, json: async () => ({}) }),
+      );
 
-    await expect(uploadMedia(file)).rejects.toThrow(message);
-  });
+      await expect(uploadMedia(file)).rejects.toThrow(message);
+    },
+  );
 });

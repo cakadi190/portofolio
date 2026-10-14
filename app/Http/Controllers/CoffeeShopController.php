@@ -34,7 +34,7 @@ class CoffeeShopController extends Controller
                 'name' => $place->name,
                 'region' => $place->region,
                 'description' => $place->description,
-                'image' => ImageService::url($place->image),
+                'image' => ImageService::thumbnailUrl($place->image),
                 'address' => $place->address,
                 'mapUrl' => $place->map_url,
                 'opensAt' => $place->opens_at,

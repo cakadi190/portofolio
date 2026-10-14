@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { badgeStyle } from '@/lib/badge';
   import { Link } from '@inertiajs/svelte';
 
   type Props = {
@@ -37,7 +38,7 @@
         <h2 class="card-title h5 mb-0">{title}</h2>
         {#if category}
           <div>
-            <span class="badge" style={`background-color: ${category.color ?? '#6c757d'}`}>
+            <span class="badge" style={badgeStyle(category.color)}>
               {category.name}
             </span>
           </div>

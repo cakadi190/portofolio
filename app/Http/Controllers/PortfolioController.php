@@ -26,7 +26,7 @@ class PortfolioController extends Controller
             ->through(fn (Portfolio $portfolio): array => [
                 'name' => $portfolio->name,
                 'slug' => $portfolio->slug,
-                'image' => ImageService::url($portfolio->image),
+                'image' => ImageService::thumbnailUrl($portfolio->image),
                 'shortDesc' => $portfolio->short_desc,
                 'services' => $portfolio->services->map(fn ($service): array => [
                     'name' => $service->name,

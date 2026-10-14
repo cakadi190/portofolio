@@ -15,14 +15,14 @@
 
 Middleware `TrackVisitor` (grup `web`, berjalan setelah respons dikirim) mencatat tayangan GET 200 publik. Dikecualikan: `admin`, `settings`, `up`, `storage`, `build`, `api`, sitemap/robots, path berekstensi (aset), kunjungan non-Inertia berbentuk JSON, dan prefetch.
 
-| Metrik | Definisi |
-| --- | --- |
-| Tayangan halaman | Jumlah tayangan manusia (`visitor_daily_stats`, `is_bot=false`) |
-| Pengunjung unik | Cookie pihak pertama `visitor_id` (UUID, 1 tahun, HttpOnly, SameSite=Lax) yang berbeda. Bukan orang; hapus cookie ⇒ pengunjung baru. IP tidak dipakai sebagai identitas |
-| Kunjungan (sesi) | Rangkaian tayangan tanpa jeda > `visitor_session_minutes` (30) |
-| Pengunjung berulang | Pengunjung dengan > 1 kunjungan |
-| Harian / bulanan | Dari `visitor_daily_stats` dan `visitor_days` |
-| Bot | UA cocok pola bot/crawler atau kosong; dicatat terpisah atau diabaikan (`visitor_bot_policy`) |
+| Metrik              | Definisi                                                                                                                                                                |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tayangan halaman    | Jumlah tayangan manusia (`visitor_daily_stats`, `is_bot=false`)                                                                                                         |
+| Pengunjung unik     | Cookie pihak pertama `visitor_id` (UUID, 1 tahun, HttpOnly, SameSite=Lax) yang berbeda. Bukan orang; hapus cookie ⇒ pengunjung baru. IP tidak dipakai sebagai identitas |
+| Kunjungan (sesi)    | Rangkaian tayangan tanpa jeda > `visitor_session_minutes` (30)                                                                                                          |
+| Pengunjung berulang | Pengunjung dengan > 1 kunjungan                                                                                                                                         |
+| Harian / bulanan    | Dari `visitor_daily_stats` dan `visitor_days`                                                                                                                           |
+| Bot                 | UA cocok pola bot/crawler atau kosong; dicatat terpisah atau diabaikan (`visitor_bot_policy`)                                                                           |
 
 Desain tulis (SQLite): satu transaksi pendek per tayangan memperbarui baris pengunjung, sesi, `visitor_days`, dan penghitung harian (bukan satu baris per request); dedupe 2 detik; batas 20 pengunjung baru/jam per klien tanpa cookie; retry terbatas (3x) saat database terkunci; tanpa panggilan jaringan di dalam transaksi; ringkasan di-cache 60 detik. Pengayaan IPInfo berjalan lewat job antrean `EnrichIpAddress` (unik per IP, `afterResponse`). Antrean memakai tabel `jobs` pada SQLite yang sama sehingga tidak menghilangkan kontensi tulis; jalankan `php artisan queue:work`. Tanpa worker, tayangan tetap tercatat tetapi pengayaan tidak berjalan.
 
@@ -38,18 +38,18 @@ Endpoint resmi `api.ipinfo.io/lite/{ip}` (plan Lite) atau `/lookup/{ip}` (Core/P
 
 ## Pengaturan baru (Pengaturan Sistem)
 
-| Kunci | Bawaan |
-| --- | --- |
-| `visitor_tracking_enabled` | aktif |
-| `visitor_bot_policy` | `separate` (atau `exclude`) |
-| `visitor_store_ip` | aktif |
-| `visitor_excluded_paths` | kosong (ditambah ke bawaan) |
-| `visitor_session_minutes` | 30 |
-| `visitor_retention_days` | 180 |
-| `ipinfo_enabled` | nonaktif |
-| `ipinfo_plan` | `lite` |
-| `ipinfo_token` (rahasia) | — |
-| `ipinfo_cache_ttl_days` | 30 |
+| Kunci                      | Bawaan                      |
+| -------------------------- | --------------------------- |
+| `visitor_tracking_enabled` | aktif                       |
+| `visitor_bot_policy`       | `separate` (atau `exclude`) |
+| `visitor_store_ip`         | aktif                       |
+| `visitor_excluded_paths`   | kosong (ditambah ke bawaan) |
+| `visitor_session_minutes`  | 30                          |
+| `visitor_retention_days`   | 180                         |
+| `ipinfo_enabled`           | nonaktif                    |
+| `ipinfo_plan`              | `lite`                      |
+| `ipinfo_token` (rahasia)   | —                           |
+| `ipinfo_cache_ttl_days`    | 30                          |
 
 Rahasia (`*_token`, `turnstile_secret_key`) tersimpan terenkripsi, tidak pernah dikirim balik ke browser; kolom kosong mempertahankan nilai, kotak "Hapus nilai tersimpan" menghapusnya. Tombol uji koneksi IPInfo memanggil IP dokumentasi saja.
 
@@ -57,15 +57,15 @@ Rahasia (`*_token`, `turnstile_secret_key`) tersimpan terenkripsi, tidak pernah 
 
 - Paket: `sentry/sentry-laravel` (backend) dan `@sentry/svelte` (frontend). Seluruh pengaturan ada di Pengaturan Sistem → tab "Sentry" (grup `monitoring`); nilai `.env` (`SENTRY_LARAVEL_DSN`, `SENTRY_FRONTEND_DSN`, `SENTRY_RELEASE`, `SENTRY_ENVIRONMENT`) hanya cadangan saat setting kosong.
 
-| Kunci | Bawaan |
-| --- | --- |
-| `sentry_enabled` | nonaktif (sakelar utama; tanpa DSN tidak ada yang dikirim) |
-| `sentry_backend_dsn` (rahasia) | — |
-| `sentry_frontend_dsn` (publik) | — |
-| `sentry_environment` / `sentry_release` | environment aplikasi / kosong |
-| `sentry_traces_sample_percent` | 10 |
-| `sentry_profiles_sample_percent` | 0 (backend butuh ekstensi Excimer; frontend butuh header `Document-Policy: js-profiling`) |
-| `sentry_enable_logs` | nonaktif (menambahkan channel `sentry_logs` ke stack log) |
+| Kunci                                   | Bawaan                                                                                    |
+| --------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `sentry_enabled`                        | nonaktif (sakelar utama; tanpa DSN tidak ada yang dikirim)                                |
+| `sentry_backend_dsn` (rahasia)          | —                                                                                         |
+| `sentry_frontend_dsn` (publik)          | —                                                                                         |
+| `sentry_environment` / `sentry_release` | environment aplikasi / kosong                                                             |
+| `sentry_traces_sample_percent`          | 10                                                                                        |
+| `sentry_profiles_sample_percent`        | 0 (backend butuh ekstensi Excimer; frontend butuh header `Document-Policy: js-profiling`) |
+| `sentry_enable_logs`                    | nonaktif (menambahkan channel `sentry_logs` ke stack log)                                 |
 
 - Backend: `SentryConfigurator` menyalin setting ke config pada callback `booting` (sebelum SDK boot; DSN harus ada saat boot). Perubahan setting berlaku pada request berikutnya setelah cache setting dibersihkan; worker antrean/Octane perlu di-restart. Exception tak tertangani dilaporkan lewat `Integration::handles()` di `bootstrap/app.php`.
 - Frontend: DSN publik dan sampling dirender sebagai `<meta name="sentry-config">` (komponen `x-sentry`) bersama `sentry-trace`/`baggage` agar trace browser tersambung ke request server; `resources/js/lib/sentry.ts` menginisialisasi SDK. Trace hanya diteruskan ke origin sendiri.

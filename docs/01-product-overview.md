@@ -6,13 +6,13 @@
 
 ## Masalah yang diselesaikan
 
-| Masalah                                                                       | Solusi produk                                                                     |
-| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| CV statis (PDF) cepat usang dan tidak bisa dicari/dibagikan per bagian.       | Profil, karier, pendidikan, sertifikasi, penghargaan, dan portofolio sebagai halaman terpisah yang mudah diperbarui. |
-| Rekruter/klien butuh bukti kerja dan reputasi, bukan sekadar klaim.           | Portofolio dengan teknologi, galeri, ulasan terverifikasi, sertifikasi berkas, dan rekam jejak pembicara. |
-| Konten tersebar di banyak platform dan sulit dikelola.                        | Satu CMS dengan Pustaka Media terpusat; semua konten milik sendiri.               |
-| Klaim/isu tentang pemilik situs beredar tanpa tanggapan yang bisa dirujuk.    | Halaman Klarifikasi dengan vonis, bukti/sumber, dan jejak waktu.                  |
-| Sulit menemukan tempat kerja remote yang nyaman di sekitar pemilik.           | Direktori kedai kopi dengan Wi-Fi, harga, fasilitas, parkir, dan peta.            |
+| Masalah                                                                    | Solusi produk                                                                                                        |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| CV statis (PDF) cepat usang dan tidak bisa dicari/dibagikan per bagian.    | Profil, karier, pendidikan, sertifikasi, penghargaan, dan portofolio sebagai halaman terpisah yang mudah diperbarui. |
+| Rekruter/klien butuh bukti kerja dan reputasi, bukan sekadar klaim.        | Portofolio dengan teknologi, galeri, ulasan terverifikasi, sertifikasi berkas, dan rekam jejak pembicara.            |
+| Konten tersebar di banyak platform dan sulit dikelola.                     | Satu CMS dengan Pustaka Media terpusat; semua konten milik sendiri.                                                  |
+| Klaim/isu tentang pemilik situs beredar tanpa tanggapan yang bisa dirujuk. | Halaman Klarifikasi dengan vonis, bukti/sumber, dan jejak waktu.                                                     |
+| Sulit menemukan tempat kerja remote yang nyaman di sekitar pemilik.        | Direktori kedai kopi dengan Wi-Fi, harga, fasilitas, parkir, dan peta.                                               |
 
 ## Tujuan
 
@@ -27,13 +27,13 @@
 
 ## Persona
 
-| Persona                                 | Kebutuhan                                                                                                       |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Pengunjung / calon klien / rekruter** | Cepat menilai kemampuan, melihat portofolio dan sertifikasi, membaca blog, menghubungi pemilik. Tanpa login.    |
-| **Panitia / penyelenggara acara**       | Melihat rekam jejak dan jadwal pembicara/mentoring, lalu mengajak kolaborasi lewat formulir kontak.             |
-| **Pembaca terdaftar (`user`)**          | Berkomentar dan membalas di artikel blog setelah verifikasi email; komentar menunggu moderasi.                 |
-| **Pihak yang terkait klaim**            | Membaca klarifikasi resmi beserta bukti dan membagikan tautannya.                                              |
-| **Redaktur (`redaktur`)**               | Mengelola blog saja: artikel, kategori, tag, moderasi komentar, dan unggah media (area `manage-blog`).         |
+| Persona                                 | Kebutuhan                                                                                                                    |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Pengunjung / calon klien / rekruter** | Cepat menilai kemampuan, melihat portofolio dan sertifikasi, membaca blog, menghubungi pemilik. Tanpa login.                 |
+| **Panitia / penyelenggara acara**       | Melihat rekam jejak dan jadwal pembicara/mentoring, lalu mengajak kolaborasi lewat formulir kontak.                          |
+| **Pembaca terdaftar (`user`)**          | Berkomentar dan membalas di artikel blog setelah verifikasi email; komentar menunggu moderasi.                               |
+| **Pihak yang terkait klaim**            | Membaca klarifikasi resmi beserta bukti dan membagikan tautannya.                                                            |
+| **Redaktur (`redaktur`)**               | Mengelola blog saja: artikel, kategori, tag, moderasi komentar, dan unggah media (area `manage-blog`).                       |
 | **Admin / pemilik (`admin`)**           | Mengelola semua konten dan pengguna lewat `/admin`; aman (2FA, passkey); nyaman (tabel cari/urut, modal form, picker media). |
 
 ## Ruang lingkup (in scope)
@@ -69,27 +69,27 @@
 
 ## Metrik keberhasilan
 
-| Metrik                                                   | Target                                                              |
-| -------------------------------------------------------- | ------------------------------------------------------------------- |
-| Waktu admin menambah artikel/portofolio lengkap bergambar | < 3 menit                                                           |
-| Bobot gambar halaman publik                              | WebP, ≤ 300–400 KB per berkas                                       |
-| Deploy dari nol                                          | `migrate:fresh --seed` menghasilkan situs yang langsung terisi & berjalan |
-| Jangkauan organik                                        | Seluruh halaman terbit terindeks lewat sitemap; tidak ada 404 pada URL lama (redirect 301) |
-| Konversi kontak                                          | Pesan kontak valid terkirim (event GA4 `generate_lead`) dan masuk inbox admin |
-| Keterlibatan konten                                      | Event GA4 `scroll_depth`, `comment_submit`, `rating_submit` terpantau |
-| Kualitas                                                 | Tes Pest & Vitest hijau di CI sebelum rilis                         |
+| Metrik                                                    | Target                                                                                     |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Waktu admin menambah artikel/portofolio lengkap bergambar | < 3 menit                                                                                  |
+| Bobot gambar halaman publik                               | WebP, ≤ 300–400 KB per berkas                                                              |
+| Deploy dari nol                                           | `migrate:fresh --seed` menghasilkan situs yang langsung terisi & berjalan                  |
+| Jangkauan organik                                         | Seluruh halaman terbit terindeks lewat sitemap; tidak ada 404 pada URL lama (redirect 301) |
+| Konversi kontak                                           | Pesan kontak valid terkirim (event GA4 `generate_lead`) dan masuk inbox admin              |
+| Keterlibatan konten                                       | Event GA4 `scroll_depth`, `comment_submit`, `rating_submit` terpantau                      |
+| Kualitas                                                  | Tes Pest & Vitest hijau di CI sebelum rilis                                                |
 
 ## Rilis & status modul
 
-| Modul                                              | Status |
-| -------------------------------------------------- | ------ |
-| Profil (karier, pendidikan, organisasi, sertifikasi, penghargaan) | ✅ |
-| Portofolio + teknologi, layanan, galeri, ulasan     | ✅ |
-| Blog + kategori, tag, komentar moderasi, penulis    | ✅ |
-| Pembicara & Mentoring                              | ✅ |
-| Klarifikasi (hak jawab)                            | ✅ |
-| Tempat Ngopi + galeri + peta                       | ✅ |
-| Pustaka Media, Pengaturan Sistem, Pesan Masuk       | ✅ |
-| SEO, sitemap, GA4, Turnstile, header keamanan       | ✅ (CSP masih `Report-Only`, lihat `06` #10) |
+| Modul                                                             | Status                                       |
+| ----------------------------------------------------------------- | -------------------------------------------- |
+| Profil (karier, pendidikan, organisasi, sertifikasi, penghargaan) | ✅                                           |
+| Portofolio + teknologi, layanan, galeri, ulasan                   | ✅                                           |
+| Blog + kategori, tag, komentar moderasi, penulis                  | ✅                                           |
+| Pembicara & Mentoring                                             | ✅                                           |
+| Klarifikasi (hak jawab)                                           | ✅                                           |
+| Tempat Ngopi + galeri + peta                                      | ✅                                           |
+| Pustaka Media, Pengaturan Sistem, Pesan Masuk                     | ✅                                           |
+| SEO, sitemap, GA4, Turnstile, header keamanan                     | ✅ (CSP masih `Report-Only`, lihat `06` #10) |
 
 Persyaratan non-fungsional, alur pengguna utama, kriteria penerimaan, risiko, dan glosarium ada di [07-nonfunctional-and-acceptance.md](07-nonfunctional-and-acceptance.md).

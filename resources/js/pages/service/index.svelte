@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { badgeStyle } from '@/lib/badge';
   import { Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import EmptyState from '@/components/empty-state.svelte';
@@ -39,7 +40,7 @@
                     <div class="d-flex gap-2 mb-2 justify-content-between">
                       <h5 class="card-title mb-0">{service.name}</h5>
                       <div>
-                        <span class="badge" style={`background-color: ${service.color ?? '#6c757d'}`}>
+                        <span class="badge" style={badgeStyle(service.color)}>
                           {service.portfoliosCount} proyek
                         </span>
                       </div>

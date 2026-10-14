@@ -55,6 +55,7 @@ class MediaService
                 $path = $image->save($directory, 'webp', 80, 400, $filename);
                 $width = $image->get()?->width();
                 $height = $image->get()?->height();
+                $this->images->createThumbnail($path);
             } catch (Throwable $exception) {
                 report($exception);
 
@@ -134,7 +135,7 @@ class MediaService
 
     public function delete(Media $media): void
     {
-        Storage::disk($media->disk)->delete($media->path);
+        Storage::disk($media->disk)->delete([$media->path, ImageService::thumbnailPath($media->path)]);
         $media->delete();
     }
 }

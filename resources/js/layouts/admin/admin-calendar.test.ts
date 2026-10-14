@@ -30,7 +30,9 @@ describe('AdminCalendar', () => {
 
     render(AdminCalendar, { active: true });
 
-    expect(screen.getAllByText('Sabtu, 10 Oktober 2026').length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText('Sabtu, 10 Oktober 2026').length,
+    ).toBeGreaterThan(0);
     expect(await screen.findByText('Talk Oktober')).toBeTruthy();
     expect(fetchMock.mock.calls[0][0]).toContain('month=2026-10');
 

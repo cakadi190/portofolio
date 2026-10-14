@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { badgeStyle } from '@/lib/badge';
   import { Link } from '@inertiajs/svelte';
   import { show as showAuthor } from '@/wayfinder/routes/blog/authors';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
@@ -44,7 +45,7 @@
             <Link
               href={showCategory(category.slug).url}
               class="badge text-decoration-none position-relative"
-              style={`background-color: ${category.color ?? '#6c757d'}`}
+              style={badgeStyle(category.color)}
             >
               {category.name}
             </Link>
