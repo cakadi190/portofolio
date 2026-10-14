@@ -92,7 +92,6 @@
       setMode: (next: 'visual' | 'html') => void;
     })}
       <EditorSaveMenu
-        label="Catatan"
         {processing}
         exists={!!note}
         {isPublished}

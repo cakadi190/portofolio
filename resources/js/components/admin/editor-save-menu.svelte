@@ -1,6 +1,5 @@
 <script lang="ts">
   import Code from '@lucide/svelte/icons/code';
-  import FileText from '@lucide/svelte/icons/file-text';
   import PenLine from '@lucide/svelte/icons/pen-line';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import Undo2 from '@lucide/svelte/icons/undo-2';
@@ -12,7 +11,6 @@
    * action and, when `onTrash` is given, a danger "move to trash" action.
    */
   let {
-    label,
     processing = false,
     exists,
     draftable = true,
@@ -23,7 +21,6 @@
     onStatus,
     danger,
   }: {
-    label: string;
     processing?: boolean;
     /** Whether the record is already saved (edit page). */
     exists: boolean;
@@ -51,7 +48,7 @@
 
   const primaryLabel = $derived(
     draftable
-      ? persistedPublished
+      ? isPublished
         ? 'Perbarui'
         : 'Terbitkan'
       : exists
@@ -113,7 +110,7 @@
     type="submit"
     class="btn btn-sm btn-primary"
     disabled={processing}
-    title={draftable && !persistedPublished ? 'Terbitkan (Ctrl+Shift+S)' : 'Simpan (Ctrl+S)'}
+    title={draftable && !isPublished ? 'Terbitkan (Ctrl+Shift+S)' : 'Simpan (Ctrl+S)'}
     onclick={() => onStatus?.(true)}
   >
     {primaryLabel}
@@ -135,32 +132,6 @@
       data-save-menu
       style="top: 100%; right: 0; z-index: 1060; min-width: 15rem"
     >
-      <li>
-        <div
-          class="d-flex align-items-center gap-3 px-3 py-2 mb-2 rounded-3"
-          style="background: var(--neo-surface-inset)"
-        >
-          <span
-            class="d-flex align-items-center justify-content-center rounded-circle"
-            style="width: 40px; height: 40px; background: var(--neo-surface-raised)"
-          >
-            <FileText size={18} aria-hidden="true" />
-          </span>
-          <div>
-            <strong class="d-block">{label}</strong>
-            {#if draftable}
-              <span
-                class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
-                >{isPublished ? 'Terbit' : 'Draf'}</span
-              >
-            {:else}
-              <span class="small text-muted"
-                >{exists ? 'Tersimpan' : 'Belum disimpan'}</span
-              >
-            {/if}
-          </div>
-        </div>
-      </li>
       <li class="d-lg-none">
         <button
           type="button"
@@ -190,7 +161,7 @@
             }}
           >
             <Undo2 size={16} aria-hidden="true" />
-            {persistedPublished ? 'Kembalikan ke Draf' : 'Simpan Draf'}
+            {isPublished ? 'Kembalikan ke Draf' : 'Simpan Draf'}
           </button>
         </li>
       {/if}

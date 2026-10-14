@@ -104,7 +104,6 @@
       setMode: (next: 'visual' | 'html') => void;
     })}
       <EditorSaveMenu
-        label="Portofolio"
         {processing}
         exists={!!portfolio}
         draftable={false}

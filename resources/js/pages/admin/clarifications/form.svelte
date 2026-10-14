@@ -294,7 +294,6 @@
       setMode: (next: 'visual' | 'html') => void;
     })}
       <EditorSaveMenu
-        label="Klarifikasi"
         {processing}
         exists={!!clarification}
         {isPublished}

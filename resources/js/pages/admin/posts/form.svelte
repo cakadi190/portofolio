@@ -103,7 +103,6 @@
       setMode: (next: 'visual' | 'html') => void;
     })}
       <EditorSaveMenu
-        label="Artikel"
         {processing}
         exists={!!post}
         {isPublished}
