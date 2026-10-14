@@ -69,7 +69,9 @@
             .dropdown-menu:not(.show) { display: none; }
         </style>
 
-        @php($isCertificationViewer = request()->routeIs('certifications.show') && request()->attributes->get('pdfViewer') === true)
+        @php
+            $isCertificationViewer = request()->routeIs('certifications.show') && request()->attributes->get('pdfViewer') === true;
+        @endphp
 
         @if (request()->routeIs('resume.show', 'resume.profile') || $isCertificationViewer)
             {{-- Anti-FOUC for the PDF viewer: paint its shell (and preload the generated resume PDF) before the JS bundle boots. --}}
