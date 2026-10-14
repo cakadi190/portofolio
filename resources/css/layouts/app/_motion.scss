@@ -8,8 +8,8 @@
 // Two distinct timing profiles exist in the source and are kept distinct here:
 // - `.reveal-spring`: the site-wide default (app/components/motion.ts), which
 //   never sets an explicit `transition`, so @vueuse/motion falls back to its
-//   spring physics preset. Approximated with a slight overshoot keyframe,
-//   since CSS has no native spring easing.
+//   spring physics preset. Approximated with a fast ease-out (no overshoot,
+//   which looked like a double entrance).
 // - `.reveal-tween`: pages that pass an explicit `transition: { duration }`
 //   (tentang/saya.vue, karir.vue's local variant overrides) — a plain eased
 //   tween, no overshoot.
@@ -20,34 +20,24 @@
 // keyframes.
 
 @keyframes reveal-spring-x {
-  0% {
+  from {
     opacity: 0;
     transform: translateX(var(--reveal-x));
   }
 
-  60% {
-    opacity: 1;
-    transform: translateX(calc(var(--reveal-x) * -0.08));
-  }
-
-  100% {
+  to {
     opacity: 1;
     transform: translateX(0);
   }
 }
 
 @keyframes reveal-spring-y {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(var(--reveal-y));
   }
 
-  60% {
-    opacity: 1;
-    transform: translateY(calc(var(--reveal-y) * -0.08));
-  }
-
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -87,7 +77,9 @@
 }
 
 .reveal-spring {
-  animation-timing-function: linear;
+  // Single monotonic ease-out: the earlier overshoot keyframe slid past the
+  // resting position and back, which read as the element entering twice.
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 
   &.reveal-left,
   &.reveal-right {

@@ -1,5 +1,5 @@
 import { addCollection } from '@iconify/svelte';
-import { createInertiaApp } from '@inertiajs/svelte';
+import { createInertiaApp, router } from '@inertiajs/svelte';
 import AdminLayout from '@/layouts/admin-layout.svelte';
 import AppLayout from '@/layouts/app-layout.svelte';
 import AuthLayout from '@/layouts/auth-layout.svelte';
@@ -37,6 +37,15 @@ void createInertiaApp({
 });
 
 if (typeof document !== 'undefined') {
+  // Admin CSS is a separate chunk (public visitors never download it). Start
+  // fetching it the moment a visit towards the admin begins, so it is applied
+  // before the first admin render instead of after mount (FOUC).
+  router.on('before', (event) => {
+    if (/^\/(admin|dashboard)(\/|$)/.test(event.detail.visit.url.pathname)) {
+      void import('../css/admin.scss');
+    }
+  });
+
   // Bootstrap's JS bundle touches `document` at import time, so it must
   // only load in the browser, never during SSR.
   void import('bootstrap');
