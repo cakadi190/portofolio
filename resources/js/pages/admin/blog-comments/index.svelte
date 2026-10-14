@@ -56,6 +56,9 @@
     editing = row;
     editOpen = true;
   }
+
+  /** Comment bodies are stored as HTML; lists and headings show them as one line of text. */
+  const plain = (html: string): string => html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 </script>
 
 <AppHead title="Komentar Blog" />
@@ -94,7 +97,7 @@
   {#snippet row(comment)}
     <tr>
       <td style="max-width: 20rem;">
-        <div class="text-truncate">{comment.body}</div>
+        <div class="text-truncate">{plain(comment.body)}</div>
         <small class="opacity-75">
           {#if comment.parent}
             Balasan untuk #{comment.parent.id} ·

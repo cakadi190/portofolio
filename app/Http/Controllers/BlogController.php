@@ -207,7 +207,7 @@ class BlogController extends Controller
         $build = function (?int $parentId) use (&$build, $byParent): Collection {
             return $byParent->get($parentId, collect())->map(fn (BlogComment $comment): array => [
                 'id' => $comment->id,
-                'body' => $comment->body,
+                'body' => HtmlSanitizer::richText($comment->body),
                 'author' => $comment->user?->name ?? 'Pengguna terhapus',
                 'createdAt' => $comment->created_at,
                 'replies' => $build($comment->id)->values(),

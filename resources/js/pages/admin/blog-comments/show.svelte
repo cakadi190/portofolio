@@ -46,6 +46,9 @@
     editing = node;
     editOpen = true;
   }
+
+  /** Comment bodies are stored as HTML; lists and headings show them as one line of text. */
+  const plain = (html: string): string => html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 </script>
 
 {#snippet author(node: Node)}
@@ -88,7 +91,7 @@
       <li class="card mb-2" style={`margin-left: ${level * 1.25}rem;`}>
         <div class="card-body py-2">
           <div>{@render author(ancestor)}</div>
-          <div class="text-truncate">{ancestor.body}</div>
+          <div class="text-truncate">{plain(ancestor.body)}</div>
           <Link href={show(ancestor.id).url} class="small">Buka</Link>
         </div>
       </li>
@@ -99,9 +102,7 @@
 <div class="card border-primary mb-4">
   <div class="card-body">
     <div class="mb-2">{@render author(blogComment)}</div>
-    <p class="mb-3" style="white-space: pre-line; overflow-wrap: anywhere;">
-      {blogComment.body}
-    </p>
+    <div class="mb-3" style="overflow-wrap: anywhere;">{@html blogComment.body}</div>
     <div class="d-flex gap-2">
       <button
         type="button"
@@ -127,7 +128,7 @@
       >
         <div class="card-body py-2">
           <div>{@render author(reply)}</div>
-          <div style="white-space: pre-line; overflow-wrap: anywhere;">{reply.body}</div>
+          <div style="overflow-wrap: anywhere;">{@html reply.body}</div>
           <div class="d-flex gap-3 mt-1">
             <Link href={show(reply.id).url} class="small">Buka</Link>
             <button

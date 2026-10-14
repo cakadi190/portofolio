@@ -3,12 +3,15 @@
 namespace App\Http\Requests;
 
 use App\Enums\BlogCommentStatus;
+use App\Http\Requests\Concerns\SanitizesRichText;
 use App\Models\Post;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreBlogCommentRequest extends FormRequest
 {
+    use SanitizesRichText;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -26,7 +29,7 @@ class StoreBlogCommentRequest extends FormRequest
         $post = $this->route('post');
 
         return [
-            'body' => ['required', 'string', 'max:2000'],
+            'body' => ['required', 'string', 'max:5000'],
             'parent_id' => [
                 'nullable',
                 'integer',
@@ -50,8 +53,6 @@ class StoreBlogCommentRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if (is_string($this->input('body'))) {
-            $this->merge(['body' => trim($this->input('body'))]);
-        }
+        $this->sanitizeRichText('body');
     }
 }

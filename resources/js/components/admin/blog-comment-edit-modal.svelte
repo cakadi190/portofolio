@@ -2,6 +2,7 @@
   import { Form } from '@inertiajs/svelte';
   import FormModal from '@/components/form-modal.svelte';
   import { Field } from '@/components/ui/field';
+  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import Select from '@/components/ui/select.svelte';
   import { update } from '@/wayfinder/routes/admin/blog-comments';
 
@@ -33,16 +34,13 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-comment-body">Isi Komentar</Field.Label>
-            <textarea
-              id="edit-comment-body"
+            <Field.Label>Isi Komentar</Field.Label>
+            <RichTextEditor
               name="body"
-              rows="5"
-              maxlength="2000"
-              required
-              class="form-control"
-              class:is-invalid={!!errors.body}>{comment.body}</textarea
-            >
+              minimal
+              value={comment.body}
+              invalid={!!errors.body}
+            />
             <Field.Feedback message={errors.body} />
           </Field.Group>
 

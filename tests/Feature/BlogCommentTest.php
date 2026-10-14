@@ -106,7 +106,7 @@ test('the body is required and bounded', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)->post(route('blog.comments.store', $post), ['body' => ''])->assertSessionHasErrors('body');
-    $this->actingAs($user)->post(route('blog.comments.store', $post), ['body' => str_repeat('a', 2001)])->assertSessionHasErrors('body');
+    $this->actingAs($user)->post(route('blog.comments.store', $post), ['body' => str_repeat('a', 5001)])->assertSessionHasErrors('body');
 });
 
 test('comments cannot be posted on unpublished posts', function () {
@@ -211,4 +211,17 @@ describe('moderation', function () {
     test('guests are sent to login', function () {
         $this->delete(route('admin.blog-comments.destroy', BlogComment::factory()->create()))->assertRedirect(route('login'));
     });
+});
+
+test('a rich-text comment keeps safe formatting and drops scripts', function () {
+    $post = Post::factory()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->post(route('blog.comments.store', $post), [
+        'body' => '<p><strong>Halo</strong><script>alert(1)</script></p>',
+    ])->assertSessionHasNoErrors();
+
+    $body = BlogComment::firstOrFail()->body;
+
+    expect($body)->toContain('<strong>Halo</strong>')->not->toContain('<script');
 });

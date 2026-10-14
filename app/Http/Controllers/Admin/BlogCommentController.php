@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BlogCommentRequest;
 use App\Models\BlogComment;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -92,7 +93,7 @@ class BlogCommentController extends Controller
         return [
             'id' => $comment->id,
             'parent_id' => $comment->parent_id,
-            'body' => $comment->body,
+            'body' => HtmlSanitizer::richText($comment->body),
             'status' => $comment->status->value,
             'depth' => $depth,
             'created_at' => $comment->created_at,

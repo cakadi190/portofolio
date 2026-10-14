@@ -2,6 +2,7 @@
   import { Form } from '@inertiajs/svelte';
   import Turnstile from '@/components/turnstile.svelte';
   import { Field } from '@/components/ui/field';
+  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import { store } from '@/wayfinder/routes/blog/comments';
   import BlogCommentItem from './blog-comment-item.svelte';
   import type { BlogCommentNode } from './types';
@@ -44,9 +45,9 @@
         <small class="opacity-75">{postedAt}</small>
       </div>
 
-      <p class="mb-3" style="white-space: pre-line; overflow-wrap: anywhere;">
-        {comment.body}
-      </p>
+      <div class="blog-comment-body mb-3" style="overflow-wrap: anywhere;">
+        {@html comment.body}
+      </div>
 
       {#if canComment}
         <button
@@ -69,18 +70,13 @@
           {#snippet children({ errors, processing })}
             <input type="hidden" name="parent_id" value={comment.id} />
             <Field.Group>
-              <Field.Label for={`reply-${comment.id}`}
-                >Balas {comment.author}</Field.Label
-              >
-              <textarea
-                id={`reply-${comment.id}`}
+              <Field.Label>Balas {comment.author}</Field.Label>
+              <RichTextEditor
                 name="body"
-                rows="3"
-                maxlength="2000"
-                required
-                class="form-control"
-                class:is-invalid={!!errors.body || !!errors.parent_id}
-              ></textarea>
+                minimal
+                placeholder="Tulis balasan..."
+                invalid={!!errors.body || !!errors.parent_id}
+              />
               <Field.Feedback message={errors.body ?? errors.parent_id} />
             </Field.Group>
             <Turnstile error={errors['cf-turnstile-response']} />

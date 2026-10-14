@@ -2,6 +2,7 @@
   import { Form, Link, page } from '@inertiajs/svelte';
   import Turnstile from '@/components/turnstile.svelte';
   import { Field } from '@/components/ui/field';
+  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import { login, register } from '@/wayfinder/routes';
   import { store } from '@/wayfinder/routes/blog/comments';
   import BlogCommentItem from './blog-comment-item.svelte';
@@ -17,6 +18,9 @@
 
   let replyingTo = $state<number | null>(null);
 
+  /** Remounting the form is what clears the rich-text editor after a successful send. */
+  let formKey = $state(0);
+
   const canComment = $derived(!!page.props.auth?.user);
 
   function countAll(nodes: BlogCommentNode[]): number {
@@ -30,24 +34,22 @@
   <h3 id="komentar-title" class="mb-4">Komentar ({total})</h3>
 
   {#if canComment}
+    {#key formKey}
     <Form
       {...store.form(postSlug)}
       class="d-flex flex-column gap-3 mb-5"
       resetOnSuccess
+      onSuccess={() => formKey++}
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="comment-body">Tulis komentar</Field.Label>
-          <textarea
-            id="comment-body"
+          <Field.Label>Tulis komentar</Field.Label>
+          <RichTextEditor
             name="body"
-            rows="4"
-            maxlength="2000"
-            required
+            minimal
             placeholder="Bagikan pendapat Anda..."
-            class="form-control"
-            class:is-invalid={!!errors.body}
-          ></textarea>
+            invalid={!!errors.body}
+          />
           <Field.Feedback message={errors.body} />
         </Field.Group>
         <Turnstile error={errors['cf-turnstile-response']} />
@@ -62,6 +64,7 @@
         </p>
       {/snippet}
     </Form>
+    {/key}
   {:else}
     <div class="card rounded-4 mb-5">
       <div
