@@ -1559,19 +1559,21 @@
     {/if}
 
     {#if shell}
-      <div class="rte-doc-title" title={documentTitle}>
-        {documentTitle || 'Tanpa judul'}<span> · {rootLabel}</span>
+      <div class="rte-doc-title">
+        <span class="rte-doc-text" title={documentTitle}>
+          {documentTitle || 'Tanpa judul'}<span> · {rootLabel}</span>
+        </span>
+        {#if viewHref}
+          <a
+            href={viewHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rte-view-link"
+            title="Buka pratinjau di tab baru"
+            aria-label="Buka pratinjau di tab baru"><ExternalLink size={15} /></a
+          >
+        {/if}
       </div>
-      {#if viewHref}
-        <a
-          href={viewHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="rte-btn rte-btn-lg rte-view-link"
-          title="Buka halaman"
-          aria-label="Buka halaman di tab baru"><ExternalLink size={18} /></a
-        >
-      {/if}
     {/if}
 
     <div class="rte-top-end">
@@ -2004,22 +2006,33 @@
     flex: 0 1 28rem;
     min-width: 0;
     margin: 0 auto;
-    padding: 0.4rem 1rem;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem 0.4rem 1rem;
     border-radius: 0.375rem;
     background: var(--neo-tertiary-bg);
     font-size: 0.8125rem;
+  }
+  .rte-doc-text {
+    min-width: 0;
+    overflow: hidden;
     text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .rte-view-link {
+    display: inline-flex;
     flex: 0 0 auto;
-    margin-right: auto;
     color: inherit;
+    opacity: 0.7;
     text-decoration: none;
   }
-  .rte-doc-title span {
+  .rte-view-link:hover {
+    opacity: 1;
+  }
+  .rte-doc-text span {
     color: var(--neo-secondary-color);
   }
 

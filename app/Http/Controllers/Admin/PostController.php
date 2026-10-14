@@ -54,6 +54,7 @@ class PostController extends Controller
     {
         return Inertia::render('admin/posts/form', [
             'post' => $post->load(['tags:id', 'categories:id']),
+            'previewUrl' => $post->is_published ? null : $post->previewUrl(),
             ...$this->options(),
         ]);
     }

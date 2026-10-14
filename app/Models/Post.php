@@ -67,4 +67,18 @@ class Post extends Model
     {
         return $this->hasMany(BlogComment::class);
     }
+
+    /**
+     * Token for the staff-only draft preview URL. It is bound to the slug and
+     * the last save, so every edit yields a fresh link and stale ones stop working.
+     */
+    public function previewHash(): string
+    {
+        return substr(hash_hmac('sha256', $this->slug.'|'.$this->updated_at?->getTimestamp(), (string) config('app.key')), 0, 16);
+    }
+
+    public function previewUrl(): string
+    {
+        return route('blog.show', [$this, 'action' => 'preview', 'cache' => $this->previewHash()]);
+    }
 }

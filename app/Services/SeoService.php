@@ -24,6 +24,7 @@ use Illuminate\Support\Str;
  *     published_time?: string|null,
  *     modified_time?: string|null,
  *     section?: string|null,
+ *     robots?: string,
  *     tags?: list<string>,
  *     json_ld?: list<array<string, mixed>>,
  * }
@@ -107,9 +108,9 @@ class SeoService
             'title' => $title,
             'description' => $description,
             'canonical' => $canonical,
-            'robots' => $isIndexable
+            'robots' => $this->overrides['robots'] ?? ($isIndexable
                 ? 'index,follow,max-image-preview:large,max-snippet:-1'
-                : 'noindex,nofollow',
+                : 'noindex,nofollow'),
             'siteName' => $siteName,
             'locale' => config('seo.locale'),
             'type' => $type,

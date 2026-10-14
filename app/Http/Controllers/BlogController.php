@@ -51,15 +51,18 @@ class BlogController extends Controller
     /**
      * Show a single published post.
      */
-    public function show(Post $post, SeoService $seo): Response
+    public function show(Request $request, Post $post, SeoService $seo): Response
     {
-        abort_unless($post->is_published, 404);
+        $isPreview = ! $post->is_published && $this->canPreview($request, $post);
+
+        abort_unless($post->is_published || $isPreview, 404);
 
         $post->load(['categories:id,name,color', 'tags:id,name', 'author:id,name']);
 
         $coverImage = ImageService::url($post->cover_image);
 
         $seo->set([
+            ...($isPreview ? ['robots' => 'noindex,nofollow'] : []),
             'title' => $post->title,
             'author' => $post->author?->name,
             'description' => $post->excerpt ?: Str::limit(strip_tags($post->content), 200),
@@ -106,6 +109,16 @@ class BlogController extends Controller
             'categories' => $this->categoryList(),
             'adjacent' => $this->adjacentPosts($post),
         ]);
+    }
+
+    /**
+     * A draft is only viewable through its signed preview URL, by staff who manage the blog.
+     */
+    private function canPreview(Request $request, Post $post): bool
+    {
+        return $request->query('action') === 'preview'
+            && $request->user()?->canManageBlog() === true
+            && hash_equals($post->previewHash(), (string) $request->query('cache'));
     }
 
     /**

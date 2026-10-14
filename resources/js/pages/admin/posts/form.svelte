@@ -43,8 +43,10 @@
     tags,
     categories,
     authors,
+    previewUrl = null,
   }: {
     post: Post | null;
+    previewUrl?: string | null;
     tags: Option[];
     categories: Option[];
     authors: Option[];
@@ -229,7 +231,7 @@
       value={post?.content ?? ''}
       invalid={!!errors.content}
       backHref={index().url}
-      viewHref={post?.is_published && post.slug ? show(post.slug).url : null}
+      viewHref={post?.slug ? (post.is_published ? show(post.slug).url : previewUrl) : null}
       documentTitle={title}
       rootLabel="Artikel"
       header={postHeader}
