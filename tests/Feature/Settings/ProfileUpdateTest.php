@@ -122,3 +122,33 @@ test('invalid gender is rejected', function () {
         ])
         ->assertSessionHasErrors('gender');
 });
+
+test('username and sanitized bio can be updated from the profile page', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->patch(route('profile.update'), [
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => '@Cak.Adi_99',
+            'bio' => '<p>Halo <strong>dunia</strong></p><script>alert(1)</script>',
+        ])
+        ->assertSessionHasNoErrors();
+
+    $user->refresh();
+
+    expect($user->username)->toBe('cak.adi_99')
+        ->and($user->bio)->toContain('<strong>dunia</strong>')
+        ->and($user->bio)->not->toContain('script');
+});
+
+test('username must be unique and well formed', function () {
+    $other = User::factory()->create();
+    $user = User::factory()->create();
+
+    foreach ([$other->username, 'ab', 'dengan spasi', '-diawali-strip'] as $invalid) {
+        $this->actingAs($user)
+            ->patch(route('profile.update'), ['name' => $user->name, 'email' => $user->email, 'username' => $invalid])
+            ->assertSessionHasErrors('username');
+    }
+});

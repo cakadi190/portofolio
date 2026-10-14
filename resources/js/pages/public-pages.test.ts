@@ -456,7 +456,7 @@ describe('BlogShow', () => {
     content:
       '<p>Isi <strong>artikel</strong></p><pre><code class="language-javascript">let a = 1;</code></pre>',
     coverImage: '/cover.webp',
-    author: { name: 'Cakadi', slug: 'cakadi' },
+    author: { name: 'Cakadi', username: 'cakadi' },
     publishedAt: '2024-05-17T00:00:00Z',
     categories: [{ name: 'Tech', slug: 'tech', color: null }],
     tags: [{ name: 'php', slug: 'php' }],
@@ -488,7 +488,7 @@ describe('BlogShow', () => {
       '/blog/categories/tech',
     );
     expect(hrefOf(screen.getByRole('link', { name: 'Cakadi' }))).toBe(
-      '/blog/authors/cakadi',
+      '/blog/@cakadi',
     );
     expect(screen.queryByRole('link', { name: /Edit artikel/i })).toBeNull();
     expect(screen.getAllByText(/2024/).length).toBeGreaterThan(0);

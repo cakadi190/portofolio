@@ -59,7 +59,7 @@ test('an author page lists published posts and exposes no private account data',
             ->where('author.name', 'Penulis Satu')
             ->where('posts.total', 1)
             ->where('posts.data.0.slug', $published->slug)
-            ->has('author', fn (Assert $props) => $props->hasAll(['name', 'slug', 'avatar'])))
+            ->has('author', fn (Assert $props) => $props->hasAll(['name', 'username', 'avatar', 'bio'])))
         ->assertDontSee($author->email);
 });
 
@@ -163,5 +163,23 @@ test('the post page links to its category, tag and author archives', function ()
     $this->get(route('blog.show', $post))->assertInertia(fn (Assert $page) => $page
         ->where('post.categories.0.slug', 'laravel-tips')
         ->where('post.tags.0.slug', 'eloquent')
-        ->where('post.author.slug', $author->slug));
+        ->where('post.author.username', $author->username));
+});
+
+test('author pages live at /blog/@username, show the sanitized bio, and the old url redirects', function () {
+    $author = User::factory()->redaktur()->create([
+        'username' => 'cak.adi',
+        'bio' => '<p>Penulis <strong>teknologi</strong></p><script>alert(1)</script>',
+    ]);
+    Post::factory()->for($author, 'author')->create();
+
+    expect(route('blog.authors.show', $author, absolute: false))->toBe('/blog/@cak.adi');
+
+    $this->get('/blog/@cak.adi')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('author.username', 'cak.adi')
+            ->where('author.bio', fn ($bio) => str_contains($bio, '<strong>teknologi</strong>') && ! str_contains($bio, 'script')));
+
+    $this->get('/blog/authors/cak.adi')->assertRedirect('/blog/@cak.adi')->assertStatus(301);
 });

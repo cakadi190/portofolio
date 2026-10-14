@@ -9,7 +9,6 @@
   import { Link } from '@inertiajs/svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
-  import TagIcon from '@lucide/svelte/icons/tag';
   import type { BlogPostCard } from '@/components/blog/types';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
   import { show as showTag } from '@/wayfinder/routes/blog/tags';
@@ -175,34 +174,39 @@
           </div>
 
           {#if post.categories.length || post.tags.length}
-            <div
-              class="d-flex flex-wrap align-items-center column-gap-4 row-gap-2 small mt-5 mb-2"
-            >
+            <dl class="post-taxonomy">
               {#if post.categories.length}
-                <p class="mb-0">
-                  <span class="opacity-75">Kategori:</span>
-                  {#each post.categories as category, index (category.slug)}
-                    <Link href={showCategory(category.slug).url}
-                      >{category.name}</Link
-                    >{index < post.categories.length - 1 ? ', ' : ''}
-                  {/each}
-                </p>
+                <div class="post-taxonomy-row">
+                  <dt>Kategori</dt>
+                  <dd>
+                    <ul>
+                      {#each post.categories as category (category.slug)}
+                        <li>
+                          <Link href={showCategory(category.slug).url}
+                            >{category.name}</Link
+                          >
+                        </li>
+                      {/each}
+                    </ul>
+                  </dd>
+                </div>
               {/if}
 
               {#if post.tags.length}
-                <p class="d-flex flex-wrap align-items-center gap-2 mb-0">
-                  <TagIcon size={16} class="opacity-75" aria-hidden="true" />
-                  <span>
-                    {#each post.tags as tag, index (tag.slug)}
-                      <Link href={showTag(tag.slug).url}>{tag.name}</Link>{index <
-                      post.tags.length - 1
-                        ? ', '
-                        : ''}
-                    {/each}
-                  </span>
-                </p>
+                <div class="post-taxonomy-row">
+                  <dt>Tagar</dt>
+                  <dd>
+                    <ul>
+                      {#each post.tags as tag (tag.slug)}
+                        <li>
+                          <Link href={showTag(tag.slug).url}>#{tag.name}</Link>
+                        </li>
+                      {/each}
+                    </ul>
+                  </dd>
+                </div>
               {/if}
-            </div>
+            </dl>
           {/if}
 
           <p class="small opacity-75 mt-2">
@@ -252,3 +256,76 @@
     </div>
   </section>
 </div>
+
+<style>
+  .post-taxonomy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    margin: 3rem 0 1rem;
+    border-top: 1px solid var(--neo-border-color);
+  }
+
+  .post-taxonomy-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .post-taxonomy dt {
+    flex: 0 0 4.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--neo-secondary-color);
+  }
+
+  .post-taxonomy dd {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .post-taxonomy ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem 0.5rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .post-taxonomy li :global(a) {
+    display: inline-block;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.875rem;
+    color: var(--neo-body-color);
+    text-decoration: none;
+    border: 1px solid var(--neo-border-color);
+    border-radius: 999px;
+    transition:
+      color 0.15s,
+      border-color 0.15s,
+      background-color 0.15s;
+  }
+
+  .post-taxonomy li :global(a:hover),
+  .post-taxonomy li :global(a:focus-visible) {
+    color: var(--neo-primary);
+    border-color: var(--neo-primary);
+    background: var(--neo-primary-bg-subtle);
+  }
+
+  @media (max-width: 575.98px) {
+    .post-taxonomy-row {
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .post-taxonomy dt {
+      flex-basis: auto;
+    }
+  }
+</style>

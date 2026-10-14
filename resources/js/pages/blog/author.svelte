@@ -11,7 +11,12 @@
     posts,
     totalPosts,
   }: {
-    author: { name: string; slug: string | null; avatar: string | null };
+    author: {
+      name: string;
+      username: string | null;
+      avatar: string | null;
+      bio: string | null;
+    };
     posts: InfiniteList<BlogPostCard>;
     totalPosts: number;
   } = $props();
@@ -25,7 +30,7 @@
   <HeaderPage
     backTo={index().url}
     title={author.name}
-    subtitle={`${totalPosts} artikel diterbitkan.`}
+    subtitle={author.username ? `@${author.username}` : `${totalPosts} artikel diterbitkan.`}
   >
     <div class="mt-4">
       {#if author.avatar}
@@ -44,6 +49,15 @@
         >
       {/if}
     </div>
+
+    <p class="mt-3 mb-0 opacity-75">{totalPosts} artikel diterbitkan.</p>
+
+    {#if author.bio}
+      <div class="wysiwyg-content-wrapper mt-3 author-bio">
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html author.bio}
+      </div>
+    {/if}
   </HeaderPage>
 
   <section class="need-space pt-0">

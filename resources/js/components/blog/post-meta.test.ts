@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import PostMeta from '@/components/blog/post-meta.svelte';
 
 const props = {
-  author: { name: 'Cak Adi', slug: 'cak-adi', avatar: null },
+  author: { name: 'Cak Adi', username: 'cak-adi', avatar: null },
   publishedAt: '2026-10-14T15:32:00Z',
   title: 'Judul Artikel',
 };

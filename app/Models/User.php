@@ -22,12 +22,13 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 /**
  * @property int $id
  * @property string $name
- * @property string|null $slug
+ * @property string|null $username Public handle shown as @username (`/blog/@{username}`).
  * @property string $email
  * @property UserRole $account_type
  * @property string|null $phone
  * @property Gender|null $gender
  * @property string|null $avatar
+ * @property string|null $bio
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -37,11 +38,13 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'avatar', 'bio', 'username'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
+    protected string $slugColumn = 'username';
+
     use AutoGenerateSlug, HasFactory, Notifiable, PasskeyAuthenticatable, RecordsActivity, TwoFactorAuthenticatable;
 
     /**

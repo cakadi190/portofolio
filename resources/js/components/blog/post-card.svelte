@@ -62,9 +62,9 @@
       {#if post.author}
         <div class="small opacity-75 mb-3">
           Oleh
-          {#if post.author.slug}
+          {#if post.author.username}
             <Link
-              href={showAuthor(post.author.slug).url}
+              href={showAuthor(post.author.username).url}
               class="position-relative">{post.author.name}</Link
             >
           {:else}

@@ -23,7 +23,7 @@ const post = (overrides = {}) => ({
   excerpt: 'Ringkasan',
   coverImage: null,
   publishedAt: '2024-05-17T00:00:00Z',
-  author: { name: 'Penulis', slug: 'penulis' },
+  author: { name: 'Penulis', username: 'penulis' },
   categories: [{ name: 'Tech', slug: 'tech', color: null }],
   tags: [{ name: 'php', slug: 'php' }],
   editUrl: null,
@@ -48,7 +48,7 @@ describe('blog taxonomy pages', () => {
       '/blog/judul-satu',
     );
     expect(hrefOf(screen.getByRole('link', { name: 'Penulis' }))).toBe(
-      '/blog/authors/penulis',
+      '/blog/@penulis',
     );
     expect(hrefOf(screen.getByRole('link', { name: 'php' }))).toBe(
       '/blog/tags/php',
@@ -69,7 +69,7 @@ describe('blog taxonomy pages', () => {
 
   it('renders the author profile and posts lacking author, tags and categories', () => {
     render(BlogAuthor, {
-      author: { name: 'Penulis', slug: 'penulis', avatar: null },
+      author: { name: 'Penulis', username: 'penulis', avatar: null },
       posts: paginated([post({ author: null, tags: [], categories: [] })]),
     });
 
@@ -83,7 +83,7 @@ describe('blog taxonomy pages', () => {
 
   it('shows an empty state for an author without posts', () => {
     render(BlogAuthor, {
-      author: { name: 'Baru', slug: 'baru', avatar: null },
+      author: { name: 'Baru', username: 'baru', avatar: null },
       posts: paginated([]),
     });
     expect(screen.getByText('Baru belum menerbitkan artikel.')).toBeTruthy();

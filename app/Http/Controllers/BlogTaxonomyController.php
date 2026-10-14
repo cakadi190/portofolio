@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\ContentImageOptimizer;
+use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -93,8 +95,9 @@ class BlogTaxonomyController extends Controller
         return Inertia::render('blog/author', [
             'author' => [
                 'name' => $author->name,
-                'slug' => $author->slug,
+                'username' => $author->username,
                 'avatar' => ImageService::url($author->avatar),
+                'bio' => $author->bio ? ContentImageOptimizer::optimize(HtmlSanitizer::clean($author->bio)) : null,
             ],
             'posts' => Inertia::scroll($posts),
             'totalPosts' => $posts->total(),

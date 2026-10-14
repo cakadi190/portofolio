@@ -71,10 +71,13 @@
     <div class="post-meta-text">
       {#if author}
         <span class="post-meta-name">
-          {#if author.slug}
-            <Link href={showAuthor(author.slug).url}>{author.name}</Link>
+          {#if author.username}
+            <Link href={showAuthor(author.username).url}>{author.name}</Link>
           {:else}
             {author.name}
+          {/if}
+          {#if author.username}
+            <span class="post-meta-username">@{author.username}</span>
           {/if}
         </span>
       {/if}
@@ -86,9 +89,14 @@
   </div>
 
   <div class="post-meta-actions">
-    <button type="button" class="post-meta-share" onclick={openShare}>
+    <button
+      type="button"
+      class="post-meta-share"
+      aria-label="Bagikan artikel"
+      onclick={openShare}
+    >
       <ShareIcon size={16} aria-hidden="true" />
-      Bagikan
+      <span class="post-meta-share-label">Bagikan</span>
     </button>
 
     {#if editUrl}
@@ -165,6 +173,13 @@
     color: var(--neo-primary);
   }
 
+  .post-meta-username {
+    margin-left: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--neo-secondary-color);
+  }
+
   .post-meta-date {
     display: inline-flex;
     align-items: center;
@@ -212,4 +227,20 @@
     background: var(--neo-primary-bg-subtle);
   }
 
+
+  @media (max-width: 575.98px) {
+    .post-meta-share-label {
+      display: none;
+    }
+
+    .post-meta-share,
+    .post-meta-actions :global(.post-meta-edit) {
+      padding: 0.5rem 0.625rem;
+    }
+
+    .post-meta-username {
+      display: block;
+      margin-left: 0;
+    }
+  }
 </style>

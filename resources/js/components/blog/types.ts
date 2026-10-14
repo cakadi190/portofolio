@@ -16,7 +16,7 @@ export type BlogCategoryRef = {
 export type BlogTagRef = { name: string; slug: string };
 export type BlogAuthorRef = {
   name: string;
-  slug: string | null;
+  username: string | null;
   /** Storage path of the author's avatar; null when none is set. */
   avatar?: string | null;
 };

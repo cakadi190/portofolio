@@ -24,6 +24,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SpeakingController;
 use App\Http\Controllers\StatisticController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -56,7 +57,8 @@ Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/', [BlogController::class, 'index'])->name('index');
     Route::get('categories/{category:slug}', [BlogTaxonomyController::class, 'category'])->name('categories.show');
     Route::get('tags/{tag:slug}', [BlogTaxonomyController::class, 'tag'])->name('tags.show');
-    Route::get('authors/{author:slug}', [BlogTaxonomyController::class, 'author'])->name('authors.show');
+    Route::get('@{author:username}', [BlogTaxonomyController::class, 'author'])->name('authors.show');
+    Route::get('authors/{author:username}', fn (User $author) => redirect()->route('blog.authors.show', $author, 301));
     Route::get('{post:slug}', [BlogController::class, 'show'])->name('show');
     Route::post('{post:slug}/comments', [BlogCommentController::class, 'store'])
         ->middleware(['auth', 'verified', 'throttle:10,1'])

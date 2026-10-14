@@ -6,6 +6,7 @@
   import SettingsLayout from '@/components/admin/settings-layout.svelte';
   import MediaField from '@/components/media/media-field.svelte';
   import { Field } from '@/components/ui/field';
+  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import Select from '@/components/ui/select.svelte';
   import { update } from '@/wayfinder/routes/profile';
 
@@ -18,10 +19,12 @@
   }: {
     profile: {
       name: string;
+      username: string | null;
       email: string;
       phone: string | null;
       gender: string | null;
       avatar: string | null;
+      bio: string | null;
     };
     genders: Option[];
     mustVerifyEmail?: boolean;
@@ -74,6 +77,29 @@
           </Field.Group>
 
           <Field.Group>
+            <Field.Label for="profile-username">Username</Field.Label>
+            <div class="input-group">
+              <span class="input-group-text">@</span>
+              <Field.Input
+                placeholder="username"
+                id="profile-username"
+                name="username"
+                autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+                value={profile.username}
+                invalid={!!errors.username}
+              />
+            </div>
+            <Field.Feedback message={errors.username} />
+            <p class="text-muted small mb-0">
+              Tampil sebagai @username dan menjadi alamat profil penulis:
+              /blog/@{profile.username ?? 'username'}. 3–30 karakter: huruf kecil,
+              angka, titik, garis bawah, atau strip.
+            </p>
+          </Field.Group>
+
+          <Field.Group>
             <Field.Label for="profile-email">Email</Field.Label>
             <Field.Input placeholder="nama@contoh.com"
               id="profile-email"
@@ -121,6 +147,21 @@
               </Field.Group>
             </div>
           </div>
+
+          <Field.Group>
+            <Field.Label for="profile-bio">Deskripsi</Field.Label>
+            <RichTextEditor
+              name="bio"
+              minimal
+              value={profile.bio ?? ''}
+              placeholder="Ceritakan singkat tentang Anda..."
+              invalid={!!errors.bio}
+            />
+            <Field.Feedback message={errors.bio} />
+            <p class="text-muted small mb-0">
+              Tampil di halaman profil penulis publik.
+            </p>
+          </Field.Group>
 
           <div>
             <button
