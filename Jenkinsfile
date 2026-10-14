@@ -109,9 +109,9 @@ void smokeTest() {
         esac
 
         echo "==> Smoke-testing \$color on port \$port"
-        curl -fsS "http://127.0.0.1:\${port}/up"
+        curl -fsS --connect-timeout 3 --max-time 10 "http://127.0.0.1:\${port}/up"
 
-        login_status="\$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:\${port}/login")"
+        login_status="\$(curl -sS --connect-timeout 3 --max-time 10 -o /dev/null -w '%{http_code}' "http://127.0.0.1:\${port}/login")"
         if ! echo "\$login_status" | grep -qE '^(200|302)\$'; then
           echo "!! /login returned \$login_status, dumping catatancakadi-\$color logs:" >&2
           docker compose -f docker-compose.prod.yml logs --tail=100 "catatancakadi-\$color" >&2

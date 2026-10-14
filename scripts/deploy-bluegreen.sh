@@ -221,7 +221,7 @@ docker compose -f "$COMPOSE_FILE" --profile "$new_color" up -d --force-recreate
 echo "==> Waiting for $new_color to become healthy..."
 healthy=0
 for _ in $(seq 1 "$HEALTH_RETRIES"); do
-  if curl -fsS "http://127.0.0.1:${app_port}/up" >/dev/null 2>&1; then
+  if curl -fsS --connect-timeout 3 --max-time 5 "http://127.0.0.1:${app_port}/up" >/dev/null 2>&1; then
     healthy=1
     break
   fi
