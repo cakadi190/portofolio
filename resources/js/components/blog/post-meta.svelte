@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Pencil from '@lucide/svelte/icons/pencil';
   import ShareIcon from '@lucide/svelte/icons/share-2';
   import { Link } from '@inertiajs/svelte';
   import ShareModal from '@/components/share-modal.svelte';
@@ -11,10 +12,12 @@
     author,
     publishedAt,
     title,
+    editUrl = null,
   }: {
     author: BlogAuthorRef | null;
     publishedAt: string | null;
     title: string;
+    editUrl?: string | null;
   } = $props();
 
   const avatarUrl = $derived(storageUrl(author?.avatar));
@@ -82,10 +85,23 @@
     </div>
   </div>
 
-  <button type="button" class="post-meta-share" onclick={openShare}>
-    <ShareIcon size={16} aria-hidden="true" />
-    Bagikan
-  </button>
+  <div class="post-meta-actions">
+    <button type="button" class="post-meta-share" onclick={openShare}>
+      <ShareIcon size={16} aria-hidden="true" />
+      Bagikan
+    </button>
+
+    {#if editUrl}
+      <Link
+        href={editUrl}
+        class="post-meta-share post-meta-edit"
+        aria-label="Edit artikel"
+        title="Edit artikel"
+      >
+        <Pencil size={16} aria-hidden="true" />
+      </Link>
+    {/if}
+  </div>
 </div>
 
 <ShareModal bind:open={shareOpen} url={shareUrl} {title} />
@@ -157,9 +173,16 @@
     color: var(--neo-secondary-color);
   }
 
-  .post-meta-share {
-    display: inline-flex;
+  .post-meta-actions {
+    display: flex;
     flex: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .post-meta-share,
+  .post-meta-actions :global(.post-meta-edit) {
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
@@ -175,8 +198,15 @@
       background-color 0.15s;
   }
 
+  .post-meta-actions :global(.post-meta-edit) {
+    padding: 0.5rem 0.625rem;
+    text-decoration: none;
+  }
+
   .post-meta-share:hover,
-  .post-meta-share:focus-visible {
+  .post-meta-share:focus-visible,
+  .post-meta-actions :global(.post-meta-edit:hover),
+  .post-meta-actions :global(.post-meta-edit:focus-visible) {
     color: var(--neo-primary);
     border-color: var(--neo-primary);
     background: var(--neo-primary-bg-subtle);

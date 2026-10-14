@@ -9,7 +9,6 @@
   import { Link } from '@inertiajs/svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
-  import Pencil from '@lucide/svelte/icons/pencil';
   import TagIcon from '@lucide/svelte/icons/tag';
   import type { BlogPostCard } from '@/components/blog/types';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
@@ -89,31 +88,8 @@
               author={post.author}
               publishedAt={post.publishedAt}
               title={post.title}
+              editUrl={post.editUrl}
             />
-
-            {#if post.categories.length || post.editUrl}
-              <div class="d-flex flex-wrap align-items-center gap-2">
-                {#each post.categories as category (category.slug)}
-                  <Link
-                    href={showCategory(category.slug).url}
-                    class="badge text-decoration-none"
-                    style={badgeStyle(category.color)}
-                  >
-                    {category.name}
-                  </Link>
-                {/each}
-
-                {#if post.editUrl}
-                  <Link
-                    href={post.editUrl}
-                    class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
-                  >
-                    <Pencil size={14} aria-hidden="true" />
-                    Edit Artikel
-                  </Link>
-                {/if}
-              </div>
-            {/if}
           </div>
 
           <div class="row flex-column-reverse flex-md-row gy-5">
@@ -198,20 +174,35 @@
             </div>
           </div>
 
-          {#if post.tags.length}
-            <p
-              class="d-flex flex-wrap align-items-center gap-2 small mt-5 mb-2"
+          {#if post.categories.length || post.tags.length}
+            <div
+              class="d-flex flex-wrap align-items-center column-gap-4 row-gap-2 small mt-5 mb-2"
             >
-              <TagIcon size={16} class="opacity-75" aria-hidden="true" />
-              <span>
-                {#each post.tags as tag, index (tag.slug)}
-                  <Link href={showTag(tag.slug).url}>{tag.name}</Link>{index <
-                  post.tags.length - 1
-                    ? ', '
-                    : ''}
-                {/each}
-              </span>
-            </p>
+              {#if post.categories.length}
+                <p class="mb-0">
+                  <span class="opacity-75">Kategori:</span>
+                  {#each post.categories as category, index (category.slug)}
+                    <Link href={showCategory(category.slug).url}
+                      >{category.name}</Link
+                    >{index < post.categories.length - 1 ? ', ' : ''}
+                  {/each}
+                </p>
+              {/if}
+
+              {#if post.tags.length}
+                <p class="d-flex flex-wrap align-items-center gap-2 mb-0">
+                  <TagIcon size={16} class="opacity-75" aria-hidden="true" />
+                  <span>
+                    {#each post.tags as tag, index (tag.slug)}
+                      <Link href={showTag(tag.slug).url}>{tag.name}</Link>{index <
+                      post.tags.length - 1
+                        ? ', '
+                        : ''}
+                    {/each}
+                  </span>
+                </p>
+              {/if}
+            </div>
           {/if}
 
           <p class="small opacity-75 mt-2">
