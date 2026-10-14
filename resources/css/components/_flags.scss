@@ -1,0 +1,24 @@
+// The language switchers only ever show the Indonesian and US flags, so the
+// ~270-flag `flag-icons` stylesheet (a render-blocking request) is replaced by
+// the two squared flags below. Add a locale here when the switcher gains one.
+.fi {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  line-height: 1em;
+  background-size: contain;
+  background-position: 50%;
+  background-repeat: no-repeat;
+
+  &::before {
+    content: '\00a0';
+  }
+}
+
+.fi-id {
+  background-image: url('../../../node_modules/flag-icons/flags/1x1/id.svg');
+}
+
+.fi-us {
+  background-image: url('../../../node_modules/flag-icons/flags/1x1/us.svg');
+}

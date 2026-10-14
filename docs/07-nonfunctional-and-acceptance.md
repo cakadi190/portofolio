@@ -43,7 +43,8 @@ Melengkapi `02` (fungsional). Status: ✅ sudah ada di kode, 🟡 sebagian, ⬜ 
 | NFR-P1 | Gambar dikompresi ke WebP ≤ 300–400 KB; cache gambar via Cloudflare worker `image-cache`.      | ✅               |
 | NFR-P2 | HTML dimampatkan di produksi (`MinifyHtmlResponse`); aset di-build Vite dengan code-splitting. | ✅               |
 | NFR-P3 | Daftar publik dipaginasi; query memakai eager loading (tanpa N+1).                             | 🟡 audit berkala |
-| NFR-P4 | Target Core Web Vitals "baik" (LCP < 2,5 dtk, CLS < 0,1) pada halaman publik utama.            | ⬜ belum diukur  |
+| NFR-P4 | Target Core Web Vitals "baik" (LCP < 2,5 dtk, CLS < 0,1) pada halaman publik utama.            | 🟡 diukur (PSI)   |
+| NFR-P5 | Jalur kritis halaman publik ringan: font tanpa preload, hanya 2 bendera (`css/components/_flags.scss`), CSS admin/simplebar tidak ikut entry publik, ikon layar pertama dibundel offline (`lib/icon-collections.ts`, perlu dibuat ulang bila ikon di beranda berubah), chunk halaman beranda di-preload, thumbnail kartu 640 px. | ✅               |
 
 ### SEO & aksesibilitas
 

@@ -118,6 +118,9 @@
                 $entries[] = 'resources/js/pages/resume/index.svelte';
             } elseif ($isCertificationViewer) {
                 $entries[] = 'resources/js/pages/certification/show.svelte';
+            } elseif (request()->routeIs('home')) {
+                // Fetched with the document instead of after app.ts resolves the page, which saves a request round trip.
+                $entries[] = 'resources/js/pages/app/index.svelte';
             } elseif (request()->routeIs('admin.posts.create', 'admin.posts.edit')) {
                 $entries[] = 'resources/js/pages/admin/posts/form.svelte';
             }

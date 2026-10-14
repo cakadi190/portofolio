@@ -24,7 +24,6 @@ vi.mock('@/lib/flash-toast', () => ({
 vi.mock('@/lib/sentry', () => ({
   initializeSentry: mocks.initializeSentry,
 }));
-vi.mock('flag-icons/css/flag-icons.min.css', () => ({}));
 
 import AdminLayout from '@/layouts/admin-layout.svelte';
 import AppLayout from '@/layouts/app-layout.svelte';

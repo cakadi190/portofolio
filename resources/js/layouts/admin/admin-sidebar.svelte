@@ -1,6 +1,5 @@
 <script lang="ts">
   import SimpleBar from 'simplebar';
-  import 'simplebar/dist/simplebar.css';
   import { Link } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
   import PanelLeftClose from '@lucide/svelte/icons/panel-left-close';
