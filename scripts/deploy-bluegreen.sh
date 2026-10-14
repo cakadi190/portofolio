@@ -138,7 +138,9 @@ if [ "$ACTION" = "rotate" ]; then
   old_container="catatancakadi-$current_color"
   if [ -n "$(docker compose -f "$COMPOSE_FILE" ps -q "$old_container" 2>/dev/null)" ]; then
     docker compose -f "$COMPOSE_FILE" stop -t 0 "$old_container"
-    docker compose -f "$COMPOSE_FILE" rm -f "$old_container"
+    # Removal may already be in progress (auto-remove race); traffic has switched, so don't fail the rotation.
+    docker compose -f "$COMPOSE_FILE" rm -f "$old_container" \
+      || echo "    (old container removal already in progress, continuing)"
   fi
 
   echo "==> Rotation complete. Active color is now: $new_color"
