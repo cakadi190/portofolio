@@ -96,12 +96,23 @@
             </style>
         @endif
 
+        @if (request()->routeIs('home'))
+            {{-- LCP element of the home page: responsive photo, fetched at high priority. --}}
+            <link rel="preload" as="image" href="/images/fotoku-480.webp" imagesrcset="/images/fotoku-480.webp 480w, /images/fotoku-800.webp 800w" imagesizes="(min-width: 768px) 40vw, 90vw" fetchpriority="high">
+        @endif
+        <link rel="preconnect" href="https://api.iconify.design" crossorigin>
+        <link rel="dns-prefetch" href="https://api.simplesvg.com">
+
         <x-analytics />
         <x-sentry />
 
         {{-- A page's own chunk CSS is otherwise only injected by JS after boot; link it in <head> so these pages are styled on first paint. --}}
         @php
             $entries = ['resources/css/app.scss', 'resources/js/app.ts'];
+
+            if (request()->routeIs('admin.*', 'dashboard')) {
+                $entries[] = 'resources/css/admin.scss';
+            }
 
             if (request()->routeIs('resume.show', 'resume.profile')) {
                 $entries[] = 'resources/js/pages/resume/index.svelte';

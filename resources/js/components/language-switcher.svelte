@@ -1,3 +1,7 @@
+<script lang="ts">
+  import 'flag-icons/css/flag-icons.min.css';
+</script>
+
 <div class="dropdown dropdown-uncaret">
   <button
     class="btn btn-outline-primary dropdown-toggle"

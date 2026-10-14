@@ -6,8 +6,6 @@ import ResumeLayout from '@/layouts/resume-layout.svelte';
 import { initializeAnalytics } from '@/lib/analytics';
 import { initDropdownAnimation } from '@/lib/dropdown-animation';
 import { initializeFlashToast } from '@/lib/flash-toast';
-import { initializeSentry } from '@/lib/sentry';
-import 'flag-icons/css/flag-icons.min.css';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -45,7 +43,23 @@ if (typeof document !== 'undefined') {
   initializeFlashToast();
 
   // Error and performance monitoring (Sentry), configured from system settings.
-  initializeSentry();
+  // The SDK is a separate chunk fetched once the page has loaded and gone idle,
+  // keeping it out of the critical path (LCP/TBT).
+  const startMonitoring = () =>
+    void import('@/lib/sentry').then(({ initializeSentry }) =>
+      initializeSentry(),
+    );
+
+  const whenIdle = () =>
+    'requestIdleCallback' in window
+      ? window.requestIdleCallback(startMonitoring, { timeout: 5000 })
+      : window.setTimeout(startMonitoring, 3000);
+
+  if (document.readyState === 'complete') {
+    whenIdle();
+  } else {
+    window.addEventListener('load', whenIdle, { once: true });
+  }
 
   // Google Analytics: SPA page views plus click, form and scroll events.
   initializeAnalytics();

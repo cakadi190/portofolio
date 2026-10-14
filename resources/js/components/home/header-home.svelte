@@ -101,7 +101,17 @@
         </div>
       </div>
       <div class="col-md-5">
-        <img src="/images/fotoku.webp" alt="Cak Adi" class="w-100 reveal reveal-spring reveal-right" />
+        <img
+          src="/images/fotoku-800.webp"
+          srcset="/images/fotoku-480.webp 480w, /images/fotoku-800.webp 800w"
+          sizes="(min-width: 768px) 40vw, 90vw"
+          width="800"
+          height="800"
+          fetchpriority="high"
+          decoding="async"
+          alt="Cak Adi"
+          class="w-100 h-auto"
+        />
       </div>
     </div>
   </div>

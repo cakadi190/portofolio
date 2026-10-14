@@ -38,7 +38,7 @@ export default defineConfig({
                     weights: [400, 500, 600],
                   }),
                   bunny('JetBrains Mono', {
-                    weights: [400, 500],
+                    weights: [400],
                   }),
                 ],
               }),

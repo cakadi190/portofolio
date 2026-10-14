@@ -1,0 +1,5 @@
+// Admin-only styles. Loaded as its own Vite entry (see resources/views/app.blade.php)
+// and lazily by admin-layout.svelte, so public visitors never download them.
+@import 'components/data-table-responsive';
+@import 'components/admin-dashboard';
+@import 'layouts/admin/index';

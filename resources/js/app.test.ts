@@ -68,10 +68,14 @@ describe('app bootstrap', () => {
     expect(config.title('')).not.toContain('•');
   });
 
-  it('wires browser-only features once in the browser', () => {
+  it('wires browser-only features once in the browser', async () => {
     expect(callCounts.initDropdownAnimation).toBe(1);
     expect(callCounts.initializeFlashToast).toBe(1);
     expect(callCounts.initializeAnalytics).toBe(1);
-    expect(callCounts.initializeSentry).toBe(1);
+
+    // Sentry is lazy-loaded once the page has loaded and gone idle.
+    await vi.waitFor(() => expect(mocks.initializeSentry).toHaveBeenCalled(), {
+      timeout: 6000,
+    });
   });
 });

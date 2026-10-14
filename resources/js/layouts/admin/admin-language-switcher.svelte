@@ -1,4 +1,5 @@
 <script lang="ts">
+  import 'flag-icons/css/flag-icons.min.css';
   const locales = [
     { code: 'id', flag: 'fi-id', label: 'Bahasa Indonesia' },
     { code: 'en', flag: 'fi-us', label: 'Bahasa Inggris' },

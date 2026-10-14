@@ -5,6 +5,13 @@
   import AdminSidebarLayout from '@/layouts/admin/admin-sidebar-layout.svelte';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
   import { Toaster } from 'svelte-french-toast';
+  import { onMount } from 'svelte';
+
+  // Admin CSS is not part of the public bundle; SPA navigations into the admin
+  // load it here, full page loads get it from a <link> in app.blade.php.
+  onMount(() => {
+    void import('../../css/admin.scss');
+  });
 
   let {
     menu: menuOverride,
