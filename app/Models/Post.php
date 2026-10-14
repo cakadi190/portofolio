@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
 use Database\Factories\PostFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +34,17 @@ class Post extends Model
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Posts visible to the public.
+     *
+     * @param  Builder<Post>  $query
+     */
+    #[Scope]
+    protected function published(Builder $query): void
+    {
+        $query->where('is_published', true);
     }
 
     /**

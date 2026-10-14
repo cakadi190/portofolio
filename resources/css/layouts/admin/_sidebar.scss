@@ -59,10 +59,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0.5rem;
-        border-radius: var(--neo-border-radius);
-        background: var(--neo-white);
-        color: var(--neo-sidebar-accent);
+        color: var(--neo-white);
       }
 
       .sidebar-logo {
@@ -407,9 +404,8 @@
       width: auto;
       aspect-ratio: 1;
       padding: 0.325rem;
-      background: var(--neo-white);
-      color: var(--neo-sidebar-accent);
-      border-radius: 0.5rem;
+      background: var(--neo-surface-raised);
+      border-radius: 99rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -697,15 +693,13 @@
   }
 }
 
-// These boxes are always a white tile (`--neo-white`), so the dark-mode white
-// icon would vanish on them — always show the colored icon here.
-.sidebar-icon-box,
-.userinfo-avatar {
+// The collapsed-rail icon sits directly on the green sidebar: always white.
+.sidebar-icon-box {
   .logo-light {
-    display: inline-block !important;
+    display: none !important;
   }
 
   .logo-dark {
-    display: none !important;
+    display: inline-block !important;
   }
 }

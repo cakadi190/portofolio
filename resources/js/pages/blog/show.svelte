@@ -9,24 +9,19 @@
   import { Link } from '@inertiajs/svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
-  import { index } from '@/wayfinder/routes/blog';
+  import Pencil from '@lucide/svelte/icons/pencil';
+  import type { BlogPostCard } from '@/components/blog/types';
+  import { show as showAuthor } from '@/wayfinder/routes/blog/authors';
+  import { show as showCategory } from '@/wayfinder/routes/blog/categories';
+  import { show as showTag } from '@/wayfinder/routes/blog/tags';
 
-  type Post = {
-    slug: string;
-    title: string;
-    excerpt: string | null;
-    content: string;
-    coverImage: string | null;
-    author: string | null;
-    publishedAt: string | null;
-    categories: { name: string; color: string | null }[];
-    tags: string[];
-  };
+  type Post = BlogPostCard & { content: string };
 
   type PostLink = { title: string; slug: string; publishedAt?: string | null };
   type Category = {
     id: number;
     name: string;
+    slug: string;
     color: string | null;
     count: number;
   };
@@ -89,91 +84,116 @@
               {#if post.author}
                 <div class="d-flex align-items-center gap-2 opacity-75">
                   <User size={16} />
-                  <span>{post.author}</span>
+                  {#if post.author.slug}
+                    <Link href={showAuthor(post.author.slug).url}
+                      >{post.author.name}</Link
+                    >
+                  {:else}
+                    <span>{post.author.name}</span>
+                  {/if}
                 </div>
               {/if}
 
-              {#each post.categories as category (category.name)}
-                <span
-                  class="badge"
+              {#each post.categories as category (category.slug)}
+                <Link
+                  href={showCategory(category.slug).url}
+                  class="badge text-decoration-none"
                   style={`background-color: ${category.color ?? '#6c757d'}`}
                 >
                   {category.name}
-                </span>
+                </Link>
               {/each}
             </div>
+
+            {#if post.editUrl}
+              <Link
+                href={post.editUrl}
+                class="btn btn-primary d-inline-flex align-items-center gap-2"
+              >
+                <Pencil size={16} aria-hidden="true" />
+                Edit Artikel
+              </Link>
+            {/if}
           </div>
 
           <div class="row flex-column-reverse flex-md-row gy-5">
             <div class="col-md-8">
-              <div class="wysiwyg-content-wrapper" use:highlightCode={post.content}>
+              <div
+                class="wysiwyg-content-wrapper"
+                use:highlightCode={post.content}
+              >
                 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 {@html post.content}
               </div>
             </div>
             <div class="col-md-4">
               <div class="sticky-sidebar d-flex flex-column gap-4">
-              <div class="card rounded-4 overflow-hidden">
-                <div class="card-header p-4">
-                  <h4 class="mb-0">Artikel Lainnya</h4>
+                <div class="card rounded-4 overflow-hidden">
+                  <div class="card-header p-4">
+                    <h4 class="mb-0">Artikel Lainnya</h4>
+                  </div>
+                  {#if otherPosts.length}
+                    <ul class="list-group list-group-flush">
+                      {#each otherPosts as other (other.slug)}
+                        <li class="list-group-item">
+                          <Link
+                            href={`/blog/${other.slug}`}
+                            class="text-decoration-none"
+                          >
+                            {other.title}
+                          </Link>
+                        </li>
+                      {/each}
+                    </ul>
+                  {:else}
+                    <div class="card-body opacity-75">
+                      Belum ada artikel lain.
+                    </div>
+                  {/if}
                 </div>
-                {#if otherPosts.length}
-                  <ul class="list-group list-group-flush">
-                    {#each otherPosts as other (other.slug)}
-                      <li class="list-group-item">
+
+                <div class="card rounded-4 overflow-hidden">
+                  <div class="card-header p-4">
+                    <h4 class="mb-0">Kategori</h4>
+                  </div>
+                  {#if categories.length}
+                    <div class="card-body d-flex flex-wrap gap-2">
+                      {#each categories as category (category.id)}
                         <Link
-                          href={`/blog/${other.slug}`}
-                          class="text-decoration-none"
+                          href={showCategory(category.slug).url}
+                          class="badge text-decoration-none"
+                          style={`background-color: ${category.color ?? '#6c757d'}`}
                         >
-                          {other.title}
+                          {category.name} ({category.count})
                         </Link>
-                      </li>
-                    {/each}
-                  </ul>
-                {:else}
-                  <div class="card-body opacity-75">
-                    Belum ada artikel lain.
-                  </div>
-                {/if}
-              </div>
-
-              <div class="card rounded-4 overflow-hidden">
-                <div class="card-header p-4">
-                  <h4 class="mb-0">Kategori</h4>
+                      {/each}
+                    </div>
+                  {:else}
+                    <div class="card-body opacity-75">Belum ada kategori.</div>
+                  {/if}
                 </div>
-                {#if categories.length}
-                  <div class="card-body d-flex flex-wrap gap-2">
-                    {#each categories as category (category.id)}
-                      <Link
-                        href={index({ query: { category: category.id } }).url}
-                        class="badge text-decoration-none"
-                        style={`background-color: ${category.color ?? '#6c757d'}`}
-                      >
-                        {category.name} ({category.count})
-                      </Link>
-                    {/each}
-                  </div>
-                {:else}
-                  <div class="card-body opacity-75">Belum ada kategori.</div>
-                {/if}
-              </div>
 
-              <div class="card rounded-4 overflow-hidden">
-                <div class="card-header p-4">
-                  <h4 class="mb-0">Tag</h4>
+                <div class="card rounded-4 overflow-hidden">
+                  <div class="card-header p-4">
+                    <h4 class="mb-0">Tag</h4>
+                  </div>
+                  {#if post.tags.length}
+                    <div class="card-body d-flex flex-wrap gap-2">
+                      {#each post.tags as tag (tag.slug)}
+                        <Link
+                          href={showTag(tag.slug).url}
+                          class="badge tag-badge text-decoration-none"
+                        >
+                          {tag.name}
+                        </Link>
+                      {/each}
+                    </div>
+                  {:else}
+                    <div class="card-body opacity-75">
+                      Belum ada tag untuk artikel ini.
+                    </div>
+                  {/if}
                 </div>
-                {#if post.tags.length}
-                  <div class="card-body d-flex flex-wrap gap-2">
-                    {#each post.tags as tag (tag)}
-                      <span class="badge tag-badge">{tag}</span>
-                    {/each}
-                  </div>
-                {:else}
-                  <div class="card-body opacity-75">
-                    Belum ada tag untuk artikel ini.
-                  </div>
-                {/if}
-              </div>
               </div>
             </div>
           </div>

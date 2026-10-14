@@ -53,6 +53,7 @@
     safeHref,
   } from '@/lib/editor-blocks';
   import { normalizeCodeTitle } from '@/lib/code-card';
+  import { portal } from '@/lib/dom';
   import { highlightSource, languageNames } from '@/lib/highlight';
   import Select from '@/components/ui/select.svelte';
   import { uploadMedia } from '@/lib/media';
@@ -1781,6 +1782,7 @@
   {#if blockTb.visible && mode === 'visual' && editor}
     <div
       class="rte-blocktb"
+      use:portal
       role="toolbar"
       aria-label="Pemformatan blok"
       tabindex="-1"
@@ -1906,6 +1908,7 @@
   {#if ctx.open && contextGroups.length > 0}
     <div
       class="rte-context"
+      use:portal
       role="menu"
       tabindex="-1"
       aria-label="Menu konteks editor"
@@ -2099,6 +2102,7 @@
 
   /* Floating block toolbar */
   .rte-blocktb {
+    --rte-line: rgba(var(--neo-body-color-rgb), 0.14);
     position: fixed;
     z-index: 1040;
     display: flex;
@@ -2215,6 +2219,7 @@
 
   /* Context / dropdown menu */
   .rte-context {
+    --rte-line: rgba(var(--neo-body-color-rgb), 0.14);
     position: fixed;
     z-index: 1080;
     min-width: 14rem;

@@ -10,15 +10,18 @@
     class: linkClass = '',
     height = 32,
     variant = 'auto',
+    linked = true,
   }: {
     href?: string;
     class?: string;
     height?: number | string;
     variant?: 'auto' | 'color' | 'white';
+    /** Render a plain span when the brand already sits inside a link. */
+    linked?: boolean;
   } = $props();
 </script>
 
-<Link {href} class="d-inline-flex app-brand {linkClass}">
+{#snippet artwork()}
   {#if variant !== 'white'}
     <img
       class="site-logo logo-light"
@@ -41,4 +44,14 @@
       decoding="sync"
     />
   {/if}
-</Link>
+{/snippet}
+
+{#if linked}
+  <Link {href} class="d-inline-flex app-brand {linkClass}">
+    {@render artwork()}
+  </Link>
+{:else}
+  <span class="d-inline-flex app-brand {linkClass}">
+    {@render artwork()}
+  </span>
+{/if}

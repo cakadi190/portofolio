@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Concerns\RecordsActivity;
 use App\Enums\Gender;
 use App\Enums\UserRole;
+use App\Traits\Models\AutoGenerateSlug;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -21,6 +22,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 /**
  * @property int $id
  * @property string $name
+ * @property string|null $slug
  * @property string $email
  * @property UserRole $account_type
  * @property string|null $phone
@@ -40,7 +42,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, RecordsActivity, TwoFactorAuthenticatable;
+    use AutoGenerateSlug, HasFactory, Notifiable, PasskeyAuthenticatable, RecordsActivity, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -69,6 +71,16 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function canManageBlog(): bool
     {
         return in_array($this->account_type, [UserRole::Admin, UserRole::Redaktur], true);
+    }
+
+    /**
+     * Blog posts written by this account.
+     *
+     * @return HasMany<Post, $this>
+     */
+    public function authoredPosts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 
     /**

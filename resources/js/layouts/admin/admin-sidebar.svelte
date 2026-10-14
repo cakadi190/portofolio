@@ -138,7 +138,7 @@
           </div>
         </div>
         <div class="sidebar-logo">
-          <AppBrand height={32} variant="white" />
+          <AppBrand height={32} variant="white" linked={false} />
         </div>
       </Link>
 

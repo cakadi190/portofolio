@@ -37,6 +37,16 @@
                     document.documentElement.classList.add('sidebar-toggled');
                 }
             } catch (error) {}
+
+            // Suppress transitions during boot/hydration; lifted after first paint.
+            document.documentElement.classList.add('no-transitions');
+            window.addEventListener('load', function () {
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        document.documentElement.classList.remove('no-transitions');
+                    });
+                });
+            });
         </script>
 
         {{--
@@ -62,8 +72,10 @@
         --}}
         <link rel="preload" as="image" href="/images/brands/logo-white.svg" type="image/svg+xml">
         <link rel="preload" as="image" href="/images/brands/logo-color.svg" type="image/svg+xml">
+        <link rel="preload" as="image" href="/images/brands/icon-white.svg" type="image/svg+xml">
         <style>
-            .offcanvas:not(.show):not(.showing):not(.hiding) { visibility: hidden; }
+            .no-transitions *, .no-transitions *::before, .no-transitions *::after { transition: none !important; }
+            .offcanvas:not(.show):not(.showing):not(.hiding) { display: none; }
             .modal:not(.show),
             .dropdown-menu:not(.show) { display: none; }
         </style>

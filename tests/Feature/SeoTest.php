@@ -142,7 +142,7 @@ test('a post names its author in the page and in the seo tags', function () {
         ->assertOk()
         ->assertSee('<meta name="author" content="Siti Redaktur">', escape: false)
         ->assertSee('<meta property="article:author" content="Siti Redaktur">', escape: false)
-        ->assertInertia(fn ($page) => $page->where('post.author', 'Siti Redaktur'));
+        ->assertInertia(fn ($page) => $page->where('post.author.name', 'Siti Redaktur'));
 });
 
 test('the homepage lists speaking engagements, upcoming first', function () {

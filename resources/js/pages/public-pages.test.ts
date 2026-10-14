@@ -48,8 +48,12 @@ describe('Dashboard', () => {
       },
     });
 
-    expect(screen.getByRole('heading', { name: /^Selamat (pagi|siang|sore|malam)/ })).toBeTruthy();
-    expect(screen.getByText('Semua beres. Tidak ada yang menunggu tindakanmu.')).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { name: /^Selamat (pagi|siang|sore|malam)/ }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText('Semua beres. Tidak ada yang menunggu tindakanmu.'),
+    ).toBeTruthy();
     expect(document.title).toContain('Dasbor');
   });
 });
@@ -76,30 +80,55 @@ describe('ServicePage', () => {
       ],
     });
 
-    expect(hrefOf(screen.getByRole('link', { name: /Website/ }))).toBe('/layanan/website');
+    expect(hrefOf(screen.getByRole('link', { name: /Website/ }))).toBe(
+      '/layanan/website',
+    );
   });
 });
 
 describe('ServiceShow', () => {
   it('renders the description and related portfolios', () => {
     render(ServiceShow, {
-      service: { name: 'Website', slug: 'website', color: null, image: null, description: '<p>Isi layanan</p>' },
+      service: {
+        name: 'Website',
+        slug: 'website',
+        color: null,
+        image: null,
+        description: '<p>Isi layanan</p>',
+      },
       portfolios: [
-        { name: 'Proyek', slug: 'proyek', image: '/p.webp', shortDesc: null, services: [], technologies: [] },
+        {
+          name: 'Proyek',
+          slug: 'proyek',
+          image: '/p.webp',
+          shortDesc: null,
+          services: [],
+          technologies: [],
+        },
       ],
     });
 
     expect(screen.getByText('Isi layanan')).toBeTruthy();
-    expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe('/portofolio/proyek');
+    expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe(
+      '/portofolio/proyek',
+    );
   });
 
   it('shows an empty portfolio message', () => {
     render(ServiceShow, {
-      service: { name: 'Website', slug: 'website', color: null, image: null, description: null },
+      service: {
+        name: 'Website',
+        slug: 'website',
+        color: null,
+        image: null,
+        description: null,
+      },
       portfolios: [],
     });
 
-    expect(screen.getByText(/Belum ada portofolio untuk layanan ini/)).toBeTruthy();
+    expect(
+      screen.getByText(/Belum ada portofolio untuk layanan ini/),
+    ).toBeTruthy();
   });
 });
 
@@ -122,7 +151,9 @@ describe('AppIndex (home)', () => {
     render(AppIndex, { portfolios: [], posts: [] });
 
     expect(document.getElementById('homepage')).not.toBeNull();
-    expect(document.title).toMatch(/^.+ • Catatan Seorang Wirausahawan Muda & Software Engineer$/);
+    expect(document.title).toMatch(
+      /^.+ • Catatan Seorang Wirausahawan Muda & Software Engineer$/,
+    );
     expect(screen.getByText(/Belum ada artikel/)).toBeTruthy();
     expect(screen.getByText(/Belum ada portofolio/)).toBeTruthy();
   });
@@ -178,10 +209,14 @@ describe('SpeakingPage', () => {
   it('shows the schedule in WIB and a register link only for upcoming events', () => {
     render(SpeakingPage, {
       upcoming: [engagement],
-      past: [{ ...engagement, id: 2, title: 'Seminar Lama', isUpcoming: false }],
+      past: [
+        { ...engagement, id: 2, title: 'Seminar Lama', isUpcoming: false },
+      ],
     });
 
-    expect(screen.getAllByText(/19\.30 – 21\.30 WIB/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/19\.30 – 21\.30 WIB/).length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getByText('Seminar Lama')).toBeTruthy();
     expect(screen.getAllByText('Daftar Sekarang')).toHaveLength(1);
   });
@@ -189,7 +224,9 @@ describe('SpeakingPage', () => {
   it('opens the timezone modal only for upcoming events with a time', async () => {
     render(SpeakingPage, {
       upcoming: [engagement],
-      past: [{ ...engagement, id: 2, title: 'Seminar Lama', isUpcoming: false }],
+      past: [
+        { ...engagement, id: 2, title: 'Seminar Lama', isUpcoming: false },
+      ],
     });
 
     const triggers = screen.getAllByText('Lihat waktu di zona waktu Anda');
@@ -242,7 +279,11 @@ describe('BlogIndex', () => {
     slug,
     excerpt: null,
     coverImage: null,
+    publishedAt: null,
+    author: null,
     categories: [],
+    tags: [],
+    editUrl: null,
   });
 
   it('shows an empty state', () => {
@@ -399,7 +440,9 @@ describe('PortfolioIndex', () => {
 
 const sidebar = {
   otherPosts: [{ title: 'Artikel Lain', slug: 'artikel-lain' }],
-  categories: [{ id: 1, name: 'Teknologi', color: null, count: 3 }],
+  categories: [
+    { id: 1, name: 'Teknologi', slug: 'teknologi', color: null, count: 3 },
+  ],
   adjacent: {
     previous: { title: 'Artikel Lama', slug: 'artikel-lama' },
     next: null,
@@ -414,10 +457,11 @@ describe('BlogShow', () => {
     content:
       '<p>Isi <strong>artikel</strong></p><pre><code class="language-javascript">let a = 1;</code></pre>',
     coverImage: '/cover.webp',
-    author: 'Cakadi',
+    author: { name: 'Cakadi', slug: 'cakadi' },
     publishedAt: '2024-05-17T00:00:00Z',
-    categories: [{ name: 'Tech', color: null }],
-    tags: ['php'],
+    categories: [{ name: 'Tech', slug: 'tech', color: null }],
+    tags: [{ name: 'php', slug: 'php' }],
+    editUrl: null,
   };
 
   it('renders content, meta, tags and highlights code', () => {
@@ -433,10 +477,31 @@ describe('BlogShow', () => {
     ).toBeTruthy();
     expect(screen.getByText('artikel')).toBeTruthy();
     expect(screen.getByText('Tech')).toBeTruthy();
-    expect(screen.getByText('php')).toBeTruthy();
+    expect(hrefOf(screen.getByRole('link', { name: 'php' }))).toBe(
+      '/blog/tags/php',
+    );
+    expect(hrefOf(screen.getByRole('link', { name: 'Tech' }))).toBe(
+      '/blog/categories/tech',
+    );
+    expect(hrefOf(screen.getByRole('link', { name: 'Cakadi' }))).toBe(
+      '/blog/authors/cakadi',
+    );
+    expect(screen.queryByRole('link', { name: /Edit Artikel/ })).toBeNull();
     expect(screen.getAllByText(/2024/).length).toBeGreaterThan(0);
     expect(document.querySelector('code.hljs')).not.toBeNull();
     expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe('/blog');
+  });
+
+  it('shows the edit button only when the server provides an edit url', () => {
+    render(BlogShow, {
+      post: { ...post, editUrl: '/admin/posts/7/edit' },
+      comments: [],
+      ...sidebar,
+    });
+
+    expect(hrefOf(screen.getByRole('link', { name: /Edit Artikel/ }))).toBe(
+      '/admin/posts/7/edit',
+    );
   });
 
   it('handles unpublished posts without tags or cover', () => {

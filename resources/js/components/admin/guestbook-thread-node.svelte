@@ -4,6 +4,7 @@
   import Reply from '@lucide/svelte/icons/reply';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import GuestbookThreadNode from '@/components/admin/guestbook-thread-node.svelte';
+  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import { Field } from '@/components/ui/field';
   import { formatDate } from '@/lib/utils';
   import { destroy, reply } from '@/wayfinder/routes/admin/guestbook-entries';
@@ -37,7 +38,11 @@
 
 <li id={`pesan-${entry.id}`} class="gb-node">
   <div class="gb-card" class:gb-card-muted={entry.status !== 'approved'}>
-    <span class="gb-avatar" class:gb-avatar-staff={!!entry.user} aria-hidden="true">{initial}</span>
+    <span
+      class="gb-avatar"
+      class:gb-avatar-staff={!!entry.user}
+      aria-hidden="true">{initial}</span
+    >
 
     <div class="flex-grow-1 min-w-0">
       <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
@@ -55,7 +60,9 @@
         >
           {statusLabel(entry.status)}
         </span>
-        <small class="opacity-75 ms-md-auto">{formatDate(entry.created_at)}</small>
+        <small class="opacity-75 ms-md-auto"
+          >{formatDate(entry.created_at)}</small
+        >
       </div>
 
       <!-- The server whitelists this markup (HtmlSanitizer::richText) before sending it. -->
@@ -94,21 +101,21 @@
         >
           {#snippet children({ errors, processing })}
             <Field.Group>
-              <label class="visually-hidden" for={`reply-body-${entry.id}`}>Balasan untuk {author}</label>
-              <textarea
-                id={`reply-body-${entry.id}`}
+              <Field.Label>Balasan untuk {author}</Field.Label>
+              <RichTextEditor
                 name="body"
-                rows="3"
-                maxlength="5000"
-                required
+                minimal
                 placeholder={`Balas ${author}…`}
-                class="form-control"
-                class:is-invalid={!!errors.body}
-              ></textarea>
+                invalid={!!errors.body}
+              />
               <Field.Feedback message={errors.body} />
             </Field.Group>
             <div class="d-flex justify-content-end">
-              <button type="submit" class="btn btn-sm btn-primary" disabled={processing}>Kirim Balasan</button>
+              <button
+                type="submit"
+                class="btn btn-sm btn-primary"
+                disabled={processing}>Kirim Balasan</button
+              >
             </div>
           {/snippet}
         </Form>
@@ -117,7 +124,10 @@
   </div>
 
   {#if entry.replies.length}
-    <ul class="list-unstyled mb-0 gb-replies" class:gb-indent={depth < MAX_VISUAL_DEPTH}>
+    <ul
+      class="list-unstyled mb-0 gb-replies"
+      class:gb-indent={depth < MAX_VISUAL_DEPTH}
+    >
       {#each entry.replies as child (child.id)}
         <GuestbookThreadNode
           entry={child}

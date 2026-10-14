@@ -1,25 +1,17 @@
 <script lang="ts">
   import AppHead from '@/components/app-head.svelte';
-  import CardBlog from '@/components/card-blog.svelte';
+  import PostCard from '@/components/blog/post-card.svelte';
+  import type { BlogPostCard } from '@/components/blog/types';
   import EmptyState from '@/components/empty-state.svelte';
   import HeaderPage from '@/components/header-page.svelte';
   import SimplePaginator from '@/components/simple-paginator.svelte';
   import type { Paginated } from '@/types/pagination';
 
-  type Post = {
-    title: string;
-    slug: string;
-    excerpt: string | null;
-    coverImage: string | null;
-    author: string | null;
-    categories: { name: string; color: string | null }[];
-  };
-
   let {
     posts,
     activeCategory = null,
   }: {
-    posts: Paginated<Post>;
+    posts: Paginated<BlogPostCard>;
     activeCategory?: { id: number; name: string } | null;
   } = $props();
 </script>
@@ -38,13 +30,16 @@
     <div class="container">
       <div class="row">
         {#if posts.data.length === 0}
-          <EmptyState title="Belum Ada Artikel" text="Belum ada artikel yang tersedia saat ini." />
+          <EmptyState
+            title="Belum Ada Artikel"
+            text="Belum ada artikel yang tersedia saat ini."
+          />
         {:else}
           <div class="col-md-12 mx-auto">
             <div class="row">
               {#each posts.data as post (post.slug)}
                 <div class="col-md-6 col-lg-4 mb-4">
-                  <CardBlog {...post} tags={[]} />
+                  <PostCard {post} />
                 </div>
               {/each}
             </div>

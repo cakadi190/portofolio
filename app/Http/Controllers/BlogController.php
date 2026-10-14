@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\PresentsBlogPosts;
 use App\Models\BlogComment;
 use App\Models\Post;
 use App\Models\PostCategory;
@@ -16,31 +17,24 @@ use Inertia\Response;
 
 class BlogController extends Controller
 {
+    use PresentsBlogPosts;
+
     /**
      * Show the paginated list of published posts.
      */
     public function index(Request $request): Response
     {
         $categoryId = $request->integer('category') ?: null;
+        $canEdit = $this->canEditPosts($request);
 
         $posts = Post::query()
             ->where('is_published', true)
             ->when($categoryId, fn ($query) => $query->whereHas('categories', fn ($categories) => $categories->whereKey($categoryId)))
-            ->with(['categories:id,name,color', 'author:id,name'])
+            ->with($this->cardRelations())
             ->latest('published_at')
             ->paginate(9)
             ->withQueryString()
-            ->through(fn (Post $post): array => [
-                'title' => $post->title,
-                'slug' => $post->slug,
-                'excerpt' => $post->excerpt,
-                'coverImage' => ImageService::url($post->cover_image),
-                'author' => $post->author?->name,
-                'categories' => $post->categories->map(fn ($category): array => [
-                    'name' => $category->name,
-                    'color' => $category->color,
-                ]),
-            ]);
+            ->through(fn (Post $post): array => $this->postCard($post, $canEdit));
 
         return Inertia::render('blog/index', [
             'posts' => $posts,
@@ -57,7 +51,7 @@ class BlogController extends Controller
 
         abort_unless($post->is_published || $isPreview, 404);
 
-        $post->load(['categories:id,name,color', 'tags:id,name', 'author:id,name']);
+        $post->load($this->cardRelations());
 
         $coverImage = ImageService::url($post->cover_image);
 
@@ -91,18 +85,8 @@ class BlogController extends Controller
 
         return Inertia::render('blog/show', [
             'post' => [
-                'slug' => $post->slug,
-                'title' => $post->title,
-                'excerpt' => $post->excerpt,
+                ...$this->postCard($post, $this->canEditPosts($request)),
                 'content' => HtmlSanitizer::clean($post->content),
-                'coverImage' => ImageService::url($post->cover_image),
-                'author' => $post->author?->name,
-                'publishedAt' => $post->published_at,
-                'categories' => $post->categories->map(fn ($category): array => [
-                    'name' => $category->name,
-                    'color' => $category->color,
-                ]),
-                'tags' => $post->tags->pluck('name'),
             ],
             'comments' => $this->commentTree($post),
             'otherPosts' => $this->otherPosts($post),
@@ -142,7 +126,7 @@ class BlogController extends Controller
     /**
      * Every category that has at least one published post, with that count.
      *
-     * @return Collection<int, array{id: int, name: string, color: string|null, count: int}>
+     * @return Collection<int, array{id: int, name: string, slug: string, color: string|null, count: int}>
      */
     private function categoryList(): Collection
     {
@@ -154,6 +138,7 @@ class BlogController extends Controller
             ->map(fn (PostCategory $category): array => [
                 'id' => $category->id,
                 'name' => $category->name,
+                'slug' => $category->slug,
                 'color' => $category->color,
                 'count' => $category->posts_count,
             ])

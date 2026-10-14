@@ -3,11 +3,14 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\BlogCommentStatus;
+use App\Http\Requests\Concerns\SanitizesRichText;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
 class GuestbookEntryRequest extends FormRequest
 {
+    use SanitizesRichText;
+
     public function authorize(): bool
     {
         return $this->user()?->canManageBlog() ?? false;
@@ -22,8 +25,21 @@ class GuestbookEntryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'body' => ['required', 'string', 'max:1000'],
+            'body' => ['required', 'string', 'max:5000'],
             'status' => ['required', new Enum(BlogCommentStatus::class)],
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return ['body' => 'pesan'];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->sanitizeRichText('body');
     }
 }

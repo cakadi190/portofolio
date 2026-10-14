@@ -4,6 +4,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\BlogCommentController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BlogTaxonomyController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\ClarificationController;
@@ -53,6 +54,9 @@ Route::get('services/{service:slug}', [ServiceController::class, 'show'])->name(
 
 Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/', [BlogController::class, 'index'])->name('index');
+    Route::get('categories/{category:slug}', [BlogTaxonomyController::class, 'category'])->name('categories.show');
+    Route::get('tags/{tag:slug}', [BlogTaxonomyController::class, 'tag'])->name('tags.show');
+    Route::get('authors/{author:slug}', [BlogTaxonomyController::class, 'author'])->name('authors.show');
     Route::get('{post:slug}', [BlogController::class, 'show'])->name('show');
     Route::post('{post:slug}/comments', [BlogCommentController::class, 'store'])
         ->middleware(['auth', 'verified', 'throttle:10,1'])

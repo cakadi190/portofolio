@@ -125,3 +125,40 @@ test('staff see guestbook threads nested and can reply from the admin', function
     $this->actingAs($admin)->post(route('admin.guestbook-entries.reply', $root), ['body' => ''])->assertSessionHasErrors('body');
     $this->actingAs(User::factory()->create())->post(route('admin.guestbook-entries.reply', $root), ['body' => 'x'])->assertForbidden();
 });
+
+test('staff edit a message with rich text: markup is sanitized and the status changes independently', function () {
+    $entry = GuestbookEntry::factory()->create();
+
+    $this->actingAs(User::factory()->redaktur()->create())->put(route('admin.guestbook-entries.update', $entry), [
+        'body' => '<p onclick="x()">Halo <strong>dunia</strong></p><script>alert(1)</script><a href="javascript:alert(1)">klik</a>',
+        'status' => BlogCommentStatus::Approved->value,
+    ])->assertSessionDoesntHaveErrors();
+
+    $entry->refresh();
+
+    expect($entry->body)->toContain('<strong>dunia</strong>')
+        ->not->toContain('<script')->not->toContain('onclick')->not->toContain('javascript:')
+        ->and($entry->status)->toBe(BlogCommentStatus::Approved);
+});
+
+test('a message edit that leaves no visible text is rejected and regular users cannot edit', function () {
+    $entry = GuestbookEntry::factory()->create();
+    $payload = ['body' => '<p></p>', 'status' => BlogCommentStatus::Approved->value];
+
+    $this->actingAs(User::factory()->redaktur()->create())
+        ->put(route('admin.guestbook-entries.update', $entry), $payload)->assertSessionHasErrors('body');
+    $this->actingAs(User::factory()->create())
+        ->put(route('admin.guestbook-entries.update', $entry), ['body' => '<p>x</p>'] + $payload)->assertForbidden();
+});
+
+test('staff replies keep their rich text sanitized and attach to the right entry', function () {
+    [$one, $two] = GuestbookEntry::factory()->count(2)->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('admin.guestbook-entries.reply', $two), ['body' => '<p>Terima <em>kasih</em></p><script>x</script>'])
+        ->assertSessionDoesntHaveErrors();
+
+    $reply = GuestbookEntry::query()->whereNotNull('parent_id')->sole();
+
+    expect($reply->parent_id)->toBe($two->id)->and($reply->body)->toContain('<em>kasih</em>')->not->toContain('<script');
+});
