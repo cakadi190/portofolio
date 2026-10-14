@@ -95,7 +95,6 @@
         {processing}
         exists={!!note}
         {isPublished}
-        persistedPublished={note?.is_published ?? false}
         mode={editor.mode}
         setMode={editor.setMode}
         onStatus={setStatus}

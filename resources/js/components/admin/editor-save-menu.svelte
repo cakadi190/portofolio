@@ -15,7 +15,6 @@
     exists,
     draftable = true,
     isPublished = false,
-    persistedPublished = false,
     mode,
     setMode,
     onStatus,
@@ -27,7 +26,6 @@
     /** Whether the record has a draft/published status. */
     draftable?: boolean;
     isPublished?: boolean;
-    persistedPublished?: boolean;
     mode: 'visual' | 'html';
     setMode: (next: 'visual' | 'html') => void;
     onStatus?: (published: boolean) => void;
@@ -82,8 +80,8 @@
 
     if (!event.shiftKey) {
       event.preventDefault();
-      submitFrom(draftable ? persistedPublished : null);
-    } else if (draftable && !persistedPublished) {
+      submitFrom(draftable ? isPublished : null);
+    } else if (draftable && !isPublished) {
       event.preventDefault();
       submitFrom(true);
     }
@@ -152,11 +150,11 @@
       {#if draftable}
         <li>
           <button
-            type="submit"
+            type="button"
             role="menuitem"
             class="dropdown-item"
             onclick={() => {
-              onStatus?.(false);
+              submitFrom(false);
               open = false;
             }}
           >

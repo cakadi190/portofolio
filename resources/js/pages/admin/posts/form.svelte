@@ -106,7 +106,6 @@
         {processing}
         exists={!!post}
         {isPublished}
-        persistedPublished={post?.is_published ?? false}
         mode={editor.mode}
         setMode={editor.setMode}
         onStatus={setStatus}
