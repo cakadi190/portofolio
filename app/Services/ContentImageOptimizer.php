@@ -118,10 +118,12 @@ class ContentImageOptimizer
     }
 
     /**
+     * Intrinsic sizes of stored media, keyed by path (paths without a media record are omitted).
+     *
      * @param  array<int|string, string|null>  $paths
      * @return array<string, array{width: int, height: int}>
      */
-    private static function dimensionsFor(array $paths): array
+    public static function dimensionsFor(array $paths): array
     {
         $paths = array_values(array_unique(array_filter($paths)));
 

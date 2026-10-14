@@ -63,6 +63,23 @@ export const anchoredScroll = (
   ratio: number,
 ): number => Math.max(0, (scroll + anchor) * ratio - anchor);
 
+/** Largest bitmap (in pixels) rendered for one page; iOS Safari's canvas limit is 16.7 MP. */
+export const MAX_CANVAS_PIXELS = 16_000_000;
+
+/**
+ * Render scale for a page canvas: the wanted `zoom x pixel ratio`, lowered so the bitmap stays within
+ * `maxPixels` (zoom 3x on a 3x screen would otherwise be ~40 MP, which mobile browsers refuse to allocate).
+ * CSS scales the canvas to the sheet size, so a capped bitmap only costs sharpness.
+ */
+export const renderScale = (
+  zoom: number,
+  pixelRatio: number,
+  pageWidth: number,
+  pageHeight: number,
+  maxPixels = MAX_CANVAS_PIXELS,
+): number =>
+  Math.min(zoom * pixelRatio, Math.sqrt(maxPixels / (pageWidth * pageHeight)));
+
 export const distanceBetween = (
   a: { x: number; y: number },
   b: { x: number; y: number },

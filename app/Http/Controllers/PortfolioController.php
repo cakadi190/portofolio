@@ -72,12 +72,17 @@ class PortfolioController extends Controller
 
         $approvedRatings = $portfolio->ratings()->where('is_approved', true);
 
+        $cover = ContentImageOptimizer::cover($portfolio->image);
+        $gallerySizes = ContentImageOptimizer::dimensionsFor($portfolio->galleries->pluck('image_url')->all());
+
         return Inertia::render('portfolio/show', [
             'portfolio' => [
                 'name' => $portfolio->name,
                 'shortDesc' => $portfolio->short_desc,
                 'description' => ContentImageOptimizer::optimize(HtmlSanitizer::clean($portfolio->description)),
-                'image' => ImageService::url($portfolio->image),
+                'image' => $cover['src'],
+                'imageSrcset' => $cover['srcset'],
+                'imageSize' => $cover['width'] ? ['width' => $cover['width'], 'height' => $cover['height']] : null,
                 'demoLink' => $portfolio->demo_link,
                 'sourceCode' => $portfolio->source_code,
                 'isPrivate' => $portfolio->is_private,
@@ -85,6 +90,8 @@ class PortfolioController extends Controller
                 'slug' => $portfolio->slug,
                 'galleries' => $portfolio->galleries->map(fn (PortfolioGallery $gallery): array => [
                     'url' => ImageService::url($gallery->image_url),
+                    'thumb' => ImageService::thumbnailUrl($gallery->image_url),
+                    'size' => $gallerySizes[$gallery->image_url] ?? null,
                     'title' => $gallery->description,
                 ]),
             ],

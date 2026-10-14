@@ -118,7 +118,9 @@
               <div class="col-md-5">
                 <img
                   src="/images/programmer.svg"
-                  class="w-100 reveal reveal-tween reveal-left"
+                  width="787"
+                  height="572"
+                  class="w-100 h-auto reveal reveal-tween reveal-left"
                   style="--reveal-x: -40px; --reveal-duration: .35s"
                   alt="Ilustrasi programmer"
                 />

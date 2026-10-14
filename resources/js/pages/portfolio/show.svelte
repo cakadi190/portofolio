@@ -24,7 +24,14 @@
     isPrivate: boolean;
     technologies: string[];
     slug: string;
-    galleries: { url: string; title: string | null }[];
+    imageSrcset?: string | null;
+    imageSize?: { width: number; height: number } | null;
+    galleries: {
+      url: string;
+      thumb?: string | null;
+      size?: { width: number; height: number } | null;
+      title: string | null;
+    }[];
   };
 
   type Review = {
@@ -80,7 +87,13 @@
         <div class="col-md-12">
           <img
             src={portfolio.image}
-            class="w-100 rounded-4 border overflow-hidden"
+            srcset={portfolio.imageSrcset ?? undefined}
+            sizes="(min-width: 1200px) 1140px, 100vw"
+            width={portfolio.imageSize?.width}
+            height={portfolio.imageSize?.height}
+            fetchpriority="high"
+            decoding="async"
+            class="w-100 h-auto rounded-4 border overflow-hidden"
             alt={portfolio.name}
           />
 
@@ -160,10 +173,13 @@
                           onclick={() => openLightbox(position)}
                         >
                           <img
-                            src={gallery.url}
+                            src={gallery.thumb ?? gallery.url}
+                            width={gallery.size ? 640 : undefined}
+                            height={gallery.size ? Math.round((640 * gallery.size.height) / gallery.size.width) : undefined}
                             alt={gallery.title ??
                               `${portfolio.name} ${position + 1}`}
                             loading="lazy"
+                            decoding="async"
                             class="w-100"
                             style="aspect-ratio: 4 / 3; object-fit: cover;"
                           />

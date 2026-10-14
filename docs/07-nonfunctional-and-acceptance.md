@@ -44,7 +44,7 @@ Melengkapi `02` (fungsional). Status: ✅ sudah ada di kode, 🟡 sebagian, ⬜ 
 | NFR-P2 | HTML dimampatkan di produksi (`MinifyHtmlResponse`); aset di-build Vite dengan code-splitting. | ✅               |
 | NFR-P3 | Daftar publik dipaginasi; query memakai eager loading (tanpa N+1).                             | 🟡 audit berkala |
 | NFR-P4 | Target Core Web Vitals "baik" (LCP < 2,5 dtk, CLS < 0,1) pada halaman publik utama.            | 🟡 diukur (PSI)   |
-| NFR-P5 | Jalur kritis halaman publik ringan: font tanpa preload, hanya 2 bendera (`css/components/_flags.scss`), CSS admin/simplebar tidak ikut entry publik, ikon layar pertama dibundel offline (`lib/icon-collections.ts`, perlu dibuat ulang bila ikon di beranda berubah), chunk halaman beranda di-preload, thumbnail kartu 640 px, editor Tiptap dan widget Turnstile di halaman publik dimuat malas (saat formulir mendekati layar/difokus). | ✅               |
+| NFR-P5 | Jalur kritis halaman publik ringan: font tanpa preload, hanya 2 bendera (`css/components/_flags.scss`), CSS admin/simplebar tidak ikut entry publik, ikon layar pertama dibundel offline (`lib/icon-collections.ts`, perlu dibuat ulang bila ikon di beranda berubah), chunk halaman beranda di-preload, thumbnail kartu 640 px, CSS publik dipangkas saat build oleh `vite-purge-css.ts` (aturan Bootstrap yang kelasnya tidak muncul di sumber dibuang; set `NO_CSS_PURGE=1` untuk menonaktifkan), editor Tiptap dan widget Turnstile di halaman publik dimuat malas (saat formulir mendekati layar/difokus). | ✅               |
 
 ### SEO & aksesibilitas
 

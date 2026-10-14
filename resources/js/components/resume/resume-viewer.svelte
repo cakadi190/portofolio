@@ -20,7 +20,7 @@
   import { extractPdfSignatures } from '@/lib/pdf-signatures';
   import type { PdfSignature } from '@/lib/pdf-signatures';
   import { perfectScrollbar } from '@/lib/perfect-scrollbar';
-  import { anchoredScroll, clampZoom, distanceBetween, fitPageZoom, fitWidthZoom, pinchZoom, stepZoom as nextZoom } from '@/lib/resume-zoom';
+  import { anchoredScroll, clampZoom, distanceBetween, fitPageZoom, fitWidthZoom, pinchZoom, renderScale, stepZoom as nextZoom } from '@/lib/resume-zoom';
   import type { ZoomMode } from '@/lib/resume-zoom';
   import { createOcrCache, OCR_POOL_SIZE, terminateOcrWorker } from '@/lib/ocr';
   import { findPhraseMatches, textRunsToWords } from '@/lib/ocr/phrase';
@@ -273,7 +273,11 @@
     const target = zoom;
     rendered.set(number, target);
     const ratio = window.devicePixelRatio || 1;
-    const viewport = page.getViewport({ scale: target * ratio });
+    // Zoom x pixel ratio can ask for a ~40 MP bitmap per page (3x on a 3x screen); mobile browsers
+    // refuse canvases past ~16 MP (blank page or a killed tab), so the bitmap is capped and CSS scales it.
+    const unit = page.getViewport({ scale: 1 });
+    const scale = renderScale(target, ratio, unit.width, unit.height);
+    const viewport = page.getViewport({ scale });
     const buffer = document.createElement('canvas');
     buffer.width = viewport.width;
     buffer.height = viewport.height;
@@ -494,7 +498,11 @@
     };
   };
 
-  /** Two-finger pinch inside the viewer only; the browser's own page pinch is disabled here via touch-action. */
+  /**
+   * Two-finger pinch inside the viewer. While two fingers are down the browser's own pan/zoom is cancelled
+   * (the listeners are non-passive for that) so the page neither scrolls under the gesture nor zooms the
+   * whole document; `touch-action` covers browsers that never deliver the touch events.
+   */
   const pinchZoomAction = (node: HTMLElement) => {
     let start: { distance: number; zoom: number } | null = null;
 
@@ -505,15 +513,32 @@
       if (event.touches.length === 2) {
         const [a, b] = points(event);
         start = { distance: distanceBetween(a, b), zoom: zoomTarget };
+
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+      } else {
+        start = null;
       }
     };
 
     const onMove = (event: TouchEvent): void => {
-      if (!start || event.touches.length !== 2) {
+      if (event.touches.length !== 2) {
         return;
       }
 
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+
       const [a, b] = points(event);
+
+      if (!start) {
+        start = { distance: distanceBetween(a, b), zoom: zoomTarget };
+
+        return;
+      }
+
       const box = node.getBoundingClientRect();
       setZoom(pinchZoom(start.zoom, start.distance, distanceBetween(a, b)), 'custom', {
         x: (a.x + b.x) / 2 - box.left,
@@ -527,10 +552,15 @@
       }
     };
 
-    node.addEventListener('touchstart', onStart, { passive: true });
-    node.addEventListener('touchmove', onMove, { passive: true });
+    /** Safari/iOS page-zoom gestures ignore touch-action; cancelling them keeps the pinch on the document. */
+    const blockGesture = (event: Event): void => event.preventDefault();
+
+    node.addEventListener('touchstart', onStart, { passive: false });
+    node.addEventListener('touchmove', onMove, { passive: false });
     node.addEventListener('touchend', onEnd, { passive: true });
     node.addEventListener('touchcancel', onEnd, { passive: true });
+    document.addEventListener('gesturestart', blockGesture);
+    document.addEventListener('gesturechange', blockGesture);
 
     return {
       destroy: () => {
@@ -538,6 +568,8 @@
         node.removeEventListener('touchmove', onMove);
         node.removeEventListener('touchend', onEnd);
         node.removeEventListener('touchcancel', onEnd);
+        document.removeEventListener('gesturestart', blockGesture);
+        document.removeEventListener('gesturechange', blockGesture);
       },
     };
   };
@@ -1038,7 +1070,7 @@
 <style>
   .rv:not(.rv-fitted) .rv-main:has(.rv-sheet) { opacity: 0; }
   .rv-main { transition: opacity 0.25s ease; }
-  .rv { display: flex; flex-direction: column; height: 100%; color: var(--neo-body-color); font-size: 0.875rem; background: var(--neo-body-bg); }
+  .rv { touch-action: pan-x pan-y; display: flex; flex-direction: column; height: 100%; color: var(--neo-body-color); font-size: 0.875rem; background: var(--neo-body-bg); }
   .rv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.75rem 1rem; color: #fff; background: var(--neo-primary); }
   .rv-back { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.875rem; font-weight: 600; color: var(--neo-primary); cursor: pointer; background: #fff; border: 0; border-radius: 0.5rem; }
   .rv-title { display: flex; flex: 1 1 14rem; flex-direction: column; min-width: 0; }

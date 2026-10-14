@@ -5,6 +5,7 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { purgeUnusedCss } from './vite-purge-css';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
 const isVitest = Boolean(process.env.VITEST);
@@ -92,7 +93,19 @@ export default defineConfig({
                 ],
               }),
             ]),
-        ...(isVitest || isSsrBuild ? [] : [woff2OnlyFonts()]),
+        ...(isVitest || isSsrBuild
+          ? []
+          : [
+              woff2OnlyFonts(),
+              ...(process.env.NO_CSS_PURGE
+                ? []
+                : [
+                    purgeUnusedCss({
+                root: fileURLToPath(new URL('.', import.meta.url)),
+                entry: 'resources/css/app.scss',
+              }),
+                  ]),
+            ]),
         inertia(),
         svelte({
           compilerOptions: {

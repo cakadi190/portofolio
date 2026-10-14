@@ -6,8 +6,10 @@ import {
   fitPageZoom,
   fitWidthZoom,
   MAX_ZOOM,
+  MAX_CANVAS_PIXELS,
   MIN_ZOOM,
   pinchZoom,
+  renderScale,
   stepZoom,
 } from './resume-zoom';
 
@@ -51,5 +53,26 @@ describe('resume zoom', () => {
 
   it('measures the distance between two touch points', () => {
     expect(distanceBetween({ x: 0, y: 0 }, { x: 3, y: 4 })).toBe(5);
+  });
+});
+
+describe('renderScale', () => {
+  const a4 = { width: 595, height: 842 };
+
+  it('keeps the wanted scale while the bitmap stays within the pixel budget', () => {
+    expect(renderScale(1, 2, a4.width, a4.height)).toBe(2);
+  });
+
+  it('caps the bitmap of a 3x zoom on a 3x screen to the pixel budget', () => {
+    const scale = renderScale(MAX_ZOOM, 3, a4.width, a4.height);
+
+    expect(scale).toBeLessThan(MAX_ZOOM * 3);
+    expect(a4.width * scale * (a4.height * scale)).toBeLessThanOrEqual(
+      MAX_CANVAS_PIXELS * 1.001,
+    );
+  });
+
+  it('honours a custom budget', () => {
+    expect(renderScale(3, 3, 100, 100, 10_000)).toBe(1);
   });
 });
