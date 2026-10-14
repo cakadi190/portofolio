@@ -177,9 +177,17 @@
     requestAnimationFrame(step);
   };
 
-  /** The strip only moves through the arrows, so wheel and Shift + wheel must not scroll it. */
-  const blockWheel = (event: WheelEvent): void => {
+  /** Maps the wheel (and Shift + wheel, which some browsers report on deltaY) onto the strip's horizontal scroll. */
+  const wheelTabs = (event: WheelEvent): void => {
+    if (!tabStrip || tabStrip.scrollWidth <= tabStrip.clientWidth) {
+      return;
+    }
+
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+
     event.preventDefault();
+    tabSlide++;
+    tabStrip.scrollLeft += delta;
   };
 
   const watchTabScroll = (node: HTMLElement) => {
@@ -188,14 +196,14 @@
     observer.observe(node);
     Array.from(node.children).forEach((child) => observer.observe(child));
     node.addEventListener('scroll', syncTabArrows, { passive: true });
-    node.addEventListener('wheel', blockWheel, { passive: false });
+    node.addEventListener('wheel', wheelTabs, { passive: false });
     syncTabArrows();
 
     return {
       destroy() {
         observer.disconnect();
         node.removeEventListener('scroll', syncTabArrows);
-        node.removeEventListener('wheel', blockWheel);
+        node.removeEventListener('wheel', wheelTabs);
       },
     };
   };
@@ -1224,7 +1232,7 @@
   .rv-side { display: flex; flex: 0 0 20rem; width: 20rem; overflow: hidden; transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease, visibility 0.25s; flex-direction: column; min-height: 0; background: var(--neo-body-bg); border-right: 1px solid var(--neo-border-color); }
   .rv-side > * { width: 20rem; }
   .rv-tabbar { position: relative; display: flex; align-items: stretch; border-bottom: 1px solid var(--neo-border-color); }
-  .rv-tabs { position: relative; display: flex; flex: 1; min-width: 0; overflow-x: scroll; scrollbar-width: none; touch-action: none; overscroll-behavior: contain; }
+  .rv-tabs { position: relative; display: flex; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; overscroll-behavior: contain; }
   .rv-tabs::-webkit-scrollbar { display: none; }
   .rv-tabarrow { z-index: 2; display: grid; flex: 0 0 1.75rem; place-items: center; padding: 0; color: var(--neo-secondary-color); cursor: pointer; background: var(--neo-body-bg); border: 0; }
   .rv-tabarrow:hover { color: var(--neo-primary); background: var(--neo-primary-bg-subtle); }
