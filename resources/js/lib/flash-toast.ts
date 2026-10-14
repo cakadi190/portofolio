@@ -14,7 +14,9 @@ export function initializeFlashToast(): void {
       | undefined;
 
     if (data) {
-      toast[data.type](data.message);
+      const type = data.type === 'danger' ? 'error' : data.type;
+
+      (toast[type] ?? toast.info)(data.message);
     }
   });
 

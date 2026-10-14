@@ -15,6 +15,7 @@
   import ImageIcon from '@lucide/svelte/icons/image';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+  import ExternalLink from '@lucide/svelte/icons/external-link';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
   import PanelRight from '@lucide/svelte/icons/panel-right';
@@ -75,6 +76,7 @@
     backHref = '',
     documentTitle = '',
     rootLabel = 'Dokumen',
+    viewHref = null,
     header,
     settings,
     actions,
@@ -94,6 +96,8 @@
     documentTitle?: string;
     /** First crumb of the breadcrumb under the canvas. */
     rootLabel?: string;
+    /** Public URL of the saved, published document; shows an open-in-new-tab button next to the title. */
+    viewHref?: string | null;
     /** Rendered above the content (e.g. the title field). */
     header?: Snippet;
     /** Content of the "document" tab of the shell sidebar. */
@@ -1558,6 +1562,16 @@
       <div class="rte-doc-title" title={documentTitle}>
         {documentTitle || 'Tanpa judul'}<span> · {rootLabel}</span>
       </div>
+      {#if viewHref}
+        <a
+          href={viewHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rte-btn rte-btn-lg rte-view-link"
+          title="Buka halaman"
+          aria-label="Buka halaman di tab baru"><ExternalLink size={18} /></a
+        >
+      {/if}
     {/if}
 
     <div class="rte-top-end">
@@ -1998,6 +2012,12 @@
     text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .rte-view-link {
+    flex: 0 0 auto;
+    margin-right: auto;
+    color: inherit;
+    text-decoration: none;
   }
   .rte-doc-title span {
     color: var(--neo-secondary-color);

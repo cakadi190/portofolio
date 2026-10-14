@@ -229,6 +229,7 @@
       value={post?.content ?? ''}
       invalid={!!errors.content}
       backHref={index().url}
+      viewHref={post?.is_published && post.slug ? show(post.slug).url : null}
       documentTitle={title}
       rootLabel="Artikel"
       header={postHeader}

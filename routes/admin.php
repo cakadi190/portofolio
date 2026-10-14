@@ -43,6 +43,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('posts', PostController::class)->parameters(['posts' => 'post'])->only([...$only, 'create', 'edit'])->withTrashed(['destroy']);
         Route::resource('notes', NoteController::class)->parameters(['notes' => 'note'])->only([...$only, 'create', 'edit']);
         Route::resource('guestbook-entries', GuestbookEntryController::class)->parameters(['guestbook-entries' => 'guestbookEntry'])->only(['index', 'update', 'destroy']);
+        Route::post('guestbook-entries/{guestbookEntry}/reply', [GuestbookEntryController::class, 'reply'])->name('guestbook-entries.reply');
         Route::resource('tags', TagController::class)->parameters(['tags' => 'tag'])->only($only);
 
         // The post editor's media picker and uploader.

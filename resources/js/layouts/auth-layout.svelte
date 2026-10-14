@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import AuthLayout from '@/layouts/auth/auth-split-layout.svelte';
-  import { FlatToast, ToastContainer } from 'svelte-toasts';
+  import { Toaster } from 'svelte-french-toast';
 
   let {
     title = '',
@@ -17,7 +17,5 @@
 <AuthLayout {title} {description}>
   {@render children?.()}
 
-  <ToastContainer let:data>
-    <FlatToast {data} />
-  </ToastContainer>
+  <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
 </AuthLayout>

@@ -443,6 +443,7 @@
       value={clarification?.content ?? ''}
       invalid={!!errors.content}
       backHref={index().url}
+      viewHref={clarification?.is_published && clarification.slug ? show(clarification.slug).url : null}
       documentTitle={title}
       rootLabel="Klarifikasi"
       header={clarificationHeader}

@@ -16,6 +16,7 @@
     store,
     update,
   } from '@/wayfinder/routes/admin/portfolios';
+  import { show } from '@/wayfinder/routes/portfolios';
   import { quick as quickTechnology } from '@/wayfinder/routes/admin/technologies';
 
   type Option = { id: number; name: string };
@@ -233,6 +234,7 @@
       value={portfolio?.description ?? ''}
       invalid={!!errors.description}
       backHref={index().url}
+      viewHref={portfolio?.slug ? show(portfolio.slug).url : null}
       documentTitle={name}
       rootLabel="Portofolio"
       header={portfolioHeader}

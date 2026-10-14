@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { toast } from '@/lib/toast';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import { calendarEvents } from '@/wayfinder/routes/admin';
@@ -100,6 +101,7 @@
     } catch {
       events = [];
       failed = true;
+      toast.error('Gagal memuat kalender. Silakan coba lagi.');
     } finally {
       loading = false;
     }

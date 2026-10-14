@@ -201,6 +201,7 @@
       value={note?.content ?? ''}
       invalid={!!errors.content}
       backHref={index().url}
+      viewHref={note?.is_published && note.slug ? show(note.slug).url : null}
       documentTitle={title}
       rootLabel="Catatan"
       header={noteHeader}

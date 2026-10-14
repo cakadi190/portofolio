@@ -46,6 +46,7 @@
   } = $props();
 
   let open = $state(false);
+  let root = $state<HTMLDivElement | null>(null);
   let dangerOpen = $state(false);
 
   const primaryLabel = $derived(
@@ -57,6 +58,39 @@
         ? 'Perbarui'
         : 'Simpan',
   );
+
+  /** Ctrl/Cmd+S saves keeping the current status; Ctrl/Cmd+Shift+S publishes a draft. */
+  function submitFrom(published: boolean | null): void {
+    if (processing) {
+      return;
+    }
+
+    if (published !== null) {
+      onStatus?.(published);
+    }
+
+    root?.closest('form')?.requestSubmit();
+  }
+
+  function onShortcut(event: KeyboardEvent): void {
+    if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+      return;
+    }
+
+    const key = event.key.toLowerCase();
+
+    if (key !== 's') {
+      return;
+    }
+
+    if (!event.shiftKey) {
+      event.preventDefault();
+      submitFrom(draftable ? persistedPublished : null);
+    } else if (draftable && !persistedPublished) {
+      event.preventDefault();
+      submitFrom(true);
+    }
+  }
 </script>
 
 <svelte:window
@@ -66,6 +100,7 @@
   }}
   onkeydown={(event) => {
     if (event.key === 'Escape') open = false;
+    onShortcut(event);
   }}
 />
 
@@ -73,11 +108,12 @@
   <input type="hidden" name="is_published" value={isPublished ? '1' : '0'} />
 {/if}
 
-<div class="btn-group dropdown position-relative">
+<div class="btn-group dropdown position-relative" bind:this={root}>
   <button
     type="submit"
     class="btn btn-sm btn-primary"
     disabled={processing}
+    title={draftable && !persistedPublished ? 'Terbitkan (Ctrl+Shift+S)' : 'Simpan (Ctrl+S)'}
     onclick={() => onStatus?.(true)}
   >
     {primaryLabel}

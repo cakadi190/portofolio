@@ -1,29 +1,21 @@
-import Swal from 'sweetalert2';
-import type { SweetAlertIcon } from 'sweetalert2';
+import toastLib from 'svelte-french-toast';
 
 export type ToastType = 'success' | 'info' | 'warning' | 'error';
 
-const Toast = Swal.mixin({
-  toast: true,
-  position: 'top-end',
-  showConfirmButton: false,
-  showCloseButton: true,
-  timer: 4000,
-  timerProgressBar: true,
-  didOpen: (element) => {
-    element.addEventListener('mouseenter', Swal.stopTimer);
-    element.addEventListener('mouseleave', Swal.resumeTimer);
-  },
-});
+const DURATION = 4000;
 
-function show(icon: SweetAlertIcon, message: string): void {
-  void Toast.fire({ icon, title: message });
+function notify(icon: string, message: string): void {
+  toastLib(message, { icon, duration: DURATION });
 }
 
 export const toast = {
-  success: (message: string): void => show('success', message),
-  error: (message: string): void => show('error', message),
-  warning: (message: string): void => show('warning', message),
-  info: (message: string): void => show('info', message),
-  cancelled: (message = 'Aksi dibatalkan.'): void => show('info', message),
+  success: (message: string): void => {
+    toastLib.success(message, { duration: DURATION });
+  },
+  error: (message: string): void => {
+    toastLib.error(message, { duration: DURATION });
+  },
+  warning: (message: string): void => notify('⚠️', message),
+  info: (message: string): void => notify('ℹ️', message),
+  cancelled: (message = 'Aksi dibatalkan.'): void => notify('ℹ️', message),
 };

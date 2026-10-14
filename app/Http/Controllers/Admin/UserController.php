@@ -54,7 +54,7 @@ class UserController extends Controller
         $data = $request->validated();
 
         if ($user->isAdmin() && $data['account_type'] !== UserRole::Admin->value && ! $this->hasAnotherAdmin($user)) {
-            Inertia::flash('toast', ['type' => 'danger', 'message' => 'Admin terakhir tidak dapat diturunkan perannya.']);
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Admin terakhir tidak dapat diturunkan perannya.']);
 
             return back();
         }
@@ -80,13 +80,13 @@ class UserController extends Controller
     public function destroy(Request $request, User $user): RedirectResponse
     {
         if ($user->is($request->user())) {
-            Inertia::flash('toast', ['type' => 'danger', 'message' => 'Anda tidak dapat menghapus akun Anda sendiri.']);
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Anda tidak dapat menghapus akun Anda sendiri.']);
 
             return back();
         }
 
         if ($user->isAdmin() && ! $this->hasAnotherAdmin($user)) {
-            Inertia::flash('toast', ['type' => 'danger', 'message' => 'Admin terakhir tidak dapat dihapus.']);
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Admin terakhir tidak dapat dihapus.']);
 
             return back();
         }

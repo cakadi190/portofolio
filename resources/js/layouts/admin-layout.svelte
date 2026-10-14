@@ -4,7 +4,7 @@
   import { adminMenu } from '@/layouts/admin/admin-menu';
   import AdminSidebarLayout from '@/layouts/admin/admin-sidebar-layout.svelte';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
-  import { FlatToast, ToastContainer } from 'svelte-toasts';
+  import { Toaster } from 'svelte-french-toast';
 
   let {
     menu: menuOverride,
@@ -24,7 +24,5 @@
 <AdminSidebarLayout {menu} {userName} {userEmail}>
   {@render children?.()}
 
-  <ToastContainer let:data>
-    <FlatToast {data} />
-  </ToastContainer>
+  <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
 </AdminSidebarLayout>

@@ -101,3 +101,27 @@ test('only blogging staff moderate the guestbook', function () {
 
     expect(GuestbookEntry::count())->toBe(0);
 });
+
+test('staff see guestbook threads nested and can reply from the admin', function () {
+    $admin = User::factory()->admin()->create();
+    $root = GuestbookEntry::factory()->create();
+    $child = GuestbookEntry::factory()->create(['parent_id' => $root->id]);
+    GuestbookEntry::factory()->create(['parent_id' => $child->id]);
+
+    $this->actingAs($admin)->get(route('admin.guestbook-entries.index'))->assertInertia(fn ($page) => $page
+        ->has('guestbookEntries.data', 1)
+        ->where('guestbookEntries.data.0.replies.0.id', $child->id)
+        ->has('guestbookEntries.data.0.replies.0.replies', 1));
+
+    $this->actingAs($admin)->post(route('admin.guestbook-entries.reply', $root), ['body' => '<p onclick="x()">Terima kasih</p>'])
+        ->assertRedirect();
+
+    $reply = GuestbookEntry::query()->where('user_id', $admin->id)->sole();
+
+    expect($reply->parent_id)->toBe($root->id)
+        ->and($reply->status)->toBe(BlogCommentStatus::Approved)
+        ->and($reply->body)->not->toContain('onclick');
+
+    $this->actingAs($admin)->post(route('admin.guestbook-entries.reply', $root), ['body' => ''])->assertSessionHasErrors('body');
+    $this->actingAs(User::factory()->create())->post(route('admin.guestbook-entries.reply', $root), ['body' => 'x'])->assertForbidden();
+});

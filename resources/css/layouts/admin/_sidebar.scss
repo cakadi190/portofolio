@@ -571,6 +571,13 @@
         }
       }
 
+      // The icon's opaque accent backdrop (it masks the submenu connector line)
+      // would otherwise paint a box over the rail icon, hiding it inside the
+      // active pill.
+      .sidebar-nav > .sm-menu > .sm-item > .sm-link .sm-icon {
+        background: transparent;
+      }
+
       .sidebar-nav > .sm-menu > .sm-item > .sm-link {
         .sm-label,
         .sm-arrow {
@@ -604,6 +611,14 @@
             transform var(--neo-sidebar-transition-duration) ease,
             visibility 0s linear var(--neo-sidebar-transition-duration);
           z-index: 1020;
+
+          // Scrolls when taller than the viewport, but without a visible scrollbar.
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+
+          &::-webkit-scrollbar {
+            display: none;
+          }
 
           // Direct child only: nested accordions inside the panel still need
           // their own `overflow: hidden` to collapse.

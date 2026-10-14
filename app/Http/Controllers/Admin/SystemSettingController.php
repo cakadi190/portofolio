@@ -94,7 +94,7 @@ class SystemSettingController extends Controller
     {
         $result = $this->ipInfo->test();
 
-        Inertia::flash('toast', ['type' => $result['ok'] ? 'success' : 'danger', 'message' => $result['message']]);
+        Inertia::flash('toast', ['type' => $result['ok'] ? 'success' : 'error', 'message' => $result['message']]);
 
         return back();
     }

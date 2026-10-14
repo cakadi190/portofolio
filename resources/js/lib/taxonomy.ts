@@ -38,5 +38,9 @@ export async function createTaxonomy(
     throw new Error(message);
   }
 
-  return (await response.json()) as TaxonomyItem;
+  const item = (await response.json()) as TaxonomyItem;
+
+  toast.success(`"${item.name}" berhasil ditambahkan.`);
+
+  return item;
 }

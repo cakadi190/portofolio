@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import AppLayout from '@/layouts/app/app-sidebar-layout.svelte';
   import type { BreadcrumbItem } from '@/types';
-  import { FlatToast, ToastContainer } from 'svelte-toasts';
+  import { Toaster } from 'svelte-french-toast';
 
   let {
     breadcrumbs = [],
@@ -16,7 +16,5 @@
 <AppLayout {breadcrumbs}>
   {@render children?.()}
 
-  <ToastContainer let:data>
-    <FlatToast {data} />
-  </ToastContainer>
+  <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
 </AppLayout>

@@ -61,7 +61,7 @@ class MediaController extends Controller
 
         if ($usages > 0) {
             Inertia::flash('toast', [
-                'type' => 'danger',
+                'type' => 'error',
                 'message' => "Media masih dipakai di {$usages} data dan tidak dapat dihapus.",
             ]);
 

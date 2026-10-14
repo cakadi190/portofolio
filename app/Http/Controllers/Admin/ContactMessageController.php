@@ -40,6 +40,8 @@ class ContactMessageController extends Controller
     {
         $contactMessage->update(['read_at' => $contactMessage->read_at ? null : now()]);
 
+        Inertia::flash('toast', ['type' => 'success', 'message' => $contactMessage->read_at ? 'Pesan ditandai sudah dibaca.' : 'Pesan ditandai belum dibaca.']);
+
         return to_route('admin.contact-messages.index');
     }
 

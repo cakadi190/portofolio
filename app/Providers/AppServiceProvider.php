@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
@@ -70,6 +71,25 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->configureAuthorization();
         $this->configureAuditListeners();
+        $this->configureSecurityToasts();
+    }
+
+    /**
+     * Fortify handles two-factor and password routes itself, so surface their outcome as a toast here.
+     */
+    protected function configureSecurityToasts(): void
+    {
+        $messages = [
+            TwoFactorAuthenticationEnabled::class => 'Autentikasi dua faktor diaktifkan. Selesaikan dengan memasukkan kode konfirmasi.',
+            TwoFactorAuthenticationConfirmed::class => 'Autentikasi dua faktor berhasil dikonfirmasi.',
+            TwoFactorAuthenticationDisabled::class => 'Autentikasi dua faktor dinonaktifkan.',
+            RecoveryCodesGenerated::class => 'Kode pemulihan baru berhasil dibuat.',
+            PasswordUpdatedViaController::class => 'Kata sandi berhasil diperbarui.',
+        ];
+
+        foreach ($messages as $event => $message) {
+            Event::listen($event, fn () => Inertia::flash('toast', ['type' => 'success', 'message' => $message]));
+        }
     }
 
     /**
