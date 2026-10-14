@@ -7,7 +7,7 @@
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
   import { Field } from '@/components/ui/field';
-  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+  import RichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
   import Select from '@/components/ui/select.svelte';
   import { store } from '@/wayfinder/routes/contact';
 

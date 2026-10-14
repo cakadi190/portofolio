@@ -50,6 +50,8 @@ class MediaService
         $filename = $this->kebabFilename($originalName);
 
         if (str_starts_with((string) $file->getMimeType(), 'image/') && $file->getMimeType() !== 'image/svg+xml') {
+            $this->assertDecodable($file);
+
             try {
                 $image = $this->images->fromContents($file->getContent())->scaleDown(1920, 1920);
                 $path = $image->save($directory, 'webp', 80, 400, $filename);
@@ -80,6 +82,31 @@ class MediaService
             'size' => $size,
             'width' => $width,
             'height' => $height,
+        ]);
+    }
+
+    /**
+     * GD holds the whole bitmap in memory (4 bytes per pixel) and the container
+     * has little headroom, so a decode beyond this many pixels ends in a PHP
+     * fatal error (HTTP 500) instead of a catchable exception.
+     */
+    public const MAX_DECODE_PIXELS = 24_000_000;
+
+    /**
+     * Reject images too large to decode safely, with a message the uploader can act on.
+     *
+     * @throws ValidationException
+     */
+    protected function assertDecodable(UploadedFile $file): void
+    {
+        $dimensions = @getimagesize($file->getRealPath());
+
+        if ($dimensions === false || $dimensions[0] * $dimensions[1] <= self::MAX_DECODE_PIXELS) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'file' => "Resolusi gambar {$dimensions[0]}×{$dimensions[1]} px terlalu besar untuk diproses server (maksimal ".(self::MAX_DECODE_PIXELS / 1_000_000).' megapiksel, misalnya 6000×4000). Perkecil resolusinya, lalu coba lagi.',
         ]);
     }
 

@@ -9,7 +9,7 @@
   import HeaderPage from '@/components/header-page.svelte';
   import Lightbox from '@/components/ui/lightbox.svelte';
   import { Field } from '@/components/ui/field';
-  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+  import RichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
   import { Form } from '@inertiajs/svelte';
   import Star from '@lucide/svelte/icons/star';
   import { store } from '@/wayfinder/routes/portfolios/reviews';

@@ -115,6 +115,18 @@ test('an image the server cannot decode returns a readable validation error inst
     expect(Media::query()->count())->toBe(0);
 });
 
+test('an image with too many pixels is refused with a clear message before it is decoded', function () {
+    $header = "\x89PNG\r\n\x1a\n".pack('N', 13).'IHDR'.pack('NN', 8000, 4500)."\x08\x02\x00\x00\x00".pack('N', 0);
+    $huge = UploadedFile::fake()->createWithContent('raksasa.png', $header);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson(route('admin.media.store'), ['file' => $huge])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.file.0', fn (string $message): bool => str_contains($message, '8000×4500') && str_contains($message, 'megapiksel'));
+
+    expect(Media::query()->count())->toBe(0);
+});
+
 test('a wide image also gets a card-sized thumbnail that is used for card urls', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('lebar.jpg', 1200, 800)])

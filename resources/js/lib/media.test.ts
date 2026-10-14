@@ -4,7 +4,12 @@ const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 
 vi.mock('@/lib/toast', () => ({ toast }));
 
-import { formatBytes, uploadMedia } from '@/lib/media';
+import {
+  formatBytes,
+  MAX_UPLOAD_SIDE,
+  shrinkLargeImage,
+  uploadMedia,
+} from '@/lib/media';
 
 const file = new File(['x'], 'foto.png', { type: 'image/png' });
 
@@ -83,4 +88,62 @@ describe('uploadMedia', () => {
       await expect(uploadMedia(file)).rejects.toThrow(message);
     },
   );
+});
+
+describe('shrinkLargeImage', () => {
+  const bitmap = (width: number, height: number) => ({
+    width,
+    height,
+    close: vi.fn(),
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('leaves small images and non-raster files untouched', async () => {
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap(1600, 900)));
+
+    expect(await shrinkLargeImage(file)).toBe(file);
+
+    const svg = new File(['<svg/>'], 'logo.svg', { type: 'image/svg+xml' });
+    const pdf = new File(['%PDF'], 'cv.pdf', { type: 'application/pdf' });
+
+    expect(await shrinkLargeImage(svg)).toBe(svg);
+    expect(await shrinkLargeImage(pdf)).toBe(pdf);
+  });
+
+  it('scales an oversized image down to the longest-side cap and re-encodes it as webp', async () => {
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap(8000, 4500)));
+    const toBlob = vi
+      .spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation((callback) => callback(new Blob(['webp'], { type: 'image/webp' })));
+    const canvases: HTMLCanvasElement[] = [];
+    const createElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+      const element = createElement(tag);
+      if (tag === 'canvas') {
+        canvases.push(element as HTMLCanvasElement);
+      }
+
+      return element;
+    });
+
+    const result = await shrinkLargeImage(
+      new File(['x'], 'Poster Besar.png', { type: 'image/png' }),
+    );
+
+    expect(canvases[0].width).toBe(MAX_UPLOAD_SIDE);
+    expect(canvases[0].height).toBe(Math.round(4500 * (MAX_UPLOAD_SIDE / 8000)));
+    expect(toBlob).toHaveBeenCalledWith(expect.any(Function), 'image/webp', 0.9);
+    expect(result.name).toBe('Poster Besar.webp');
+    expect(result.type).toBe('image/webp');
+  });
+
+  it('falls back to the original file when the image cannot be decoded', async () => {
+    vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('decode')));
+
+    expect(await shrinkLargeImage(file)).toBe(file);
+  });
 });

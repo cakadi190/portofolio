@@ -8,11 +8,64 @@ function xsrfToken(): string {
   return match ? decodeURIComponent(match[1]) : '';
 }
 
+/** Longest side, in pixels, kept before an image leaves the browser. */
+export const MAX_UPLOAD_SIDE = 3000;
+
+/**
+ * The server decodes uploads with GD inside a small container, so a photo of
+ * tens of megapixels would exhaust its memory. Oversized bitmaps are scaled
+ * down here (the server caps stored images at 1920 px anyway) and re-encoded
+ * as WebP, which keeps transparency. Anything that cannot be decoded, or does
+ * not need shrinking, is uploaded untouched.
+ */
+export async function shrinkLargeImage(file: File): Promise<File> {
+  const shrinkable =
+    file.type.startsWith('image/') &&
+    !['image/svg+xml', 'image/gif'].includes(file.type);
+
+  if (!shrinkable || typeof createImageBitmap !== 'function') {
+    return file;
+  }
+
+  try {
+    const source = await createImageBitmap(file);
+    const longest = Math.max(source.width, source.height);
+
+    if (longest <= MAX_UPLOAD_SIDE) {
+      source.close();
+
+      return file;
+    }
+
+    const scale = MAX_UPLOAD_SIDE / longest;
+    const width = Math.round(source.width * scale);
+    const height = Math.round(source.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext('2d')?.drawImage(source, 0, 0, width, height);
+    source.close();
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/webp', 0.9),
+    );
+
+    return blob
+      ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', {
+          type: 'image/webp',
+        })
+      : file;
+  } catch {
+    return file;
+  }
+}
+
 /**
  * Upload one file into the media library. Rejects with a readable message
  * (the first validation error, or a generic one) when the upload fails.
  */
-export async function uploadMedia(file: File): Promise<MediaItem> {
+export async function uploadMedia(original: File): Promise<MediaItem> {
+  const file = await shrinkLargeImage(original);
   const body = new FormData();
   body.append('file', file);
 
@@ -41,7 +94,7 @@ export async function uploadMedia(file: File): Promise<MediaItem> {
     throw new Error(message);
   }
 
-  toast.success(`${file.name} berhasil diunggah.`);
+  toast.success(`${original.name} berhasil diunggah.`);
 
   return (await response.json()) as MediaItem;
 }

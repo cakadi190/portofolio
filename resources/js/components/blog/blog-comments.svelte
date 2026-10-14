@@ -2,7 +2,7 @@
   import { Form, InfiniteScroll, Link, page } from '@inertiajs/svelte';
   import Turnstile from '@/components/turnstile.svelte';
   import { Field } from '@/components/ui/field';
-  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+  import RichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
   import { login, register } from '@/wayfinder/routes';
   import { store } from '@/wayfinder/routes/blog/comments';
   import BlogCommentItem from './blog-comment-item.svelte';

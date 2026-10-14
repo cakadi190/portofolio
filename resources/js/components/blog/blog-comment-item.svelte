@@ -3,7 +3,7 @@
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import Turnstile from '@/components/turnstile.svelte';
   import { Field } from '@/components/ui/field';
-  import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+  import RichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
   import { store } from '@/wayfinder/routes/blog/comments';
   import BlogCommentItem from './blog-comment-item.svelte';
   import type { BlogCommentNode } from './types';
