@@ -20,7 +20,7 @@
   import { extractPdfSignatures } from '@/lib/pdf-signatures';
   import type { PdfSignature } from '@/lib/pdf-signatures';
   import { perfectScrollbar } from '@/lib/perfect-scrollbar';
-  import { anchoredScroll, clampZoom, distanceBetween, fitPageZoom, fitWidthZoom, pinchZoom, renderScale, stepZoom as nextZoom } from '@/lib/resume-zoom';
+  import { anchoredScroll, clampZoom, distanceBetween, fitPageZoom, fitWidthZoom, pinchFrame, pinchStart, renderScale, stepZoom as nextZoom, type PinchStart } from '@/lib/resume-zoom';
   import type { ZoomMode } from '@/lib/resume-zoom';
   import { createOcrCache, OCR_POOL_SIZE, terminateOcrWorker } from '@/lib/ocr';
   import { findPhraseMatches, textRunsToWords } from '@/lib/ocr/phrase';
@@ -89,6 +89,7 @@
   let doc: PDFDocumentProxy | null = null;
   let loadingTask: PDFDocumentLoadingTask | null = null;
   const rendered = new Map<number, number>();
+  const renderSequence = new Map<number, number>();
   const canvases = new Map<number, HTMLCanvasElement>();
   const thumbs = new Map<number, HTMLCanvasElement>();
   let observer: IntersectionObserver | null = null;
@@ -271,6 +272,8 @@
     }
 
     const target = zoom;
+    const sequence = (renderSequence.get(number) ?? 0) + 1;
+    renderSequence.set(number, sequence);
     rendered.set(number, target);
     const ratio = window.devicePixelRatio || 1;
     // Zoom x pixel ratio can ask for a ~40 MP bitmap per page (3x on a 3x screen); mobile browsers
@@ -282,13 +285,20 @@
     buffer.width = viewport.width;
     buffer.height = viewport.height;
     await page.render({ canvas: buffer, viewport }).promise.catch(() => {});
+
+    // A newer render of this page was started meanwhile (zoom changed again); drawing this older, slower one would overwrite it.
+    if (renderSequence.get(number) !== sequence) {
+      return;
+    }
+
     canvas.width = buffer.width;
     canvas.height = buffer.height;
     canvas.getContext('2d')?.drawImage(buffer, 0, 0);
   };
 
   const renderVisible = (): void => {
-    if (!scroller) {
+    // Mid-pinch the pages are only CSS-scaled; one crisp render happens after the fingers lift.
+    if (!scroller || pinching) {
       return;
     }
 
@@ -338,6 +348,8 @@
 
   let zoomFrame = 0;
   let zoomTarget = 1;
+  /** True while two fingers are down: pages are only CSS-scaled, and re-rendering waits for the gesture to end. */
+  let pinching = false;
   type ZoomTween = { base: number; k: number; point: { x: number; y: number }; sheets: { node: HTMLElement; origin: string }[] };
   let tween: ZoomTween | null = null;
 
@@ -499,56 +511,118 @@
   };
 
   /**
-   * Two-finger pinch inside the viewer. While two fingers are down the browser's own pan/zoom is cancelled
-   * (the listeners are non-passive for that) so the page neither scrolls under the gesture nor zooms the
-   * whole document; `touch-action` covers browsers that never deliver the touch events.
+   * Two-finger pinch, driven entirely from the touch points. A real pinch lands one finger at a time, so the
+   * browser has usually started a native pan before the second finger arrives; the scroller is therefore
+   * locked (`overflow: hidden`) for the whole gesture and the zoom and scroll offset are derived each frame
+   * from the fingers: the document point that was under the initial midpoint stays under the current midpoint,
+   * which also gives a two-finger pan. Pages are only CSS-scaled meanwhile and re-rendered once the fingers
+   * lift. `touch-action` and the non-passive listeners keep the browser from zooming or scrolling the page.
    */
   const pinchZoomAction = (node: HTMLElement) => {
-    let start: { distance: number; zoom: number } | null = null;
+    let gesture: PinchStart | null = null;
+    let latest: { distance: number; x: number; y: number } | null = null;
+    let frame = 0;
 
-    const points = (event: TouchEvent): { x: number; y: number }[] =>
-      Array.from(event.touches).map((touch) => ({ x: touch.clientX, y: touch.clientY }));
+    const read = (event: TouchEvent): { distance: number; x: number; y: number } => {
+      const box = node.getBoundingClientRect();
+      const [a, b] = Array.from(event.touches).map((touch) => ({ x: touch.clientX, y: touch.clientY }));
+
+      return {
+        distance: distanceBetween(a, b),
+        x: (a.x + b.x) / 2 - box.left,
+        y: (a.y + b.y) / 2 - box.top,
+      };
+    };
+
+    const apply = (): void => {
+      frame = 0;
+
+      if (!gesture || !latest || gesture.distance <= 0) {
+        return;
+      }
+
+      const next = pinchFrame(gesture, latest);
+
+      zoomMode = 'custom';
+      zoomTarget = next.zoom;
+
+      if (next.zoom !== zoom) {
+        zoom = next.zoom;
+        flushSync();
+      }
+
+      node.scrollLeft = next.scrollLeft;
+      node.scrollTop = next.scrollTop;
+    };
+
+    const begin = (event: TouchEvent): void => {
+      // Settle any easing zoom first so `zoom` is the real, laid-out value.
+      setZoom(zoomTarget, 'custom', undefined, 0);
+
+      const point = read(event);
+
+      pinching = true;
+      node.style.overflow = 'hidden';
+      gesture = pinchStart(zoom, point.distance, { left: node.scrollLeft, top: node.scrollTop }, point);
+      latest = point;
+    };
+
+    const finish = (): void => {
+      cancelAnimationFrame(frame);
+      apply();
+      gesture = null;
+      latest = null;
+      clearTimeout(zoomTimer);
+      zoomTimer = setTimeout(renderVisible, 220);
+    };
 
     const onStart = (event: TouchEvent): void => {
       if (event.touches.length === 2) {
-        const [a, b] = points(event);
-        start = { distance: distanceBetween(a, b), zoom: zoomTarget };
-
         if (event.cancelable) {
           event.preventDefault();
         }
-      } else {
-        start = null;
+
+        begin(event);
       }
     };
 
     const onMove = (event: TouchEvent): void => {
-      if (event.touches.length !== 2) {
+      if (!pinching) {
         return;
       }
 
+      // Cancelling only works while the touch is still cancelable; the overflow lock covers the rest.
       if (event.cancelable) {
         event.preventDefault();
       }
 
-      const [a, b] = points(event);
-
-      if (!start) {
-        start = { distance: distanceBetween(a, b), zoom: zoomTarget };
-
+      if (event.touches.length !== 2 || !gesture) {
         return;
       }
 
-      const box = node.getBoundingClientRect();
-      setZoom(pinchZoom(start.zoom, start.distance, distanceBetween(a, b)), 'custom', {
-        x: (a.x + b.x) / 2 - box.left,
-        y: (a.y + b.y) / 2 - box.top,
-      }, 90);
+      latest = read(event);
+
+      if (frame === 0) {
+        frame = requestAnimationFrame(apply);
+      }
     };
 
     const onEnd = (event: TouchEvent): void => {
-      if (event.touches.length < 2) {
-        start = null;
+      if (!pinching) {
+        return;
+      }
+
+      if (event.touches.length < 2 && gesture) {
+        finish();
+      }
+
+      // Stay locked until every finger is up, so the remaining finger cannot start a jumpy native pan.
+      if (event.touches.length === 0) {
+        pinching = false;
+        node.style.overflow = '';
+        updateCurrent();
+        clearTimeout(zoomTimer);
+        zoomTimer = setTimeout(renderVisible, 120);
       }
     };
 
@@ -564,6 +638,9 @@
 
     return {
       destroy: () => {
+        cancelAnimationFrame(frame);
+        node.style.overflow = '';
+        pinching = false;
         node.removeEventListener('touchstart', onStart);
         node.removeEventListener('touchmove', onMove);
         node.removeEventListener('touchend', onEnd);

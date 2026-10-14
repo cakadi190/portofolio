@@ -80,6 +80,44 @@ export const renderScale = (
 ): number =>
   Math.min(zoom * pixelRatio, Math.sqrt(maxPixels / (pageWidth * pageHeight)));
 
+export type PinchStart = {
+  zoom: number;
+  distance: number;
+  /** Document coordinates (at scale 1) of the point that was under the initial midpoint. */
+  contentX: number;
+  contentY: number;
+};
+
+/** Captures what a pinch needs from the moment the second finger lands. */
+export const pinchStart = (
+  zoom: number,
+  distance: number,
+  scroll: { left: number; top: number },
+  midpoint: { x: number; y: number },
+): PinchStart => ({
+  zoom,
+  distance,
+  contentX: (scroll.left + midpoint.x) / zoom,
+  contentY: (scroll.top + midpoint.y) / zoom,
+});
+
+/**
+ * Zoom and scroll offsets for the current finger positions: the document point that was under the initial
+ * midpoint stays under the current midpoint, so moving both fingers together also pans.
+ */
+export const pinchFrame = (
+  start: PinchStart,
+  now: { distance: number; x: number; y: number },
+): { zoom: number; scrollLeft: number; scrollTop: number } => {
+  const zoom = pinchZoom(start.zoom, start.distance, now.distance);
+
+  return {
+    zoom,
+    scrollLeft: start.contentX * zoom - now.x,
+    scrollTop: start.contentY * zoom - now.y,
+  };
+};
+
 export const distanceBetween = (
   a: { x: number; y: number },
   b: { x: number; y: number },

@@ -8,6 +8,8 @@ import {
   MAX_ZOOM,
   MAX_CANVAS_PIXELS,
   MIN_ZOOM,
+  pinchFrame,
+  pinchStart,
   pinchZoom,
   renderScale,
   stepZoom,
@@ -74,5 +76,36 @@ describe('renderScale', () => {
 
   it('honours a custom budget', () => {
     expect(renderScale(3, 3, 100, 100, 10_000)).toBe(1);
+  });
+});
+
+describe('pinch gesture', () => {
+  const start = pinchStart(1, 100, { left: 40, top: 300 }, { x: 200, y: 400 });
+
+  it('captures the document point under the initial midpoint', () => {
+    expect(start).toMatchObject({ zoom: 1, distance: 100, contentX: 240, contentY: 700 });
+  });
+
+  it('keeps that point under the midpoint while the fingers spread', () => {
+    const frame = pinchFrame(start, { distance: 200, x: 200, y: 400 });
+
+    expect(frame.zoom).toBe(2);
+    // Document point 240 now sits at 240 * 2 = 480; the offset puts it back at the 200px midpoint.
+    expect(frame.scrollLeft + 200).toBe(480);
+    expect(frame.scrollTop + 400).toBe(1400);
+  });
+
+  it('pans with the midpoint when both fingers move together', () => {
+    const still = pinchFrame(start, { distance: 100, x: 200, y: 400 });
+    const moved = pinchFrame(start, { distance: 100, x: 150, y: 380 });
+
+    expect(still.zoom).toBe(1);
+    expect(moved.scrollLeft - still.scrollLeft).toBe(50);
+    expect(moved.scrollTop - still.scrollTop).toBe(20);
+  });
+
+  it('clamps the zoom to the supported range', () => {
+    expect(pinchFrame(start, { distance: 5000, x: 200, y: 400 }).zoom).toBe(MAX_ZOOM);
+    expect(pinchFrame(start, { distance: 1, x: 200, y: 400 }).zoom).toBe(MIN_ZOOM);
   });
 });
