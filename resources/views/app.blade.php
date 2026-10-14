@@ -67,15 +67,18 @@
 
         {{--
             Anti-FOUC: fetch the brand artwork with the document (so the sidebar
-            logo/icon don't pop in after JS boots) and keep overlays that are
-            only revealed by Bootstrap JS hidden until the stylesheet arrives.
+            logo/icon don't pop in after JS boots) and keep modals/dropdowns that
+            are only revealed by Bootstrap JS hidden until the stylesheet arrives.
+            Offcanvas is deliberately not listed: Bootstrap already hides it with
+            `visibility` + `transform`, and forcing `display: none` on it makes the
+            open transition start from a just-displayed element, so the slide-in
+            animation never plays.
         --}}
         <link rel="preload" as="image" href="/images/brands/logo-white.svg" type="image/svg+xml">
         <link rel="preload" as="image" href="/images/brands/logo-color.svg" type="image/svg+xml">
         <link rel="preload" as="image" href="/images/brands/icon-white.svg" type="image/svg+xml">
         <style>
             .no-transitions *, .no-transitions *::before, .no-transitions *::after { transition: none !important; }
-            .offcanvas:not(.show):not(.showing):not(.hiding) { display: none; }
             .modal:not(.show),
             .dropdown-menu:not(.show) { display: none; }
         </style>

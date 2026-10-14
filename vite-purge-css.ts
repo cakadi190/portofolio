@@ -28,14 +28,16 @@ const SOURCE_DIRECTORIES = [
 const SOURCE_EXTENSIONS = /\.(svelte|ts|js|php|json)$/;
 const IGNORED = /(^|\/)(wayfinder|node_modules|vendor)(\/|$)|\.test\.ts$/;
 
-/** Classes added at runtime by Bootstrap's JS, validation state, or editor-authored HTML. */
+/**
+ * Classes added at runtime that never appear in the sources: state classes toggled by Bootstrap's JS, the
+ * markup its Modal, Offcanvas, Dropdown and Tooltip plugins create (the only ones this project uses), and
+ * classes that editor-authored article HTML can carry.
+ */
 const SAFELIST: RegExp[] = [
-  /^(show|showing|hiding|fade|collapse|collapsing|collapsed|active|disabled|open|focus|visible|invisible)$/,
-  /^(modal|offcanvas|dropdown|tooltip|popover|toast|bs|arrow|backdrop|carousel)(-|$)/,
-  /^(was-validated|is-valid|is-invalid|valid-|invalid-|form-control|form-select|form-check|input-group)/,
+  /^(show|showing|hiding|fade|active|disabled|open|focus|visible|invisible)$/,
+  /^(modal|offcanvas|dropdown|tooltip|bs-tooltip)(-|$)/,
   /^(table|blockquote|figure|img-|lead$|small$|mark$|display-|text-(start|center|end|break|wrap|nowrap|truncate)|fw-|fst-)/,
   /^(wp-block|is-align|callout)/,
-  /^(neo|simplebar|ps)(-|$)/,
 ];
 
 function collectFiles(directory: string, files: string[] = []): string[] {
@@ -132,6 +134,13 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
     prefixes.some((prefix) => className.startsWith(prefix)) ||
     SAFELIST.some((pattern) => pattern.test(className));
 
+  /** Bytes kept only because a safelist pattern matched (PURGE_REPORT=1), by pattern. */
+  const keptBySafelist = new Map<string, number>();
+  const reason = (className: string): RegExp | null =>
+    tokens.has(className) || prefixes.some((prefix) => className.startsWith(prefix))
+      ? null
+      : (SAFELIST.find((pattern) => pattern.test(className)) ?? null);
+
   const selectorIsNeeded = (selector: string): boolean => {
     if (/:(is|where|has)\(/.test(selector)) {
       return true;
@@ -170,6 +179,17 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
 
           const kept = rule.selectors.filter(selectorIsNeeded);
 
+          if (process.env.PURGE_REPORT) {
+            for (const selector of kept) {
+              const classes = requiredClasses(selector);
+              const pattern = classes.map(reason).find(Boolean);
+
+              if (pattern && classes.every((name) => isUsed(name))) {
+                keptBySafelist.set(String(pattern), (keptBySafelist.get(String(pattern)) ?? 0) + rule.toString().length);
+              }
+            }
+          }
+
           if (kept.length === 0) {
             rule.remove();
           } else if (kept.length !== rule.selectors.length) {
@@ -184,6 +204,12 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
         });
 
         asset.source = root.toString();
+
+        if (process.env.PURGE_REPORT) {
+          for (const [pattern, bytes] of [...keptBySafelist].sort((a, b) => b[1] - a[1])) {
+            console.info(`[purge-unused-css]   kept only by safelist ${pattern}: ${(bytes / 1024).toFixed(1)} KB`);
+          }
+        }
 
         console.info(
           `[purge-unused-css] ${asset.fileName}: ${(before / 1024).toFixed(1)} KB -> ${(asset.source.length / 1024).toFixed(1)} KB`,
