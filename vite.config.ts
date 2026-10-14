@@ -3,6 +3,7 @@ import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
@@ -16,6 +17,48 @@ const isSvelteCheck = process.argv.some((argument) =>
 
 if (isSvelteCheck) {
   process.env.LARAVEL_BYPASS_ENV_CHECK ??= '1';
+}
+
+const WOFF_FACE = /@font-face\s*\{[^}]*format\(["']woff["']\)[^}]*\}\s*/g;
+
+/**
+ * The font provider emits a `.woff` @font-face right after every `.woff2` one
+ * with identical descriptors, and browsers use the last match: the larger,
+ * un-preloaded `.woff` wins. Dropping the `.woff` faces from the generated
+ * manifest and stylesheet makes every browser that matters use `.woff2`.
+ */
+function woff2OnlyFonts() {
+  return {
+    name: 'woff2-only-fonts',
+    apply: 'build' as const,
+    enforce: 'post' as const,
+    closeBundle: {
+      order: 'post' as const,
+      handler() {
+        const outDir = fileURLToPath(new URL('./public/build', import.meta.url));
+        const manifestPath = `${outDir}/fonts-manifest.json`;
+
+        if (!existsSync(manifestPath)) {
+          return;
+        }
+
+        const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+        const familyStyles = manifest.style?.familyStyles ?? {};
+
+        for (const family of Object.keys(familyStyles)) {
+          familyStyles[family] = familyStyles[family].replace(WOFF_FACE, '');
+        }
+
+        const cssPath = manifest.style?.file && `${outDir}/${manifest.style.file}`;
+
+        if (cssPath && existsSync(cssPath)) {
+          writeFileSync(cssPath, readFileSync(cssPath, 'utf8').replace(WOFF_FACE, ''));
+        }
+
+        writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+      },
+    },
+  };
 }
 
 export default defineConfig({
@@ -49,6 +92,7 @@ export default defineConfig({
                 ],
               }),
             ]),
+        ...(isVitest || isSsrBuild ? [] : [woff2OnlyFonts()]),
         inertia(),
         svelte({
           compilerOptions: {

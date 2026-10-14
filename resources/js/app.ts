@@ -47,7 +47,7 @@ if (typeof document !== 'undefined') {
   initializeFlashToast();
 
   // Error and performance monitoring (Sentry), configured from system settings.
-  // The SDK is a separate chunk fetched on the first interaction, or 4 s after
+  // The SDK is a separate chunk fetched on the first interaction, or 10 s after
   // the page has loaded for passive readers, keeping it out of LCP/TBT.
   const interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
   let monitoringStarted = false;
@@ -74,11 +74,11 @@ if (typeof document !== 'undefined') {
   );
 
   if (document.readyState === 'complete') {
-    window.setTimeout(startMonitoring, 4000);
+    window.setTimeout(startMonitoring, 10000);
   } else {
     window.addEventListener(
       'load',
-      () => window.setTimeout(startMonitoring, 4000),
+      () => window.setTimeout(startMonitoring, 10000),
       { once: true },
     );
   }
