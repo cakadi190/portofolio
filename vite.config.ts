@@ -44,7 +44,12 @@ export default defineConfig({
               }),
             ]),
         inertia(),
-        svelte(),
+        svelte({
+          compilerOptions: {
+            // Drops the default `svelte-` class prefix from scoped styles.
+            cssHash: ({ hash, css }) => `c${hash(css)}`,
+          },
+        }),
         // The client build already generated the Wayfinder types
         // (`build:ssr` runs it first); regenerating for SSR boots the
         // whole framework again for nothing.

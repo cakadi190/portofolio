@@ -80,7 +80,7 @@
             <style id="pdf-viewer-preboot">
                 html, body { height: 100%; margin: 0; overflow: hidden; }
                 body { background: var(--neo-tertiary-bg, #f1f5f9); }
-                #app:empty::before { display: block; height: 3.75rem; content: ''; background: #22c55e; }
+                #root:empty::before { display: block; height: 3.75rem; content: ''; background: #22c55e; }
             </style>
         @endif
 
@@ -104,6 +104,6 @@
         <x-inertia::head />
     </head>
     <body>
-        <x-inertia::app />
+        <x-inertia::app id="root" />
     </body>
 </html>
