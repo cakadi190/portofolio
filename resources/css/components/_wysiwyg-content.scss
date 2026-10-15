@@ -255,6 +255,52 @@
   figure.wp-block-image {
     max-width: 100%;
 
+    position: relative;
+
+    // Caption pill over the bottom-right corner of the photo.
+    figcaption {
+      position: absolute;
+      right: 0.75rem;
+      bottom: 0.75rem;
+      z-index: 1;
+      display: inline-block;
+      max-width: calc(100% - 1.5rem);
+      margin: 0;
+      padding: 0.3rem 0.85rem 0.3rem 2.1rem;
+      border-radius: 999px;
+      background: rgb(255 255 255 / 0.88)
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z'/%3E%3Ccircle cx='12' cy='13' r='3'/%3E%3C/svg%3E")
+        no-repeat 0.7rem center / 0.95rem;
+      color: #6b7280;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      text-align: left;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 6px rgb(0 0 0 / 0.12);
+      cursor: pointer;
+
+      &[data-credit]::before {
+        content: attr(data-credit) ' \2022 ';
+        color: #111827;
+        font-weight: 600;
+        white-space: pre;
+      }
+
+      &[data-credit]:empty::before {
+        content: attr(data-credit);
+      }
+
+      // No caption and no credit: nothing to show on the published page.
+      &:empty:not([data-credit]) {
+        display: none;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: underline;
+      }
+    }
+
     img {
       margin: 0;
       width: 100%;
@@ -288,6 +334,59 @@
 
   // Soft tinted note box with a coloured icon tile. Types: info, success,
   // warning, danger, dark.
+  // Editing: an empty caption keeps a visible, typeable placeholder.
+  .ProseMirror figure.wp-block-image figcaption:not([data-credit])::after {
+    content: none;
+  }
+
+  .ProseMirror figure.wp-block-image figcaption:has(> .ProseMirror-trailingBreak:only-child):not([data-credit])::before {
+    content: 'Tulis keterangan…';
+    opacity: 0.6;
+  }
+
+  a.wp-block-linkcard {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    overflow: hidden;
+    border: 1px solid var(--neo-border-color);
+    border-radius: 0.75rem;
+    background: var(--neo-tertiary-bg);
+    color: var(--neo-body-color);
+    text-decoration: none;
+    transition: border-color 0.15s;
+
+    &:hover {
+      border-color: var(--neo-primary);
+    }
+
+    .wp-linkcard-image {
+      display: block;
+      width: 100%;
+      max-height: 18rem;
+      margin: 0;
+      border-radius: 0;
+      object-fit: cover;
+    }
+
+    .wp-linkcard-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .wp-linkcard-site {
+      color: var(--neo-secondary-color);
+      font-size: 0.8rem;
+    }
+
+    .wp-linkcard-title {
+      font-weight: 600;
+      line-height: 1.35;
+    }
+  }
+
   .wp-block-callout {
     --callout-color: #5b5bd6;
     --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4M12 8h.01'/%3E%3C/svg%3E");
@@ -707,5 +806,93 @@
       color: var(--neo-success, #198754);
       border-color: currentColor;
     }
+  }
+}
+
+// Menu opened from a published figure and the full-size image overlay.
+.wp-figure-menu {
+  position: absolute;
+  z-index: 5;
+  width: min(18rem, calc(100% - 1rem));
+  padding: 0.5rem;
+  border-radius: 0.9rem;
+  background: rgb(255 255 255 / 0.96);
+  color: #111827;
+  font-size: 0.85rem;
+  text-align: left;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.25);
+
+  p {
+    margin: 0.15rem 0.5rem;
+  }
+
+  .wp-figure-menu__title {
+    display: block;
+    margin: 0.25rem 0.5rem;
+  }
+
+  .wp-figure-menu__by,
+  .wp-figure-menu__meta {
+    color: #6b7280;
+  }
+
+  .wp-figure-menu__by b {
+    color: #111827;
+  }
+
+  .wp-figure-menu__meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--neo-font-monospace);
+    font-size: 0.78rem;
+  }
+
+  .wp-figure-menu__alt {
+    color: #9ca3af;
+    font-style: italic;
+  }
+
+  .wp-figure-menu__actions {
+    margin-top: 0.4rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .wp-figure-menu__item {
+    display: block;
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+
+    &:hover,
+    &:focus-visible {
+      background: #f3f4f6;
+      outline: none;
+    }
+  }
+}
+
+.wp-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.88);
+  cursor: zoom-out;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    border-radius: 0.5rem;
+    object-fit: contain;
   }
 }

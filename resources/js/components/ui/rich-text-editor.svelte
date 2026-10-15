@@ -65,6 +65,7 @@
     CodeBlockHighlight,
     Definition,
     FigureImage,
+    LinkCard,
     MathBlock,
     MathInline,
     Reference,
@@ -77,6 +78,7 @@
     TableSetup,
     cleanBlockText,
     safeHref,
+    sourceUrl,
   } from '@/lib/editor-blocks';
   import { normalizeCodeTitle } from '@/lib/code-card';
   import { portal } from '@/lib/dom';
@@ -84,6 +86,8 @@
   import { highlightSource, languageNames } from '@/lib/highlight';
   import Select from '@/components/ui/select.svelte';
   import { uploadMedia } from '@/lib/media';
+  import { linkPreview } from '@/wayfinder/routes/admin';
+  import { toast } from '@/lib/toast';
   import type { MediaItem } from '@/types/media';
 
   /**
@@ -204,6 +208,7 @@
   type BlockKind =
     | 'image'
     | 'buttonBlock'
+    | 'linkCard'
     | 'callout'
     | 'codeBlock'
     | 'definition'
@@ -243,6 +248,7 @@
     callout: 'Callout',
     image: 'Gambar',
     buttonBlock: 'Tombol',
+    linkCard: 'Kartu tautan',
     horizontalRule: 'Garis pemisah',
     table: 'Tabel',
     definition: 'Kartu definisi',
@@ -261,6 +267,7 @@
     callout: 'Kotak catatan berwarna untuk info penting.',
     image: 'Sisipkan gambar dari pustaka media.',
     buttonBlock: 'Tautan ajakan bertindak berbentuk tombol.',
+    linkCard: 'Pratinjau halaman web lengkap dengan gambar dan judul.',
     horizontalRule: 'Pisahkan bagian tulisan dengan garis.',
     table: 'Susun data dalam baris dan kolom.',
     definition: 'Kartu istilah dengan pelafalan dan artinya.',
@@ -279,6 +286,7 @@
     callout: Info,
     image: ImageIcon,
     buttonBlock: MousePointerClick,
+    linkCard: ExternalLink,
     horizontalRule: Minus,
     table: Table2,
     definition: BookA,
@@ -365,22 +373,17 @@
     },
     {
       label: 'Callout',
-      hint: 'Kotak catatan berwarna',
+      hint: 'Kotak catatan, judul dan label opsional',
       icon: Info,
-      keywords: 'callout note catatan info peringatan kotak',
+      keywords: 'callout note catatan info peringatan kotak judul label kategori',
       run: (c) => c.wrapIn('callout', { type: 'info' }),
     },
     {
-      label: 'Callout berjudul',
-      hint: 'Kotak catatan dengan judul dan label',
-      icon: Info,
-      keywords: 'callout titled judul label kategori note box',
-      run: (c) =>
-        c.wrapIn('callout', {
-          type: 'info',
-          title: 'Judul catatan',
-          label: 'Kategori',
-        }),
+      label: 'Kartu tautan',
+      hint: 'Pratinjau halaman web',
+      icon: ExternalLink,
+      keywords: 'link card tautan referensi web preview whatsapp',
+      action: insertLinkCard,
     },
     {
       label: 'Tombol',
@@ -787,6 +790,7 @@
 
       return kind === 'image' ||
         kind === 'buttonBlock' ||
+        kind === 'linkCard' ||
         kind === 'mathBlock' ||
         kind === 'mathInline'
         ? { kind, pos: selection.from, attrs: selection.node.attrs }
@@ -797,7 +801,7 @@
       const node = selection.$from.node(depth);
 
       if (
-        ['callout', 'codeBlock', 'definition', 'specSheet', 'table'].includes(
+        ['image', 'callout', 'codeBlock', 'definition', 'specSheet', 'table'].includes(
           node.type.name,
         )
       ) {
@@ -859,6 +863,54 @@
       editor.commands.setNodeSelection(
         editor.state.selection.from - before.nodeSize,
       );
+    }
+  }
+
+  function insertLinkCard(): void {
+    if (!editor) return;
+
+    editor.chain().focus().insertContent({ type: 'linkCard' }).run();
+
+    const before = editor.state.selection.$from.nodeBefore;
+
+    if (before?.type.name === 'linkCard') {
+      editor.commands.setNodeSelection(
+        editor.state.selection.from - before.nodeSize,
+      );
+    }
+  }
+
+  let fetchingPreview = $state(false);
+
+  /** Fills the selected link card from the page's Open Graph metadata. */
+  async function loadLinkPreview(url: string): Promise<void> {
+    fetchingPreview = true;
+
+    try {
+      const response = await fetch(linkPreview().url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': decodeURIComponent(
+            document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '',
+          ),
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        toast.error('Pratinjau tautan tidak dapat diambil. Isi manual saja.');
+
+        return;
+      }
+
+      patchBlock(await response.json());
+    } catch {
+      toast.error('Pratinjau tautan tidak dapat diambil.');
+    } finally {
+      fetchingPreview = false;
     }
   }
 
@@ -1458,6 +1510,7 @@
           ? []
           : [
               FigureImage,
+              LinkCard,
               Callout,
               ButtonBlock,
               Definition,
@@ -1488,6 +1541,14 @@
         },
         handleKeyDown: (_view, event) => handleMenuKey(event),
         handleDOMEvents: {
+          click: (_view, event) => {
+            // Link cards are previews while editing; they must not navigate.
+            if ((event.target as HTMLElement).closest('a.wp-block-linkcard')) {
+              event.preventDefault();
+            }
+
+            return false;
+          },
           contextmenu: (_view, event) => {
             openContext(event);
 
@@ -1510,7 +1571,9 @@
         },
       },
       onUpdate: ({ editor: current }) => {
-        html = current.isEmpty ? '' : current.getHTML();
+        html = current.isEmpty
+          ? ''
+          : current.getHTML().replaceAll('<figcaption></figcaption>', '');
         words = current.storage.characterCount.words();
       },
       onTransaction: () => {
@@ -1525,15 +1588,21 @@
           syncToolbar();
         });
       },
+      // Focus and blur can fire inside a ProseMirror dispatch while Svelte is
+      // flushing effects, so state is mutated on a microtask.
       onFocus: () => {
-        focused = true;
-        if (menu.source === 'top') closeMenu();
-        syncToolbar();
+        queueMicrotask(() => {
+          focused = true;
+          if (menu.source === 'top') closeMenu();
+          syncToolbar();
+        });
       },
       onBlur: () => {
-        focused = false;
-        if (menu.source === 'slash') closeMenu();
-        syncToolbar();
+        queueMicrotask(() => {
+          focused = false;
+          if (menu.source === 'slash') closeMenu();
+          syncToolbar();
+        });
       },
     });
 
@@ -1648,21 +1717,90 @@
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Keterangan</span>
+          <span class="rte-ins-label">Kredit foto</span>
           <input
             class="form-control form-control-sm"
-            placeholder="Keterangan gambar"
-            aria-label="Keterangan gambar"
-            value={blockInfo.attrs.caption ?? ''}
+            placeholder="Mis. Workwear Archive"
+            aria-label="Kredit foto"
+            maxlength="60"
+            value={blockInfo.attrs.credit ?? ''}
             oninput={(event) =>
-              patchBlock({ caption: event.currentTarget.value })}
+              patchBlock({ credit: cleanBlockText(event.currentTarget.value) })}
           />
         </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Sumber asli</span>
+          <input
+            class="form-control form-control-sm"
+            type="url"
+            placeholder="https://… (opsional)"
+            aria-label="Tautan sumber asli"
+            value={blockInfo.attrs.source ?? ''}
+            oninput={(event) =>
+              patchBlock({ source: sourceUrl(event.currentTarget.value) })}
+          />
+        </div>
+        <p class="rte-ins-desc">
+          Ketik keterangan langsung di bawah gambar; tebal, miring, garis
+          bawah, dan tautan bisa dipakai.
+        </p>
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary align-self-start"
           onclick={() => openPicker('replace')}>Ganti gambar</button
         >
+      {:else if blockInfo?.kind === 'linkCard'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Alamat halaman</span>
+          <input
+            class="form-control form-control-sm"
+            type="url"
+            placeholder="https://contoh.com/artikel"
+            aria-label="Alamat halaman"
+            value={blockInfo.attrs.url ?? ''}
+            oninput={(event) =>
+              patchBlock({ url: sourceUrl(event.currentTarget.value) })}
+          />
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary align-self-start"
+            disabled={fetchingPreview || !blockInfo.attrs.url}
+            onclick={() => loadLinkPreview(String(blockInfo?.attrs.url ?? ''))}
+            >{fetchingPreview ? 'Mengambil…' : 'Ambil pratinjau'}</button
+          >
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Judul</span>
+          <input
+            class="form-control form-control-sm"
+            aria-label="Judul kartu tautan"
+            value={blockInfo.attrs.title ?? ''}
+            oninput={(event) => patchBlock({ title: event.currentTarget.value })}
+          />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Nama situs</span>
+          <input
+            class="form-control form-control-sm"
+            aria-label="Nama situs"
+            maxlength="60"
+            value={blockInfo.attrs.siteName ?? ''}
+            oninput={(event) =>
+              patchBlock({ siteName: cleanBlockText(event.currentTarget.value) })}
+          />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Gambar (URL)</span>
+          <input
+            class="form-control form-control-sm"
+            type="url"
+            placeholder="https://… (opsional)"
+            aria-label="URL gambar pratinjau"
+            value={blockInfo.attrs.image ?? ''}
+            oninput={(event) =>
+              patchBlock({ image: sourceUrl(event.currentTarget.value) })}
+          />
+        </div>
       {:else if blockInfo?.kind === 'buttonBlock'}
         <div class="rte-ins-group">
           <span class="rte-ins-label">Teks tombol</span>
@@ -1773,29 +1911,60 @@
           </div>
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Judul</span>
-          <input
-            class="form-control form-control-sm"
-            placeholder="Judul (opsional)"
-            aria-label="Judul callout"
-            maxlength="60"
-            value={blockInfo.attrs.title ?? ''}
-            oninput={(event) =>
-              patchBlock({ title: cleanBlockText(event.currentTarget.value) })}
-          />
+          <span class="rte-ins-label">Kepala callout</span>
+          <div class="rte-ins-row">
+            <button
+              type="button"
+              class="rte-chip"
+              class:on={blockInfo.attrs.title !== ''}
+              aria-pressed={blockInfo.attrs.title !== ''}
+              onclick={() =>
+                patchBlock({
+                  title: blockInfo?.attrs.title ? '' : 'Judul catatan',
+                })}>Judul</button
+            >
+            <button
+              type="button"
+              class="rte-chip"
+              class:on={blockInfo.attrs.label !== ''}
+              aria-pressed={blockInfo.attrs.label !== ''}
+              onclick={() =>
+                patchBlock({
+                  label: blockInfo?.attrs.label ? '' : 'Kategori',
+                })}>Label kategori</button
+            >
+          </div>
         </div>
-        <div class="rte-ins-group">
-          <span class="rte-ins-label">Label kategori</span>
-          <input
-            class="form-control form-control-sm"
-            placeholder="Mis. Ekonomi (opsional)"
-            aria-label="Label kategori callout"
-            maxlength="60"
-            value={blockInfo.attrs.label ?? ''}
-            oninput={(event) =>
-              patchBlock({ label: cleanBlockText(event.currentTarget.value) })}
-          />
-        </div>
+        {#if blockInfo.attrs.title}
+          <div class="rte-ins-group">
+            <span class="rte-ins-label">Judul</span>
+            <input
+              class="form-control form-control-sm"
+              aria-label="Judul callout"
+              maxlength="60"
+              value={blockInfo.attrs.title}
+              oninput={(event) =>
+                patchBlock({
+                  title: cleanBlockText(event.currentTarget.value) || ' ',
+                })}
+            />
+          </div>
+        {/if}
+        {#if blockInfo.attrs.label}
+          <div class="rte-ins-group">
+            <span class="rte-ins-label">Label kategori</span>
+            <input
+              class="form-control form-control-sm"
+              aria-label="Label kategori callout"
+              maxlength="60"
+              value={blockInfo.attrs.label}
+              oninput={(event) =>
+                patchBlock({
+                  label: cleanBlockText(event.currentTarget.value) || ' ',
+                })}
+            />
+          </div>
+        {/if}
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary align-self-start"

@@ -29,7 +29,7 @@ class HtmlSanitizer
         'strong' => [], 'b' => [], 'em' => [], 'i' => [], 'u' => [], 's' => [], 'del' => [], 'ins' => [],
         'mark' => [], 'sub' => [], 'sup' => [], 'code' => [], 'pre' => ['data-code-theme', 'data-code-title'],
         'blockquote' => [], 'ul' => [], 'ol' => ['start'], 'li' => [],
-        'figure' => [], 'figcaption' => [],
+        'figure' => ['data-source'], 'figcaption' => ['data-credit'],
         'table' => [], 'thead' => [], 'tbody' => [], 'tfoot' => [], 'tr' => [],
         'th' => ['colspan', 'rowspan'], 'td' => ['colspan', 'rowspan'],
         'a' => ['href', 'title', 'target', 'rel'],
@@ -203,7 +203,8 @@ class HtmlSanitizer
             'loading' => in_array($value, ['lazy', 'eager'], true) ? $value : null,
             'width', 'height', 'colspan', 'rowspan', 'start' => preg_match('/^\d{1,4}%?$/', $value) === 1 ? $value : null,
             'data-type', 'data-code-theme' => preg_match('/^[a-z0-9-]{1,40}$/i', $value) === 1 ? $value : null,
-            'data-code-title' => preg_match('/^[^\x00-\x1f<>"]{1,60}$/u', $value) === 1 ? $value : null,
+            'data-source' => self::safeUrl($value, ['http', 'https']),
+            'data-code-title', 'data-credit' => preg_match('/^[^\x00-\x1f<>"]{1,60}$/u', $value) === 1 ? $value : null,
             'alt', 'title' => $value,
             default => null,
         };

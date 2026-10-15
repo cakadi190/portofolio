@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\DevCommunityController;
 use App\Http\Controllers\Admin\EducationController;
 use App\Http\Controllers\Admin\GuestbookEntryController;
+use App\Http\Controllers\Admin\LinkPreviewController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NoteController;
 use App\Http\Controllers\Admin\OrganizationController;
@@ -51,6 +52,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // The post editor's media picker and uploader.
         Route::get('media/browse', [MediaController::class, 'browse'])->name('media.browse');
         Route::post('media', [MediaController::class, 'store'])->name('media.store');
+        Route::post('link-preview', LinkPreviewController::class)->middleware('throttle:30,1')->name('link-preview');
     });
 
     // Everything else: admins only.

@@ -48,6 +48,13 @@ export function safeHref(href: unknown): string {
   return /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(value) ? value : '#';
 }
 
+/** Original-source links are limited to http(s); anything else is dropped. */
+export function sourceUrl(value: unknown): string {
+  const url = typeof value === 'string' ? value.trim() : '';
+
+  return /^https?:\/\//i.test(url) ? url : '';
+}
+
 function alignFromClass(element: Element): BlockAlign {
   return (
     ALIGNMENTS.find((align) =>
@@ -67,14 +74,25 @@ export const FigureImage = Image.extend({
       ...this.parent?.(),
       align: { default: 'center', rendered: false },
       width: { default: null, rendered: false },
-      caption: { default: '', rendered: false },
+      credit: { default: '', rendered: false },
+      source: { default: '', rendered: false },
     };
   },
+
+  inline: false,
+  group: 'block',
+  // The caption is the node's own inline content, so it keeps bold, italic,
+  // underline and link marks and is edited in place.
+  content: 'inline*',
+  draggable: true,
 
   parseHTML() {
     return [
       {
         tag: 'figure.wp-block-image',
+        contentElement: (element) =>
+          (element as Element).querySelector('figcaption') ??
+          document.createElement('figcaption'),
         getAttrs: (element) => {
           const img = element.querySelector('img');
           const src = img?.getAttribute('src');
@@ -91,7 +109,10 @@ export const FigureImage = Image.extend({
             title: img.getAttribute('title'),
             align: alignFromClass(element),
             width: width ? Number(width) : null,
-            caption: element.querySelector('figcaption')?.textContent ?? '',
+            credit: cleanBlockText(
+              element.querySelector('figcaption')?.getAttribute('data-credit'),
+            ),
+            source: sourceUrl(element.getAttribute('data-source')),
           };
         },
       },
@@ -100,21 +121,28 @@ export const FigureImage = Image.extend({
   },
 
   renderHTML({ node }) {
-    const { src, alt, title, align, width, caption } = node.attrs;
+    const { src, alt, title, align, width, credit } = node.attrs;
+    const source = sourceUrl(node.attrs.source);
     const attrs: Record<string, string> = {
       class: `wp-block-image is-align-${pick(ALIGNMENTS, align, 'center')}`,
     };
 
     if (width) attrs.style = `width: ${Number(width)}%`;
+    if (source) attrs['data-source'] = source;
 
     const image: Record<string, string> = { src };
 
     if (alt) image.alt = alt;
     if (title) image.title = title;
 
-    return caption
-      ? ['figure', attrs, ['img', image], ['figcaption', caption]]
-      : ['figure', attrs, ['img', image]];
+    const cleanCredit = cleanBlockText(credit);
+
+    return [
+      'figure',
+      attrs,
+      ['img', image],
+      ['figcaption', cleanCredit ? { 'data-credit': cleanCredit } : {}, 0],
+    ];
   },
 });
 
@@ -201,6 +229,78 @@ export const Callout = Node.create({
         ...(title ? [['strong', { class: 'wp-callout-title' }, title]] : []),
       ],
       ['div', { class: 'wp-callout-body' }, 0],
+    ];
+  },
+});
+
+/**
+ * Link preview card (site, image and title of another page), rendered as a
+ * single `<a class="wp-block-linkcard">`.
+ */
+export const LinkCard = Node.create({
+  name: 'linkCard',
+  group: 'block',
+  atom: true,
+  selectable: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      url: { default: '', rendered: false },
+      title: { default: '', rendered: false },
+      image: { default: '', rendered: false },
+      siteName: { default: '', rendered: false },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'a.wp-block-linkcard',
+        priority: 100,
+        getAttrs: (element) => ({
+          url: sourceUrl(element.getAttribute('href')),
+          title: element.querySelector('.wp-linkcard-title')?.textContent ?? '',
+          image: sourceUrl(
+            element.querySelector('.wp-linkcard-image')?.getAttribute('src'),
+          ),
+          siteName:
+            element.querySelector('.wp-linkcard-site')?.textContent ?? '',
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ node }) {
+    const image = sourceUrl(node.attrs.image);
+
+    return [
+      'a',
+      {
+        class: 'wp-block-linkcard',
+        href: sourceUrl(node.attrs.url) || '#',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      },
+      ...(image
+        ? [
+            [
+              'img',
+              {
+                class: 'wp-linkcard-image',
+                src: image,
+                alt: '',
+                loading: 'lazy',
+              },
+            ],
+          ]
+        : []),
+      [
+        'span',
+        { class: 'wp-linkcard-meta' },
+        ['span', { class: 'wp-linkcard-site' }, String(node.attrs.siteName)],
+        ['strong', { class: 'wp-linkcard-title' }, String(node.attrs.title)],
+      ],
     ];
   },
 });

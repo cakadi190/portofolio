@@ -7,6 +7,7 @@ import {
   CodeBlockHighlight,
   Definition,
   FigureImage,
+  LinkCard,
   MathBlock,
   MathInline,
   Reference,
@@ -27,6 +28,7 @@ function editor(content: string) {
     extensions: [
       StarterKit.configure({ codeBlock: false }),
       FigureImage,
+      LinkCard,
       Callout,
       ButtonBlock,
       CodeBlockHighlight,
@@ -79,10 +81,56 @@ describe('FigureImage', () => {
     instance.destroy();
   });
 
+  it('keeps formatting marks inside the caption', () => {
+    const instance = editor(
+      '<figure class="wp-block-image is-align-center"><img src="/a.webp"><figcaption>Foto <strong>tebal</strong> <a href="https://x.id">tautan</a></figcaption></figure>',
+    );
+
+    const output = instance.getHTML();
+
+    expect(output).toContain('<strong>tebal</strong>');
+    expect(output).toContain('href="https://x.id"');
+    instance.destroy();
+  });
+
   it('still parses legacy plain images', () => {
     const instance = editor('<img src="/old.png">');
 
     expect(instance.getHTML()).toContain('wp-block-image is-align-center');
+    instance.destroy();
+  });
+});
+
+describe('FigureImage credit and source', () => {
+  it('round-trips the photo credit and original source link', () => {
+    const instance = editor(
+      '<figure class="wp-block-image is-align-center" data-source="https://src.id/p"><img src="/a.webp"><figcaption data-credit="Workwear Archive">Editorial</figcaption></figure>',
+    );
+
+    const output = instance.getHTML();
+
+    expect(output).toContain('data-source="https://src.id/p"');
+    expect(output).toContain('data-credit="Workwear Archive"');
+    instance.destroy();
+  });
+
+  it('drops a source that is not http(s)', () => {
+    const instance = editor(
+      '<figure class="wp-block-image" data-source="javascript:alert(1)"><img src="/a.webp"></figure>',
+    );
+
+    expect(instance.getHTML()).not.toContain('data-source');
+    instance.destroy();
+  });
+});
+
+describe('LinkCard', () => {
+  it('parses and re-renders a link preview card', () => {
+    const html =
+      '<a class="wp-block-linkcard" href="https://blog.cloudflare.com/x" target="_blank" rel="noopener noreferrer"><img class="wp-linkcard-image" src="https://img.test/a.png" alt="" loading="lazy"><span class="wp-linkcard-meta"><span class="wp-linkcard-site">blog.cloudflare.com</span><strong class="wp-linkcard-title">Judul</strong></span></a>';
+    const instance = editor(html);
+
+    expect(instance.getHTML()).toBe(html);
     instance.destroy();
   });
 });

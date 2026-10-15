@@ -1,5 +1,6 @@
 import type { Action } from 'svelte/action';
 import { enhanceCodeCards } from '@/lib/code-card';
+import { enhanceFigures } from '@/lib/figure-card';
 import { renderMathIn } from '@/lib/math';
 import { highlightAll } from './index';
 
@@ -15,12 +16,14 @@ export const highlightCode: Action<HTMLElement, string | null | undefined> = (
   highlightAll(node);
   enhanceCodeCards(node);
   renderMathIn(node);
+  enhanceFigures(node);
 
   return {
     update() {
       highlightAll(node);
       enhanceCodeCards(node);
       renderMathIn(node);
+  enhanceFigures(node);
     },
   };
 };

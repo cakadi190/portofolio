@@ -61,6 +61,8 @@ test('the markup produced by the editor is preserved', function (string $html) {
     expect(HtmlSanitizer::clean($html))->toBe($html);
 })->with([
     'image block' => '<figure class="wp-block-image is-align-center" style="width: 60%"><img src="/storage/media/a.webp" alt="A"><figcaption>Cap</figcaption></figure>',
+    'image with credit and source' => '<figure class="wp-block-image is-align-center" data-source="https://src.id/p"><img src="/a.webp"><figcaption data-credit="Workwear Archive">Cap</figcaption></figure>',
+    'link card' => '<a class="wp-block-linkcard" href="https://x.id/p" target="_blank" rel="noopener noreferrer"><img class="wp-linkcard-image" src="https://x.id/a.png" alt="" loading="lazy"><span class="wp-linkcard-meta"><span class="wp-linkcard-site">x.id</span><strong class="wp-linkcard-title">T</strong></span></a>',
     'callout' => '<div class="wp-block-callout is-info" data-type="info"><p>Hi</p></div>',
     'code block' => '<pre data-code-theme="dark"><code class="language-php">&lt;?php echo 1;</code></pre>',
     'table' => '<table><tbody><tr><td colspan="2">x</td></tr></tbody></table>',
@@ -96,4 +98,9 @@ test('editor-only attributes on article blocks are stripped', function () {
 test('markup inside an equation is not executable', function () {
     expect(HtmlSanitizer::clean('<span class="wp-math">&lt;img src=x onerror=alert(1)&gt;</span>'))
         ->not->toContain('<img');
+});
+
+test('an unsafe figure source link is dropped', function () {
+    expect(HtmlSanitizer::clean('<figure data-source="javascript:alert(1)"><img src="/a.webp"></figure>'))
+        ->not->toContain('data-source');
 });
