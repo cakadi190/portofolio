@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\PresentsBlogPosts;
 use App\Models\BlogComment;
 use App\Models\Post;
 use App\Models\PostCategory;
+use App\Models\Tag;
 use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
 use App\Services\SeoService;
@@ -32,7 +33,7 @@ class BlogController extends Controller
         $canEdit = $this->canEditPosts($request);
 
         $posts = Post::query()
-            ->where('is_published', true)
+            ->published()
             ->when($categoryId, fn ($query) => $query->whereHas('categories', fn ($categories) => $categories->whereKey($categoryId)))
             ->with($this->cardRelations())
             ->latest('published_at')
@@ -51,9 +52,9 @@ class BlogController extends Controller
      */
     public function show(Request $request, Post $post, SeoService $seo): Response
     {
-        $isPreview = ! $post->is_published && $this->canPreview($request, $post);
+        $isPreview = ! $post->isLive() && $this->canPreview($request, $post);
 
-        abort_unless($post->is_published || $isPreview, 404);
+        abort_unless($post->isLive() || $isPreview, 404);
 
         $post->load($this->cardRelations());
 
@@ -100,6 +101,7 @@ class BlogController extends Controller
             'totalComments' => $post->comments()->approved()->count(),
             'otherPosts' => $this->otherPosts($post),
             'categories' => $this->categoryList(),
+            'tags' => $this->tagList(),
             'adjacent' => $this->adjacentPosts($post),
         ]);
     }
@@ -122,7 +124,7 @@ class BlogController extends Controller
     private function otherPosts(Post $post): Collection
     {
         return Post::query()
-            ->where('is_published', true)
+            ->published()
             ->whereKeyNot($post->id)
             ->latest('published_at')
             ->latest('id')
@@ -137,11 +139,22 @@ class BlogController extends Controller
      *
      * @return Collection<int, array{id: int, name: string, slug: string, color: string|null, count: int}>
      */
+    private function tagList(): Collection
+    {
+        return Tag::query()
+            ->whereHas('posts', fn ($query) => $query->published())
+            ->withCount(['posts' => fn ($query) => $query->published()])
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Tag $tag): array => ['id' => $tag->id, 'name' => $tag->name, 'slug' => $tag->slug, 'count' => $tag->posts_count])
+            ->values();
+    }
+
     private function categoryList(): Collection
     {
         return PostCategory::query()
-            ->whereHas('posts', fn ($query) => $query->where('is_published', true))
-            ->withCount(['posts' => fn ($query) => $query->where('is_published', true)])
+            ->whereHas('posts', fn ($query) => $query->published())
+            ->withCount(['posts' => fn ($query) => $query->published()])
             ->orderBy('name')
             ->get()
             ->map(fn (PostCategory $category): array => [
@@ -161,7 +174,7 @@ class BlogController extends Controller
      */
     private function adjacentPosts(Post $post): array
     {
-        $published = Post::query()->where('is_published', true);
+        $published = Post::query()->published();
         $date = $post->published_at;
 
         if ($date === null) {

@@ -8,11 +8,17 @@
   let { current }: { current: 'profile' | 'security' } = $props();
 </script>
 
-<Link href={editProfile().url} class={['nav-link', current === 'profile' && 'active']}>
+<Link
+  href={editProfile().url}
+  class={['nav-link', current === 'profile' && 'active']}
+>
   <User size={16} aria-hidden="true" />
   <span>Profil</span>
 </Link>
-<Link href={editSecurity().url} class={['nav-link', current === 'security' && 'active']}>
+<Link
+  href={editSecurity().url}
+  class={['nav-link', current === 'security' && 'active']}
+>
   <KeyRound size={16} aria-hidden="true" />
   <span>Keamanan</span>
 </Link>

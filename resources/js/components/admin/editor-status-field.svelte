@@ -2,13 +2,17 @@
   /** Draft / published radios for the editor's "Status & visibilitas" popover. */
   let {
     isPublished,
+    scheduled = false,
     onStatus,
-  }: { isPublished: boolean; onStatus: (published: boolean) => void } =
-    $props();
+  }: {
+    isPublished: boolean;
+    scheduled?: boolean;
+    onStatus: (published: boolean) => void;
+  } = $props();
 
   const uid = $props.id();
 
-  const options = [
+  const options = $derived([
     {
       published: false,
       label: 'Draf',
@@ -16,10 +20,12 @@
     },
     {
       published: true,
-      label: 'Telah terbit',
-      hint: 'Dapat dilihat siapa saja.',
+      label: scheduled ? 'Terjadwal' : 'Telah terbit',
+      hint: scheduled
+        ? 'Tayang otomatis pada tanggal terbit yang dipilih.'
+        : 'Dapat dilihat siapa saja.',
     },
-  ];
+  ]);
 </script>
 
 <div class="d-flex flex-column gap-2" role="radiogroup" aria-label="Status">

@@ -30,15 +30,12 @@ class PostController extends Controller
             'posts' => Inertia::scroll($this->paginateTable(
                 Post::query()
                     ->when($trashed, fn ($query) => $query->onlyTrashed())
-                    ->with(['tags:id,name', 'categories:id,name', 'author:id,name'])
-                    ->withCount(['tags', 'categories'])
                     ->orderByDesc('created_at'),
                 $request,
-                ['title', 'author.name'],
+                ['title'],
                 ['title', 'is_published', 'published_at'],
             )),
             'filters' => $this->tableFilters($request, ['title', 'is_published', 'published_at']),
-            ...$this->options(),
         ]);
     }
 
@@ -54,7 +51,7 @@ class PostController extends Controller
     {
         return Inertia::render('admin/posts/form', [
             'post' => $post->load(['tags:id', 'categories:id']),
-            'previewUrl' => $post->is_published ? null : $post->previewUrl(),
+            'previewUrl' => $post->isLive() ? null : $post->previewUrl(),
             ...$this->options(),
         ]);
     }
@@ -64,7 +61,7 @@ class PostController extends Controller
         $data = $request->safe()->except(['tags', 'categories']);
         $data['user_id'] ??= $request->user()->id;
 
-        $post = Post::query()->create($data);
+        $post = Post::query()->create($this->withPublicationDate($data));
         $this->syncRelations($post, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil ditambahkan.']);
@@ -76,7 +73,7 @@ class PostController extends Controller
     {
         $data = $request->safe()->except(['tags', 'categories']);
 
-        $post->update($data);
+        $post->update($this->withPublicationDate($data, $post));
         $this->syncRelations($post, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil diperbarui.']);
@@ -114,6 +111,21 @@ class PostController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil dipulihkan.']);
 
         return to_route('admin.posts.index', ['trashed' => 1]);
+    }
+
+    /**
+     * A post published without a date goes live now; a future date schedules it.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function withPublicationDate(array $data, ?Post $post = null): array
+    {
+        if (($data['is_published'] ?? false) && empty($data['published_at'])) {
+            $data['published_at'] = $post?->published_at ?? now();
+        }
+
+        return $data;
     }
 
     private function syncRelations(Post $post, PostRequest $request): void

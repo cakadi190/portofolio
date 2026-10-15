@@ -26,6 +26,7 @@
       posts_total: number;
       posts_published: number;
       posts_draft: number;
+      posts_scheduled: number;
       tags_total: number;
       comments_pending: number;
       comments_total: number;
@@ -108,7 +109,7 @@
   const system = $derived(summary.system);
 
   const stats = $derived([
-    { label: 'Artikel terbit', value: blog.posts_published, hint: `${blog.posts_draft} draf`, icon: FileText, tone: 'primary', href: postsIndex().url, alert: false },
+    { label: 'Artikel terbit', value: blog.posts_published, hint: `${blog.posts_draft} draf, ${blog.posts_scheduled} terjadwal`, icon: FileText, tone: 'primary', href: postsIndex().url, alert: false },
     { label: 'Komentar menunggu', value: blog.comments_pending, hint: `${blog.comments_total} total`, icon: MessageSquare, tone: 'warning', href: commentsIndex().url, alert: blog.comments_pending > 0 },
     ...(site
       ? [

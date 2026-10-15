@@ -16,6 +16,7 @@
     exists,
     draftable = true,
     isPublished = false,
+    scheduled = false,
     mode,
     setMode,
     onStatus,
@@ -27,6 +28,8 @@
     /** Whether the record has a draft/published status. */
     draftable?: boolean;
     isPublished?: boolean;
+    /** The publication date is in the future, so publishing schedules the record. */
+    scheduled?: boolean;
     mode: 'visual' | 'html';
     setMode: (next: 'visual' | 'html') => void;
     onStatus?: (published: boolean) => void;
@@ -49,7 +52,9 @@
     draftable
       ? isPublished
         ? 'Perbarui'
-        : 'Terbitkan'
+        : scheduled
+          ? 'Jadwalkan'
+          : 'Terbitkan'
       : exists
         ? 'Perbarui'
         : 'Simpan',
@@ -110,7 +115,7 @@
     class="btn btn-sm btn-primary"
     disabled={processing}
     title={draftable && !isPublished
-      ? 'Terbitkan (Ctrl+Shift+S)'
+      ? `${scheduled ? 'Jadwalkan' : 'Terbitkan'} (Ctrl+Shift+S)`
       : 'Simpan (Ctrl+S)'}
     onclick={() => onStatus?.(true)}
   >

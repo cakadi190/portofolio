@@ -40,7 +40,7 @@ class HomeController extends Controller
                 ]),
             'speakings' => $this->speakings(),
             'posts' => Post::query()
-                ->where('is_published', true)
+                ->published()
                 ->with(['categories:id,name,color', 'tags:id,name', 'author:id,name'])
                 ->latest('published_at')
                 ->take(3)

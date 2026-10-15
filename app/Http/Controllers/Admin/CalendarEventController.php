@@ -32,7 +32,7 @@ class CalendarEventController extends Controller
                 'title' => $post->title,
                 'starts_at' => $post->published_at->format('Y-m-d H:i'),
                 'ends_at' => null,
-                'subtitle' => 'Artikel terbit',
+                'subtitle' => $post->published_at->isFuture() ? 'Artikel terjadwal' : 'Artikel terbit',
             ]);
 
         if ($request->user()->isAdmin()) {
@@ -79,7 +79,7 @@ class CalendarEventController extends Controller
                 'title' => $post->title,
                 'starts_at' => $post->published_at->format('Y-m-d H:i'),
                 'ends_at' => null,
-                'subtitle' => 'Artikel terbit',
+                'subtitle' => 'Artikel terjadwal',
             ]);
 
         if ($request->user()->isAdmin()) {

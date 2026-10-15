@@ -57,6 +57,11 @@
   let slug = $state(post?.slug ?? '');
   let publishedDisplay = $state('');
   // svelte-ignore state_referenced_locally
+  let publishedValue = $state(post?.published_at ?? '');
+  const scheduled = $derived(
+    publishedValue !== '' && new Date(publishedValue).getTime() > Date.now(),
+  );
+  // svelte-ignore state_referenced_locally
   let authorId = $state<number | string | null>(post ? post.user_id : null);
   const authorName = $derived(
     authors.find((a) => a.id === authorId)?.name ?? '',
@@ -111,6 +116,7 @@
         {processing}
         exists={!!post}
         {isPublished}
+        {scheduled}
         mode={editor.mode}
         setMode={editor.setMode}
         onStatus={setStatus}
@@ -132,13 +138,17 @@
           <EditorSummaryRow
             label="Status"
             title="Status &amp; visibilitas"
-            value={isPublished ? 'Telah terbit' : 'Draf'}
+            value={isPublished
+              ? scheduled
+                ? 'Terjadwal'
+                : 'Telah terbit'
+              : 'Draf'}
           >
-            <EditorStatusField {isPublished} onStatus={setStatus} />
+            <EditorStatusField {isPublished} {scheduled} onStatus={setStatus} />
           </EditorSummaryRow>
           <EditorSummaryRow
             label="Terbitkan"
-            title="Tanggal terbit"
+            title="Tanggal terbit (jadwalkan dengan tanggal mendatang)"
             width="23rem"
             value={publishedDisplay}
             placeholder="Segera"
@@ -152,6 +162,7 @@
               withTime
               inline
               bind:display={publishedDisplay}
+              bind:current={publishedValue}
             />
             <Field.Feedback message={errors.published_at} />
           </EditorSummaryRow>
@@ -173,7 +184,7 @@
               bind:value={slug}
             />
             <Field.Feedback message={errors.slug} />
-            {#if post?.is_published}
+            {#if post?.is_published && !scheduled}
               <a
                 href={show(post.slug).url}
                 target="_blank"

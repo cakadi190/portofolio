@@ -17,7 +17,7 @@ class BlogCommentController extends Controller
      */
     public function store(StoreBlogCommentRequest $request, Post $post): RedirectResponse
     {
-        abort_unless($post->is_published, 404);
+        abort_unless($post->isLive(), 404);
 
         $user = $request->user();
 

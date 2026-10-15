@@ -2397,9 +2397,11 @@
             >
           </div>
           <div class="rte-side-body">
-            {#if sidebarTab === 'document'}
+            <!-- Stays mounted so its form fields keep submitting from the block tab. -->
+            <div hidden={sidebarTab !== 'document'}>
               {@render settings?.()}
-            {:else}
+            </div>
+            {#if sidebarTab !== 'document'}
               {@render inspector()}
             {/if}
           </div>

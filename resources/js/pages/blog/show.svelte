@@ -36,6 +36,7 @@
     totalComments,
     otherPosts,
     categories,
+    tags,
     adjacent,
   }: {
     post: Post;
@@ -43,6 +44,7 @@
     totalComments: number;
     otherPosts: PostLink[];
     categories: Category[];
+    tags: Omit<Category, 'color'>[];
     adjacent: { previous: PostLink | null; next: PostLink | null };
   } = $props();
 
@@ -134,22 +136,23 @@
                     <h2 class="h4 mb-0">Kategori</h2>
                   </div>
                   {#if categories.length}
-                    <div class="card-body d-flex flex-wrap gap-2">
+                    <ul class="taxonomy-list">
                       {#each categories as category (category.id)}
-                        <Link
-                          href={showCategory(category.slug).url}
-                          class="post-taxonomy-tag post-taxonomy-category"
-                        >
-                          {category.name}
-                          <span
-                            class="post-taxonomy-count"
-                            style={badgeStyle(category.color)}
+                        <li>
+                          <Link
+                            href={showCategory(category.slug).url}
+                            class="taxonomy-row"
                           >
-                            {category.count}
-                          </span>
-                        </Link>
+                            <span class="taxonomy-row-label"
+                              >{category.name}</span
+                            >
+                            <span class="taxonomy-row-count"
+                              >({category.count})</span
+                            >
+                          </Link>
+                        </li>
                       {/each}
-                    </div>
+                    </ul>
                   {:else}
                     <div class="card-body opacity-75">Belum ada kategori.</div>
                   {/if}
@@ -159,21 +162,23 @@
                   <div class="card-header p-4">
                     <h2 class="h4 mb-0">Tag</h2>
                   </div>
-                  {#if post.tags.length}
-                    <div class="card-body d-flex flex-wrap gap-2">
-                      {#each post.tags as tag (tag.slug)}
-                        <Link
-                          href={showTag(tag.slug).url}
-                          class="post-taxonomy-tag"
-                        >
-                          {tag.name}
-                        </Link>
+                  {#if tags.length}
+                    <ul class="taxonomy-list">
+                      {#each tags as tag (tag.id)}
+                        <li>
+                          <Link
+                            href={showTag(tag.slug).url}
+                            class="taxonomy-row"
+                          >
+                            <span class="taxonomy-row-label">{tag.name}</span>
+                            <span class="taxonomy-row-count">({tag.count})</span
+                            >
+                          </Link>
+                        </li>
                       {/each}
-                    </div>
+                    </ul>
                   {:else}
-                    <div class="card-body opacity-75">
-                      Belum ada tag untuk artikel ini.
-                    </div>
+                    <div class="card-body opacity-75">Belum ada tag.</div>
                   {/if}
                 </div>
               </div>

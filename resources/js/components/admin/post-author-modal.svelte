@@ -18,11 +18,7 @@
   } = $props();
 </script>
 
-<FormModal
-  bind:open
-  title="Ganti Penulis"
-  subtitle={post?.title ?? ''}
->
+<FormModal bind:open title="Ganti Penulis" subtitle={post?.title ?? ''}>
   {#snippet children()}
     {#if post}
       <Form

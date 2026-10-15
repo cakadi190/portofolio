@@ -177,3 +177,30 @@
     background: var(--neo-primary-bg-subtle);
   }
 }
+
+// Sidebar taxonomy cards: label on the left, post counter on the right.
+.taxonomy-list {
+  margin: 0;
+  padding: 0.5rem 1.5rem 1rem;
+  list-style: none;
+}
+
+.taxonomy-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  color: var(--neo-body-color);
+  text-decoration: none;
+
+  &:hover .taxonomy-row-label {
+    color: var(--neo-primary);
+  }
+}
+
+.taxonomy-row-count {
+  color: var(--neo-secondary-color);
+  font-family: var(--neo-font-monospace);
+  font-size: 0.85rem;
+}

@@ -25,7 +25,7 @@ class SitemapController extends Controller
         return $this->xml('misc.sitemaps.index', [
             'sitemaps' => [
                 ['title' => 'Halaman Statis', 'loc' => route('sitemaps.pages'), 'lastmod' => null],
-                ['title' => 'Artikel', 'loc' => route('sitemaps.posts'), 'lastmod' => $this->latest(Post::query()->where('is_published', true))],
+                ['title' => 'Artikel', 'loc' => route('sitemaps.posts'), 'lastmod' => $this->latest(Post::query()->published())],
                 ['title' => 'Portofolio', 'loc' => route('sitemaps.portfolios'), 'lastmod' => $this->latest(Portfolio::query())],
                 ['title' => 'Klarifikasi', 'loc' => route('sitemaps.clarifications'), 'lastmod' => $this->latest(Clarification::query()->published())],
             ],
@@ -38,7 +38,7 @@ class SitemapController extends Controller
     public function pages(): Response
     {
         $lastmods = [
-            'blog.index' => $this->latest(Post::query()->where('is_published', true)),
+            'blog.index' => $this->latest(Post::query()->published()),
             'notes.index' => $this->latest(Note::query()->published()),
             'portfolios.index' => $this->latest(Portfolio::query()),
             'clarifications.index' => $this->latest(Clarification::query()->published()),
@@ -64,7 +64,7 @@ class SitemapController extends Controller
     public function posts(): Response
     {
         $urls = Post::query()
-            ->where('is_published', true)
+            ->published()
             ->latest('published_at')
             ->get(['id', 'title', 'slug', 'cover_image', 'published_at', 'updated_at'])
             ->map(fn (Post $post): array => [

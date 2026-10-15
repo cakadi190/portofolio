@@ -2,7 +2,6 @@
   import { Link, router } from '@inertiajs/svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
-  import PostAuthorModal from '@/components/admin/post-author-modal.svelte';
   import AppHead from '@/components/app-head.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import {
@@ -19,35 +18,21 @@
     title: string;
     slug: string;
     is_published: boolean;
-    user_id: number | null;
-    author: { id: number; name: string } | null;
-    tags: { id: number; name: string }[];
-    categories: { id: number; name: string }[];
+    published_at: string | null;
+    created_at: string;
   };
-
-  type Author = { id: number; name: string };
 
   let {
     posts,
     filters,
-    authors,
     trashed,
     trashedCount,
   }: {
     posts: InfiniteList<Post>;
     filters: TableFilters;
-    authors: Author[];
     trashed: boolean;
     trashedCount: number;
   } = $props();
-
-  let authorOpen = $state(false);
-  let authorPost = $state<Post | null>(null);
-
-  function openAuthor(post: Post): void {
-    authorPost = post;
-    authorOpen = true;
-  }
 </script>
 
 <AppHead title="Artikel Blog" />
@@ -81,10 +66,8 @@
   url={trashed ? index({ query: { trashed: 1 } }).url : index().url}
   columns={[
     { label: 'Judul', key: 'title', sortable: true },
-    { label: 'Penulis' },
     { label: 'Status', key: 'is_published', sortable: true },
-    { label: 'Tag' },
-    { label: 'Kategori' },
+    { label: 'Tanggal', key: 'published_at', sortable: true },
     { label: 'Aksi', align: 'end' },
   ]}
   emptyTitle={trashed ? 'Sampah kosong' : 'Belum ada artikel'}
@@ -93,6 +76,10 @@
     : 'Tulis artikel pertama Anda.'}
 >
   {#snippet row(post)}
+    {@const scheduled =
+      post.is_published &&
+      !!post.published_at &&
+      new Date(post.published_at).getTime() > Date.now()}
     <tr>
       <td>
         <Link href={edit(post.id).url} class="fw-semibold text-decoration-none">
@@ -100,39 +87,17 @@
         </Link>
       </td>
       <td>
-        <button
-          type="button"
-          class="btn btn-sm btn-link p-0 text-decoration-none"
-          title="Ganti penulis"
-          onclick={() => openAuthor(post)}
-        >
-          {post.author?.name ?? 'Tanpa penulis'}
-        </button>
-      </td>
-      <td>
         <span
-          class={`badge ${post.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}
+          class={`badge ${scheduled ? 'text-bg-info' : post.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}
         >
-          {post.is_published ? 'Terbit' : 'Draf'}
+          {scheduled ? 'Terjadwal' : post.is_published ? 'Terbit' : 'Draf'}
         </span>
       </td>
-      <td>
-        <div class="d-flex flex-wrap gap-1">
-          {#each post.tags as item (item.id)}
-            <span class="badge text-bg-secondary fw-normal">{item.name}</span>
-          {:else}
-            <span class="text-muted">&mdash;</span>
-          {/each}
-        </div>
-      </td>
-      <td>
-        <div class="d-flex flex-wrap gap-1">
-          {#each post.categories as item (item.id)}
-            <span class="badge text-bg-secondary fw-normal">{item.name}</span>
-          {:else}
-            <span class="text-muted">&mdash;</span>
-          {/each}
-        </div>
+      <td class="text-secondary">
+        {new Date(post.published_at ?? post.created_at).toLocaleDateString(
+          'id-ID',
+          { day: 'numeric', month: 'short', year: 'numeric' },
+        )}
       </td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
@@ -171,5 +136,3 @@
     </tr>
   {/snippet}
 </DataTable>
-
-<PostAuthorModal bind:open={authorOpen} post={authorPost} {authors} />

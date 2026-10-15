@@ -55,7 +55,9 @@
 
   const isFiltered = $derived(filters.search !== '');
   const paged = $derived('current_page' in data ? data : null);
-  const pages = $derived(paged ? pageWindow(paged.current_page, paged.last_page) : []);
+  const pages = $derived(
+    paged ? pageWindow(paged.current_page, paged.last_page) : [],
+  );
 
   let tbody = $state<HTMLTableSectionElement>();
 
@@ -68,7 +70,11 @@
     for (const tr of Array.from(tbody.children)) {
       Array.from(tr.children).forEach((cell, index) => {
         const label = columns[index]?.label;
-        if (cell instanceof HTMLTableCellElement && cell.colSpan === 1 && label) {
+        if (
+          cell instanceof HTMLTableCellElement &&
+          cell.colSpan === 1 &&
+          label
+        ) {
           cell.dataset.label = label;
         }
       });
@@ -141,18 +147,21 @@
   <div class="d-flex align-items-center gap-2 small text-muted">
     {@render toolbar?.()}
     {#if !scrollKey}
-    <label for="table-per-page">Tampilkan</label>
-    <Select
-      inline
-      required
-      size="sm"
-      searchable={false}
-      id="table-per-page"
-      items={perPageOptions.map((option) => ({ value: option, label: String(option) }))}
-      value={filters.per_page}
-      onchange={(next) => visit({ per_page: Number(next) })}
-    />
-    <span>data</span>
+      <label for="table-per-page">Tampilkan</label>
+      <Select
+        inline
+        required
+        size="sm"
+        searchable={false}
+        id="table-per-page"
+        items={perPageOptions.map((option) => ({
+          value: option,
+          label: String(option),
+        }))}
+        value={filters.per_page}
+        onchange={(next) => visit({ per_page: Number(next) })}
+      />
+      <span>data</span>
     {/if}
   </div>
 
@@ -180,91 +189,94 @@
 </div>
 
 {#snippet content()}
-{#if variant === 'grid'}
-  {#if data.data.length === 0}
-    <div class="py-4">
-      <EmptyState
-        wrapped={false}
-        type={isFiltered ? 'warning' : 'info'}
-        title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
-        text={isFiltered
-          ? `Tidak ada data yang cocok dengan "${filters.search}".`
-          : emptyText}
-      />
-    </div>
-  {:else}
-    <div class="row g-3">
-      {#each data.data as item (item.id)}
-        {@render row(item)}
-      {/each}
-    </div>
-  {/if}
-{:else}
-  <div class="table-responsive">
-    <table class="table align-middle dt-responsive">
-      <thead>
-        <tr>
-          {#each columns as column (column.label)}
-            {@const active = column.sortable && filters.sort === column.key}
-            <th
-              class:text-end={column.align === 'end'}
-              aria-sort={active
-                ? filters.direction === 'asc'
-                  ? 'ascending'
-                  : 'descending'
-                : undefined}
-            >
-              {#if column.sortable}
-                <button
-                  type="button"
-                  class="btn btn-link p-0 text-reset text-decoration-none fw-bold d-inline-flex align-items-center gap-1"
-                  onclick={() => toggleSort(column)}
-                >
-                  {column.label}
-                  {#if active && filters.direction === 'asc'}
-                    <ArrowUp size={14} />
-                  {:else if active}
-                    <ArrowDown size={14} />
-                  {:else}
-                    <ArrowUpDown size={14} class="opacity-50" />
-                  {/if}
-                </button>
-              {:else}
-                {column.label}
-              {/if}
-            </th>
-          {/each}
-        </tr>
-      </thead>
-      <tbody bind:this={tbody}>
+  {#if variant === 'grid'}
+    {#if data.data.length === 0}
+      <div class="py-4">
+        <EmptyState
+          wrapped={false}
+          type={isFiltered ? 'warning' : 'info'}
+          title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
+          text={isFiltered
+            ? `Tidak ada data yang cocok dengan "${filters.search}".`
+            : emptyText}
+        />
+      </div>
+    {:else}
+      <div class="row g-3">
         {#each data.data as item (item.id)}
           {@render row(item)}
-        {:else}
-          <tr>
-            <td colspan={columns.length} class="py-4">
-              <EmptyState
-                wrapped={false}
-                type={isFiltered ? 'warning' : 'info'}
-                title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
-                text={isFiltered
-                  ? `Tidak ada data yang cocok dengan "${filters.search}".`
-                  : emptyText}
-              />
-            </td>
-          </tr>
         {/each}
-      </tbody>
-    </table>
-  </div>
-{/if}
+      </div>
+    {/if}
+  {:else}
+    <div class="table-responsive">
+      <table class="table align-middle dt-responsive">
+        <thead>
+          <tr>
+            {#each columns as column (column.label)}
+              {@const active = column.sortable && filters.sort === column.key}
+              <th
+                class:text-end={column.align === 'end'}
+                aria-sort={active
+                  ? filters.direction === 'asc'
+                    ? 'ascending'
+                    : 'descending'
+                  : undefined}
+              >
+                {#if column.sortable}
+                  <button
+                    type="button"
+                    class="btn btn-link p-0 text-reset text-decoration-none fw-bold d-inline-flex align-items-center gap-1"
+                    onclick={() => toggleSort(column)}
+                  >
+                    {column.label}
+                    {#if active && filters.direction === 'asc'}
+                      <ArrowUp size={14} />
+                    {:else if active}
+                      <ArrowDown size={14} />
+                    {:else}
+                      <ArrowUpDown size={14} class="opacity-50" />
+                    {/if}
+                  </button>
+                {:else}
+                  {column.label}
+                {/if}
+              </th>
+            {/each}
+          </tr>
+        </thead>
+        <tbody bind:this={tbody}>
+          {#each data.data as item (item.id)}
+            {@render row(item)}
+          {:else}
+            <tr>
+              <td colspan={columns.length} class="py-4">
+                <EmptyState
+                  wrapped={false}
+                  type={isFiltered ? 'warning' : 'info'}
+                  title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
+                  text={isFiltered
+                    ? `Tidak ada data yang cocok dengan "${filters.search}".`
+                    : emptyText}
+                />
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  {/if}
 {/snippet}
 
 {#if scrollKey}
   <InfiniteScroll data={scrollKey}>
     {@render content()}
     {#snippet loading()}
-      <div class="d-flex justify-content-center align-items-center gap-2 py-3 small text-muted">
-        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      <div
+        class="d-flex justify-content-center align-items-center gap-2 py-3 small text-muted"
+      >
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"
+        ></span>
         Memuat lebih banyak…
       </div>
     {/snippet}
@@ -274,62 +286,62 @@
 {/if}
 
 {#if !scrollKey}
-<div
-  class="d-flex flex-wrap align-items-center justify-content-between gap-3"
->
-  <span class="small text-muted">
-    {#if paged && paged.total > 0}
-      Menampilkan {paged.from} sampai {paged.to} dari {paged.total} data
-    {:else}
-      Tidak ada data
-    {/if}
-  </span>
+  <div
+    class="d-flex flex-wrap align-items-center justify-content-between gap-3"
+  >
+    <span class="small text-muted">
+      {#if paged && paged.total > 0}
+        Menampilkan {paged.from} sampai {paged.to} dari {paged.total} data
+      {:else}
+        Tidak ada data
+      {/if}
+    </span>
 
-  {#if paged && !scrollKey && paged.last_page > 1}
-    <nav aria-label="Paginasi tabel">
-      <ul class="pagination pagination-sm mb-0">
-        <li class="page-item" class:disabled={paged.current_page === 1}>
-          <button
-            type="button"
-            class="page-link"
-            aria-label="Sebelumnya"
-            disabled={paged.current_page === 1}
-            onclick={() => visit({ page: paged.current_page - 1 })}
+    {#if paged && !scrollKey && paged.last_page > 1}
+      <nav aria-label="Paginasi tabel">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" class:disabled={paged.current_page === 1}>
+            <button
+              type="button"
+              class="page-link"
+              aria-label="Sebelumnya"
+              disabled={paged.current_page === 1}
+              onclick={() => visit({ page: paged.current_page - 1 })}
+            >
+              <ChevronLeft size={14} />
+            </button>
+          </li>
+          {#each pages as page, index (page ?? `gap-${index}`)}
+            {#if page === null}
+              <li class="page-item disabled">
+                <span class="page-link">&hellip;</span>
+              </li>
+            {:else}
+              <li class="page-item" class:active={page === paged.current_page}>
+                <button
+                  type="button"
+                  class="page-link"
+                  onclick={() => visit({ page })}>{page}</button
+                >
+              </li>
+            {/if}
+          {/each}
+          <li
+            class="page-item"
+            class:disabled={paged.current_page === paged.last_page}
           >
-            <ChevronLeft size={14} />
-          </button>
-        </li>
-        {#each pages as page, index (page ?? `gap-${index}`)}
-          {#if page === null}
-            <li class="page-item disabled">
-              <span class="page-link">&hellip;</span>
-            </li>
-          {:else}
-            <li class="page-item" class:active={page === paged.current_page}>
-              <button
-                type="button"
-                class="page-link"
-                onclick={() => visit({ page })}>{page}</button
-              >
-            </li>
-          {/if}
-        {/each}
-        <li
-          class="page-item"
-          class:disabled={paged.current_page === paged.last_page}
-        >
-          <button
-            type="button"
-            class="page-link"
-            aria-label="Berikutnya"
-            disabled={paged.current_page === paged.last_page}
-            onclick={() => visit({ page: paged.current_page + 1 })}
-          >
-            <ChevronRight size={14} />
-          </button>
-        </li>
-      </ul>
-    </nav>
-  {/if}
-</div>
+            <button
+              type="button"
+              class="page-link"
+              aria-label="Berikutnya"
+              disabled={paged.current_page === paged.last_page}
+              onclick={() => visit({ page: paged.current_page + 1 })}
+            >
+              <ChevronRight size={14} />
+            </button>
+          </li>
+        </ul>
+      </nav>
+    {/if}
+  </div>
 {/if}

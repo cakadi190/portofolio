@@ -44,7 +44,24 @@ class Post extends Model
     #[Scope]
     protected function published(Builder $query): void
     {
-        $query->where('is_published', true);
+        $query->where('is_published', true)
+            ->where(fn (Builder $live) => $live->whereNull('published_at')->orWhere('published_at', '<=', now()));
+    }
+
+    /**
+     * Whether the public can read the post now: published and not scheduled for later.
+     */
+    public function isLive(): bool
+    {
+        return $this->is_published && ($this->published_at === null || $this->published_at->lte(now()));
+    }
+
+    /**
+     * Whether the post is published but waiting for its publication date.
+     */
+    public function isScheduled(): bool
+    {
+        return $this->is_published && $this->published_at !== null && $this->published_at->isFuture();
     }
 
     /**

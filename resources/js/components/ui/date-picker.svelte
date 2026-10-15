@@ -31,6 +31,7 @@
     placeholder = 'Pilih tanggal…',
     inline = false,
     display = $bindable(''),
+    current = $bindable(''),
   }: {
     id?: string;
     name: string;
@@ -42,6 +43,8 @@
     inline?: boolean;
     /** Human-readable value, e.g. `13 Oktober 2026, 06:11`, for a summary label. */
     display?: string;
+    /** The submitted value (`YYYY-MM-DDTHH:mm`), kept in sync for the caller. */
+    current?: string;
   } = $props();
 
   // An inline calendar is always on screen, so the library must see it as open.
@@ -96,6 +99,7 @@
 
   $effect(() => {
     display = shown;
+    current = submitted;
   });
 
   const clear = (): void => {

@@ -17,7 +17,9 @@
   } = $props();
 </script>
 
-<div class="d-flex align-items-start justify-content-between gap-3 mb-4 flex-wrap">
+<div
+  class="d-flex align-items-start justify-content-between gap-3 mb-4 flex-wrap"
+>
   <div>
     <h1 class="h4 mb-1">{title}</h1>
     {#if subtitle}
@@ -35,7 +37,10 @@
       {createLabel}
     </button>
   {:else if createHref}
-    <Link href={createHref} class="btn btn-primary d-inline-flex align-items-center gap-2">
+    <Link
+      href={createHref}
+      class="btn btn-primary d-inline-flex align-items-center gap-2"
+    >
       <Plus size={16} />
       {createLabel}
     </Link>

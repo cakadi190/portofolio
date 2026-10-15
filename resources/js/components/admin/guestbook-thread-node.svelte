@@ -40,7 +40,11 @@
 
 <li id={`pesan-${entry.id}`} class="thread-node">
   <div class="thread-card" class:is-muted={entry.status !== 'approved'}>
-    <ThreadAvatar name={author} src={entry.user?.avatar} isStaff={!!entry.user} />
+    <ThreadAvatar
+      name={author}
+      src={entry.user?.avatar}
+      isStaff={!!entry.user}
+    />
 
     <div class="flex-grow-1" style="min-width: 0">
       <div class="thread-meta">

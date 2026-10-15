@@ -15,7 +15,7 @@ test('the sitemap index lists every child sitemap', function () {
     }
 });
 
-test('the posts sitemap lists every post the blog shows, whatever its publish date, with its cover image', function () {
+test('the posts sitemap lists every live post, skips drafts and scheduled posts, with its cover image', function () {
     $published = Post::factory()->create(['cover_image' => 'media/cover.webp']);
     $draft = Post::factory()->create(['is_published' => false]);
     $dated = Post::factory()->create(['published_at' => now()->addDay()]);
@@ -28,7 +28,7 @@ test('the posts sitemap lists every post the blog shows, whatever its publish da
         ->assertSee(route('blog.show', $published), escape: false)
         ->assertSee(url('/storage/media/cover.webp'), escape: false)
         ->assertDontSee(route('blog.show', $draft), escape: false)
-        ->assertSee(route('blog.show', $dated), escape: false)
+        ->assertDontSee(route('blog.show', $dated), escape: false)
         ->assertSee(route('blog.show', $undated), escape: false);
 });
 

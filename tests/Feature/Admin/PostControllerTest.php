@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Tag;
 use App\Models\User;
 
@@ -169,4 +170,62 @@ test('tags and categories can be created on the fly from the editor and reused o
 
     expect(Post::query()->where('title', 'Dengan taksonomi baru')->first()->tags->pluck('id')->all())->toBe([$tag['id']]);
     $this->actingAs($admin)->postJson(route('admin.tags.quick'), ['name' => ''])->assertUnprocessable();
+});
+
+test('publishing without a date goes live now', function () {
+    $this->actingAs(User::factory()->admin()->create())->post(route('admin.posts.store'), [
+        'title' => 'Langsung Tayang',
+        'content' => '<p>Isi</p>',
+        'is_published' => '1',
+        'published_at' => '',
+    ]);
+
+    $post = Post::query()->where('title', 'Langsung Tayang')->firstOrFail();
+
+    expect($post->isLive())->toBeTrue()->and($post->published_at)->not->toBeNull();
+});
+
+test('a future publication date schedules the post', function () {
+    $this->actingAs(User::factory()->admin()->create())->post(route('admin.posts.store'), [
+        'title' => 'Tayang Nanti',
+        'content' => '<p>Isi</p>',
+        'is_published' => '1',
+        'published_at' => now()->addDays(2)->format('Y-m-d\TH:i'),
+    ]);
+
+    $post = Post::query()->where('title', 'Tayang Nanti')->firstOrFail();
+
+    expect($post->isScheduled())->toBeTrue()
+        ->and($post->isLive())->toBeFalse()
+        ->and(Post::query()->published()->whereKey($post->id)->exists())->toBeFalse();
+
+    $this->get(route('blog.show', $post))->assertNotFound();
+});
+
+test('a scheduled post goes public once its date has passed', function () {
+    $post = Post::factory()->create(['is_published' => true, 'published_at' => now()->addHour()]);
+
+    $this->get(route('blog.show', $post))->assertNotFound();
+
+    $this->travel(2)->hours();
+
+    $this->get(route('blog.show', $post))->assertOk();
+});
+
+test('saving a draft keeps its categories and tags', function () {
+    $tag = Tag::factory()->create();
+    $category = PostCategory::query()->create(['name' => 'Teknologi']);
+
+    $this->actingAs(User::factory()->admin()->create())->post(route('admin.posts.store'), [
+        'title' => 'Draf Berelasi',
+        'content' => '<p>Isi</p>',
+        'is_published' => '0',
+        'tags' => [$tag->id],
+        'categories' => [$category->id],
+    ]);
+
+    $post = Post::query()->where('title', 'Draf Berelasi')->firstOrFail();
+
+    expect($post->tags->pluck('id')->all())->toBe([$tag->id])
+        ->and($post->categories->pluck('id')->all())->toBe([$category->id]);
 });

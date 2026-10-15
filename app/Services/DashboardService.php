@@ -53,7 +53,8 @@ class DashboardService
     {
         return [
             'posts_total' => Post::count(),
-            'posts_published' => Post::where('is_published', true)->count(),
+            'posts_published' => Post::query()->published()->count(),
+            'posts_scheduled' => Post::where('is_published', true)->where('published_at', '>', now())->count(),
             'posts_draft' => Post::where('is_published', false)->count(),
             'tags_total' => Tag::count(),
             'comments_pending' => BlogComment::where('status', BlogCommentStatus::Pending)->count(),
@@ -68,6 +69,7 @@ class DashboardService
                     'title' => $post->title,
                     'author' => $post->author?->name,
                     'is_published' => $post->is_published,
+                    'is_scheduled' => $post->isScheduled(),
                     'date' => ($post->published_at ?? $post->created_at)?->toIso8601String(),
                 ])
                 ->all(),

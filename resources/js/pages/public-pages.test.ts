@@ -37,6 +37,7 @@ describe('Dashboard', () => {
           posts_total: 0,
           posts_published: 0,
           posts_draft: 0,
+          posts_scheduled: 0,
           tags_total: 0,
           comments_pending: 0,
           comments_total: 0,
@@ -438,6 +439,7 @@ describe('PortfolioIndex', () => {
 });
 
 const sidebar = {
+  tags: [],
   otherPosts: [{ title: 'Artikel Lain', slug: 'artikel-lain' }],
   categories: [
     { id: 1, name: 'Teknologi', slug: 'teknologi', color: null, count: 3 },
@@ -472,7 +474,7 @@ describe('BlogShow', () => {
     });
 
     expect(screen.getByRole('link', { name: 'Artikel Lain' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Teknologi\s*3/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Teknologi\s*\(3\)/ })).toBeTruthy();
     expect(screen.getByRole('link', { name: /Artikel Lama/ })).toBeTruthy();
     expect(screen.queryByText('Artikel berikutnya')).toBeNull();
 
@@ -505,7 +507,9 @@ describe('BlogShow', () => {
       adjacent: { previous: null, next: null },
     });
 
-    expect(screen.queryByRole('navigation', { name: 'Navigasi artikel' })).toBeNull();
+    expect(
+      screen.queryByRole('navigation', { name: 'Navigasi artikel' }),
+    ).toBeNull();
   });
 
   it('shows the previous/next navigation when a neighbour exists', () => {
@@ -516,7 +520,9 @@ describe('BlogShow', () => {
       ...sidebar,
     });
 
-    expect(screen.getByRole('navigation', { name: 'Navigasi artikel' })).toBeTruthy();
+    expect(
+      screen.getByRole('navigation', { name: 'Navigasi artikel' }),
+    ).toBeTruthy();
   });
 
   it('shows the edit button only when the server provides an edit url', () => {
@@ -547,7 +553,7 @@ describe('BlogShow', () => {
     });
 
     expect(screen.getByText('Belum dipublikasikan')).toBeTruthy();
-    expect(screen.getByText('Belum ada tag untuk artikel ini.')).toBeTruthy();
+    expect(screen.getByText('Belum ada tag.')).toBeTruthy();
     expect(
       screen.getByRole('heading', { level: 2, name: 'Ringkas' }),
     ).toBeTruthy();
@@ -584,6 +590,8 @@ describe('BlogShow', () => {
     expect(screen.getByText('Balasan bersarang')).toBeTruthy();
     expect(screen.getByLabelText('Nama')).toBeTruthy();
     expect(screen.getByLabelText('Email')).toBeTruthy();
-    expect(screen.getAllByRole('button', { name: 'Balas' }).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole('button', { name: 'Balas' }).length,
+    ).toBeGreaterThan(0);
   });
 });

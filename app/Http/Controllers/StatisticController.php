@@ -20,7 +20,7 @@ class StatisticController extends Controller
      */
     public function index(): Response
     {
-        $posts = $this->rows(Post::query()->where('is_published', true)->latest('published_at')->get(['title', 'slug']), 'blog');
+        $posts = $this->rows(Post::query()->published()->latest('published_at')->get(['title', 'slug']), 'blog');
         $notes = $this->rows(Note::query()->published()->latest('published_at')->get(['title', 'slug']), 'notes');
 
         return Inertia::render('statistic/index', [
