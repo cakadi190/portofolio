@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  createInertiaApp: vi.fn(),
+  createInertiaApp: vi.fn(() => Promise.resolve()),
   initializeAnalytics: vi.fn(),
   initDropdownAnimation: vi.fn(),
   initializeFlashToast: vi.fn(),

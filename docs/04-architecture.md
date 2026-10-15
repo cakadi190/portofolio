@@ -98,3 +98,9 @@ Respons error 400/401/403/404/405/419/429/500/503 pada request web (non-JSON) di
 - Halaman sitemap (XSL, `misc/sitemaps/style.blade.php`) memuat `gtag.js` sendiri (bila ID terisi) dan mengirim `page_view` (`content_group: sitemap`), `search` (kolom filter, debounce 800 ms) dan `select_content` (klik URL).
 - Event kustom: atribut `data-track="nama_event"` (opsional `data-track-label`), action Svelte `use:track`, atau `trackEvent(nama, params)`.
 - Path privat (admin, settings, auth) tidak pernah dilaporkan.
+
+## Performa & SSR
+
+- Inertia SSR (`bun run build:ssr` + `inertia:start-ssr`) hanya aktif jika `createInertiaApp(...)` di `resources/js/app.ts` tetap berupa pemanggilan top-level (boleh di balik `void`/`await`/`.then()`). Membungkusnya dengan `Promise.resolve(...)` membuat plugin `@inertiajs/vite` tidak menyisipkan bootstrap server, sehingga bundel SSR tidak pernah mendengarkan port dan halaman jatuh kembali ke render sisi-klien (LCP jauh lebih lambat). Verifikasi: `php artisan inertia:check-ssr` dan pastikan HTML beranda memuat `id="masthead"`.
+- Elemen LCP beranda (foto hero di `header-home.svelte`) sengaja tidak memakai kelas `.reveal`: kelas itu menahan elemen di `opacity: 0` sampai hidrasi selesai ditambah delay animasinya.
+- Gambar kartu beranda memakai varian thumbnail (`ImageService::thumbnailUrl`) agar tidak mengunduh gambar ukuran penuh.

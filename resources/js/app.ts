@@ -20,30 +20,32 @@ const markMotionReady = () =>
     document.documentElement.classList.add('motion-ready'),
   );
 
-void Promise.resolve(
-  createInertiaApp({
-    id: 'root',
-    title: (title) => (title ? `${title} • ${appName}` : appName),
-    layout: (name) => {
-      switch (true) {
-        case name.startsWith('auth/'):
-          return AuthLayout;
-        case name.startsWith('resume/') || name === 'certification/show':
-          return ResumeLayout;
-        case name.startsWith('admin/'):
-        case name.startsWith('dashboard/'):
-          return AdminLayout;
-        default:
-          return AppLayout;
-      }
-    },
-    progress: {
-      color: '#ff9f1c',
-      showSpinner: true,
-      includeCSS: true,
-    },
-  }),
-).then(() => {
+// Keep this a top-level `void createInertiaApp(...).then(...)`: the Inertia Vite
+// plugin only recognises (and wraps with the SSR server bootstrap) a bare call,
+// optionally behind `void`/`await`/`.then()`. Wrapping it in `Promise.resolve()`
+// silently produces an SSR bundle that never starts a server.
+void createInertiaApp({
+  id: 'root',
+  title: (title) => (title ? `${title} • ${appName}` : appName),
+  layout: (name) => {
+    switch (true) {
+      case name.startsWith('auth/'):
+        return AuthLayout;
+      case name.startsWith('resume/') || name === 'certification/show':
+        return ResumeLayout;
+      case name.startsWith('admin/'):
+      case name.startsWith('dashboard/'):
+        return AdminLayout;
+      default:
+        return AppLayout;
+    }
+  },
+  progress: {
+    color: '#ff9f1c',
+    showSpinner: true,
+    includeCSS: true,
+  },
+}).then(() => {
   if (typeof document !== 'undefined') {
     markMotionReady();
   }

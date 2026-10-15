@@ -105,6 +105,7 @@
         </div>
       </div>
       <div class="col-md-5">
+        <!-- LCP element: deliberately no `.reveal` — it would stay at opacity 0 until hydration plus its delay. -->
         <img
           src="/images/fotoku-800.webp"
           srcset="/images/fotoku-480.webp 480w, /images/fotoku-800.webp 800w"
@@ -114,8 +115,7 @@
           fetchpriority="high"
           decoding="async"
           alt="Cak Adi"
-          class="w-100 h-auto reveal reveal-spring reveal-right"
-          style="--reveal-delay: 800ms"
+          class="w-100 h-auto"
         />
       </div>
     </div>

@@ -108,7 +108,7 @@ class HomeController extends Controller
             'formatLabel' => $engagement->format->label(),
             'location' => $engagement->location,
             'startsAt' => $engagement->starts_at->format('Y-m-d H:i'),
-            'poster' => ImageService::url($engagement->poster),
+            'poster' => ImageService::thumbnailUrl($engagement->poster),
         ]);
     }
 }
