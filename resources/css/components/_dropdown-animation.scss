@@ -1,163 +1,101 @@
 $prefix: 'neo';
 
-// shadcn/popover-style menu motion: fade + zoom from 96% with a short slide
-// away from the toggle. Driven entirely by the `.dropdown-anim-enter` /
-// `.dropdown-anim-leave` classes that `@/lib/dropdown-animation` toggles around
-// Bootstrap's own show/hide lifecycle — without that module loaded the menu
-// simply appears and disappears exactly like stock Bootstrap.
+// shadcn/ui overlay motion (tailwindcss-animate: `animate-in fade-in-0
+// zoom-in-95 slide-in-from-*-2` / `animate-out fade-out-0 zoom-out-95`) applied
+// to Bootstrap's dropdown, tooltip and popover so they all move the same way:
 //
-// The keyframes animate the standalone `scale`/`translate` properties rather
-// than `transform`, because Popper owns the menu's inline `transform` and a
-// keyframe on the same property would override its positioning mid-animation.
+//   enter  150ms ease · opacity 0 → 1 · scale .95 → 1 · slide 0.5rem in from
+//          the side facing the trigger (menu below the trigger slides down)
+//   leave  150ms ease · opacity 1 → 0 · scale 1 → .95 · no slide
 //
-// Ported from Batamtix Core's `resources/scss/core/_base.scss` (`.dropdown-menu`
-// block) and `resources/js/libs/dropdown-animation.ts`. Bootstrap hardcodes
-// `--bs-position` literally in `_dropdown.scss`, ignoring its own `$prefix`,
-// so it's read directly here too with no `--neo-*` mirror.
-.dropdown-menu {
-  // Enter and leave are exact mirrors, so they share one duration and one
-  // easing curve: a symmetric ease means the menu retraces the same path at
-  // the same speed on the way out as it took on the way in.
-  --#{$prefix}-dropdown-anim-duration: 180ms;
-  --#{$prefix}-dropdown-anim-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --#{$prefix}-dropdown-anim-scale: 0.96;
-  --#{$prefix}-dropdown-anim-offset: 0.5rem;
-  // Defaults match the start-aligned case (slide left → right); every other
-  // combination is resolved by the placement/alignment rules below.
-  --#{$prefix}-dropdown-anim-x: calc(
-    var(--#{$prefix}-dropdown-anim-offset) * -1
-  );
-  --#{$prefix}-dropdown-anim-y: 0;
-  --#{$prefix}-dropdown-anim-origin: top center;
+// Tokens live on `:root` so custom Svelte popups (`@/lib/overlay-motion`) and
+// the third-party select/date pickers below read the exact same values.
+//
+// Dropdowns are driven by the `.dropdown-anim-enter` / `.dropdown-anim-leave`
+// classes that `@/lib/dropdown-animation` toggles around Bootstrap's own
+// show/hide lifecycle — without that module loaded the menu simply appears and
+// disappears like stock Bootstrap. Tooltips and popovers need no JS: Bootstrap
+// already waits for the `.fade` transition before removing them.
+//
+// Everything animates the standalone `scale`/`translate`/`opacity` properties
+// rather than `transform`, because Popper owns the element's inline
+// `transform` and a keyframe on it would override the positioning.
+:root {
+  --#{$prefix}-overlay-duration: 150ms;
+  --#{$prefix}-overlay-ease: ease;
+  --#{$prefix}-overlay-scale: 0.95;
+  --#{$prefix}-overlay-offset: 0.5rem;
+}
 
-  transform-origin: var(--#{$prefix}-dropdown-anim-origin);
+// Shared per-element slide values: set the side the element sits on and the
+// enter keyframe slides it in from the trigger.
+@mixin overlay-placement($x: --#{$prefix}-overlay-x, $y: --#{$prefix}-overlay-y, $origin: --#{$prefix}-overlay-origin) {
+  #{$x}: 0;
+  #{$y}: 0;
+  #{$origin}: top center;
 
-  // Grow out of the edge nearest the toggle. The placement is resolved and
-  // written by the TS module, which prefers Popper's post-flip
-  // `data-popper-placement` and falls back to the placement implied by the
-  // dropup/dropend/dropstart classes.
-  //
-  // Top/bottom placements only set the origin here — their slide direction
-  // comes from the menu's alignment class (see "Slide direction" below).
-  // Side placements own both, since sliding a `dropend` menu horizontally is
-  // the only direction that reads as "away from the toggle".
   &[data-popper-placement^='bottom'] {
-    --#{$prefix}-dropdown-anim-origin: top center;
+    #{$y}: calc(var(--#{$prefix}-overlay-offset) * -1);
+    #{$origin}: top center;
   }
 
   &[data-popper-placement^='top'] {
-    --#{$prefix}-dropdown-anim-origin: bottom center;
+    #{$y}: var(--#{$prefix}-overlay-offset);
+    #{$origin}: bottom center;
   }
 
   &[data-popper-placement^='right'] {
-    --#{$prefix}-dropdown-anim-x: calc(
-      var(--#{$prefix}-dropdown-anim-offset) * -1
-    );
-    --#{$prefix}-dropdown-anim-y: 0;
-    --#{$prefix}-dropdown-anim-origin: left center;
+    #{$x}: calc(var(--#{$prefix}-overlay-offset) * -1);
+    #{$origin}: left center;
   }
 
   &[data-popper-placement^='left'] {
-    --#{$prefix}-dropdown-anim-x: var(--#{$prefix}-dropdown-anim-offset);
-    --#{$prefix}-dropdown-anim-y: 0;
-    --#{$prefix}-dropdown-anim-origin: right center;
+    #{$x}: var(--#{$prefix}-overlay-offset);
+    #{$origin}: right center;
   }
 
-  // Aligned variants (`dropdown-menu-end`, `dropup` + `-end`, …) only move the
-  // origin along the cross axis; the slide direction stays the one above.
+  // Aligned variants only move the origin along the cross axis.
   &[data-popper-placement='bottom-start'] {
-    --#{$prefix}-dropdown-anim-origin: top left;
+    #{$origin}: top left;
   }
 
   &[data-popper-placement='bottom-end'] {
-    --#{$prefix}-dropdown-anim-origin: top right;
+    #{$origin}: top right;
   }
 
   &[data-popper-placement='top-start'] {
-    --#{$prefix}-dropdown-anim-origin: bottom left;
+    #{$origin}: bottom left;
   }
 
   &[data-popper-placement='top-end'] {
-    --#{$prefix}-dropdown-anim-origin: bottom right;
+    #{$origin}: bottom right;
   }
 
   &[data-popper-placement='right-start'] {
-    --#{$prefix}-dropdown-anim-origin: left top;
+    #{$origin}: left top;
   }
 
   &[data-popper-placement='right-end'] {
-    --#{$prefix}-dropdown-anim-origin: left bottom;
+    #{$origin}: left bottom;
   }
 
   &[data-popper-placement='left-start'] {
-    --#{$prefix}-dropdown-anim-origin: right top;
+    #{$origin}: right top;
   }
 
   &[data-popper-placement='left-end'] {
-    --#{$prefix}-dropdown-anim-origin: right bottom;
+    #{$origin}: right bottom;
   }
+}
 
-  // -------------------------------------------------------------------------
-  // Slide direction
-  //
-  // The slide axis is decided by the menu's *alignment*, and by nothing else:
-  //
-  //   `.dropdown-menu` / `.dropdown-menu-start` → enters left → right
-  //   `.dropdown-menu-end`                      → enters right → left
-  //   `.dropdown-menu-center`                   → enters top  → bottom
-  //
-  // The leave animation is the same keyframe played backwards (see the two
-  // `@keyframes` below, which share one set of `--x` / `--y` values), so each
-  // close is the exact reverse of its open.
-  //
-  // Note these deliberately do *not* branch on `bottom` vs `top` placement:
-  // an end-aligned dropup slides on the same horizontal axis as an
-  // end-aligned dropdown. Only the transform origin follows the placement,
-  // and that is set above.
-  // -------------------------------------------------------------------------
-  &[data-popper-placement='bottom-end'],
-  &[data-popper-placement='top-end'],
-  &.dropdown-menu-end[data-popper-placement^='bottom'],
-  &.dropdown-menu-end[data-popper-placement^='top'] {
-    --#{$prefix}-dropdown-anim-x: var(--#{$prefix}-dropdown-anim-offset);
-    --#{$prefix}-dropdown-anim-y: 0;
-  }
+.dropdown-menu {
+  @include overlay-placement;
 
-  &[data-popper-placement='bottom-start'],
-  &[data-popper-placement='top-start'],
-  &.dropdown-menu-start[data-popper-placement^='bottom'],
-  &.dropdown-menu-start[data-popper-placement^='top'] {
-    --#{$prefix}-dropdown-anim-x: calc(
-      var(--#{$prefix}-dropdown-anim-offset) * -1
-    );
-    --#{$prefix}-dropdown-anim-y: 0;
-  }
-
-  // Bootstrap has no centered *menu* class of its own — it centers via the
-  // `.dropdown-center` / `.dropup-center` wrapper.
-  //
-  // Centered menus always travel top → bottom on open (and back up on close),
-  // whether they hang below the toggle or above it; only the origin flips.
-  &.dropdown-menu-center,
-  .dropdown-center > &,
-  .dropup-center > & {
-    --#{$prefix}-dropdown-anim-x: 0;
-    --#{$prefix}-dropdown-anim-y: calc(
-      var(--#{$prefix}-dropdown-anim-offset) * -1
-    );
-
-    &[data-popper-placement^='bottom'] {
-      --#{$prefix}-dropdown-anim-origin: top center;
-    }
-
-    &[data-popper-placement^='top'] {
-      --#{$prefix}-dropdown-anim-origin: bottom center;
-    }
-  }
+  transform-origin: var(--#{$prefix}-overlay-origin);
 
   &.dropdown-anim-enter {
-    animation: dropdown-anim-enter var(--#{$prefix}-dropdown-anim-duration)
-      var(--#{$prefix}-dropdown-anim-ease) backwards;
+    animation: overlay-anim-enter var(--#{$prefix}-overlay-duration)
+      var(--#{$prefix}-overlay-ease) backwards;
     will-change: opacity, scale, translate;
   }
 
@@ -168,10 +106,48 @@ $prefix: 'neo';
   &.dropdown-anim-leave {
     display: block !important;
     pointer-events: none;
-    animation: dropdown-anim-leave var(--#{$prefix}-dropdown-anim-duration)
-      var(--#{$prefix}-dropdown-anim-ease) forwards;
-    will-change: opacity, scale, translate;
+    animation: overlay-anim-leave var(--#{$prefix}-overlay-duration)
+      var(--#{$prefix}-overlay-ease) forwards;
+    will-change: opacity, scale;
   }
+}
+
+// Tooltip and popover. Hidden state = faded + shrunk, so removing `.show`
+// transitions back to it (the leave: fade + zoom, no slide, and Bootstrap
+// waits for this transition before disposing the element). Adding `.show`
+// plays the enter keyframe, which also slides the element in from its side.
+.tooltip,
+.popover {
+  @include overlay-placement;
+
+  transform-origin: var(--#{$prefix}-overlay-origin);
+
+  &.fade {
+    scale: var(--#{$prefix}-overlay-scale);
+    transition:
+      opacity var(--#{$prefix}-overlay-duration) var(--#{$prefix}-overlay-ease),
+      scale var(--#{$prefix}-overlay-duration) var(--#{$prefix}-overlay-ease);
+
+    &.show {
+      scale: 1;
+      animation: overlay-anim-enter var(--#{$prefix}-overlay-duration)
+        var(--#{$prefix}-overlay-ease) backwards;
+    }
+  }
+}
+
+// Third-party pickers: enter motion only (the libraries unmount their panels
+// themselves, so there is nothing to hold on screen for a leave).
+.svelte-select-list,
+.datepicker .calendars-container.show {
+  @include overlay-placement;
+
+  // Always opens below its field.
+  --#{$prefix}-overlay-y: calc(var(--#{$prefix}-overlay-offset) * -1);
+
+  transform-origin: var(--#{$prefix}-overlay-origin);
+  animation: overlay-anim-enter var(--#{$prefix}-overlay-duration)
+    var(--#{$prefix}-overlay-ease) backwards;
 }
 
 .dropdown-uncaret {
@@ -184,34 +160,20 @@ $prefix: 'neo';
 }
 
 // Only `opacity`, `scale` and `translate` are animated, so both directions stay
-// on the compositor. Users with `prefers-reduced-motion: reduce` never get
-// these classes applied in the first place (see `@/lib/dropdown-animation`).
-@keyframes dropdown-anim-enter {
+// on the compositor. Users with `prefers-reduced-motion: reduce` never get the
+// dropdown classes applied (see `@/lib/dropdown-animation`), and the global
+// reduced-motion rule in `_base.scss` flattens every other duration.
+@keyframes overlay-anim-enter {
   from {
     opacity: 0;
-    scale: var(--#{$prefix}-dropdown-anim-scale);
-    translate: var(--#{$prefix}-dropdown-anim-x)
-      var(--#{$prefix}-dropdown-anim-y);
-  }
-
-  to {
-    opacity: 1;
-    scale: 1;
-    translate: 0 0;
+    scale: var(--#{$prefix}-overlay-scale);
+    translate: var(--#{$prefix}-overlay-x) var(--#{$prefix}-overlay-y);
   }
 }
 
-@keyframes dropdown-anim-leave {
-  from {
-    opacity: 1;
-    scale: 1;
-    translate: 0 0;
-  }
-
+@keyframes overlay-anim-leave {
   to {
     opacity: 0;
-    scale: var(--#{$prefix}-dropdown-anim-scale);
-    translate: var(--#{$prefix}-dropdown-anim-x)
-      var(--#{$prefix}-dropdown-anim-y);
+    scale: var(--#{$prefix}-overlay-scale);
   }
 }

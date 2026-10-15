@@ -69,7 +69,7 @@
   <ul class="dropdown-menu dropdown-menu-end">
     <li class="userinfo-badge">
       <Link href="/settings/profile" class="dropdown-item">
-        <div class="avatar">
+        <div class="avatar" class:avatar-fallback={!avatarUrl}>
           {#if avatarUrl}
             <img
               src={avatarUrl}

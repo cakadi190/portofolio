@@ -29,6 +29,8 @@
     withTime = false,
     invalid = false,
     placeholder = 'Pilih tanggal…',
+    inline = false,
+    display = $bindable(''),
   }: {
     id?: string;
     name: string;
@@ -36,9 +38,15 @@
     withTime?: boolean;
     invalid?: boolean;
     placeholder?: string;
+    /** Shows the calendar permanently (no text field), for use inside a panel. */
+    inline?: boolean;
+    /** Human-readable value, e.g. `13 Oktober 2026, 06:11`, for a summary label. */
+    display?: string;
   } = $props();
 
-  let isOpen = $state(false);
+  // An inline calendar is always on screen, so the library must see it as open.
+  // svelte-ignore state_referenced_locally
+  let isOpen = $state(inline);
   let startDate = $state<number | null>(null);
   let startDateTime = $state('00:00');
 
@@ -75,7 +83,7 @@
     return withTime ? `${day}T${startDateTime}` : day;
   });
 
-  const display = $derived.by((): string => {
+  const shown = $derived.by((): string => {
     if (startDate === null) {
       return '';
     }
@@ -86,16 +94,21 @@
     return withTime ? `${day}, ${startDateTime}` : day;
   });
 
+  $effect(() => {
+    display = shown;
+  });
+
   const clear = (): void => {
     startDate = null;
     startDateTime = '00:00';
   };
 </script>
 
-<div class="neo-datepicker" class:is-invalid={invalid}>
+<div class="neo-datepicker" class:is-invalid={invalid} class:is-inline={inline}>
   <input type="hidden" {name} value={submitted} />
   <DatePicker
     bind:isOpen
+    alwaysShow={inline}
     bind:startDate
     bind:startDateTime
     showTimePicker={withTime}
@@ -105,12 +118,12 @@
     {monthLabels}
     includeFont={false}
     onDateChange={() => {
-      if (!withTime) {
+      if (!withTime && !inline) {
         isOpen = false;
       }
     }}
   >
-    <div class="input-group">
+    <div class="input-group" class:d-none={inline}>
       <input
         {id}
         type="text"
@@ -118,7 +131,7 @@
         class:is-invalid={invalid}
         readonly
         {placeholder}
-        value={display}
+        value={shown}
         onclick={() => (isOpen = !isOpen)}
       />
       {#if startDate !== null}
@@ -168,6 +181,18 @@
 
   .neo-datepicker :global(.datepicker) {
     width: 100%;
+  }
+
+  .neo-datepicker.is-inline {
+    --datepicker-container-position: static;
+    --datepicker-container-border: 0;
+    --datepicker-container-border-radius: 0;
+    --datepicker-container-top: auto;
+    --datepicker-container-width: 100%;
+  }
+
+  .neo-datepicker.is-inline :global(.calendars-container) {
+    animation: none;
   }
 
   .neo-datepicker :global(input[readonly]) {

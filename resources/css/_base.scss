@@ -606,7 +606,7 @@ $btn-ghost-colors:
       }
     }
 
-    span {
+    > span {
       display: flex;
 
       @media (width <= 992px) {
@@ -678,40 +678,39 @@ $btn-ghost-colors:
 // =============================================================================
 // Modals
 // https://getbootstrap.com/docs/5.3/components/modal/
-// shadcn/Radix-style dialog motion: the dialog fades in while zooming up from
-// 95% and rising 8px, instead of Bootstrap's slide-down, with a slightly
-// faster exit. Bootstrap drives both directions through the same `.fade` /
-// `.show` class pair, so the exit timing is expressed on the resting
-// (`.fade`) state and the enter timing on `.show` — no extra classes or JS.
+// shadcn/ui dialog motion (`duration-200 fade zoom-95` plus a 2% vertical
+// drift, backdrop `fade` at the default 150ms): the dialog fades and zooms
+// from 95% while drifting down 2% of its own height on open, and the exact
+// reverse on close. Bootstrap drives both directions through the same `.fade`
+// / `.show` class pair, so both timings are expressed on the resting (`.fade`)
+// state — no extra classes or JS. The `.modal` element carries the longer
+// 200ms so Bootstrap, which waits on it, never cuts the dialog short.
 // =============================================================================
 .modal,
 .modal-backdrop {
-  --#{$prefix}-modal-anim-duration-in: 200ms;
-  --#{$prefix}-modal-anim-duration-out: 150ms;
-  --#{$prefix}-modal-anim-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --#{$prefix}-modal-anim-scale: 0.95;
-  --#{$prefix}-modal-anim-offset: 0.5rem;
+  --#{$prefix}-modal-anim-duration: 200ms;
+  --#{$prefix}-modal-anim-backdrop-duration: var(
+    --#{$prefix}-overlay-duration
+  );
+  --#{$prefix}-modal-anim-ease: var(--#{$prefix}-overlay-ease);
+  --#{$prefix}-modal-anim-scale: var(--#{$prefix}-overlay-scale);
+  --#{$prefix}-modal-anim-offset: -2%;
 }
 
 .modal.fade {
-  transition: opacity var(--#{$prefix}-modal-anim-duration-out)
+  transition: opacity var(--#{$prefix}-modal-anim-duration)
     var(--#{$prefix}-modal-anim-ease);
 
   .modal-dialog {
     transform: translateY(var(--#{$prefix}-modal-anim-offset))
       scale(var(--#{$prefix}-modal-anim-scale));
-    transition: transform var(--#{$prefix}-modal-anim-duration-out)
+    transition: transform var(--#{$prefix}-modal-anim-duration)
       var(--#{$prefix}-modal-anim-ease);
     will-change: transform;
   }
 
-  &.show {
-    transition-duration: var(--#{$prefix}-modal-anim-duration-in);
-
-    .modal-dialog {
-      transform: none;
-      transition-duration: var(--#{$prefix}-modal-anim-duration-in);
-    }
+  &.show .modal-dialog {
+    transform: none;
   }
 }
 
@@ -730,12 +729,8 @@ $btn-ghost-colors:
 }
 
 .modal-backdrop.fade {
-  transition: opacity var(--#{$prefix}-modal-anim-duration-out)
+  transition: opacity var(--#{$prefix}-modal-anim-backdrop-duration)
     var(--#{$prefix}-modal-anim-ease);
-
-  &.show {
-    transition-duration: var(--#{$prefix}-modal-anim-duration-in);
-  }
 }
 
 // =============================================================================

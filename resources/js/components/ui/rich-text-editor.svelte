@@ -4,7 +4,18 @@
   import AlignRight from '@lucide/svelte/icons/align-right';
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
+  import Check from '@lucide/svelte/icons/check';
+  import Monitor from '@lucide/svelte/icons/monitor';
+  import Smartphone from '@lucide/svelte/icons/smartphone';
+  import Tablet from '@lucide/svelte/icons/tablet';
+  import BetweenHorizontalEnd from '@lucide/svelte/icons/between-horizontal-end';
+  import BetweenHorizontalStart from '@lucide/svelte/icons/between-horizontal-start';
+  import BetweenVerticalEnd from '@lucide/svelte/icons/between-vertical-end';
+  import BetweenVerticalStart from '@lucide/svelte/icons/between-vertical-start';
+  import BookA from '@lucide/svelte/icons/book-a';
+  import BookText from '@lucide/svelte/icons/book-text';
   import Bold from '@lucide/svelte/icons/bold';
+  import ClipboardList from '@lucide/svelte/icons/clipboard-list';
   import Info from '@lucide/svelte/icons/info';
   import MousePointerClick from '@lucide/svelte/icons/mouse-pointer-click';
   import Replace from '@lucide/svelte/icons/replace';
@@ -29,7 +40,12 @@
   import Plus from '@lucide/svelte/icons/plus';
   import Quote from '@lucide/svelte/icons/quote';
   import Redo2 from '@lucide/svelte/icons/redo-2';
+  import Sigma from '@lucide/svelte/icons/sigma';
   import SquareCode from '@lucide/svelte/icons/square-code';
+  import Table2 from '@lucide/svelte/icons/table-2';
+  import TableProperties from '@lucide/svelte/icons/table-properties';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
+  import TableRowsSplit from '@lucide/svelte/icons/table-rows-split';
   import Undo2 from '@lucide/svelte/icons/undo-2';
   import { Editor, type ChainedCommands } from '@tiptap/core';
   import CharacterCount from '@tiptap/extension-character-count';
@@ -47,11 +63,24 @@
     Callout,
     CODE_THEMES,
     CodeBlockHighlight,
+    Definition,
     FigureImage,
+    MathBlock,
+    MathInline,
+    Reference,
+    References,
+    SpecLabel,
+    SpecRow,
+    SpecSheet,
+    SpecValue,
+    TableBlocks,
+    TableSetup,
+    cleanBlockText,
     safeHref,
   } from '@/lib/editor-blocks';
   import { normalizeCodeTitle } from '@/lib/code-card';
   import { portal } from '@/lib/dom';
+  import { overlayIn, overlayOut } from '@/lib/overlay-motion';
   import { highlightSource, languageNames } from '@/lib/highlight';
   import Select from '@/components/ui/select.svelte';
   import { uploadMedia } from '@/lib/media';
@@ -139,12 +168,26 @@
     open: false,
     x: 0,
     y: 0,
-    kind: 'context' as 'context' | 'type' | 'align',
+    kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device',
   });
   let ctxEl = $state<HTMLDivElement>();
   let menuEl = $state<HTMLDivElement>();
   let focused = $state(false);
   let sidebarOpen = $state(true);
+
+  type Device = 'desktop' | 'tablet' | 'mobile';
+
+  /** Width of the writing canvas, to preview the article on other screens. */
+  let device = $state<Device>('desktop');
+
+  const deviceOptions = [
+    { value: 'desktop', label: 'Desktop', icon: Monitor },
+    { value: 'tablet', label: 'Tablet', icon: Tablet },
+    { value: 'mobile', label: 'Ponsel', icon: Smartphone },
+  ] as const;
+  const DeviceIcon = $derived(
+    deviceOptions.find((option) => option.value === device)?.icon ?? Monitor,
+  );
   let sidebarTab = $state<'document' | 'block'>('document');
   let blockTb = $state({ visible: false, top: 0, left: 0 });
 
@@ -158,7 +201,16 @@
     action?: () => void;
   };
 
-  type BlockKind = 'image' | 'buttonBlock' | 'callout' | 'codeBlock';
+  type BlockKind =
+    | 'image'
+    | 'buttonBlock'
+    | 'callout'
+    | 'codeBlock'
+    | 'definition'
+    | 'specSheet'
+    | 'table'
+    | 'mathBlock'
+    | 'mathInline';
   type BlockInfo = {
     kind: BlockKind;
     pos: number;
@@ -192,6 +244,12 @@
     image: 'Gambar',
     buttonBlock: 'Tombol',
     horizontalRule: 'Garis pemisah',
+    table: 'Tabel',
+    definition: 'Kartu definisi',
+    specSheet: 'Kartu spesifikasi',
+    references: 'Daftar referensi',
+    mathBlock: 'Rumus blok',
+    mathInline: 'Rumus sebaris',
   };
   const blockDescriptions: Record<string, string> = {
     paragraph: 'Mulai dengan komponen dasar dari semua cerita.',
@@ -204,6 +262,12 @@
     image: 'Sisipkan gambar dari pustaka media.',
     buttonBlock: 'Tautan ajakan bertindak berbentuk tombol.',
     horizontalRule: 'Pisahkan bagian tulisan dengan garis.',
+    table: 'Susun data dalam baris dan kolom.',
+    definition: 'Kartu istilah dengan pelafalan dan artinya.',
+    specSheet: 'Lembar pasangan label dan nilai, mis. spesifikasi.',
+    references: 'Daftar sumber atau rujukan bernomor.',
+    mathBlock: 'Persamaan matematika tampil di tengah (LaTeX).',
+    mathInline: 'Rumus matematika di tengah kalimat (LaTeX).',
   };
   const blockIcons: Record<string, typeof Pilcrow> = {
     paragraph: Pilcrow,
@@ -216,6 +280,12 @@
     image: ImageIcon,
     buttonBlock: MousePointerClick,
     horizontalRule: Minus,
+    table: Table2,
+    definition: BookA,
+    specSheet: ClipboardList,
+    references: BookText,
+    mathBlock: Sigma,
+    mathInline: Sigma,
   };
   const alignKeys = ['left', 'center', 'right'] as const;
   const headingLevels = [1, 2, 3] as const;
@@ -301,6 +371,18 @@
       run: (c) => c.wrapIn('callout', { type: 'info' }),
     },
     {
+      label: 'Callout berjudul',
+      hint: 'Kotak catatan dengan judul dan label',
+      icon: Info,
+      keywords: 'callout titled judul label kategori note box',
+      run: (c) =>
+        c.wrapIn('callout', {
+          type: 'info',
+          title: 'Judul catatan',
+          label: 'Kategori',
+        }),
+    },
+    {
       label: 'Tombol',
       hint: 'Tautan ajakan bertindak',
       icon: MousePointerClick,
@@ -341,6 +423,61 @@
       icon: Minus,
       keywords: 'divider hr garis',
       run: (c) => c.setHorizontalRule(),
+    },
+    {
+      label: 'Tabel',
+      hint: 'Baris dan kolom data',
+      icon: Table2,
+      keywords: 'table tabel baris kolom row column grid',
+      run: (c) => c.insertContent({ type: 'tableSetup' }),
+    },
+    {
+      label: 'Rumus blok',
+      hint: 'Persamaan di tengah (LaTeX)',
+      icon: Sigma,
+      keywords: 'math equation formula latex rumus persamaan matematika',
+      action: () => insertAtomAndSelect('mathBlock'),
+    },
+    {
+      label: 'Rumus sebaris',
+      hint: 'Rumus di tengah kalimat',
+      icon: Sigma,
+      keywords: 'inline math formula latex rumus sebaris',
+      action: () => insertAtomAndSelect('mathInline'),
+    },
+    {
+      label: 'Kartu spesifikasi',
+      hint: 'Pasangan label dan nilai',
+      icon: ClipboardList,
+      keywords: 'spec specification sheet matrix label value spesifikasi data',
+      run: (c) =>
+        c.insertContent({
+          type: 'specSheet',
+          attrs: { title: 'Spesifikasi' },
+          content: [1, 2].map(() => ({
+            type: 'specRow',
+            content: [{ type: 'specLabel' }, { type: 'specValue' }],
+          })),
+        }),
+    },
+    {
+      label: 'Kartu definisi',
+      hint: 'Istilah, pelafalan, dan arti',
+      icon: BookA,
+      keywords: 'definition dictionary term kamus istilah arti glossary',
+      run: (c) => c.wrapIn('definition', { term: 'Istilah' }),
+    },
+    {
+      label: 'Daftar referensi',
+      hint: 'Sumber bernomor',
+      icon: BookText,
+      keywords:
+        'references bibliography sources citations referensi sumber pustaka',
+      run: (c) =>
+        c.insertContent({
+          type: 'references',
+          content: [{ type: 'reference' }, { type: 'reference' }],
+        }),
     },
   ];
 
@@ -425,7 +562,7 @@
   }
 
   function openToolbarMenu(
-    kind: 'type' | 'align' | 'context',
+    kind: 'type' | 'align' | 'context' | 'table' | 'device',
     event: MouseEvent,
   ): void {
     if (ctx.open && ctx.kind === kind) {
@@ -648,7 +785,10 @@
     if (selection instanceof NodeSelection) {
       const kind = selection.node.type.name;
 
-      return kind === 'image' || kind === 'buttonBlock'
+      return kind === 'image' ||
+        kind === 'buttonBlock' ||
+        kind === 'mathBlock' ||
+        kind === 'mathInline'
         ? { kind, pos: selection.from, attrs: selection.node.attrs }
         : null;
     }
@@ -656,7 +796,11 @@
     for (let depth = selection.$from.depth; depth > 0; depth--) {
       const node = selection.$from.node(depth);
 
-      if (node.type.name === 'callout' || node.type.name === 'codeBlock') {
+      if (
+        ['callout', 'codeBlock', 'definition', 'specSheet', 'table'].includes(
+          node.type.name,
+        )
+      ) {
         return {
           kind: node.type.name as BlockKind,
           pos: selection.$from.before(depth),
@@ -715,6 +859,82 @@
       editor.commands.setNodeSelection(
         editor.state.selection.from - before.nodeSize,
       );
+    }
+  }
+
+  /** Inserts an atom block (equation) and selects it so the block bar opens on it. */
+  function insertAtomAndSelect(type: 'mathBlock' | 'mathInline'): void {
+    if (!editor) return;
+
+    editor.chain().focus().insertContent({ type }).run();
+
+    const before = editor.state.selection.$from.nodeBefore;
+
+    if (before?.type.name === type) {
+      editor.commands.setNodeSelection(
+        editor.state.selection.from - before.nodeSize,
+      );
+    }
+  }
+
+  /** Whether the first row / first column of the table under the caret are header cells. */
+  function tableHeaders(): { row: boolean; column: boolean } {
+    void tick;
+
+    const table = blockInfo ? editor?.state.doc.nodeAt(blockInfo.pos) : null;
+
+    if (table?.type.name !== 'table') return { row: false, column: false };
+
+    const isHeader = (cell: { type: { name: string } }): boolean =>
+      cell.type.name === 'tableHeader';
+    const cellsOf = (row: { childCount: number; child: (i: number) => any }) =>
+      Array.from({ length: row.childCount }, (_, i) => row.child(i));
+    const rows = Array.from({ length: table.childCount }, (_, i) =>
+      table.child(i),
+    );
+
+    return {
+      row: cellsOf(rows[0]).every(isHeader),
+      column: rows.every((row) => isHeader(row.child(0))),
+    };
+  }
+
+  function addSpecRow(): void {
+    const target = blockInfo;
+    const sheet = target ? editor?.state.doc.nodeAt(target.pos) : null;
+
+    if (!editor || !target || sheet?.type.name !== 'specSheet') return;
+
+    const end = target.pos + sheet.nodeSize - 1;
+
+    editor
+      .chain()
+      .focus()
+      .insertContentAt(end, {
+        type: 'specRow',
+        content: [{ type: 'specLabel' }, { type: 'specValue' }],
+      })
+      .setTextSelection(end + 2)
+      .run();
+  }
+
+  function removeSpecRow(): void {
+    if (!editor) return;
+
+    const { $from: caret } = editor.state.selection;
+
+    for (let depth = caret.depth; depth > 0; depth--) {
+      if (caret.node(depth).type.name !== 'specRow') continue;
+
+      if (caret.node(depth - 1).childCount <= 1) return;
+
+      editor
+        .chain()
+        .focus()
+        .deleteRange({ from: caret.before(depth), to: caret.after(depth) })
+        .run();
+
+      return;
     }
   }
 
@@ -863,6 +1083,81 @@
           on: currentBlock?.label === item.label,
           action: () => applyBlock(item),
         })),
+      ];
+    }
+
+    if (ctx.kind === 'table') {
+      const run =
+        (command: (chain: ChainedCommands) => ChainedCommands) => () =>
+          command(instance.chain().focus()).run();
+
+      return [
+        [
+          {
+            label: 'Sisipkan baris di atas',
+            icon: BetweenHorizontalStart,
+            action: run((c) => c.addRowBefore()),
+          },
+          {
+            label: 'Sisipkan baris di bawah',
+            icon: BetweenHorizontalEnd,
+            action: run((c) => c.addRowAfter()),
+          },
+          {
+            label: 'Hapus baris',
+            icon: TableRowsSplit,
+            action: run((c) => c.deleteRow()),
+          },
+        ],
+        [
+          {
+            label: 'Sisipkan kolom di kiri',
+            icon: BetweenVerticalStart,
+            action: run((c) => c.addColumnBefore()),
+          },
+          {
+            label: 'Sisipkan kolom di kanan',
+            icon: BetweenVerticalEnd,
+            action: run((c) => c.addColumnAfter()),
+          },
+          {
+            label: 'Hapus kolom',
+            icon: Table2,
+            action: run((c) => c.deleteColumn()),
+          },
+        ],
+        [
+          {
+            label: 'Hapus tabel',
+            icon: Trash2,
+            danger: true,
+            action: run((c) => c.deleteTable()),
+          },
+        ],
+      ];
+    }
+
+    if (ctx.kind === 'device') {
+      return [
+        deviceOptions.map<ContextItem>((option) => ({
+          label: option.label,
+          icon: option.icon,
+          on: device === option.value,
+          action: () => (device = option.value),
+        })),
+        ...(viewHref
+          ? [
+              [
+                {
+                  label: 'Pratinjau di tab baru',
+                  icon: ExternalLink,
+                  action: () => {
+                    window.open(viewHref, '_blank', 'noopener,noreferrer');
+                  },
+                },
+              ],
+            ]
+          : []),
       ];
     }
 
@@ -1161,7 +1456,23 @@
         ),
         ...(minimal
           ? []
-          : [FigureImage, Callout, ButtonBlock, CodeBlockHighlight]),
+          : [
+              FigureImage,
+              Callout,
+              ButtonBlock,
+              Definition,
+              SpecSheet,
+              SpecRow,
+              SpecLabel,
+              SpecValue,
+              References,
+              Reference,
+              MathInline,
+              MathBlock,
+              ...TableBlocks,
+              TableSetup,
+              CodeBlockHighlight,
+            ]),
         Placeholder.configure({ placeholder }),
         ...(minimal
           ? []
@@ -1286,13 +1597,19 @@
 
 {#snippet inspector()}
   {#if currentBlock}
-    {@const BlockIcon = blockIcons[currentBlock.kind] ?? Pilcrow}
+    {@const headKind =
+      blockInfo?.kind === 'mathInline' ? 'mathInline' : currentBlock.kind}
+    {@const BlockIcon = blockIcons[headKind] ?? Pilcrow}
     <div class="rte-ins">
       <div class="rte-ins-head">
         <BlockIcon size={20} />
         <div>
-          <strong>{currentBlock.label}</strong>
-          <p class="rte-ins-desc">{blockDescriptions[currentBlock.kind]}</p>
+          <strong
+            >{headKind === currentBlock.kind
+              ? currentBlock.label
+              : blockLabels[headKind]}</strong
+          >
+          <p class="rte-ins-desc">{blockDescriptions[headKind]}</p>
         </div>
       </div>
 
@@ -1450,6 +1767,30 @@
             {/each}
           </div>
         </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Judul</span>
+          <input
+            class="form-control form-control-sm"
+            placeholder="Judul (opsional)"
+            aria-label="Judul callout"
+            maxlength="60"
+            value={blockInfo.attrs.title ?? ''}
+            oninput={(event) =>
+              patchBlock({ title: cleanBlockText(event.currentTarget.value) })}
+          />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Label kategori</span>
+          <input
+            class="form-control form-control-sm"
+            placeholder="Mis. Ekonomi (opsional)"
+            aria-label="Label kategori callout"
+            maxlength="60"
+            value={blockInfo.attrs.label ?? ''}
+            oninput={(event) =>
+              patchBlock({ label: cleanBlockText(event.currentTarget.value) })}
+          />
+        </div>
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary align-self-start"
@@ -1457,6 +1798,115 @@
           onclick={() => editor?.chain().focus().lift('callout').run()}
           >Lepas kotak</button
         >
+      {:else if blockInfo?.kind === 'definition'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Istilah</span>
+          <input
+            class="form-control form-control-sm"
+            aria-label="Istilah"
+            maxlength="60"
+            value={blockInfo.attrs.term ?? ''}
+            oninput={(event) =>
+              patchBlock({ term: cleanBlockText(event.currentTarget.value) })}
+          />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Pelafalan</span>
+          <input
+            class="form-control form-control-sm"
+            placeholder="Mis. /rɛlm/ (opsional)"
+            aria-label="Pelafalan"
+            maxlength="60"
+            value={blockInfo.attrs.phonetic ?? ''}
+            oninput={(event) =>
+              patchBlock({
+                phonetic: cleanBlockText(event.currentTarget.value),
+              })}
+          />
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary align-self-start"
+          title="Keluarkan isi dari kartu"
+          onclick={() => editor?.chain().focus().lift('definition').run()}
+          >Lepas kartu</button
+        >
+      {:else if blockInfo?.kind === 'specSheet'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Judul</span>
+          <input
+            class="form-control form-control-sm"
+            placeholder="Judul (opsional)"
+            aria-label="Judul kartu spesifikasi"
+            maxlength="60"
+            value={blockInfo.attrs.title ?? ''}
+            oninput={(event) =>
+              patchBlock({ title: cleanBlockText(event.currentTarget.value) })}
+          />
+        </div>
+        <div class="rte-ins-row">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={addSpecRow}>Tambah baris</button
+          >
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick={removeSpecRow}>Hapus baris</button
+          >
+        </div>
+        <p class="rte-ins-desc">Tekan Enter di kolom nilai untuk baris baru.</p>
+      {:else if blockInfo?.kind === 'table'}
+        {@const headers = tableHeaders()}
+        <div class="rte-ins-section">
+          <span class="rte-ins-title">Pengaturan</span>
+          <label class="rte-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={headers.row}
+              onchange={() => editor?.chain().focus().toggleHeaderRow().run()}
+            />
+            <span class="rte-switch-track" aria-hidden="true"></span>
+            <span>Baris header</span>
+          </label>
+          <label class="rte-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={headers.column}
+              onchange={() =>
+                editor?.chain().focus().toggleHeaderColumn().run()}
+            />
+            <span class="rte-switch-track" aria-hidden="true"></span>
+            <span>Kolom header</span>
+          </label>
+        </div>
+        <p class="rte-ins-desc">
+          Gunakan tombol tabel di toolbar blok untuk menyisipkan atau menghapus
+          baris dan kolom.
+        </p>
+      {:else if blockInfo?.kind === 'mathBlock' || blockInfo?.kind === 'mathInline'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">Rumus (LaTeX)</span>
+          <textarea
+            class="form-control form-control-sm font-monospace"
+            rows="3"
+            placeholder={'\\frac{a}{b}'}
+            aria-label="Rumus LaTeX"
+            value={blockInfo.attrs.latex ?? ''}
+            oninput={(event) =>
+              patchBlock({ latex: event.currentTarget.value })}></textarea>
+        </div>
+        <p class="rte-ins-desc">
+          {'Contoh: E = mc^2 atau \\sqrt{x^2 + y^2}'}
+        </p>
+      {:else if currentBlock.kind === 'references'}
+        <p class="rte-ins-desc">
+          Tekan Enter untuk menambah rujukan. Gunakan tebal, miring, dan tautan
+          untuk topik, judul, dan DOI.
+        </p>
       {:else if currentBlock.kind === 'paragraph' || currentBlock.kind === 'heading'}
         <div class="rte-ins-group">
           <span class="rte-ins-label">Perataan teks</span>
@@ -1499,6 +1949,8 @@
   class:is-invalid={invalid}
   class:rte-minimal={minimal}
   class:rte-shell={shell}
+  class:is-device-tablet={shell && device === 'tablet'}
+  class:is-device-mobile={shell && device === 'mobile'}
 >
   <input type="hidden" {name} value={html} />
 
@@ -1560,7 +2012,8 @@
             rel="noopener noreferrer"
             class="rte-view-link"
             title="Buka pratinjau di tab baru"
-            aria-label="Buka pratinjau di tab baru"><ExternalLink size={15} /></a
+            aria-label="Buka pratinjau di tab baru"
+            ><ExternalLink size={15} /></a
           >
         {/if}
       </div>
@@ -1589,6 +2042,17 @@
       {/if}
 
       {#if shell}
+        <button
+          type="button"
+          class="rte-btn rte-btn-lg"
+          class:on={device !== 'desktop' || (ctx.open && ctx.kind === 'device')}
+          title="Pratinjau"
+          aria-label="Pratinjau"
+          aria-haspopup="menu"
+          data-rte-trigger
+          onclick={(event) => openToolbarMenu('device', event)}
+          ><DeviceIcon size={18} /></button
+        >
         {@render actions?.({ mode, setMode })}
         <button
           type="button"
@@ -1667,6 +2131,8 @@
             <div
               class="rte-menu"
               class:is-fixed={menu.source === 'top'}
+              in:overlayIn={{ side: 'bottom', origin: 'top left' }}
+              out:overlayOut={{ origin: 'top left' }}
               role="listbox"
               tabindex="-1"
               aria-label="Sisipkan blok"
@@ -1880,6 +2346,20 @@
           >
         {/if}
       </div>
+      {#if blockInfo?.kind === 'table'}
+        <div class="rte-tb-group">
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            class:on={ctx.open && ctx.kind === 'table'}
+            title="Ubah tabel"
+            aria-label="Ubah tabel"
+            data-rte-trigger
+            onclick={(event) => openToolbarMenu('table', event)}
+            ><TableProperties size={18} /></button
+          >
+        </div>
+      {/if}
       <div class="rte-tb-group">
         <button
           type="button"
@@ -1898,6 +2378,8 @@
     <div
       class="rte-context"
       use:portal
+      in:overlayIn={{ side: 'bottom', origin: 'top left' }}
+      out:overlayOut={{ origin: 'top left' }}
       role="menu"
       tabindex="-1"
       aria-label="Menu konteks editor"
@@ -2206,6 +2688,66 @@
     padding: 0.5rem;
   }
 
+  .rte-ins-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .rte-ins-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .rte-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .rte-switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .rte-switch-track {
+    position: relative;
+    flex: none;
+    width: 2rem;
+    height: 1.125rem;
+    border: 1px solid var(--neo-body-color);
+    border-radius: 99rem;
+    background: transparent;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+  .rte-switch-track::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0.1875rem;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background: var(--neo-body-color);
+    transform: translateY(-50%);
+    transition:
+      transform 0.15s,
+      background-color 0.15s;
+  }
+  .rte-switch input:checked + .rte-switch-track {
+    border-color: var(--neo-primary);
+    background: var(--neo-primary);
+  }
+  .rte-switch input:checked + .rte-switch-track::after {
+    background: #fff;
+    transform: translate(0.875rem, -50%);
+  }
+  .rte-switch input:focus-visible + .rte-switch-track {
+    outline: 2px solid var(--neo-primary);
+    outline-offset: 2px;
+  }
+
   /* Context / dropdown menu */
   .rte-context {
     --rte-line: rgba(var(--neo-body-color-rgb), 0.14);
@@ -2343,7 +2885,29 @@
     bottom: 0;
     z-index: 4;
   }
+  .rte-shell .rte-scroll {
+    transition: background-color 0.2s ease;
+  }
+  .rte-shell.is-device-tablet .rte-scroll,
+  .rte-shell.is-device-mobile .rte-scroll {
+    background: var(--neo-tertiary-bg);
+  }
+  .rte-shell.is-device-tablet .rte-doc,
+  .rte-shell.is-device-mobile .rte-doc {
+    margin-block: 2rem;
+    padding: 3rem 1.5rem 6rem;
+    background: var(--neo-body-bg);
+    box-shadow: 0 0 0 1px var(--rte-line);
+  }
+  .rte-shell.is-device-tablet .rte-doc {
+    width: min(100%, 48.75rem);
+  }
+  .rte-shell.is-device-mobile .rte-doc {
+    width: min(100%, 22.5rem);
+    padding-inline: 1rem;
+  }
   .rte-shell .rte-doc {
+    transition: width 0.2s ease;
     width: min(100%, 44rem);
     margin: 0 auto;
     padding: 4rem 1rem 8rem;

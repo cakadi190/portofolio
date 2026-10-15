@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { overlayIn, overlayOut } from '@/lib/overlay-motion';
   import Code from '@lucide/svelte/icons/code';
   import PenLine from '@lucide/svelte/icons/pen-line';
   import Trash2 from '@lucide/svelte/icons/trash-2';
@@ -108,7 +109,9 @@
     type="submit"
     class="btn btn-sm btn-primary"
     disabled={processing}
-    title={draftable && !isPublished ? 'Terbitkan (Ctrl+Shift+S)' : 'Simpan (Ctrl+S)'}
+    title={draftable && !isPublished
+      ? 'Terbitkan (Ctrl+Shift+S)'
+      : 'Simpan (Ctrl+S)'}
     onclick={() => onStatus?.(true)}
   >
     {primaryLabel}
@@ -127,6 +130,8 @@
     <ul
       class="dropdown-menu dropdown-menu-end show"
       role="menu"
+      in:overlayIn={{ side: 'bottom', origin: 'top right' }}
+      out:overlayOut={{ origin: 'top right' }}
       data-save-menu
       style="top: 100%; right: 0; z-index: 1060; min-width: 15rem"
     >

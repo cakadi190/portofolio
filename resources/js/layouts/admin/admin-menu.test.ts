@@ -12,7 +12,7 @@ describe('adminMenu', () => {
     const menu = adminMenu('/admin');
 
     expect(menu[0]).toEqual({ type: 'header', label: 'Menu Utama' });
-    expect(menu.filter((entry) => entry.type === 'header')).toHaveLength(4);
+    expect(menu.filter((entry) => entry.type === 'header')).toHaveLength(8);
   });
 
   it('marks only the dashboard active on /admin', () => {

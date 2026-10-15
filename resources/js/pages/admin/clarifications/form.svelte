@@ -6,6 +6,8 @@
   import { flushSync } from 'svelte';
   import AppHead from '@/components/app-head.svelte';
   import EditorPanel from '@/components/admin/editor-panel.svelte';
+  import EditorStatusField from '@/components/admin/editor-status-field.svelte';
+  import EditorSummaryRow from '@/components/admin/editor-summary-row.svelte';
   import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
   import EditorTitle from '@/components/admin/editor-title.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
@@ -63,6 +65,9 @@
   let isPublished = $state(clarification?.is_published ?? false);
   // svelte-ignore state_referenced_locally
   let title = $state(clarification?.title ?? '');
+  // svelte-ignore state_referenced_locally
+  let slug = $state(clarification?.slug ?? '');
+  let publishedDisplay = $state('');
   let isWithdrawn = $state(!!clarification?.withdrawn_at);
   // svelte-ignore state_referenced_locally
   let sources = $state((clarification?.sources ?? []).map(withKey));
@@ -312,64 +317,74 @@
     {/snippet}
 
     {#snippet clarificationSettings()}
-      <EditorPanel title="Terbitkan">
-        <div>
-          Status:
-          <span
-            class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
+      <EditorPanel title="Ringkasan">
+        <div class="gb-sum">
+          <EditorSummaryRow
+            label="Status"
+            title="Status &amp; visibilitas"
+            value={isPublished ? 'Telah terbit' : 'Draf'}
           >
-            {isPublished ? 'Terbit' : 'Draf'}
-          </span>
-        </div>
-        <div>
-          <label class="gb-label" for="clarification-published_at"
-            >Tanggal Terbit</label
-          >
-          <DatePicker
-            id="clarification-published_at"
-            name="published_at"
-            value={clarification?.published_at ?? null}
+            <EditorStatusField {isPublished} onStatus={setStatus} />
+          </EditorSummaryRow>
+          <EditorSummaryRow
+            label="Terbitkan"
+            title="Tanggal terbit"
+            width="23rem"
+            value={publishedDisplay}
+            placeholder="Segera"
             invalid={!!errors.published_at}
-            withTime
-          />
-          <Field.Feedback message={errors.published_at} />
-        </div>
-      </EditorPanel>
-
-      <EditorPanel title="Tautan">
-        <div>
-          <label class="gb-label" for="clarification-slug">Permalink</label>
-          <input
-            id="clarification-slug"
-            name="slug"
-            type="text"
-            class="form-control form-control-sm"
-            class:is-invalid={!!errors.slug}
-            placeholder="Otomatis dari judul"
-            value={clarification?.slug ?? ''}
-          />
-          <Field.Feedback message={errors.slug} />
-        </div>
-        {#if clarification}
-          <a
-            href={preview(clarification.id).url}
-            target="_blank"
-            rel="noopener"
-            title="Pratinjau (termasuk draf)"
           >
-            Pratinjau
-          </a>
-        {/if}
-        {#if clarification?.is_published}
-          <a
-            href={show(clarification.slug).url}
-            target="_blank"
-            rel="noopener"
-            class="d-inline-flex align-items-center gap-1"
+            <DatePicker
+              id="clarification-published_at"
+              name="published_at"
+              value={clarification?.published_at ?? null}
+              invalid={!!errors.published_at}
+              withTime
+              inline
+              bind:display={publishedDisplay}
+            />
+            <Field.Feedback message={errors.published_at} />
+          </EditorSummaryRow>
+          <EditorSummaryRow
+            label="Slug"
+            title="Permalink"
+            value={slug}
+            placeholder="Otomatis"
+            invalid={!!errors.slug}
           >
-            Lihat klarifikasi <ExternalLink size={14} />
-          </a>
-        {/if}
+            <input
+              id="clarification-slug"
+              name="slug"
+              type="text"
+              class="form-control form-control-sm"
+              class:is-invalid={!!errors.slug}
+              placeholder="Otomatis dari judul"
+              aria-label="Permalink"
+              bind:value={slug}
+            />
+            <Field.Feedback message={errors.slug} />
+            {#if clarification}
+              <a
+                href={preview(clarification.id).url}
+                target="_blank"
+                rel="noopener"
+                title="Pratinjau (termasuk draf)"
+              >
+                Pratinjau
+              </a>
+            {/if}
+            {#if clarification?.is_published}
+              <a
+                href={show(clarification.slug).url}
+                target="_blank"
+                rel="noopener"
+                class="d-inline-flex align-items-center gap-1"
+              >
+                Lihat klarifikasi <ExternalLink size={14} />
+              </a>
+            {/if}
+          </EditorSummaryRow>
+        </div>
       </EditorPanel>
 
       <EditorPanel title="Vonis">
@@ -384,7 +399,7 @@
         <Field.Feedback message={errors.verdict} />
       </EditorPanel>
 
-      <EditorPanel title="Ringkasan">
+      <EditorPanel title="Kutipan">
         <textarea
           name="summary"
           aria-label="Ringkasan klarifikasi"
@@ -439,7 +454,9 @@
       name="content"
       value={clarification?.content ?? ''}
       invalid={!!errors.content}
-      viewHref={clarification?.is_published && clarification.slug ? show(clarification.slug).url : null}
+      viewHref={clarification?.is_published && clarification.slug
+        ? show(clarification.slug).url
+        : null}
       documentTitle={title}
       rootLabel="Klarifikasi"
       header={clarificationHeader}

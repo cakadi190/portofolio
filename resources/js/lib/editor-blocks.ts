@@ -1,5 +1,11 @@
 import { Extension, Node } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
+import {
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from '@tiptap/extension-table';
 import type { Node as ProseNode } from '@tiptap/pm/model';
 import type { EditorView, NodeView } from '@tiptap/pm/view';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
@@ -10,6 +16,7 @@ import {
   CODE_TITLE_MAX_LENGTH,
 } from '@/lib/code-card';
 import { highlightSource } from '@/lib/highlight';
+import { renderMathInto } from '@/lib/math';
 
 export const ALIGNMENTS = ['left', 'center', 'right'] as const;
 export type BlockAlign = (typeof ALIGNMENTS)[number];
@@ -111,7 +118,24 @@ export const FigureImage = Image.extend({
   },
 });
 
-/** Highlighted note box (`info`, `success`, `warning`, `danger`, `dark`) wrapping regular blocks. */
+export const BLOCK_TEXT_MAX_LENGTH = 60;
+
+/** Trims a short heading-like attribute so it fits the sanitizer's limit. */
+export function cleanBlockText(value: unknown): string {
+  return typeof value === 'string'
+    ? value
+        .replace(/[\x00-\x1f<>"]/g, '')
+        .trim()
+        .slice(0, BLOCK_TEXT_MAX_LENGTH)
+    : '';
+}
+
+/**
+ * Highlighted note box (`info`, `success`, `warning`, `danger`, `dark`)
+ * wrapping regular blocks. An optional title and category label render a
+ * header row above the content; without them the markup stays the plain box
+ * older content already uses.
+ */
 export const Callout = Node.create({
   name: 'callout',
   group: 'block',
@@ -126,23 +150,404 @@ export const Callout = Node.create({
         parseHTML: (element) =>
           pick(CALLOUT_TYPES, element.getAttribute('data-type'), 'info'),
       },
+      title: {
+        default: '',
+        rendered: false,
+        parseHTML: (element) =>
+          cleanBlockText(
+            element.querySelector('.wp-callout-title')?.textContent,
+          ),
+      },
+      label: {
+        default: '',
+        rendered: false,
+        parseHTML: (element) =>
+          cleanBlockText(
+            element.querySelector('.wp-callout-label')?.textContent,
+          ),
+      },
     };
   },
 
   parseHTML() {
-    return [{ tag: 'div.wp-block-callout' }];
+    return [
+      {
+        tag: 'div.wp-block-callout',
+        contentElement: (element) =>
+          (element as HTMLElement).querySelector<HTMLElement>(
+            '.wp-callout-body',
+          ) ?? (element as HTMLElement),
+      },
+    ];
   },
 
   renderHTML({ node }) {
     const type = pick(CALLOUT_TYPES, node.attrs.type, 'info');
+    const title = cleanBlockText(node.attrs.title);
+    const label = cleanBlockText(node.attrs.label);
+    const attrs = { class: `wp-block-callout is-${type}`, 'data-type': type };
+
+    if (!title && !label) {
+      return ['div', attrs, 0];
+    }
 
     return [
       'div',
-      { class: `wp-block-callout is-${type}`, 'data-type': type },
-      0,
+      attrs,
+      [
+        'div',
+        { class: 'wp-callout-head', contenteditable: 'false' },
+        ...(label ? [['span', { class: 'wp-callout-label' }, label]] : []),
+        ...(title ? [['strong', { class: 'wp-callout-title' }, title]] : []),
+      ],
+      ['div', { class: 'wp-callout-body' }, 0],
     ];
   },
 });
+
+/** Term card: a word with its pronunciation and a definition made of regular blocks. */
+export const Definition = Node.create({
+  name: 'definition',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+
+  addAttributes() {
+    return {
+      term: {
+        default: 'Istilah',
+        rendered: false,
+        parseHTML: (element) =>
+          cleanBlockText(
+            element.querySelector('.wp-definition-term')?.textContent,
+          ) || 'Istilah',
+      },
+      phonetic: {
+        default: '',
+        rendered: false,
+        parseHTML: (element) =>
+          cleanBlockText(
+            element.querySelector('.wp-definition-phonetic')?.textContent,
+          ),
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div.wp-block-definition',
+        contentElement: (element) =>
+          (element as HTMLElement).querySelector<HTMLElement>(
+            '.wp-definition-body',
+          ) ?? (element as HTMLElement),
+      },
+    ];
+  },
+
+  renderHTML({ node }) {
+    const phonetic = cleanBlockText(node.attrs.phonetic);
+
+    return [
+      'div',
+      { class: 'wp-block-definition' },
+      [
+        'div',
+        { class: 'wp-definition-head', contenteditable: 'false' },
+        [
+          'strong',
+          { class: 'wp-definition-term' },
+          cleanBlockText(node.attrs.term) || 'Istilah',
+        ],
+        ...(phonetic
+          ? [['span', { class: 'wp-definition-phonetic' }, phonetic]]
+          : []),
+      ],
+      ['div', { class: 'wp-definition-body' }, 0],
+    ];
+  },
+});
+
+/** Cell of a spec sheet row: formatted inline text. */
+function specCell(name: 'specLabel' | 'specValue', className: string) {
+  return Node.create({
+    name,
+    content: 'inline*',
+    defining: true,
+    parseHTML: () => [{ tag: `div.${className}`, priority: 100 }],
+    renderHTML: () => ['div', { class: className }, 0],
+  });
+}
+
+export const SpecLabel = specCell('specLabel', 'wp-spec-label');
+export const SpecValue = specCell('specValue', 'wp-spec-value');
+
+export const SpecRow = Node.create({
+  name: 'specRow',
+  content: 'specLabel specValue',
+  defining: true,
+  parseHTML: () => [{ tag: 'div.wp-spec-row', priority: 100 }],
+  renderHTML: () => ['div', { class: 'wp-spec-row' }, 0],
+});
+
+/** Label/value sheet (specifications, key facts) with an optional title. */
+export const SpecSheet = Node.create({
+  name: 'specSheet',
+  group: 'block',
+  content: 'specRow+',
+  defining: true,
+  isolating: true,
+
+  addAttributes() {
+    return {
+      title: {
+        default: '',
+        rendered: false,
+        parseHTML: (element) =>
+          cleanBlockText(element.querySelector('.wp-spec-title')?.textContent),
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div.wp-block-spec',
+        contentElement: (element) =>
+          (element as HTMLElement).querySelector<HTMLElement>(
+            '.wp-spec-rows',
+          ) ?? (element as HTMLElement),
+      },
+    ];
+  },
+
+  renderHTML({ node }) {
+    const title = cleanBlockText(node.attrs.title);
+
+    return [
+      'div',
+      { class: 'wp-block-spec' },
+      ...(title
+        ? [['div', { class: 'wp-spec-title', contenteditable: 'false' }, title]]
+        : []),
+      ['div', { class: 'wp-spec-rows' }, 0],
+    ];
+  },
+
+  addKeyboardShortcuts() {
+    const { editor } = this;
+
+    return {
+      Enter: () => {
+        const { $from } = editor.state.selection;
+        const name = $from.parent.type.name;
+
+        if (name === 'specLabel') {
+          return editor.commands.setTextSelection($from.after() + 2);
+        }
+
+        if (name !== 'specValue') return false;
+
+        const rowEnd = $from.after($from.depth - 1);
+
+        return editor
+          .chain()
+          .insertContentAt(rowEnd, {
+            type: 'specRow',
+            content: [{ type: 'specLabel' }, { type: 'specValue' }],
+          })
+          .setTextSelection(rowEnd + 2)
+          .run();
+      },
+    };
+  },
+});
+
+export const Reference = Node.create({
+  name: 'reference',
+  content: 'inline*',
+  defining: true,
+  parseHTML: () => [{ tag: 'p.wp-reference', priority: 100 }],
+  renderHTML: () => ['p', { class: 'wp-reference' }, 0],
+});
+
+/** Numbered source list; each entry is a formatted line (bold topic, italic title, links). */
+export const References = Node.create({
+  name: 'references',
+  group: 'block',
+  content: 'reference+',
+  defining: true,
+  isolating: true,
+  parseHTML: () => [{ tag: 'div.wp-block-references', priority: 100 }],
+  renderHTML: () => ['div', { class: 'wp-block-references' }, 0],
+});
+
+function mathNode(options: {
+  name: 'mathInline' | 'mathBlock';
+  tag: string;
+  className: string;
+  inline: boolean;
+}) {
+  return Node.create({
+    name: options.name,
+    group: options.inline ? 'inline' : 'block',
+    inline: options.inline,
+    atom: true,
+    selectable: true,
+    draggable: !options.inline,
+
+    addAttributes() {
+      return { latex: { default: 'E = mc^2', rendered: false } };
+    },
+
+    parseHTML() {
+      return [
+        {
+          tag: `${options.tag}.${options.className}`,
+          priority: 100,
+          getAttrs: (element) => ({
+            latex:
+              (element as HTMLElement).getAttribute('data-latex') ??
+              element.textContent ??
+              '',
+          }),
+        },
+      ];
+    },
+
+    renderHTML({ node }) {
+      return [
+        options.tag,
+        { class: options.className },
+        String(node.attrs.latex ?? ''),
+      ];
+    },
+
+    addNodeView() {
+      return ({ node }) => {
+        const dom = document.createElement(options.tag);
+
+        dom.className = options.className;
+        dom.contentEditable = 'false';
+        renderMathInto(dom, String(node.attrs.latex ?? ''), !options.inline);
+
+        return {
+          dom,
+          update: (updated) => {
+            if (updated.type !== node.type) return false;
+
+            node = updated;
+            renderMathInto(
+              dom,
+              String(node.attrs.latex ?? ''),
+              !options.inline,
+            );
+
+            return true;
+          },
+        };
+      };
+    },
+  });
+}
+
+/** LaTeX rendered by KaTeX in the middle of a sentence. */
+export const MathInline = mathNode({
+  name: 'mathInline',
+  tag: 'span',
+  className: 'wp-math',
+  inline: true,
+});
+
+/** Centered display equation. */
+export const MathBlock = mathNode({
+  name: 'mathBlock',
+  tag: 'div',
+  className: 'wp-math-block',
+  inline: false,
+});
+
+/**
+ * Placeholder shown after choosing "Tabel": asks for the number of columns and
+ * rows, then swaps itself for the table. It is never meant to be saved; it
+ * serialises to an empty marker `div` that is dropped again on load.
+ */
+export const TableSetup = Node.create({
+  name: 'tableSetup',
+  group: 'block',
+  atom: true,
+  selectable: true,
+  draggable: false,
+
+  renderHTML() {
+    return ['div', { class: 'wp-table-setup' }];
+  },
+
+  addNodeView() {
+    return ({ editor, getPos }) => {
+      const dom = document.createElement('div');
+
+      dom.className = 'wp-table-setup';
+      dom.contentEditable = 'false';
+      dom.innerHTML = `
+        <div class="wp-table-setup__title"><strong>Tabel</strong></div>
+        <p class="wp-table-setup__hint">Sisipkan tabel untuk membagikan data.</p>
+        <div class="wp-table-setup__fields">
+          <label>Jumlah kolom<input type="number" name="cols" min="1" max="12" value="2" /></label>
+          <label>Jumlah baris<input type="number" name="rows" min="1" max="50" value="2" /></label>
+          <button type="button">Buat tabel</button>
+        </div>`;
+
+      const read = (name: string, max: number): number => {
+        const input = dom.querySelector<HTMLInputElement>(`[name="${name}"]`);
+
+        return Math.min(
+          max,
+          Math.max(1, Math.round(Number(input?.value) || 1)),
+        );
+      };
+
+      const create = (): void => {
+        const pos = getPos();
+
+        if (typeof pos !== 'number') return;
+
+        editor
+          .chain()
+          .focus()
+          .deleteRange({ from: pos, to: pos + 1 })
+          .insertTable({
+            cols: read('cols', 12),
+            rows: read('rows', 50),
+            withHeaderRow: true,
+          })
+          .run();
+      };
+
+      dom.querySelector('button')?.addEventListener('click', create);
+      dom.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          create();
+        }
+      });
+
+      return {
+        dom,
+        stopEvent: () => true,
+        ignoreMutation: () => true,
+      };
+    };
+  },
+});
+
+/** Tables with a header row; not resizable, so no column widths are stored. */
+export const TableBlocks = [
+  Table.configure({ resizable: false }),
+  TableRow,
+  TableHeader,
+  TableCell,
+];
 
 /** Call-to-action link rendered as a button. Edited from the block bar. */
 export const ButtonBlock = Node.create({

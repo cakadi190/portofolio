@@ -74,7 +74,7 @@ export function adminMenu(
     { type: 'header', label: 'Menu Utama' },
     dashboard,
 
-    { type: 'header', label: 'Portofolio & Blog' },
+    { type: 'header', label: 'Profil & Karier' },
     {
       label: 'Profil',
       icon: GraduationCap,
@@ -97,12 +97,7 @@ export function adminMenu(
       href: '/admin/speaking-engagements',
       active: isActive('/admin/speaking-engagements'),
     },
-    {
-      label: 'Klarifikasi',
-      icon: BadgeCheck,
-      href: '/admin/clarifications',
-      active: isActive('/admin/clarifications'),
-    },
+    { type: 'header', label: 'Portofolio' },
     {
       label: 'Portofolio',
       icon: FolderKanban,
@@ -114,8 +109,16 @@ export function adminMenu(
         link('Teknologi', '/admin/technologies'),
       ],
     },
+    { type: 'header', label: 'Blog & Tulisan' },
     blog,
     notes,
+    {
+      label: 'Klarifikasi',
+      icon: BadgeCheck,
+      href: '/admin/clarifications',
+      active: isActive('/admin/clarifications'),
+    },
+    { type: 'header', label: 'Serba-Serbi' },
     {
       label: 'Komunitas Dev ID',
       icon: Users,
@@ -135,6 +138,7 @@ export function adminMenu(
       active: isActive('/admin/coffee-places'),
     },
 
+    { type: 'header', label: 'Pesan & Media' },
     {
       label: 'Pesan Masuk',
       icon: Contact,

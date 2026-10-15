@@ -1,5 +1,5 @@
 <script lang="ts">
-  type Stat = { value: number; suffix: string; label: string };
+  type Stat = { value: number | string; suffix: string; label: string };
 
   let { stats = [] }: { stats?: Stat[] } = $props();
 </script>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { overlayIn, overlayOut } from '@/lib/overlay-motion';
   /**
    * Bootstrap-themed time picker. Renders a hidden `<input {name}>` so
    * Inertia's `<Form>` collects the value from native `FormData`.
@@ -29,7 +30,10 @@
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = $derived(
-    Array.from({ length: Math.ceil(60 / minuteStep) }, (_, i) => i * minuteStep),
+    Array.from(
+      { length: Math.ceil(60 / minuteStep) },
+      (_, i) => i * minuteStep,
+    ),
   );
 
   $effect(() => {
@@ -94,7 +98,11 @@
   </div>
 
   {#if isOpen}
-    <div class="neo-timepicker-panel">
+    <div
+      class="neo-timepicker-panel"
+      in:overlayIn={{ side: 'bottom', origin: 'top left' }}
+      out:overlayOut={{ origin: 'top left' }}
+    >
       <div class="neo-timepicker-col">
         {#each hours as h (h)}
           <button

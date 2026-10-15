@@ -77,3 +77,23 @@ test('code block title is kept but unsafe titles are dropped', function () {
         ->and(HtmlSanitizer::clean('<pre data-code-title="a&quot;onclick=&quot;x"><code>x</code></pre>'))
         ->not->toContain('data-code-title');
 });
+
+test('article blocks keep their markup and equations stay escaped text', function (string $html) {
+    expect(HtmlSanitizer::clean($html))->toBe($html);
+})->with([
+    'callout with header' => '<div class="wp-block-callout is-info" data-type="info"><div class="wp-callout-head"><span class="wp-callout-label">Ekonomi</span><strong class="wp-callout-title">Biaya</strong></div><div class="wp-callout-body"><p>isi</p></div></div>',
+    'definition card' => '<div class="wp-block-definition"><div class="wp-definition-head"><strong class="wp-definition-term">realm</strong><span class="wp-definition-phonetic">/rɛlm/</span></div><div class="wp-definition-body"><p>wilayah</p></div></div>',
+    'spec sheet' => '<div class="wp-block-spec"><div class="wp-spec-title">Uniform</div><div class="wp-spec-rows"><div class="wp-spec-row"><div class="wp-spec-label">Bobot</div><div class="wp-spec-value">280 GSM</div></div></div></div>',
+    'references' => '<div class="wp-block-references"><p class="wp-reference"><strong>A</strong> <a href="https://doi.org/10.1/x">DOI</a></p></div>',
+    'equations' => '<p>Teks <span class="wp-math">a &lt; b</span></p><div class="wp-math-block">E = mc^2</div>',
+]);
+
+test('editor-only attributes on article blocks are stripped', function () {
+    expect(HtmlSanitizer::clean('<div class="wp-callout-head" contenteditable="false" onclick="x()"><strong>T</strong></div>'))
+        ->toBe('<div class="wp-callout-head"><strong>T</strong></div>');
+});
+
+test('markup inside an equation is not executable', function () {
+    expect(HtmlSanitizer::clean('<span class="wp-math">&lt;img src=x onerror=alert(1)&gt;</span>'))
+        ->not->toContain('<img');
+});

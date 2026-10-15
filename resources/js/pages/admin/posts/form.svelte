@@ -4,6 +4,8 @@
   import { flushSync } from 'svelte';
   import AppHead from '@/components/app-head.svelte';
   import EditorPanel from '@/components/admin/editor-panel.svelte';
+  import EditorStatusField from '@/components/admin/editor-status-field.svelte';
+  import EditorSummaryRow from '@/components/admin/editor-summary-row.svelte';
   import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
   import EditorTitle from '@/components/admin/editor-title.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
@@ -12,11 +14,7 @@
   import Select from '@/components/ui/select.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import TaxonomySelect from '@/components/ui/taxonomy-select.svelte';
-  import {
-    destroy,
-    store,
-    update,
-  } from '@/wayfinder/routes/admin/posts';
+  import { destroy, store, update } from '@/wayfinder/routes/admin/posts';
   import { quick as quickCategory } from '@/wayfinder/routes/admin/post-categories';
   import { quick as quickTag } from '@/wayfinder/routes/admin/tags';
   import { show } from '@/wayfinder/routes/blog';
@@ -55,6 +53,14 @@
   let isPublished = $state(post?.is_published ?? false);
   // svelte-ignore state_referenced_locally
   let title = $state(post?.title ?? '');
+  // svelte-ignore state_referenced_locally
+  let slug = $state(post?.slug ?? '');
+  let publishedDisplay = $state('');
+  // svelte-ignore state_referenced_locally
+  let authorId = $state<number | string | null>(post ? post.user_id : null);
+  const authorName = $derived(
+    authors.find((a) => a.id === authorId)?.name ?? '',
+  );
   let trashing = $state(false);
 
   const heading = $derived(post ? 'Ubah Artikel' : 'Tulis Artikel Baru');
@@ -121,64 +127,81 @@
     {/snippet}
 
     {#snippet postSettings()}
-      <EditorPanel title="Terbitkan">
-        <div>
-          Status:
-          <span
-            class={`badge ${isPublished ? 'text-bg-success' : 'text-bg-secondary'}`}
+      <EditorPanel title="Ringkasan">
+        <div class="gb-sum">
+          <EditorSummaryRow
+            label="Status"
+            title="Status &amp; visibilitas"
+            value={isPublished ? 'Telah terbit' : 'Draf'}
           >
-            {isPublished ? 'Terbit' : 'Draf'}
-          </span>
-        </div>
-        <div>
-          <label class="gb-label" for="post-published_at">Tanggal Terbit</label>
-          <DatePicker
-            id="post-published_at"
-            name="published_at"
-            value={post?.published_at ?? null}
+            <EditorStatusField {isPublished} onStatus={setStatus} />
+          </EditorSummaryRow>
+          <EditorSummaryRow
+            label="Terbitkan"
+            title="Tanggal terbit"
+            width="23rem"
+            value={publishedDisplay}
+            placeholder="Segera"
             invalid={!!errors.published_at}
-            withTime
-          />
-          <Field.Feedback message={errors.published_at} />
-        </div>
-      </EditorPanel>
-
-      <EditorPanel title="Tautan">
-        <div>
-          <label class="gb-label" for="post-slug">Permalink</label>
-          <input
-            id="post-slug"
-            name="slug"
-            type="text"
-            class="form-control form-control-sm"
-            class:is-invalid={!!errors.slug}
-            placeholder="Otomatis dari judul"
-            value={post?.slug ?? ''}
-          />
-          <Field.Feedback message={errors.slug} />
-        </div>
-        {#if post?.is_published}
-          <a
-            href={show(post.slug).url}
-            target="_blank"
-            rel="noopener"
-            class="d-inline-flex align-items-center gap-1"
           >
-            Lihat artikel <ExternalLink size={14} />
-          </a>
-        {/if}
-      </EditorPanel>
-
-      <EditorPanel title="Penulis">
-        <Select
-          id="post-user_id"
-          name="user_id"
-          items={authors.map((a) => ({ value: a.id, label: a.name }))}
-          value={post ? post.user_id : null}
-          invalid={!!errors.user_id}
-          placeholder="Saya sendiri"
-        />
-        <Field.Feedback message={errors.user_id} />
+            <DatePicker
+              id="post-published_at"
+              name="published_at"
+              value={post?.published_at ?? null}
+              invalid={!!errors.published_at}
+              withTime
+              inline
+              bind:display={publishedDisplay}
+            />
+            <Field.Feedback message={errors.published_at} />
+          </EditorSummaryRow>
+          <EditorSummaryRow
+            label="Slug"
+            title="Permalink"
+            value={slug}
+            placeholder="Otomatis"
+            invalid={!!errors.slug}
+          >
+            <input
+              id="post-slug"
+              name="slug"
+              type="text"
+              class="form-control form-control-sm"
+              class:is-invalid={!!errors.slug}
+              placeholder="Otomatis dari judul"
+              aria-label="Permalink"
+              bind:value={slug}
+            />
+            <Field.Feedback message={errors.slug} />
+            {#if post?.is_published}
+              <a
+                href={show(post.slug).url}
+                target="_blank"
+                rel="noopener"
+                class="d-inline-flex align-items-center gap-1"
+              >
+                Lihat artikel <ExternalLink size={14} />
+              </a>
+            {/if}
+          </EditorSummaryRow>
+          <EditorSummaryRow
+            label="Penulis"
+            title="Penulis"
+            value={authorName}
+            placeholder="Saya sendiri"
+            invalid={!!errors.user_id}
+          >
+            <Select
+              id="post-user_id"
+              name="user_id"
+              items={authors.map((a) => ({ value: a.id, label: a.name }))}
+              bind:value={authorId}
+              invalid={!!errors.user_id}
+              placeholder="Saya sendiri"
+            />
+            <Field.Feedback message={errors.user_id} />
+          </EditorSummaryRow>
+        </div>
       </EditorPanel>
 
       <EditorPanel title="Gambar Sampul">
@@ -190,7 +213,7 @@
         <Field.Feedback message={errors.cover_image} />
       </EditorPanel>
 
-      <EditorPanel title="Ringkasan">
+      <EditorPanel title="Kutipan">
         <textarea
           name="excerpt"
           aria-label="Ringkasan artikel"
@@ -227,7 +250,11 @@
       name="content"
       value={post?.content ?? ''}
       invalid={!!errors.content}
-      viewHref={post?.slug ? (post.is_published ? show(post.slug).url : previewUrl) : null}
+      viewHref={post?.slug
+        ? post.is_published
+          ? show(post.slug).url
+          : previewUrl
+        : null}
       documentTitle={title}
       rootLabel="Artikel"
       header={postHeader}

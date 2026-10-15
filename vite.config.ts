@@ -5,6 +5,7 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { obscureMath } from './vite-obscure-math';
 import { purgeUnusedCss } from './vite-purge-css';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
@@ -98,6 +99,7 @@ export default defineConfig({
                 ],
               }),
             ]),
+        ...(isVitest ? [] : [obscureMath()]),
         ...(isVitest || isSsrBuild
           ? []
           : [

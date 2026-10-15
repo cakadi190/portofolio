@@ -38,6 +38,10 @@ const SAFELIST: RegExp[] = [
   /^(modal|offcanvas|dropdown|tooltip|bs-tooltip)(-|$)/,
   /^(table|blockquote|figure|img-|lead$|small$|mark$|display-|text-(start|center|end|break|wrap|nowrap|truncate)|fw-|fst-)/,
   /^(wp-block|is-align|callout)/,
+  // Overlay motion for Bootstrap popovers and the third-party select/date pickers, whose markup lives in node_modules.
+  /^(popover|bs-popover|popper|svelte-select|calendars-container|datepicker)/,
+  // Added by Tiptap's table extension at runtime.
+  /^(selectedCell|tableWrapper)$/,
 ];
 
 function collectFiles(directory: string, files: string[] = []): string[] {
