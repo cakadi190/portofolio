@@ -55,6 +55,21 @@ test('a post can be updated', function () {
     expect($post->refresh())->title->toBe('Baru')->is_published->toBeTrue();
 });
 
+test('updating a post with an empty slug keeps the existing slug', function () {
+    $post = Post::factory()->create(['slug' => 'slug-lama']);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->put(route('admin.posts.update', $post), [
+            'title' => 'Baru',
+            'slug' => '',
+            'content' => '<p>Baru</p>',
+            'is_published' => '0',
+        ])
+        ->assertRedirect(route('admin.posts.edit', $post));
+
+    expect($post->refresh()->slug)->toBe('slug-lama');
+});
+
 test('a post can be deleted', function () {
     $post = Post::factory()->create();
 

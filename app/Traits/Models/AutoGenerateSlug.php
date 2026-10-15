@@ -15,6 +15,17 @@ trait AutoGenerateSlug
                 $model->{$model->slugColumn()} = $model->generateUniqueSlug($source);
             }
         });
+
+        static::updating(function (self $model): void {
+            $column = $model->slugColumn();
+
+            if (filled($model->{$column})) {
+                return;
+            }
+
+            $model->{$column} = $model->getOriginal($column)
+                ?: $model->generateUniqueSlug((string) $model->{$model->slugSourceColumn()});
+        });
     }
 
     protected function slugSourceColumn(): string
