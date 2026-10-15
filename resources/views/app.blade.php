@@ -106,7 +106,7 @@
 
         @if (request()->routeIs('home'))
             {{-- LCP element of the home page: responsive photo, fetched at high priority. --}}
-            <link rel="preload" as="image" href="/images/fotoku-480.webp" imagesrcset="/images/fotoku-480.webp 480w, /images/fotoku-800.webp 800w" imagesizes="(min-width: 768px) 40vw, 90vw" fetchpriority="high">
+            <link rel="preload" as="image" href="/images/fotoku-640.webp" imagesrcset="/images/fotoku-480.webp 480w, /images/fotoku-640.webp 640w, /images/fotoku-800.webp 800w" imagesizes="(min-width: 768px) 40vw, 90vw" fetchpriority="high">
         @endif
         <link rel="preconnect" href="https://api.iconify.design" crossorigin>
         <link rel="dns-prefetch" href="https://api.simplesvg.com">

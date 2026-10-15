@@ -77,13 +77,14 @@ export default defineConfig({
                 refresh: true,
                 fonts: [
                   // Only the weights used above the fold (body text, hero
-                  // title and bold emphasis) are preloaded; the rest load on
+                  // headings, title and bold emphasis) are preloaded; the rest load on
                   // demand. Without the preload the body font swaps in late
                   // and reflows the hero copy, shifting the photo (CLS).
                   bunny('Signika', {
                     weights: [400, 500, 600, 700],
                     preload: [
                       { weight: 400, style: 'normal' },
+                      { weight: 500, style: 'normal' },
                       { weight: 600, style: 'normal' },
                       { weight: 700, style: 'normal' },
                     ],
