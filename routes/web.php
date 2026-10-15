@@ -37,6 +37,8 @@ Route::name('sitemaps.')->controller(SitemapController::class)->group(function (
     Route::get('sitemap-posts.xml', 'posts')->name('posts');
     Route::get('sitemap-portfolios.xml', 'portfolios')->name('portfolios');
     Route::get('sitemap-clarifications.xml', 'clarifications')->name('clarifications');
+    Route::get('sitemap-notes.xml', 'notes')->name('notes');
+    Route::get('sitemap-services.xml', 'services')->name('services');
     Route::get('sitemap.xsl', 'style')->name('style');
 });
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');

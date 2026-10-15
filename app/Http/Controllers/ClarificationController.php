@@ -76,6 +76,10 @@ class ClarificationController extends Controller
             'published_time' => $clarification->published_at->toAtomString(),
             'modified_time' => $clarification->updated_at?->toAtomString(),
             'section' => 'Klarifikasi',
+            'breadcrumbs' => [
+                ['name' => 'Klarifikasi', 'url' => route('clarifications.index')],
+                ['name' => $clarification->title, 'url' => route('clarifications.show', $clarification)],
+            ],
             'json_ld' => [[
                 '@context' => 'https://schema.org',
                 '@type' => 'BlogPosting',

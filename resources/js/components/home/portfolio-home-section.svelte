@@ -22,7 +22,7 @@
         <h2 class="mb-1">Portofolio</h2>
         <p class="mb-0 opacity-75">Beberapa proyek yang sudah saya kerjakan akhir-akhir ini.</p>
       </div>
-      <Link href="/portofolio" class="btn btn-outline-primary d-flex align-items-center gap-2" aria-label="Lihat Selengkapnya: Portofolio">
+      <Link href="/portfolio" class="btn btn-outline-primary d-flex align-items-center gap-2" aria-label="Lihat Selengkapnya: Portofolio">
         <span>Lihat Selengkapnya</span>
         <ArrowRight size={16} />
       </Link>

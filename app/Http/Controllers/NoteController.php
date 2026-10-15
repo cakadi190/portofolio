@@ -72,6 +72,23 @@ class NoteController extends Controller
             'published_time' => $note->published_at?->toAtomString(),
             'modified_time' => $note->updated_at?->toAtomString(),
             'tags' => $note->tags->pluck('name')->all(),
+            'breadcrumbs' => [
+                ['name' => 'Catatan Singkat', 'url' => route('notes.index')],
+                ['name' => $note->title, 'url' => route('notes.show', $note)],
+            ],
+            'json_ld' => [[
+                '@context' => 'https://schema.org',
+                '@type' => 'Article',
+                'headline' => $note->title,
+                'description' => $description,
+                'datePublished' => $note->published_at?->toAtomString(),
+                'dateModified' => $note->updated_at?->toAtomString(),
+                'inLanguage' => 'id-ID',
+                'mainEntityOfPage' => route('notes.show', $note),
+                'keywords' => $note->tags->pluck('name')->implode(', '),
+                'author' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],
+                'publisher' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],
+            ]],
         ]);
 
         return Inertia::render('notes/show', [

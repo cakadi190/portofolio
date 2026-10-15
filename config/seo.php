@@ -24,6 +24,9 @@ return [
 
     'twitter' => '@cakadi190',
 
+    // Public locality of the person behind the site (no street address, for privacy).
+    'locality' => 'Ngawi, Jawa Timur',
+
     'social_profiles' => [
         'https://www.twitter.com/cakadi190',
         'https://www.instagram.com/cakadi190',
@@ -43,31 +46,35 @@ return [
 
     'pages' => [
         'home' => [
-            'title' => 'Catatan Seorang Wirausahawan Muda & Software Engineer',
+            'title' => 'Fullstack Web Developer & Software Engineer di Ngawi',
             'brand_first' => true,
             'description' => 'Seorang Fullstack Web Developer yang berbasis di Kabupaten Ngawi yang suka sekali dengan desain dan juga hal yang berbau teknologi.',
             'changefreq' => 'weekly',
             'priority' => '1.0',
         ],
         'about.me' => [
+            'schema' => 'ProfilePage',
             'title' => 'Tentang Saya',
             'description' => 'Kenali Amir Zuhdi Wibowo, fullstack web developer asal Ngawi, beserta pengalaman, perjalanan karir, dan teknologi yang dikuasainya.',
             'changefreq' => 'monthly',
             'priority' => '0.8',
         ],
         'about.skills' => [
+            'parent' => 'about.me',
             'title' => 'Keahlian',
             'description' => 'Jelajahi keahlian Cak Adi dalam pengembangan frontend, backend, basis data, desain, dan berbagai teknologi web modern.',
             'changefreq' => 'monthly',
             'priority' => '0.6',
         ],
         'about.site' => [
+            'parent' => 'about.me',
             'title' => 'Tentang Situs',
             'description' => 'Informasi tentang situs pribadi Cak Adi, tujuan pembuatannya, serta teknologi yang digunakan untuk membangunnya.',
             'changefreq' => 'yearly',
             'priority' => '0.3',
         ],
         'portfolios.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Portofolio',
             'description' => 'Berikut daftar portofolio yang sudah saya kerjakan dan selesaikan akhir-akhir ini.',
             'changefreq' => 'weekly',
@@ -80,6 +87,7 @@ return [
             'priority' => '0.9',
         ],
         'notes.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Catatan Singkat',
             'description' => 'Catatan pribadi Cak Adi yang tidak cukup panjang untuk jadi artikel: potongan kode, trik, dan hal kecil yang berguna.',
             'changefreq' => 'weekly',
@@ -98,12 +106,14 @@ return [
             'priority' => '0.4',
         ],
         'clarifications.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Klarifikasi',
             'description' => 'Klarifikasi dan hak jawab Cak Adi atas kabar, klaim, atau pemberitaan yang beredar, lengkap dengan bukti dan permintaan maaf bila ada kekeliruan.',
             'changefreq' => 'weekly',
             'priority' => '0.7',
         ],
         'services.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Layanan Saya',
             'description' => 'Berikut layanan yang bisa saya berikan dan layani untuk anda.',
             'changefreq' => 'monthly',
@@ -122,30 +132,35 @@ return [
             'priority' => '0.4',
         ],
         'awards.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Penghargaan',
             'description' => 'Berikut beberapa daftar penghargaan yang sudah saya raih dan capai.',
             'changefreq' => 'monthly',
             'priority' => '0.4',
         ],
         'speaking.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Pembicara & Mentoring',
             'description' => 'Jadwal dan arsip acara tempat Cak Adi menjadi pembicara, mentor, atau pelatih seputar pengembangan web dan teknologi.',
             'changefreq' => 'monthly',
             'priority' => '0.4',
         ],
         'resources.coffee-shops.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Tempat Ngopi',
             'description' => 'Berikut daftar tempat ngopi yang saya rekomendasikan.',
             'changefreq' => 'monthly',
             'priority' => '0.5',
         ],
         'resources.dev-communities.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Komunitas Dev ID',
             'description' => 'Daftar komunitas developer Indonesia di Discord, WhatsApp, dan Telegram.',
             'changefreq' => 'weekly',
             'priority' => '0.5',
         ],
         'resources.programmer-channels.index' => [
+            'schema' => 'CollectionPage',
             'title' => 'Channel Programmer',
             'description' => 'Daftar channel programmer yang direkomendasikan: YouTube, Telegram, dan lainnya.',
             'changefreq' => 'weekly',
@@ -158,6 +173,7 @@ return [
             'priority' => '0.3',
         ],
         'contact.index' => [
+            'schema' => 'ContactPage',
             'title' => 'Hubungi Saya',
             'description' => 'Berikut kontak yang dapat dihubungi apabila anda tertarik dengan skill saya maupun ingin bekerjasama dengan saya.',
             'changefreq' => 'yearly',

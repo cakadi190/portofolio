@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Award;
+use App\Models\Career;
 use App\Models\Clarification;
+use App\Models\Education;
 use App\Models\Note;
 use App\Models\Portfolio;
 use App\Models\Post;
+use App\Models\Service;
+use App\Models\SpeakingEngagement;
 use App\Services\ImageService;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Response;
@@ -28,6 +33,8 @@ class SitemapController extends Controller
                 ['title' => 'Artikel', 'loc' => route('sitemaps.posts'), 'lastmod' => $this->latest(Post::query()->published())],
                 ['title' => 'Portofolio', 'loc' => route('sitemaps.portfolios'), 'lastmod' => $this->latest(Portfolio::query())],
                 ['title' => 'Klarifikasi', 'loc' => route('sitemaps.clarifications'), 'lastmod' => $this->latest(Clarification::query()->published())],
+                ['title' => 'Catatan Singkat', 'loc' => route('sitemaps.notes'), 'lastmod' => $this->latest(Note::query()->published())],
+                ['title' => 'Layanan', 'loc' => route('sitemaps.services'), 'lastmod' => $this->latest(Service::query())],
             ],
         ]);
     }
@@ -42,6 +49,11 @@ class SitemapController extends Controller
             'notes.index' => $this->latest(Note::query()->published()),
             'portfolios.index' => $this->latest(Portfolio::query()),
             'clarifications.index' => $this->latest(Clarification::query()->published()),
+            'services.index' => $this->latest(Service::query()),
+            'speaking.index' => $this->latest(SpeakingEngagement::query()->published()),
+            'career.index' => $this->latest(Career::query()),
+            'education.index' => $this->latest(Education::query()),
+            'awards.index' => $this->latest(Award::query()),
         ];
 
         $urls = collect(config('seo.pages'))
@@ -122,6 +134,47 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.6',
                 'images' => $this->images([[$clarification->cover_image, $clarification->title]]),
+            ]);
+
+        return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
+    }
+
+    /**
+     * Display the sitemap of published short notes.
+     */
+    public function notes(): Response
+    {
+        $urls = Note::query()
+            ->published()
+            ->latest('published_at')
+            ->get(['id', 'title', 'slug', 'published_at', 'updated_at'])
+            ->map(fn (Note $note): array => [
+                'title' => $note->title,
+                'loc' => route('notes.show', $note),
+                'lastmod' => $note->updated_at,
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+                'images' => [],
+            ]);
+
+        return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
+    }
+
+    /**
+     * Display the sitemap of service detail pages, including their images.
+     */
+    public function services(): Response
+    {
+        $urls = Service::query()
+            ->orderBy('id')
+            ->get(['id', 'name', 'slug', 'image', 'updated_at'])
+            ->map(fn (Service $service): array => [
+                'title' => $service->name,
+                'loc' => route('services.show', $service),
+                'lastmod' => $service->updated_at,
+                'changefreq' => 'monthly',
+                'priority' => '0.7',
+                'images' => $this->images([[$service->image, $service->name]]),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);

@@ -21,7 +21,7 @@
 </script>
 
 <div class="wrapper">
-  <Link href={`/portofolio/${slug}`} class="card h-100 overflow-hidden rounded-4 card-portfolio">
+  <Link href={`/portfolio/${slug}`} class="card h-100 overflow-hidden rounded-4 card-portfolio">
     <img
       loading={eager ? 'eager' : 'lazy'}
       fetchpriority={eager ? 'high' : undefined}

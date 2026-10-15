@@ -82,7 +82,7 @@ describe('ServicePage', () => {
     });
 
     expect(hrefOf(screen.getByRole('link', { name: /Website/ }))).toBe(
-      '/layanan/website',
+      '/services/website',
     );
   });
 });
@@ -111,7 +111,7 @@ describe('ServiceShow', () => {
 
     expect(screen.getByText('Isi layanan')).toBeTruthy();
     expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe(
-      '/portofolio/proyek',
+      '/portfolio/proyek',
     );
   });
 
@@ -433,7 +433,7 @@ describe('PortfolioIndex', () => {
     });
 
     expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe(
-      '/portofolio/proyek',
+      '/portfolio/proyek',
     );
   });
 });

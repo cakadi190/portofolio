@@ -77,7 +77,7 @@ describe('HeaderHome', () => {
       'Wibowo',
     );
     expect(hrefOf(screen.getByRole('link', { name: /Hubungi Saya/ }))).toBe(
-      '/kontak',
+      '/contact',
     );
     const resume = screen.getByRole('link', { name: /Resume/ });
     expect(hrefOf(resume)).toBe('/resume');

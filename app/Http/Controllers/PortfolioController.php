@@ -55,6 +55,10 @@ class PortfolioController extends Controller
             'description' => $portfolio->short_desc ?: $portfolio->name,
             'image' => $image ?? ImageService::url($portfolio->galleries->first()?->image_url),
             'image_alt' => $portfolio->name,
+            'breadcrumbs' => [
+                ['name' => 'Portofolio', 'url' => route('portfolios.index')],
+                ['name' => $portfolio->name, 'url' => route('portfolios.show', $portfolio)],
+            ],
             'json_ld' => [[
                 '@context' => 'https://schema.org',
                 '@type' => 'CreativeWork',

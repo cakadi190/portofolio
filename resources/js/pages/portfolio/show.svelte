@@ -77,7 +77,7 @@
 
 <div id="project-detail">
   <HeaderPage
-    backTo="/portofolio"
+    backTo="/portfolio"
     title="Detail Proyek"
     subtitle="Berikut saya tampilkan detail proyek yang saya kerjakan ini."
   />

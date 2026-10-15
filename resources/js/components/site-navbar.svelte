@@ -11,16 +11,16 @@
 
   const navbarMenu: MenuItem[] = [
     { name: 'Beranda', href: '/' },
-    { name: 'Portofolio', href: '/portofolio' },
+    { name: 'Portofolio', href: '/portfolio' },
     { name: 'Pembicara & Mentoring', href: '/speaking' },
-    { name: 'Layanan', href: '/layanan' },
+    { name: 'Layanan', href: '/services' },
     {
       name: 'Tentang Saya',
       children: [
-        { name: 'Profil', href: '/tentang/saya' },
-        { name: 'Pendidikan & Organisasi', href: '/pendidikan' },
-        { name: 'Penghargaan', href: '/penghargaan' },
-        { name: 'Karir', href: '/karir' },
+        { name: 'Profil', href: '/about' },
+        { name: 'Pendidikan & Organisasi', href: '/education' },
+        { name: 'Penghargaan', href: '/awards' },
+        { name: 'Karir', href: '/career' },
       ],
     },
     {
@@ -30,7 +30,7 @@
         { name: 'Catatan Singkat', href: '/notes' },
       ],
     },
-    { name: 'Kontak Saya', href: '/kontak' },
+    { name: 'Kontak Saya', href: '/contact' },
   ];
 
   function isGroupActive(item: MenuItem): boolean {

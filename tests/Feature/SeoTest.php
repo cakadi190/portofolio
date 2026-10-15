@@ -1,16 +1,19 @@
 <?php
 
+use App\Models\Note;
 use App\Models\Portfolio;
 use App\Models\PortfolioGallery;
 use App\Models\Post;
+use App\Models\Service;
 use App\Models\SpeakingEngagement;
 use App\Models\SystemSetting;
+use App\Models\Technology;
 use App\Models\User;
 
 test('the sitemap index lists every child sitemap', function () {
     $response = $this->get(route('sitemaps.index'))->assertOk();
 
-    foreach (['pages', 'posts', 'portfolios', 'clarifications'] as $name) {
+    foreach (['pages', 'posts', 'portfolios', 'clarifications', 'notes', 'services'] as $name) {
         $response->assertSee(route("sitemaps.{$name}"), escape: false);
     }
 });
@@ -166,4 +169,104 @@ test('the homepage title puts the site name before the tagline', function () {
 test('other pages keep the page title before the site name', function () {
     $this->get(route('about.me'))
         ->assertSee('<title>'.e('Tentang Saya • '.config('app.name')).'</title>', escape: false);
+});
+
+/**
+ * The decoded JSON-LD blocks of a page, keyed by their schema.org type.
+ *
+ * @return array<string, array<string, mixed>>
+ */
+function structuredData(string $html): array
+{
+    preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $matches);
+
+    return collect($matches[1])
+        ->map(fn (string $json): array => json_decode($json, true, flags: JSON_THROW_ON_ERROR))
+        ->keyBy('@type')
+        ->all();
+}
+
+/**
+ * Fetch a page's structured data. SeoService is request-scoped, so reset the scoped
+ * instances to make a second request in the same test behave like a fresh one.
+ *
+ * @return array<string, array<string, mixed>>
+ */
+function pageStructuredData(string $url): array
+{
+    app()->forgetScopedInstances();
+
+    return structuredData(test()->get($url)->assertOk()->getContent());
+}
+
+test('the notes sitemap lists published notes only and the services sitemap lists services', function () {
+    $published = Note::factory()->create();
+    $draft = Note::factory()->draft()->create();
+    $service = Service::factory()->create();
+
+    $this->get(route('sitemaps.notes'))
+        ->assertOk()
+        ->assertSee(route('notes.show', $published), escape: false)
+        ->assertDontSee(route('notes.show', $draft), escape: false);
+
+    $this->get(route('sitemaps.services'))
+        ->assertOk()
+        ->assertSee(route('services.show', $service), escape: false);
+});
+
+test('the homepage links the website and the person with stable ids, location and skills', function () {
+    Technology::factory()->create(['name' => 'Laravel']);
+
+    $data = structuredData($this->get(route('home'))->assertOk()->getContent());
+
+    expect($data['WebSite']['@id'])->toBe(url('/').'#website')
+        ->and($data['WebSite']['publisher'])->toBe(['@id' => url('/').'#person'])
+        ->and($data['Person']['@id'])->toBe(url('/').'#person')
+        ->and($data['Person']['address']['addressCountry'])->toBe('ID')
+        ->and($data['Person']['knowsAbout'])->toContain('Laravel');
+});
+
+test('child pages get a parent breadcrumb and a typed web page', function () {
+    $data = pageStructuredData(route('about.skills'));
+
+    expect(collect($data['BreadcrumbList']['itemListElement'])->pluck('name')->all())->toBe(['Beranda', 'Tentang Saya', 'Keahlian'])
+        ->and($data['WebPage']['isPartOf']['@id'])->toBe(url('/').'#website');
+
+    $about = pageStructuredData(route('about.me'));
+    expect($about['ProfilePage']['mainEntity']['@type'])->toBe('Person');
+
+    $contact = pageStructuredData(route('contact.index'));
+    expect($contact)->toHaveKey('ContactPage');
+});
+
+test('service pages describe the service and their place in the site', function () {
+    $service = Service::factory()->create(['name' => 'Pembuatan Website']);
+
+    $index = pageStructuredData(route('services.index'));
+    expect($index['ItemList']['itemListElement'][0]['url'])->toBe(route('services.show', $service))
+        ->and($index)->toHaveKeys(['CollectionPage', 'BreadcrumbList']);
+
+    $show = pageStructuredData(route('services.show', $service));
+    expect($show['Service']['provider']['@type'])->toBe('Person')
+        ->and(collect($show['BreadcrumbList']['itemListElement'])->pluck('name')->all())->toBe(['Beranda', 'Layanan', 'Pembuatan Website']);
+});
+
+test('a published note is marked up as an article with a breadcrumb trail', function () {
+    $note = Note::factory()->create(['title' => 'Trik Git']);
+
+    $data = structuredData($this->get(route('notes.show', $note))->assertOk()->getContent());
+
+    expect($data['Article']['headline'])->toBe('Trik Git')
+        ->and($data['Article']['mainEntityOfPage'])->toBe(route('notes.show', $note))
+        ->and(collect($data['BreadcrumbList']['itemListElement'])->pluck('name')->all())->toBe(['Beranda', 'Catatan Singkat', 'Trik Git']);
+});
+
+test('the speaking page lists published engagements as events', function () {
+    $engagement = SpeakingEngagement::factory()->create(['title' => 'Belajar Keamanan Web']);
+
+    $data = structuredData($this->get(route('speaking.index'))->assertOk()->getContent());
+
+    expect($data['Event']['name'])->toBe('Belajar Keamanan Web')
+        ->and($data['Event']['startDate'])->toBe($engagement->starts_at->toAtomString())
+        ->and($data['Event']['eventAttendanceMode'])->toStartWith('https://schema.org/');
 });

@@ -217,7 +217,7 @@ describe('PortfolioHomeSection', () => {
     expect(screen.getByText('Proyek')).toBeTruthy();
     expect(
       hrefOf(screen.getByRole('link', { name: /Lihat Selengkapnya/ })),
-    ).toBe('/portofolio');
+    ).toBe('/portfolio');
   });
 });
 
@@ -225,7 +225,7 @@ describe('CardPortfolio', () => {
   it('renders details and links to the portfolio', () => {
     render(CardPortfolio, portfolio);
 
-    expect(hrefOf(screen.getByRole('link'))).toBe('/portofolio/proyek');
+    expect(hrefOf(screen.getByRole('link'))).toBe('/portfolio/proyek');
     expect(screen.getByText('Deskripsi')).toBeTruthy();
     expect(screen.getByText('Web')).toBeTruthy();
     expect(screen.getByRole('img').getAttribute('src')).toBe('/p.webp');

@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\SystemSettingGroup;
+use App\Models\Technology;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -25,6 +27,7 @@ use Illuminate\Support\Str;
  *     modified_time?: string|null,
  *     section?: string|null,
  *     robots?: string,
+ *     breadcrumbs?: list<array{name: string, url: string}>,
  *     tags?: list<string>,
  *     json_ld?: list<array<string, mixed>>,
  * }
@@ -138,7 +141,8 @@ class SeoService
     }
 
     /**
-     * Structured data: the site entity on the homepage plus anything a page supplied.
+     * Structured data: the site and person on the homepage, a typed WebPage and
+     * breadcrumb trail on inner pages, plus anything a page supplied.
      *
      * @return list<array<string, mixed>>
      */
@@ -152,34 +156,114 @@ class SeoService
             $graph[] = [
                 '@context' => 'https://schema.org',
                 '@type' => 'WebSite',
+                '@id' => url('/').'#website',
                 'name' => config('app.name'),
                 'url' => url('/'),
                 'description' => $description,
                 'inLanguage' => 'id-ID',
+                'publisher' => ['@id' => url('/').'#person'],
             ];
-            $graph[] = [
-                '@context' => 'https://schema.org',
-                '@type' => 'Person',
-                'name' => $this->author(),
-                'url' => url('/'),
-                'image' => $image,
-                'jobTitle' => 'Fullstack Web Developer',
-                'sameAs' => $this->socialProfiles(),
-            ];
+            $graph[] = $this->person($image);
         }
 
         if ($page !== null && $routeName !== 'home') {
+            $graph[] = $this->webPage($page, $canonical, $description, $image);
+        }
+
+        $crumbs = $this->breadcrumbTrail($page, $canonical);
+
+        if ($routeName !== 'home' && count($crumbs) > 1) {
             $graph[] = [
                 '@context' => 'https://schema.org',
                 '@type' => 'BreadcrumbList',
-                'itemListElement' => [
-                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => url('/')],
-                    ['@type' => 'ListItem', 'position' => 2, 'name' => $page['title'], 'item' => $canonical],
-                ],
+                'itemListElement' => collect($crumbs)->values()->map(fn (array $crumb, int $index): array => [
+                    '@type' => 'ListItem',
+                    'position' => $index + 1,
+                    'name' => $crumb['name'],
+                    'item' => $crumb['url'],
+                ])->all(),
             ];
         }
 
         return [...$graph, ...($this->overrides['json_ld'] ?? [])];
+    }
+
+    /**
+     * Home > (parent page) > current page, from a page's own breadcrumbs or config/seo.php.
+     *
+     * @param  array<string, string>|null  $page
+     * @return list<array{name: string, url: string}>
+     */
+    private function breadcrumbTrail(?array $page, string $canonical): array
+    {
+        $trail = [['name' => 'Beranda', 'url' => url('/')]];
+
+        if (isset($this->overrides['breadcrumbs'])) {
+            return [...$trail, ...$this->overrides['breadcrumbs']];
+        }
+
+        if ($page === null) {
+            return $trail;
+        }
+
+        $parent = isset($page['parent']) ? config('seo.pages', [])[$page['parent']] ?? null : null;
+
+        if ($parent !== null) {
+            $trail[] = ['name' => $parent['title'], 'url' => route($page['parent'])];
+        }
+
+        $trail[] = ['name' => $page['title'], 'url' => $canonical];
+
+        return $trail;
+    }
+
+    /**
+     * The WebPage node of an inner page, typed by config (CollectionPage, ContactPage, ProfilePage…).
+     *
+     * @param  array<string, string>  $page
+     * @return array<string, mixed>
+     */
+    private function webPage(array $page, string $canonical, string $description, string $image): array
+    {
+        $type = $page['schema'] ?? 'WebPage';
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => $type,
+            '@id' => $canonical.'#webpage',
+            'url' => $canonical,
+            'name' => $page['title'],
+            'description' => $description,
+            'inLanguage' => 'id-ID',
+            'isPartOf' => ['@type' => 'WebSite', '@id' => url('/').'#website', 'name' => config('app.name'), 'url' => url('/')],
+            ...($type === 'ProfilePage' ? ['mainEntity' => $this->person($image)] : []),
+        ];
+    }
+
+    /**
+     * The Person node: who the site is about, what they do and where they can be found.
+     *
+     * @return array<string, mixed>
+     */
+    private function person(string $image): array
+    {
+        $knowsAbout = Cache::remember('seo.person.knows_about', 3600, fn (): array => Technology::query()->orderBy('name')->limit(25)->pluck('name')->all());
+        $locality = (string) ($this->settings->get('contact_address') ?: config('seo.locality'));
+
+        return array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'Person',
+            '@id' => url('/').'#person',
+            'name' => $this->author(),
+            'alternateName' => 'Cak Adi',
+            'url' => url('/'),
+            'image' => $image,
+            'jobTitle' => 'Fullstack Web Developer',
+            'description' => $this->plainText($this->settings->get('seo_description', config('seo.description'))),
+            'address' => ['@type' => 'PostalAddress', 'addressLocality' => $locality, 'addressCountry' => 'ID'],
+            'knowsAbout' => $knowsAbout,
+            'sameAs' => $this->socialProfiles(),
+        ], fn (mixed $value): bool => $value !== [] && $value !== '');
     }
 
     /**

@@ -100,7 +100,7 @@
             </div>
             <div class="col-md-4">
               <Link
-                href="/portofolio"
+                href="/portfolio"
                 class="card card-body rounded-4 p-4 text-center align-items-center text-decoration-none"
               >
                 <Briefcase size={48} />

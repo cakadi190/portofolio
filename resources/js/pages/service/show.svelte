@@ -29,7 +29,7 @@
 
 <div id="service-detail">
   <HeaderPage
-    backTo="/layanan"
+    backTo="/services"
     title={service.name}
     subtitle="Detail layanan yang bisa saya berikan untuk anda."
   />

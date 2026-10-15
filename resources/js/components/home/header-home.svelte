@@ -53,7 +53,7 @@
           tahun 2024.
         </div>
 
-        <h2 class="h4">Halo rek! 👋 Perkenalkan, Namaku...</h2>
+        <p class="h4">Halo rek! 👋 Perkenalkan, Namaku...</p>
         <h1 class="main-title justify-content-center justify-content-lg-start">
           <div>
             <span class="text-primary text-decoration-underline">A</span>
@@ -72,7 +72,7 @@
         <div
           class="d-flex pb-2 gap-2 justify-content-center justify-content-lg-start align-items-center"
         >
-          <Link href="/kontak" class="btn btn-primary d-flex align-items-center gap-2">
+          <Link href="/contact" class="btn btn-primary d-flex align-items-center gap-2">
             <Icon icon="fa6-solid:phone" />
             <span>Hubungi Saya</span>
           </Link>

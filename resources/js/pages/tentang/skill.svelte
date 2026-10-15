@@ -6,7 +6,7 @@
 <AppHead title="Keahlian" />
 
 <div>
-  <HeaderPage backTo="/tentang/saya" title="Keahlian" subtitle="Daftar perkakas dan keahlian yang saya kuasai." />
+  <HeaderPage backTo="/about" title="Keahlian" subtitle="Daftar perkakas dan keahlian yang saya kuasai." />
 
   <section class="need-space pt-0">
     <div class="container">

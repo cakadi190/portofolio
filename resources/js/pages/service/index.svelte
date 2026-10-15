@@ -31,7 +31,7 @@
           {#each services as service, index (service.slug)}
             <div class="col-md-6 col-lg-4 mb-4">
               <div class="wrapper h-100">
-                <Link href={`/layanan/${service.slug}`} class="card h-100 overflow-hidden rounded-4 card-blog">
+                <Link href={`/services/${service.slug}`} class="card h-100 overflow-hidden rounded-4 card-blog">
                   {#if service.image}
                     <img
                       loading={index === 0 ? 'eager' : 'lazy'}
