@@ -207,11 +207,9 @@ RUN bun run build:ssr
 # ---------------------------------------------------------------------------
 FROM frontend-source AS frontend-testing
 
-# Vitest's jsdom environment breaks under Bun's runtime (the image has no
-# Node), so install Node for the test workers.
-RUN apk add --no-cache nodejs
-
-RUN php artisan wayfinder:generate && bun run test
+# `--bun` forces Bun's runtime for the `vp`/Vitest workers instead of the
+# `node` shebang, since the image carries no Node.
+RUN php artisan wayfinder:generate && bun --bun run test
 
 
 # ---------------------------------------------------------------------------
