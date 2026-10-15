@@ -245,6 +245,8 @@ describe('Turnstile', () => {
       expect(turnstile.render).toHaveBeenCalledWith(expect.any(HTMLElement), {
         sitekey: 'site-key',
         theme: 'auto',
+        'error-callback': expect.any(Function),
+        'retry-interval': 8000,
       }),
     );
   });
