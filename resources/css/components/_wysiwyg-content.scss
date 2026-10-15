@@ -280,7 +280,8 @@
       cursor: pointer;
 
       &[data-credit]::before {
-        content: attr(data-credit) ' \2022 ';
+        content: attr(data-credit) ' \2022';
+        margin-right: 0.5em;
         color: #111827;
         font-weight: 600;
         white-space: pre;
@@ -874,25 +875,5 @@
       background: #f3f4f6;
       outline: none;
     }
-  }
-}
-
-.wp-lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgb(0 0 0 / 0.88);
-  cursor: zoom-out;
-
-  img {
-    max-width: 100%;
-    max-height: 100%;
-    margin: 0;
-    border-radius: 0.5rem;
-    object-fit: contain;
   }
 }

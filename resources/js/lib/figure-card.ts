@@ -2,41 +2,29 @@ import { toast } from '@/lib/toast';
 
 type Action = { label: string; run: () => void };
 
-const LIGHTBOX_CLASS = 'wp-lightbox';
+/** Shows an image in the shared full-screen lightbox. */
+export async function openLightbox(src: string, alt: string): Promise<void> {
+  const [{ mount, unmount }, { default: FigureLightbox }] = await Promise.all([
+    import('svelte'),
+    import('@/components/ui/figure-lightbox.svelte'),
+  ]);
+  const target = document.createElement('div');
 
-/** Shows an image full screen over the page; click, backdrop or Escape closes it. */
-export function openLightbox(src: string, alt: string): void {
-  const overlay = document.createElement('div');
-  const image = document.createElement('img');
-  const previousFocus = document.activeElement as HTMLElement | null;
+  document.body.append(target);
 
-  overlay.className = LIGHTBOX_CLASS;
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
-  overlay.setAttribute('aria-label', alt || 'Gambar ukuran penuh');
-  overlay.tabIndex = -1;
-  image.src = src;
-  image.alt = alt;
-  overlay.append(image);
-
-  const close = (): void => {
-    overlay.remove();
-    document.removeEventListener('keydown', onKey, true);
-    document.body.style.overflow = '';
-    previousFocus?.focus?.();
-  };
-  const onKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') {
-      event.stopPropagation();
-      close();
-    }
-  };
-
-  overlay.addEventListener('click', close);
-  document.addEventListener('keydown', onKey, true);
-  document.body.style.overflow = 'hidden';
-  document.body.append(overlay);
-  overlay.focus();
+  const instance = mount(FigureLightbox, {
+    target,
+    props: {
+      src,
+      alt,
+      // Leave time for the closing transition before tearing down.
+      onclose: () =>
+        window.setTimeout(() => {
+          void unmount(instance);
+          target.remove();
+        }, 400),
+    },
+  });
 }
 
 async function copy(text: string, message: string): Promise<void> {
@@ -59,7 +47,10 @@ function absoluteUrl(src: string): string {
   return new URL(src, window.location.href).href;
 }
 
-function buildPopover(figure: HTMLElement, image: HTMLImageElement): HTMLElement {
+function buildPopover(
+  figure: HTMLElement,
+  image: HTMLImageElement,
+): HTMLElement {
   const caption = figure.querySelector('figcaption');
   const credit = caption?.getAttribute('data-credit') ?? '';
   const title = caption?.textContent?.trim() ?? '';
@@ -129,7 +120,7 @@ function buildPopover(figure: HTMLElement, image: HTMLImageElement): HTMLElement
           },
         ]
       : []),
-    { label: 'Lihat ukuran penuh', run: () => openLightbox(src, alt) },
+    { label: 'Lihat ukuran penuh', run: () => void openLightbox(src, alt) },
   ];
 
   const list = document.createElement('div');
@@ -214,19 +205,18 @@ export function enhanceFigures(root: ParentNode = document): void {
 
       figure.dataset.enhanced = 'true';
 
-      figure
-        .querySelector('figcaption')
-        ?.addEventListener('click', (event) => {
-          if ((event.target as HTMLElement).closest('a')) return;
+      figure.querySelector('figcaption')?.addEventListener('click', (event) => {
+        if ((event.target as HTMLElement).closest('a')) return;
 
-          openPopover(figure, image);
-        });
+        openPopover(figure, image);
+      });
       image.addEventListener('contextmenu', (event) => {
         event.preventDefault();
         openPopover(figure, image, { x: event.clientX, y: event.clientY });
       });
-      image.addEventListener('click', () =>
-        openLightbox(image.currentSrc || image.src, image.alt),
+      image.addEventListener(
+        'click',
+        () => void openLightbox(image.currentSrc || image.src, image.alt),
       );
       image.style.cursor = 'zoom-in';
     });

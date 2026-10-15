@@ -180,6 +180,27 @@
       var(--neo-primary);
     --datepicker-timepicker-input-border: var(--neo-border-width, 1px) solid
       var(--neo-border-color);
+    --datepicker-calendar-padding: 0.25rem 0.5rem 0.75rem;
+    --datepicker-calendar-width: 100%;
+    --datepicker-calendar-header-margin: 0 0 0.5rem;
+    --datepicker-calendar-header-padding: 0.25rem 0;
+    --datepicker-calendar-header-font-size: 0.95rem;
+    --datepicker-calendar-header-month-nav-border-radius: 999px;
+    --datepicker-calendar-header-month-nav-margin-left: 0;
+    --datepicker-calendar-header-month-nav-height: 30px;
+    --datepicker-calendar-header-month-nav-width: 30px;
+    --datepicker-calendar-dow-font-size: 0.75rem;
+    --datepicker-calendar-dow-margin-bottom: 0.35rem;
+    --datepicker-calendar-day-height: 34px;
+    --datepicker-calendar-day-width: 34px;
+    --datepicker-calendar-day-padding: 0;
+    --datepicker-calendar-day-font-size: 0.85rem;
+    --datepicker-calendar-day-margin-bottom: 2px;
+    --datepicker-calendar-day-color-disabled: var(--neo-secondary-color);
+    --datepicker-calendar-day-other-color: var(--neo-tertiary-color, #9ca3af);
+    --datepicker-timepicker-container-margin-bottom: 0.5rem;
+    --datepicker-timepicker-input-border-radius: 999px;
+    --datepicker-timepicker-input-padding: 0.25rem 0.75rem;
     width: 100%;
   }
 
@@ -197,6 +218,16 @@
 
   .neo-datepicker.is-inline :global(.calendars-container) {
     animation: none;
+  }
+
+  .neo-datepicker :global(.calendar) {
+    margin-inline: auto;
+  }
+
+  .neo-datepicker :global(input[type='time']) {
+    background: var(--neo-tertiary-bg);
+    color: var(--neo-body-color);
+    font-variant-numeric: tabular-nums;
   }
 
   .neo-datepicker :global(input[readonly]) {

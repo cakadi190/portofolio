@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import LazyRichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
 
 const props = {
@@ -11,6 +11,12 @@ const props = {
 
 const hiddenInput = (container: HTMLElement) =>
   container.querySelector<HTMLInputElement>('input[type="hidden"][name="message"]');
+
+// The editor chunk is large; transforming it for the first time can exceed the
+// default timeout when the whole suite runs in parallel, so warm it up once.
+beforeAll(async () => {
+  await import('@/components/ui/rich-text-editor.svelte');
+}, 60_000);
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -40,7 +46,7 @@ describe('LazyRichTextEditor', () => {
 
     const { container } = render(LazyRichTextEditor, props);
 
-    await vi.waitFor(() => expect(container.querySelector('.rte')).not.toBeNull(), { timeout: 5000 });
+    await vi.waitFor(() => expect(container.querySelector('.rte')).not.toBeNull(), { timeout: 15_000 });
     expect(container.querySelector('.lazy-rte')).toBeNull();
     expect(hiddenInput(container)).not.toBeNull();
   });
@@ -50,6 +56,6 @@ describe('LazyRichTextEditor', () => {
 
     await fireEvent.focusIn(container.querySelector('.lazy-rte') as HTMLElement);
 
-    await vi.waitFor(() => expect(container.querySelector('.rte')).not.toBeNull(), { timeout: 5000 });
+    await vi.waitFor(() => expect(container.querySelector('.rte')).not.toBeNull(), { timeout: 15_000 });
   });
 });
