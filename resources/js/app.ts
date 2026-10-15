@@ -13,27 +13,40 @@ iconCollections.forEach((collection) => addCollection(collection));
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-void createInertiaApp({
-  id: 'root',
-  title: (title) => (title ? `${title} • ${appName}` : appName),
-  layout: (name) => {
-    switch (true) {
-      case name.startsWith('auth/'):
-        return AuthLayout;
-      case name.startsWith('resume/') || name === 'certification/show':
-        return ResumeLayout;
-      case name.startsWith('admin/'):
-      case name.startsWith('dashboard/'):
-        return AdminLayout;
-      default:
-        return AppLayout;
-    }
-  },
-  progress: {
-    color: '#ff9f1c',
-    showSpinner: true,
-    includeCSS: true,
-  },
+// The server-rendered HTML must not play the reveal animations itself: Svelte
+// hydration would restart them, so they run once, right after hydration.
+const markMotionReady = () =>
+  window.requestAnimationFrame(() =>
+    document.documentElement.classList.add('motion-ready'),
+  );
+
+void Promise.resolve(
+  createInertiaApp({
+    id: 'root',
+    title: (title) => (title ? `${title} • ${appName}` : appName),
+    layout: (name) => {
+      switch (true) {
+        case name.startsWith('auth/'):
+          return AuthLayout;
+        case name.startsWith('resume/') || name === 'certification/show':
+          return ResumeLayout;
+        case name.startsWith('admin/'):
+        case name.startsWith('dashboard/'):
+          return AdminLayout;
+        default:
+          return AppLayout;
+      }
+    },
+    progress: {
+      color: '#ff9f1c',
+      showSpinner: true,
+      includeCSS: true,
+    },
+  }),
+).then(() => {
+  if (typeof document !== 'undefined') {
+    markMotionReady();
+  }
 });
 
 if (typeof document !== 'undefined') {

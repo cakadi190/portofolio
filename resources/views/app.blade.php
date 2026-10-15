@@ -3,6 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        {{-- Reveal animations wait for hydration (`motion-ready`, set in app.ts) so they play once; the timer is a safety net if the bundle never boots. --}}
+        <script>
+            document.documentElement.classList.add('js');
+            setTimeout(function () { document.documentElement.classList.add('motion-ready'); }, 3000);
+        </script>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">

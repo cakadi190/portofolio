@@ -67,6 +67,13 @@
   }
 }
 
+// Until hydration finishes (`motion-ready`) the server-rendered markup stays
+// hidden instead of animating, otherwise hydration restarts the animation.
+html.js:not(.motion-ready) .reveal {
+  opacity: 0;
+  animation: none !important;
+}
+
 .reveal {
   // Faster than the source's own numbers (spring default ~0.5s, local tween
   // 0.6s) — ported timings read as sluggish once actually clicking through
