@@ -17,6 +17,7 @@
     autofocus = false,
   }: Props = $props();
 
+  // svelte-ignore state_referenced_locally
   let digits = $state<string[]>(Array.from({ length }, () => ''));
   let boxes = $state<HTMLInputElement[]>([]);
 
@@ -121,6 +122,7 @@
   aria-label="Kode OTP {length} karakter"
 >
   {#each Array.from({ length }, (_, index) => index) as index (index)}
+    <!-- svelte-ignore a11y_autofocus -->
     <input
       bind:this={boxes[index]}
       id={index === 0 ? id : `${id}-${index}`}

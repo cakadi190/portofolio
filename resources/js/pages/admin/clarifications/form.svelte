@@ -68,6 +68,7 @@
   // svelte-ignore state_referenced_locally
   let slug = $state(clarification?.slug ?? '');
   let publishedDisplay = $state('');
+  // svelte-ignore state_referenced_locally
   let isWithdrawn = $state(!!clarification?.withdrawn_at);
   // svelte-ignore state_referenced_locally
   let sources = $state((clarification?.sources ?? []).map(withKey));

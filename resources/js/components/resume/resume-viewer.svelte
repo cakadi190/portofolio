@@ -1221,7 +1221,6 @@
   .rv-text:global(.selecting) :global(.endOfContent) { top: 0; }
   .rv-sheet canvas { user-select: none; }
   .rv-zoommenu .dropdown-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
-  .rv-icon.on { background: rgba(255, 255, 255, 0.28); }
   .rv-state { margin-top: 3rem; text-align: center; color: var(--neo-secondary-color); }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1235,7 +1234,6 @@
   .rv-controls .rv-group { gap: 0.125rem; }
   .rv-controls { position: fixed; z-index: 20; bottom: calc(1rem + env(safe-area-inset-bottom)); right: 0; left: 0; width: fit-content; max-width: calc(100% - 1rem); margin-inline: auto; flex-wrap: wrap; justify-content: center; display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; color: var(--neo-body-color); background: var(--neo-body-bg); border: 1px solid var(--neo-border-color); border-radius: 999px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2); }
   .rv-controls .rv-icon { color: inherit; }
-  .rv-controls .rv-icon.on { color: var(--neo-primary-text-emphasis); background: var(--neo-primary-bg-subtle); }
   .rv-controls .rv-icon:hover:not(:disabled) { background: var(--neo-primary-bg-subtle); }
   .rv-controls .rv-page { min-width: 2.5rem; font-size: 0.75rem; }
   .rv-controls .rv-group + .rv-group { padding-left: 0.375rem; border-left: 1px solid var(--neo-border-color); }

@@ -15,7 +15,7 @@
   let props: Props = $props();
 
   let Editor = $state<Component<Props> | null>(null);
-  let host: HTMLDivElement | undefined;
+  let host = $state<HTMLDivElement>();
 
   onMount(() => {
     let loading = false;
