@@ -2,6 +2,10 @@
   import Icon from '@iconify/svelte';
   import { Link } from '@inertiajs/svelte';
 
+  import fotoku480 from '../../../images/hero/fotoku-480.webp?no-inline';
+  import fotoku640 from '../../../images/hero/fotoku-640.webp?no-inline';
+  import fotoku800 from '../../../images/hero/fotoku-800.webp?no-inline';
+
   type TechStackItem = { icon?: string; name?: string; separator?: true };
 
   const techStack: TechStackItem[] = [
@@ -107,8 +111,8 @@
       <div class="col-md-5">
         <!-- LCP element: deliberately no `.reveal` — it would stay at opacity 0 until hydration plus its delay. -->
         <img
-          src="/images/fotoku-800.webp"
-          srcset="/images/fotoku-480.webp 480w, /images/fotoku-640.webp 640w, /images/fotoku-800.webp 800w"
+          src={fotoku800}
+          srcset="{fotoku480} 480w, {fotoku640} 640w, {fotoku800} 800w"
           sizes="(min-width: 768px) 40vw, 90vw"
           width="800"
           height="800"

@@ -1,5 +1,7 @@
 <script lang="ts">
   import { Link } from '@inertiajs/svelte';
+  import logoColor from '../../images/brands/logo-color.svg?no-inline';
+  import logoWhite from '../../images/brands/logo-white.svg?no-inline';
 
   /**
    * `auto` swaps between the colored and white wordmark with the theme;
@@ -26,7 +28,7 @@
     <img
       class="site-logo logo-light"
       class:logo-fixed={variant === 'color'}
-      src="/images/brands/logo-color.svg"
+      src={logoColor}
       alt="Logo Catatan Cak Adi"
       {height}
       style="aspect-ratio: 765.71 / 166"
@@ -37,7 +39,7 @@
     <img
       class="site-logo logo-dark"
       class:logo-fixed={variant === 'white'}
-      src="/images/brands/logo-white.svg"
+      src={logoWhite}
       alt="Logo Catatan Cak Adi"
       {height}
       style="aspect-ratio: 765.71 / 166"

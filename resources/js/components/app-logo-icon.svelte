@@ -1,4 +1,7 @@
 <script lang="ts">
+  import iconColor from '../../images/brands/icon-color.svg?no-inline';
+  import iconWhite from '../../images/brands/icon-white.svg?no-inline';
+
   let {
     class: className = '',
     height = 32,
@@ -13,7 +16,7 @@
 <span class="d-inline-flex app-logo-icon {className}" {...rest}>
   <img
     class="site-logo logo-light"
-    src="/images/brands/icon-color.svg"
+    src={iconColor}
     alt="Logo Catatan Cak Adi"
     {height}
     style="aspect-ratio: 1"
@@ -21,7 +24,7 @@
   />
   <img
     class="site-logo logo-dark"
-    src="/images/brands/icon-white.svg"
+    src={iconWhite}
     alt="Logo Catatan Cak Adi"
     {height}
     style="aspect-ratio: 1"

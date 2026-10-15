@@ -79,9 +79,9 @@
             open transition start from a just-displayed element, so the slide-in
             animation never plays.
         --}}
-        <link rel="preload" as="image" href="/images/brands/logo-white.svg" type="image/svg+xml">
-        <link rel="preload" as="image" href="/images/brands/logo-color.svg" type="image/svg+xml">
-        <link rel="preload" as="image" href="/images/brands/icon-white.svg" type="image/svg+xml">
+        <link rel="preload" as="image" href="{{ Vite::asset('resources/images/brands/logo-white.svg') }}" type="image/svg+xml">
+        <link rel="preload" as="image" href="{{ Vite::asset('resources/images/brands/logo-color.svg') }}" type="image/svg+xml">
+        <link rel="preload" as="image" href="{{ Vite::asset('resources/images/brands/icon-white.svg') }}" type="image/svg+xml">
         <style>
             .no-transitions *, .no-transitions *::before, .no-transitions *::after { transition: none !important; }
             .modal:not(.show),
@@ -106,7 +106,7 @@
 
         @if (request()->routeIs('home'))
             {{-- LCP element of the home page: responsive photo, fetched at high priority. --}}
-            <link rel="preload" as="image" href="/images/fotoku-640.webp" imagesrcset="/images/fotoku-480.webp 480w, /images/fotoku-640.webp 640w, /images/fotoku-800.webp 800w" imagesizes="(min-width: 768px) 40vw, 90vw" fetchpriority="high">
+            <link rel="preload" as="image" href="{{ Vite::asset('resources/images/hero/fotoku-640.webp') }}" imagesrcset="{{ Vite::asset('resources/images/hero/fotoku-480.webp') }} 480w, {{ Vite::asset('resources/images/hero/fotoku-640.webp') }} 640w, {{ Vite::asset('resources/images/hero/fotoku-800.webp') }} 800w" imagesizes="(min-width: 768px) 40vw, 90vw" fetchpriority="high">
         @endif
         <link rel="preconnect" href="https://api.iconify.design" crossorigin>
         <link rel="dns-prefetch" href="https://api.simplesvg.com">
