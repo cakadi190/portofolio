@@ -37,7 +37,11 @@
       </Link>
 
       <div class="author-card">
-        <span class="author-avatar" aria-hidden={author.avatar ? undefined : 'true'}>
+        <span
+          class="author-avatar reveal reveal-spring reveal-right"
+          style="--reveal-delay: 400ms"
+          aria-hidden={author.avatar ? undefined : 'true'}
+        >
           {#if author.avatar}
             <img
               src={author.avatar}
@@ -51,11 +55,18 @@
         </span>
 
         <div class="author-body">
-          <h1 class="author-name">{author.name}</h1>
+          <h1 class="author-name reveal reveal-spring reveal-left">
+            {author.name}
+          </h1>
 
-          <div class="author-chips">
+          <div
+            class="author-chips reveal reveal-spring reveal-left"
+            style="--reveal-delay: 100ms"
+          >
             {#if author.username}
-              <span class="author-chip author-chip-handle">@{author.username}</span>
+              <span class="author-chip author-chip-handle"
+                >@{author.username}</span
+              >
             {/if}
             <span class="author-chip">
               <FileText size={14} aria-hidden="true" />
@@ -64,7 +75,10 @@
           </div>
 
           {#if author.bio}
-            <div class="wysiwyg-content-wrapper author-bio">
+            <div
+              class="wysiwyg-content-wrapper author-bio reveal reveal-spring reveal-left"
+              style="--reveal-delay: 200ms"
+            >
               <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html author.bio}
             </div>

@@ -115,3 +115,10 @@
 .reveal-bottom {
   --reveal-y: 100px;
 }
+
+// Never animate for people who asked the OS to reduce motion.
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none !important;
+  }
+}
