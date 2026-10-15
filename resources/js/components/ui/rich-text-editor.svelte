@@ -1514,11 +1514,16 @@
         words = current.storage.characterCount.words();
       },
       onTransaction: () => {
-        tick++;
-        blockInfo = readBlock();
-        syncCodeBadge();
-        syncBlockUi();
-        syncToolbar();
+        // A transaction can be dispatched while Svelte is evaluating a derived or
+        // template expression, where mutating state throws `state_unsafe_mutation`.
+        queueMicrotask(() => {
+          if (!editor) return;
+          tick++;
+          blockInfo = readBlock();
+          syncCodeBadge();
+          syncBlockUi();
+          syncToolbar();
+        });
       },
       onFocus: () => {
         focused = true;

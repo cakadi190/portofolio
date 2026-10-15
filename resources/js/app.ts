@@ -78,6 +78,20 @@ if (typeof document !== 'undefined') {
   const interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
   let monitoringStarted = false;
 
+  // A deploy replaces hashed assets; reload once so stale tabs pick up the new build.
+  window.addEventListener('vite:preloadError', (event) => {
+    event.preventDefault();
+
+    try {
+      if (!sessionStorage.getItem('preload-reloaded')) {
+        sessionStorage.setItem('preload-reloaded', '1');
+        window.location.reload();
+      }
+    } catch {
+      // Storage unavailable: leave the page as is.
+    }
+  });
+
   const startMonitoring = () => {
     if (monitoringStarted) {
       return;

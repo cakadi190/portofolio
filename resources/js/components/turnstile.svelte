@@ -73,7 +73,12 @@
       const target = container;
       loadScript()
         .then(() => {
-          widgetId = turnstile()?.render(target, { sitekey: siteKey, theme: 'auto' });
+          widgetId = turnstile()?.render(target, {
+            sitekey: siteKey,
+            theme: 'auto',
+            'error-callback': () => true,
+            'retry-interval': 8000,
+          });
         })
         .catch(() => {});
     };

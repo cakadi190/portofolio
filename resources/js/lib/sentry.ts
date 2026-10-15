@@ -161,6 +161,11 @@ export function initializeSentry(): void {
       'ResizeObserver loop completed with undelivered notifications.',
       /^Non-Error promise rejection captured/,
       'Network request failed',
+      /^HttpNetworkError: Network error/,
+      /^Network error/,
+      /\[Cloudflare Turnstile\]/,
+      /Unable to preload (CSS|dependency)/,
+      /reading 'getPage'/,
     ],
     denyUrls: [
       /^chrome-extension:\/\//i,
