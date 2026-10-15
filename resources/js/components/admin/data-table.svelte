@@ -65,10 +65,12 @@
     void columns;
     if (!tbody) return;
 
-    for (const tr of tbody.rows) {
-      Array.from(tr.cells).forEach((cell, index) => {
+    for (const tr of Array.from(tbody.children)) {
+      Array.from(tr.children).forEach((cell, index) => {
         const label = columns[index]?.label;
-        if (cell.colSpan === 1 && label) cell.dataset.label = label;
+        if (cell instanceof HTMLTableCellElement && cell.colSpan === 1 && label) {
+          cell.dataset.label = label;
+        }
       });
     }
   });

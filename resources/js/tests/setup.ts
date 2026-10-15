@@ -9,7 +9,7 @@ vi.mock(
 );
 
 /**
- * jsdom lacks several browser APIs the app relies on. Minimal stand-ins keep
+ * happy-dom lacks several browser APIs the app relies on. Minimal stand-ins keep
  * components mountable; individual tests override them when behavior matters.
  */
 function installBrowserStubs(): void {

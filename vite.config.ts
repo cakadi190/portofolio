@@ -179,7 +179,16 @@ export default defineConfig({
         : [],
   },
   test: {
-    environment: 'jsdom',
+    environment: 'happy-dom',
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          disableJavaScriptFileLoading: true,
+          handleDisabledFileLoadingAsSuccess: true,
+        },
+      },
+    },
+    testTimeout: 15000,
     include: ['resources/js/**/*.{test,spec}.ts'],
     setupFiles: ['resources/js/tests/setup.ts'],
     clearMocks: true,
