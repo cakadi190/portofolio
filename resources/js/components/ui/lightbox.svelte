@@ -74,6 +74,22 @@
     isVideo || isEmbed ? 'Pratinjau video' : 'Pratinjau gambar',
   );
 
+  let isMobile = $state(
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 575.98px)').matches,
+  );
+
+  $effect(() => {
+    const query = window.matchMedia('(max-width: 575.98px)');
+    const sync = (): void => {
+      isMobile = query.matches;
+    };
+
+    sync();
+    query.addEventListener?.('change', sync);
+
+    return () => query.removeEventListener?.('change', sync);
+  });
+
   const prefersReducedMotion =
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const motion = (duration: number): number => (prefersReducedMotion ? 0 : duration);
@@ -300,17 +316,7 @@
 
 <svelte:window onkeydowncapture={onKeydown} />
 
-{#if open && current}
-  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || defaultTitle} use:portal transition:fade={{ duration: motion(220) }}>
-    <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
-      <div class="lightbox-start">
-        <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
-          <X size={20} />
-        </button>
-        <h2 class="lightbox-title" title={current.title ?? ''}>{current.title || defaultTitle}</h2>
-      </div>
-
-      <div class="lightbox-controls">
+{#snippet controls()}
         {#if images.length > 1}
           <button type="button" class="lightbox-button" aria-label="Sebelumnya" disabled={index === 0} onclick={() => go(-1)}>
             <ChevronLeft size={20} />
@@ -319,7 +325,7 @@
           <button type="button" class="lightbox-button" aria-label="Berikutnya" disabled={index === images.length - 1} onclick={() => go(1)}>
             <ChevronRight size={20} />
           </button>
-          <span class="lightbox-divider" aria-hidden="true"></span>
+          {#if isZoomable}<span class="lightbox-divider" aria-hidden="true"></span>{/if}
         {/if}
         {#if isZoomable}
         <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={scale <= ZOOM_MIN} onclick={zoomOut}>
@@ -333,7 +339,24 @@
           <RotateCcw size={20} />
         </button>
         {/if}
+      
+{/snippet}
+
+{#if open && current}
+  <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || defaultTitle} use:portal transition:fade={{ duration: motion(220) }}>
+    <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
+      <div class="lightbox-start">
+        <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
+          <X size={20} />
+        </button>
+        <h2 class="lightbox-title" title={current.title ?? ''}>{current.title || defaultTitle}</h2>
       </div>
+
+      {#if !isMobile}
+        <div class="lightbox-controls">
+          {@render controls()}
+        </div>
+      {/if}
 
       <div class="lightbox-end">
         {#if isZoomable || isVideo}
@@ -437,6 +460,12 @@
         {/key}
       {/if}
     </div>
+    {/if}
+
+    {#if isMobile && (images.length > 1 || isZoomable)}
+      <div class="lightbox-controls lightbox-controls-bottom" transition:fade={{ duration: motion(160) }}>
+        {@render controls()}
+      </div>
     {/if}
 
     {#if images.length > 1 && isZoomable}
@@ -663,8 +692,33 @@
   }
 
   @media (max-width: 575.98px) {
+    .lightbox-bar {
+      gap: 0.5rem;
+    }
+
+    .lightbox-start {
+      flex: 1 1 auto;
+    }
+
+    .lightbox-end {
+      flex: 0 0 auto;
+    }
+
     .lightbox-title {
-      display: none;
+      font-size: 0.9375rem;
+    }
+
+    .lightbox-controls-bottom {
+      flex-shrink: 0;
+      align-self: center;
+      margin: 0.25rem 0 calc(0.75rem + env(safe-area-inset-bottom));
+      padding: 0.25rem 0.5rem;
+      background: rgba(18, 18, 18, 0.6);
+      backdrop-filter: blur(12px);
+    }
+
+    .lightbox-video-stage {
+      padding-bottom: 0.5rem;
     }
 
     .lightbox-nav {
