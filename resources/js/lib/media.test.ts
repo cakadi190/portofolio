@@ -103,7 +103,10 @@ describe('shrinkLargeImage', () => {
   });
 
   it('leaves small images and non-raster files untouched', async () => {
-    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap(1600, 900)));
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn().mockResolvedValue(bitmap(1600, 900)),
+    );
 
     expect(await shrinkLargeImage(file)).toBe(file);
 
@@ -115,10 +118,15 @@ describe('shrinkLargeImage', () => {
   });
 
   it('scales an oversized image down to the longest-side cap and re-encodes it as webp', async () => {
-    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(bitmap(8000, 4500)));
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn().mockResolvedValue(bitmap(8000, 4500)),
+    );
     const toBlob = vi
       .spyOn(HTMLCanvasElement.prototype, 'toBlob')
-      .mockImplementation((callback) => callback(new Blob(['webp'], { type: 'image/webp' })));
+      .mockImplementation((callback) =>
+        callback(new Blob(['webp'], { type: 'image/webp' })),
+      );
     const canvases: HTMLCanvasElement[] = [];
     const createElement = document.createElement.bind(document);
     vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
@@ -135,14 +143,23 @@ describe('shrinkLargeImage', () => {
     );
 
     expect(canvases[0].width).toBe(MAX_UPLOAD_SIDE);
-    expect(canvases[0].height).toBe(Math.round(4500 * (MAX_UPLOAD_SIDE / 8000)));
-    expect(toBlob).toHaveBeenCalledWith(expect.any(Function), 'image/webp', 0.9);
+    expect(canvases[0].height).toBe(
+      Math.round(4500 * (MAX_UPLOAD_SIDE / 8000)),
+    );
+    expect(toBlob).toHaveBeenCalledWith(
+      expect.any(Function),
+      'image/webp',
+      0.9,
+    );
     expect(result.name).toBe('Poster Besar.webp');
     expect(result.type).toBe('image/webp');
   });
 
   it('falls back to the original file when the image cannot be decoded', async () => {
-    vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('decode')));
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn().mockRejectedValue(new Error('decode')),
+    );
 
     expect(await shrinkLargeImage(file)).toBe(file);
   });

@@ -82,8 +82,16 @@ const indexPages: Case[] = [
       filters,
     },
   ],
-  ['Komunitas Dev ID', DevCommunities, { communities: empty, platforms: options, filters }],
-  ['Channel Programmer', ProgrammerChannels, { channels: empty, platforms: options, filters }],
+  [
+    'Komunitas Dev ID',
+    DevCommunities,
+    { communities: empty, platforms: options, filters },
+  ],
+  [
+    'Channel Programmer',
+    ProgrammerChannels,
+    { channels: empty, platforms: options, filters },
+  ],
   ['Pesan Masuk', ContactMessages, { messages: empty, filters }],
   [
     'Riwayat Pendidikan',

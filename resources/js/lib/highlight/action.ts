@@ -23,7 +23,7 @@ export const highlightCode: Action<HTMLElement, string | null | undefined> = (
       highlightAll(node);
       enhanceCodeCards(node);
       renderMathIn(node);
-  enhanceFigures(node);
+      enhanceFigures(node);
     },
   };
 };

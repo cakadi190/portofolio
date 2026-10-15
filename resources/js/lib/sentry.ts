@@ -25,7 +25,7 @@ export function scrubText(value: string): string {
   }
 
   const params = new URLSearchParams(query.split('#')[0]);
-  for (const key of [...params.keys()]) {
+  for (const key of Array.from(params.keys())) {
     params.set(
       key,
       SENSITIVE_KEY.test(key)

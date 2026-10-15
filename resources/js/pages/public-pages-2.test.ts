@@ -256,7 +256,9 @@ describe('Dev community and programmer channel pages', () => {
     });
 
     expect(screen.getByText('AlgoHub')).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Gabung/ }).getAttribute('href')).toBe('https://discord.gg/x');
+    expect(
+      screen.getByRole('link', { name: /Gabung/ }).getAttribute('href'),
+    ).toBe('https://discord.gg/x');
   });
 
   it('shows an empty state for channels', () => {

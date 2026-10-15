@@ -281,7 +281,7 @@
 
       &[data-credit]::before {
         content: attr(data-credit) ' \2022';
-        margin-right: 0.5em;
+        margin-right: 0.125rem;
         color: #111827;
         font-weight: 600;
         white-space: pre;
@@ -340,7 +340,11 @@
     content: none;
   }
 
-  .ProseMirror figure.wp-block-image figcaption:has(> .ProseMirror-trailingBreak:only-child):not([data-credit])::before {
+  .ProseMirror
+    figure.wp-block-image
+    figcaption:has(> .ProseMirror-trailingBreak:only-child):not(
+      [data-credit]
+    )::before {
     content: 'Tulis keterangan…';
     opacity: 0.6;
   }

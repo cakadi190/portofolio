@@ -83,7 +83,12 @@ describe('pinch gesture', () => {
   const start = pinchStart(1, 100, { left: 40, top: 300 }, { x: 200, y: 400 });
 
   it('captures the document point under the initial midpoint', () => {
-    expect(start).toMatchObject({ zoom: 1, distance: 100, contentX: 240, contentY: 700 });
+    expect(start).toMatchObject({
+      zoom: 1,
+      distance: 100,
+      contentX: 240,
+      contentY: 700,
+    });
   });
 
   it('keeps that point under the midpoint while the fingers spread', () => {
@@ -105,7 +110,11 @@ describe('pinch gesture', () => {
   });
 
   it('clamps the zoom to the supported range', () => {
-    expect(pinchFrame(start, { distance: 5000, x: 200, y: 400 }).zoom).toBe(MAX_ZOOM);
-    expect(pinchFrame(start, { distance: 1, x: 200, y: 400 }).zoom).toBe(MIN_ZOOM);
+    expect(pinchFrame(start, { distance: 5000, x: 200, y: 400 }).zoom).toBe(
+      MAX_ZOOM,
+    );
+    expect(pinchFrame(start, { distance: 1, x: 200, y: 400 }).zoom).toBe(
+      MIN_ZOOM,
+    );
   });
 });

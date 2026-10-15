@@ -37,7 +37,9 @@ function woff2OnlyFonts() {
     closeBundle: {
       order: 'post' as const,
       handler() {
-        const outDir = fileURLToPath(new URL('./public/build', import.meta.url));
+        const outDir = fileURLToPath(
+          new URL('./public/build', import.meta.url),
+        );
         const manifestPath = `${outDir}/fonts-manifest.json`;
 
         if (!existsSync(manifestPath)) {
@@ -51,10 +53,14 @@ function woff2OnlyFonts() {
           familyStyles[family] = familyStyles[family].replace(WOFF_FACE, '');
         }
 
-        const cssPath = manifest.style?.file && `${outDir}/${manifest.style.file}`;
+        const cssPath =
+          manifest.style?.file && `${outDir}/${manifest.style.file}`;
 
         if (cssPath && existsSync(cssPath)) {
-          writeFileSync(cssPath, readFileSync(cssPath, 'utf8').replace(WOFF_FACE, ''));
+          writeFileSync(
+            cssPath,
+            readFileSync(cssPath, 'utf8').replace(WOFF_FACE, ''),
+          );
         }
 
         writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
@@ -109,9 +115,9 @@ export default defineConfig({
                 ? []
                 : [
                     purgeUnusedCss({
-                root: fileURLToPath(new URL('.', import.meta.url)),
-                entry: 'resources/css/app.scss',
-              }),
+                      root: fileURLToPath(new URL('.', import.meta.url)),
+                      entry: 'resources/css/app.scss',
+                    }),
                   ]),
             ]),
         inertia(),

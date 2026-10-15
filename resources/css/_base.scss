@@ -689,9 +689,7 @@ $btn-ghost-colors:
 .modal,
 .modal-backdrop {
   --#{$prefix}-modal-anim-duration: 200ms;
-  --#{$prefix}-modal-anim-backdrop-duration: var(
-    --#{$prefix}-overlay-duration
-  );
+  --#{$prefix}-modal-anim-backdrop-duration: var(--#{$prefix}-overlay-duration);
   --#{$prefix}-modal-anim-ease: var(--#{$prefix}-overlay-ease);
   --#{$prefix}-modal-anim-scale: var(--#{$prefix}-overlay-scale);
   --#{$prefix}-modal-anim-offset: -2%;

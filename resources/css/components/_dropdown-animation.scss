@@ -29,7 +29,11 @@ $prefix: 'neo';
 
 // Shared per-element slide values: set the side the element sits on and the
 // enter keyframe slides it in from the trigger.
-@mixin overlay-placement($x: --#{$prefix}-overlay-x, $y: --#{$prefix}-overlay-y, $origin: --#{$prefix}-overlay-origin) {
+@mixin overlay-placement(
+  $x: --#{$prefix}-overlay-x,
+  $y: --#{$prefix}-overlay-y,
+  $origin: --#{$prefix}-overlay-origin
+) {
   #{$x}: 0;
   #{$y}: 0;
   #{$origin}: top center;

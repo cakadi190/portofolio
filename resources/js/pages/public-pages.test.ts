@@ -474,7 +474,9 @@ describe('BlogShow', () => {
     });
 
     expect(screen.getByRole('link', { name: 'Artikel Lain' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Teknologi\s*\(3\)/ })).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: /Teknologi\s*\(3\)/ }),
+    ).toBeTruthy();
     expect(screen.getByRole('link', { name: /Artikel Lama/ })).toBeTruthy();
     expect(screen.queryByText('Artikel berikutnya')).toBeNull();
 

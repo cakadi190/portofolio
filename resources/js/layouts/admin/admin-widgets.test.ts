@@ -165,9 +165,7 @@ describe('AdminUserMenu', () => {
 
     await fireEvent.click(screen.getByLabelText('Mode gelap'));
 
-    expect(document.documentElement.getAttribute('data-bs-theme')).toBe(
-      'dark',
-    );
+    expect(document.documentElement.getAttribute('data-bs-theme')).toBe('dark');
     document.documentElement.removeAttribute('data-bs-theme');
   });
 

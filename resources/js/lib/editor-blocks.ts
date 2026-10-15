@@ -152,7 +152,7 @@ export const BLOCK_TEXT_MAX_LENGTH = 60;
 export function cleanBlockText(value: unknown): string {
   return typeof value === 'string'
     ? value
-        .replace(/[\x00-\x1f<>"]/g, '')
+        .replace(/[<>"]|\p{Cc}/gu, '')
         .trim()
         .slice(0, BLOCK_TEXT_MAX_LENGTH)
     : '';

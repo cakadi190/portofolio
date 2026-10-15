@@ -62,7 +62,10 @@ function collectFiles(directory: string, files: string[] = []): string[] {
   return files;
 }
 
-function scanSources(root: string): { tokens: Set<string>; prefixes: string[] } {
+function scanSources(root: string): {
+  tokens: Set<string>;
+  prefixes: string[];
+} {
   const tokens = new Set<string>();
   const prefixes = new Set<string>();
 
@@ -141,7 +144,8 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
   /** Bytes kept only because a safelist pattern matched (PURGE_REPORT=1), by pattern. */
   const keptBySafelist = new Map<string, number>();
   const reason = (className: string): RegExp | null =>
-    tokens.has(className) || prefixes.some((prefix) => className.startsWith(prefix))
+    tokens.has(className) ||
+    prefixes.some((prefix) => className.startsWith(prefix))
       ? null
       : (SAFELIST.find((pattern) => pattern.test(className)) ?? null);
 
@@ -162,7 +166,15 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
     },
     async generateBundle(
       _output: unknown,
-      bundle: Record<string, { type: string; source?: string | Uint8Array; originalFileNames?: string[]; fileName: string }>,
+      bundle: Record<
+        string,
+        {
+          type: string;
+          source?: string | Uint8Array;
+          originalFileNames?: string[];
+          fileName: string;
+        }
+      >,
     ) {
       for (const asset of Object.values(bundle)) {
         if (
@@ -177,7 +189,10 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
         const root = postcss.parse(asset.source);
 
         root.walkRules((rule: Rule) => {
-          if (rule.parent?.type === 'atrule' && /keyframes$/i.test((rule.parent as AtRule).name)) {
+          if (
+            rule.parent?.type === 'atrule' &&
+            /keyframes$/i.test((rule.parent as AtRule).name)
+          ) {
             return;
           }
 
@@ -189,7 +204,11 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
               const pattern = classes.map(reason).find(Boolean);
 
               if (pattern && classes.every((name) => isUsed(name))) {
-                keptBySafelist.set(String(pattern), (keptBySafelist.get(String(pattern)) ?? 0) + rule.toString().length);
+                keptBySafelist.set(
+                  String(pattern),
+                  (keptBySafelist.get(String(pattern)) ?? 0) +
+                    rule.toString().length,
+                );
               }
             }
           }
@@ -210,8 +229,12 @@ export function purgeUnusedCss(options: { root: string; entry: string }) {
         asset.source = root.toString();
 
         if (process.env.PURGE_REPORT) {
-          for (const [pattern, bytes] of [...keptBySafelist].sort((a, b) => b[1] - a[1])) {
-            console.info(`[purge-unused-css]   kept only by safelist ${pattern}: ${(bytes / 1024).toFixed(1)} KB`);
+          for (const [pattern, bytes] of [...keptBySafelist].sort(
+            (a, b) => b[1] - a[1],
+          )) {
+            console.info(
+              `[purge-unused-css]   kept only by safelist ${pattern}: ${(bytes / 1024).toFixed(1)} KB`,
+            );
           }
         }
 
