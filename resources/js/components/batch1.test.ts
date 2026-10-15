@@ -137,7 +137,7 @@ describe('CardBlog', () => {
     expect(hrefOf(screen.getByRole('link'))).toBe('/blog/judul');
     expect(screen.getByText('Ringkasan')).toBeTruthy();
     expect(screen.getByText('Teknologi')).toBeTruthy();
-    expect(screen.getByText('php')).toBeTruthy();
+    expect(screen.queryByText('php')).toBeNull();
     expect(screen.getByRole('img').getAttribute('src')).toBe('/cover.webp');
   });
 

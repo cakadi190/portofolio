@@ -4,6 +4,7 @@
   import ElkuslaSection from '@/components/home/elkusla-section.svelte';
   import HeaderHome from '@/components/home/header-home.svelte';
   import PortfolioHomeSection from '@/components/home/portfolio-home-section.svelte';
+  import StatsHomeSection from '@/components/home/stats-home-section.svelte';
   import SpeakingHomeSection from '@/components/home/speaking-home-section.svelte';
 
   type Portfolio = {
@@ -36,17 +37,21 @@
     poster: string | null;
   };
 
+  type Stat = { value: number; suffix: string; label: string };
+
   let {
+    stats = [],
     portfolios = [],
     speakings = [],
     posts = [],
-  }: { portfolios?: Portfolio[]; speakings?: Speaking[]; posts?: Post[] } = $props();
+  }: { stats?: Stat[]; portfolios?: Portfolio[]; speakings?: Speaking[]; posts?: Post[] } = $props();
 </script>
 
 <AppHead title={"Catatan Seorang Wirausahawan Muda & Software Engineer"} brandFirst />
 
 <div id="homepage">
   <HeaderHome />
+  <StatsHomeSection {stats} />
   <ElkuslaSection />
   <PortfolioHomeSection {portfolios} />
   <SpeakingHomeSection {speakings} />

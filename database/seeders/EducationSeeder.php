@@ -105,7 +105,7 @@ class EducationSeeder extends Seeder
                 $education['logo'] = $media->storeFromPublicPath($education['logo'], $userId)->path;
             }
 
-            Education::query()->create($education);
+            Education::query()->updateOrCreate(['name' => $education['name']], $education);
         }
     }
 }

@@ -50,9 +50,7 @@ describe('blog taxonomy pages', () => {
     expect(hrefOf(screen.getByRole('link', { name: 'Penulis' }))).toBe(
       '/blog/@penulis',
     );
-    expect(hrefOf(screen.getByRole('link', { name: 'php' }))).toBe(
-      '/blog/tags/php',
-    );
+    expect(screen.queryByRole('link', { name: 'php' })).toBeNull();
     expect(screen.queryByRole('link', { name: /Edit Artikel/ })).toBeNull();
   });
 

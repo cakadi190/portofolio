@@ -153,9 +153,8 @@ class PortfolioSeeder extends Seeder
         foreach ($items as $item) {
             $image = $media->storeFromPublicPath($item['image'], $userId)->path;
 
-            $portfolio = Portfolio::query()->create([
+            $portfolio = Portfolio::query()->updateOrCreate(['slug' => $item['slug']], [
                 'name' => $item['name'],
-                'slug' => $item['slug'],
                 'image' => $image,
                 'short_desc' => $item['short_desc'],
                 'description' => $this->withBlocks($descriptions[$item['slug']], $item['name'], $image, $item['demo_link']),

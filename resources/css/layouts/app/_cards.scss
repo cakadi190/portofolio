@@ -152,3 +152,28 @@
     }
   }
 }
+
+.post-taxonomy-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--neo-body-color);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid var(--neo-border-color);
+  border-radius: 999px;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background-color 0.15s;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--neo-primary);
+    border-color: var(--neo-primary);
+    background: var(--neo-primary-bg-subtle);
+  }
+}

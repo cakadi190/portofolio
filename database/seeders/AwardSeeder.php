@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\AwardType;
 use App\Models\Award;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class AwardSeeder extends Seeder
 {
@@ -26,7 +27,10 @@ class AwardSeeder extends Seeder
         ];
 
         foreach ($awards as $award) {
-            Award::query()->create($award);
+            Award::query()->updateOrCreate(
+                Arr::only($award, ['event_name', 'title']),
+                $award,
+            );
         }
     }
 }

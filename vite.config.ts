@@ -115,7 +115,7 @@ export default defineConfig({
         svelte({
           compilerOptions: {
             // Drops the default `svelte-` class prefix from scoped styles.
-            cssHash: ({ hash, css }) => `c${hash(css)}`,
+            cssHash: ({ hash, filename }) => `c${hash(filename)}`,
           },
         }),
         // The client build already generated the Wayfinder types

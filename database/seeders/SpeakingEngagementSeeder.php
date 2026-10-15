@@ -8,6 +8,7 @@ use App\Models\SpeakingEngagement;
 use App\Models\User;
 use App\Services\MediaService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class SpeakingEngagementSeeder extends Seeder
 {
@@ -49,7 +50,10 @@ class SpeakingEngagementSeeder extends Seeder
         foreach ($engagements as $engagement) {
             $engagement['poster'] = $media->storeFromPublicPath("/images/speaking/{$engagement['poster']}", $userId)->path;
 
-            SpeakingEngagement::query()->create($engagement);
+            SpeakingEngagement::query()->updateOrCreate(
+                Arr::only($engagement, ['title', 'starts_at']),
+                $engagement,
+            );
         }
     }
 }

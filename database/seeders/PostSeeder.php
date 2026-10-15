@@ -25,10 +25,9 @@ class PostSeeder extends Seeder
         foreach ($this->posts() as $index => $item) {
             $cover = $media->storeFromPublicPath("/images/posts/{$item['image']}.webp", $userId)->path;
 
-            $post = Post::query()->create([
+            $post = Post::query()->updateOrCreate(['slug' => $item['slug']], [
                 'user_id' => $userId,
                 'title' => $item['title'],
-                'slug' => $item['slug'],
                 'excerpt' => $item['excerpt'],
                 'content' => str_replace('{{cover}}', (string) ImageService::url($cover), $item['content']),
                 'cover_image' => $cover,

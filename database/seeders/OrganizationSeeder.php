@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Organization;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class OrganizationSeeder extends Seeder
 {
@@ -23,7 +24,10 @@ class OrganizationSeeder extends Seeder
         ];
 
         foreach ($organizations as $organization) {
-            Organization::query()->create($organization);
+            Organization::query()->updateOrCreate(
+                Arr::only($organization, ['name', 'start_date']),
+                $organization,
+            );
         }
     }
 }

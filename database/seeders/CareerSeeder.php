@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Career;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class CareerSeeder extends Seeder
 {
@@ -25,7 +26,10 @@ class CareerSeeder extends Seeder
         ];
 
         foreach ($careers as $career) {
-            Career::query()->create($career);
+            Career::query()->updateOrCreate(
+                Arr::only($career, ['position', 'company', 'start_date']),
+                $career,
+            );
         }
     }
 }

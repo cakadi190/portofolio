@@ -138,10 +138,15 @@
                       {#each categories as category (category.id)}
                         <Link
                           href={showCategory(category.slug).url}
-                          class="badge text-decoration-none"
-                          style={badgeStyle(category.color)}
+                          class="post-taxonomy-tag post-taxonomy-category"
                         >
-                          {category.name} ({category.count})
+                          {category.name}
+                          <span
+                            class="post-taxonomy-count"
+                            style={badgeStyle(category.color)}
+                          >
+                            {category.count}
+                          </span>
                         </Link>
                       {/each}
                     </div>
@@ -159,7 +164,7 @@
                       {#each post.tags as tag (tag.slug)}
                         <Link
                           href={showTag(tag.slug).url}
-                          class="badge tag-badge text-decoration-none"
+                          class="post-taxonomy-tag"
                         >
                           {tag.name}
                         </Link>
@@ -184,10 +189,17 @@
                     {#each post.categories as category (category.slug)}
                       <Link
                         href={showCategory(category.slug).url}
-                        class="badge text-decoration-none"
-                        style={badgeStyle(category.color)}
+                        class="post-taxonomy-tag post-taxonomy-category"
                       >
                         {category.name}
+                        <span
+                          class="post-taxonomy-count"
+                          style={badgeStyle(category.color)}
+                        >
+                          {categories.find(
+                            (item) => item.slug === category.slug,
+                          )?.count ?? 0}
+                        </span>
                       </Link>
                     {/each}
                   </div>
@@ -201,7 +213,7 @@
                     {#each post.tags as tag (tag.slug)}
                       <Link
                         href={showTag(tag.slug).url}
-                        class="badge tag-badge text-decoration-none"
+                        class="post-taxonomy-tag"
                       >
                         {tag.name}
                       </Link>
@@ -275,6 +287,21 @@
     align-items: flex-start;
     gap: 0.75rem;
     color: var(--neo-secondary-color);
+  }
+
+  :global(.post-taxonomy-count) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    aspect-ratio: 1;
+    font-size: 0.75rem;
+    border-radius: 999px;
+  }
+
+  :global(.post-taxonomy-category) {
+    padding-block: 0.1875rem;
+    padding-inline-end: 0.25rem;
   }
 
   .post-taxonomy-row > :global(svg) {

@@ -472,7 +472,7 @@ describe('BlogShow', () => {
     });
 
     expect(screen.getByRole('link', { name: 'Artikel Lain' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Teknologi \(3\)/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Teknologi\s*3/ })).toBeTruthy();
     expect(screen.getByRole('link', { name: /Artikel Lama/ })).toBeTruthy();
     expect(screen.queryByText('Artikel berikutnya')).toBeNull();
 
@@ -484,7 +484,7 @@ describe('BlogShow', () => {
     expect(hrefOf(screen.getAllByRole('link', { name: 'php' })[0])).toBe(
       '/blog/tags/php',
     );
-    expect(hrefOf(screen.getByRole('link', { name: 'Tech' }))).toBe(
+    expect(hrefOf(screen.getByRole('link', { name: /Tech/ }))).toBe(
       '/blog/categories/tech',
     );
     expect(hrefOf(screen.getByRole('link', { name: 'Cakadi' }))).toBe(

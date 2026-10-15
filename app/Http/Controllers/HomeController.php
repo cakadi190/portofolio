@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Award;
+use App\Models\Career;
 use App\Models\Portfolio;
 use App\Models\Post;
 use App\Models\SpeakingEngagement;
 use App\Services\ImageService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,6 +21,7 @@ class HomeController extends Controller
     public function index(): Response
     {
         return Inertia::render('app/index', [
+            'stats' => $this->stats(),
             'portfolios' => Portfolio::query()
                 ->with(['services:id,name,color', 'technologies:id,name'])
                 ->latest()
@@ -54,6 +58,24 @@ class HomeController extends Controller
                     'tags' => $post->tags->pluck('name'),
                 ]),
         ]);
+    }
+
+    /**
+     * Headline numbers for the homepage count cards, derived from the CV data.
+     *
+     * @return list<array{value: int, suffix: string, label: string}>
+     */
+    private function stats(): array
+    {
+        $firstCareerStart = Career::query()->min('start_date');
+        $years = $firstCareerStart ? (int) Carbon::parse($firstCareerStart)->diffInYears(now()) : 0;
+
+        return [
+            ['value' => $years, 'suffix' => '+', 'label' => 'Tahun berkarya sebagai pengembang dan wirausahawan'],
+            ['value' => Portfolio::query()->where('is_private', false)->count(), 'suffix' => '+', 'label' => 'Proyek publik di portofolio, dari web hingga aplikasi'],
+            ['value' => Award::query()->count(), 'suffix' => '', 'label' => 'Penghargaan dan juara dari berbagai kompetisi'],
+            ['value' => SpeakingEngagement::query()->published()->count(), 'suffix' => '', 'label' => 'Acara pembicara dan mentoring yang saya isi'],
+        ];
     }
 
     /**

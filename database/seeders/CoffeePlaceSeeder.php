@@ -43,8 +43,7 @@ class CoffeePlaceSeeder extends Seeder
         $userId = User::query()->value('id');
 
         foreach ($places as $place) {
-            CoffeePlace::query()->create([
-                'name' => $place['name'],
+            CoffeePlace::query()->updateOrCreate(['name' => $place['name']], [
                 'address' => $place['address'],
                 'description' => $place['description'],
                 'latitude' => $place['lat'],
