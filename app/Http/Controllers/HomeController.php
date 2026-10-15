@@ -108,7 +108,11 @@ class HomeController extends Controller
             'formatLabel' => $engagement->format->label(),
             'location' => $engagement->location,
             'startsAt' => $engagement->starts_at->format('Y-m-d H:i'),
+            'endsAt' => $engagement->ends_at?->format('Y-m-d H:i'),
+            'registrationUrl' => $engagement->registration_url,
+            'description' => $engagement->description,
             'poster' => ImageService::thumbnailUrl($engagement->poster),
+            'isUpcoming' => ! $engagement->hasEnded(),
         ]);
     }
 }

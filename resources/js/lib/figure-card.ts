@@ -1,6 +1,38 @@
 import { toast } from '@/lib/toast';
 
-type Action = { label: string; run: () => void };
+type Action = { label: string; icon: string; run: () => void };
+
+// Lucide icon paths (static, trusted markup).
+const ICONS = {
+  external:
+    '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  image:
+    '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
+  quote:
+    '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  expand:
+    '<path d="m21 21-6-6m6 6v-4.8m0 4.8h-4.8"/><path d="M3 16.2V21m0 0h4.8M3 21l6-6"/><path d="M21 7.8V3m0 0h-4.8M21 3l-6 6"/><path d="M3 7.8V3m0 0h4.8M3 3l6 6"/>',
+  globe:
+    '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+} as const;
+
+function icon(path: string): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('width', '16');
+  svg.setAttribute('height', '16');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.innerHTML = path;
+
+  return svg;
+}
 
 /** Shows an image in the shared full-screen lightbox. */
 export async function openLightbox(src: string, alt: string): Promise<void> {
@@ -71,26 +103,35 @@ function buildPopover(
     return element;
   };
 
+  const head = document.createElement('div');
+
+  head.className = 'wp-figure-menu__head';
+
   if (title || credit) {
-    popover.append(text('strong', 'wp-figure-menu__title', title || credit));
+    const heading = text('strong', 'wp-figure-menu__title', title || credit);
+
+    heading.prepend(icon(ICONS.globe));
+    head.append(heading);
   }
 
   if (credit && title) {
     const by = text('p', 'wp-figure-menu__by', 'Foto oleh ');
 
     by.append(text('b', '', credit));
-    popover.append(by);
+    head.append(by);
   }
 
   const size = `${image.naturalWidth} × ${image.naturalHeight}`;
   const meta = text('p', 'wp-figure-menu__meta', size);
 
   meta.append(text('span', '', formatOf(src)));
-  popover.append(meta);
+  head.append(meta);
 
   if (alt) {
-    popover.append(text('p', 'wp-figure-menu__alt', `“${alt}”`));
+    head.append(text('p', 'wp-figure-menu__alt', `“${alt}”`));
   }
+
+  popover.append(head);
 
   const attribution = [credit && `Foto oleh ${credit}`, title, source]
     .filter(Boolean)
@@ -100,39 +141,49 @@ function buildPopover(
       ? [
           {
             label: 'Buka sumber asli',
+            icon: ICONS.external,
             run: () => window.open(source, '_blank', 'noopener,noreferrer'),
           },
           {
             label: 'Salin tautan sumber',
+            icon: ICONS.link,
             run: () => void copy(source, 'Tautan sumber disalin.'),
           },
         ]
       : []),
     {
       label: 'Salin URL gambar',
+      icon: ICONS.image,
       run: () => void copy(absoluteUrl(src), 'URL gambar disalin.'),
     },
     ...(attribution
       ? [
           {
             label: 'Salin atribusi',
+            icon: ICONS.quote,
             run: () => void copy(attribution, 'Atribusi disalin.'),
           },
         ]
       : []),
-    { label: 'Lihat ukuran penuh', run: () => void openLightbox(src, alt) },
+    {
+      label: 'Lihat ukuran penuh',
+      icon: ICONS.expand,
+      run: () => void openLightbox(src, alt),
+    },
   ];
 
   const list = document.createElement('div');
 
   list.className = 'wp-figure-menu__actions';
-  actions.forEach(({ label, run }) => {
+  actions.forEach(({ label, icon: path, run }) => {
     const button = text('button', 'wp-figure-menu__item', label);
+
+    button.prepend(icon(path));
 
     button.setAttribute('type', 'button');
     button.setAttribute('role', 'menuitem');
     button.addEventListener('click', () => {
-      popover.remove();
+      closePopover();
       run();
     });
     list.append(button);
@@ -144,9 +195,19 @@ function buildPopover(
 
 let activePopover: HTMLElement | null = null;
 
+const LEAVE_MS = 150;
+
+/** Fades and zooms the menu out (shadcn leave motion), then removes it. */
 function closePopover(): void {
-  activePopover?.remove();
+  const closing = activePopover;
+
   activePopover = null;
+
+  if (!closing) return;
+
+  closing.classList.remove('is-entering');
+  closing.classList.add('is-leaving');
+  window.setTimeout(() => closing.remove(), LEAVE_MS);
 }
 
 function openPopover(
@@ -161,14 +222,20 @@ function openPopover(
 
   figure.append(popover);
   activePopover = popover;
+  popover.classList.add('is-entering');
 
   const width = popover.offsetWidth;
   const height = popover.offsetHeight;
   const left = point ? point.x - frame.left : frame.width - width - 12;
   const top = point ? point.y - frame.top : frame.height - height - 56;
 
-  popover.style.left = `${Math.max(8, Math.min(left, frame.width - width - 8))}px`;
-  popover.style.top = `${Math.max(8, Math.min(top, frame.height - height - 8))}px`;
+  const x = Math.max(8, Math.min(left, frame.width - width - 8));
+  const y = Math.max(8, Math.min(top, frame.height - height - 8));
+
+  popover.style.left = `${x}px`;
+  popover.style.top = `${y}px`;
+  // Grow from the corner nearest the pointer, like a context menu.
+  popover.style.transformOrigin = `${point && point.x - frame.left > x ? 'left' : 'right'} ${point && point.y - frame.top > y ? 'top' : 'bottom'}`;
   popover.querySelector<HTMLElement>('button')?.focus();
 }
 
