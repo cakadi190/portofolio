@@ -1,100 +1,63 @@
 ///<reference types="svelte" />
+;
 import { Link } from '@inertiajs/svelte';
 import type { Snippet } from 'svelte';
+import ThemeToggler from '@/components/theme-toggler.svelte';
 import AppLogoIcon from '@/components/app-logo-icon.svelte';
-import { home } from '@/routes';
+import { home } from '@/wayfinder/routes';
 
-type $$ComponentProps = {
-  title?: string;
-  description?: string;
-  children?: Snippet;
-};
-function $$render() {
+;type $$ComponentProps =  {
+    title?: string;
+    description?: string;
+    children?: Snippet;
+  };function $$render() {
+
+  
+  
+  
+  
+  
+
   let {
     title = '',
     description = '',
     children,
-  }: /*Ωignore_startΩ*/ $$ComponentProps /*Ωignore_endΩ*/ = $props();
-  async () => {
-    {
-      svelteHTML.createElement('div', {
-        class: `auth-layout d-flex flex-column align-items-center justify-content-center gap-4 p-4 p-md-5`,
-      });
-      {
-        svelteHTML.createElement('div', { class: `auth-layout-inner w-100` });
-        {
-          svelteHTML.createElement('div', {
-            class: `card card-body rounded-4 p-4 d-flex flex-column gap-4`,
-          });
-          {
-            svelteHTML.createElement('div', {
-              class: `d-flex flex-column align-items-center gap-3`,
-            });
-            {
-              const $$_kniL4C = __sveltets_2_ensureComponent(Link);
-              new $$_kniL4C({
-                target: __sveltets_2_any(),
-                props: {
-                  children: () => {
-                    return __sveltets_2_any(0);
-                  },
-                  href: home(),
-                  class: `d-flex flex-column align-items-center gap-2 fw-medium`,
-                },
-              });
-              {
-                svelteHTML.createElement('div', {
-                  class: `auth-layout-logo mb-1 d-flex align-items-center justify-content-center rounded-2`,
-                });
-                {
-                  const $$_nocIogoLppA6C =
-                    __sveltets_2_ensureComponent(AppLogoIcon);
-                  new $$_nocIogoLppA6C({
-                    target: __sveltets_2_any(),
-                    props: { class: `auth-layout-logo-icon text-body` },
-                  });
-                }
-              }
-              {
-                svelteHTML.createElement('span', { class: `visually-hidden` });
-                title;
-              }
-              Link;
-            }
-            {
-              svelteHTML.createElement('div', {
-                class: `d-flex flex-column gap-2 text-center`,
-              });
-              {
-                svelteHTML.createElement('h1', {
-                  class: `fs-3 mb-0 fw-medium`,
-                });
-                title;
-              }
-              {
-                svelteHTML.createElement('p', {
-                  class: `text-center mb-0 small text-muted`,
-                });
-                description;
-              }
-            }
-          }
-          __sveltets_2_ensureSnippet(children?.());
-        }
-      }
-    }
-  };
-  return {
-    props: {} as any as $$ComponentProps,
-    exports: {},
-    bindings: __sveltets_$$bindings(''),
-    slots: {},
-    events: {},
-  };
-}
-const AuthSimpleLayout__SvelteComponent_ =
-  __sveltets_2_fn_component($$render());
-/*Ωignore_startΩ*/ type AuthSimpleLayout__SvelteComponent_ = ReturnType<
-  typeof AuthSimpleLayout__SvelteComponent_
->;
-/*Ωignore_endΩ*/ export default AuthSimpleLayout__SvelteComponent_;
+  }:/*Ωignore_startΩ*/$$ComponentProps/*Ωignore_endΩ*/ = $props();
+;
+async () => {
+
+ { svelteHTML.createElement("div", { "class":`auth-layout auth-layout-simple`,});
+   { svelteHTML.createElement("div", { "class":`auth-layout-theme-toggler`,});
+     { const $$_relggoTemehT2C = __sveltets_2_ensureComponent(ThemeToggler); new $$_relggoTemehT2C({ target: __sveltets_2_any(), props: {}});}
+   }
+   { svelteHTML.createElement("div", { "class":`auth-layout-container`,});
+     { svelteHTML.createElement("div", { "class":`auth-layout-body`,});
+       { svelteHTML.createElement("div", { "class":`auth-layout-header`,});
+         { const $$_kniL4C = __sveltets_2_ensureComponent(Link); new $$_kniL4C({ target: __sveltets_2_any(), props: {   children:() => { return __sveltets_2_any(0); },"href":home(),"class":`auth-layout-brand`,}});
+           { svelteHTML.createElement("div", { "class":`auth-layout-logo`,});
+             { const $$_nocIogoLppA6C = __sveltets_2_ensureComponent(AppLogoIcon); new $$_nocIogoLppA6C({ target: __sveltets_2_any(), props: {  "class":`auth-layout-logo-icon`,}});}
+           }
+           { svelteHTML.createElement("span", { "class":`visually-hidden`,});title; }
+         Link}
+         { svelteHTML.createElement("div", { "class":`auth-layout-heading`,});
+           { svelteHTML.createElement("h1", { "class":`auth-layout-title`,});title; }
+           { svelteHTML.createElement("p", { "class":`auth-layout-description`,});
+            description;
+           }
+         }
+       }
+      ;__sveltets_2_ensureSnippet(children?.());
+     }
+
+     { svelteHTML.createElement("div", { "class":`auth-layout-footer`,});
+          { const $$_kniL3C = __sveltets_2_ensureComponent(Link); new $$_kniL3C({ target: __sveltets_2_any(), props: { children:() => { return __sveltets_2_any(0); },"href":`/`,}});   Link}
+     }
+   }
+ }
+
+
+};
+return { props: {} as any as $$ComponentProps, exports: {}, bindings: __sveltets_$$bindings(''), slots: {}, events: {} }}
+const AuthSimpleLayout__SvelteComponent_ = __sveltets_2_fn_component($$render());
+/*Ωignore_startΩ*/type AuthSimpleLayout__SvelteComponent_ = ReturnType<typeof AuthSimpleLayout__SvelteComponent_>;
+/*Ωignore_endΩ*/export default AuthSimpleLayout__SvelteComponent_;

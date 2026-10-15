@@ -23,6 +23,7 @@ Hasil reverse engineering; urutan bukan prioritas final.
 ## Ide lanjutan
 
 - Folder & tag media, thumbnail multi-ukuran, ganti berkas tanpa mengubah path.
-- Newsletter/RSS, pencarian global situs, balasan email dari inbox admin, SEO meta per artikel.
+- Newsletter/RSS, pencarian global situs, SEO meta per artikel.
 - Pratinjau artikel draf, penjadwalan terbit otomatis.
 - Audit log perubahan admin.
+- **Antrean email.** Produksi tidak menjalankan queue worker (lihat Dockerfile), jadi job email kontak (`SendContactReceipt`, `SendContactAdminNotification`, `SendContactReply`) dipanggil dengan `dispatchAfterResponse()`: berjalan setelah respons terkirim, satu kali percobaan, tanpa retry. Bila worker ditambahkan, ganti ke `dispatch()` dan atur `tries`/`backoff`. Lampiran balasan belum terdaftar di `MediaService::USAGES`, sehingga media yang sudah dilampirkan masih bisa dihapus dari Pustaka Media.

@@ -6,9 +6,11 @@ use App\Models\Note;
 use App\Models\Tag;
 use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
+use App\Services\NoteMarkdownExporter;
 use App\Services\SeoService;
 use App\Services\Visitors\PageViewCounter;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,6 +85,19 @@ class NoteController extends Controller
                 'views' => $this->views->forPath("/notes/{$note->slug}"),
                 'tags' => $note->tags->pluck('name'),
             ],
+        ]);
+    }
+
+    /**
+     * Serve a published note as Markdown with a YAML front-matter header.
+     */
+    public function markdown(Note $note, NoteMarkdownExporter $exporter): HttpResponse
+    {
+        abort_unless($note->is_published, 404);
+
+        return response($exporter->export($note), 200, [
+            'Content-Type' => 'text/markdown; charset=UTF-8',
+            'X-Robots-Tag' => 'noindex',
         ]);
     }
 }

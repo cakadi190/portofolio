@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContactReplyStatus;
 use App\Http\Controllers\Concerns\PaginatesTables;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ContactMessageReplyRequest;
+use App\Jobs\SendContactReply;
 use App\Models\ContactMessage;
+use App\Models\ContactMessageReply;
+use App\Models\Media;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,7 +22,7 @@ class ContactMessageController extends Controller
     public function index(Request $request): Response
     {
         $messages = $this->paginateTable(
-            ContactMessage::query()->latest(),
+            ContactMessage::query()->with('replies.author:id,name')->latest(),
             $request,
             ['name', 'email'],
             ['name', 'email', 'created_at'],
@@ -25,9 +30,20 @@ class ContactMessageController extends Controller
 
         return Inertia::render('admin/contact-messages/index', [
             'messages' => Inertia::scroll($messages->through(fn (ContactMessage $message): array => [
-                ...$message->toArray(),
+                ...$message->only(['id', 'name', 'email', 'message', 'read_at', 'created_at']),
                 'reason' => $message->reason->value,
                 'reason_label' => $message->reason->label(),
+                'default_subject' => $this->defaultSubject($message),
+                'replies' => $message->replies->map(fn (ContactMessageReply $reply): array => [
+                    'id' => $reply->id,
+                    'subject' => $reply->subject,
+                    'status' => $reply->status->value,
+                    'status_label' => $reply->status->label(),
+                    'error' => $reply->error,
+                    'author' => $reply->author?->name,
+                    'attachments' => Media::query()->whereIn('path', $reply->attachments ?? [])->pluck('name')->all(),
+                    'created_at' => $reply->created_at,
+                ])->all(),
             ])),
             'filters' => $this->tableFilters($request, ['name', 'email', 'created_at']),
         ]);
@@ -52,5 +68,30 @@ class ContactMessageController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Pesan berhasil dihapus.']);
 
         return to_route('admin.contact-messages.index');
+    }
+
+    /**
+     * Save an emailed reply and queue its delivery to the sender.
+     */
+    public function reply(ContactMessageReplyRequest $request, ContactMessage $contactMessage): RedirectResponse
+    {
+        $reply = $contactMessage->replies()->create([
+            'user_id' => $request->user()->id,
+            'subject' => $request->validated('subject') ?: $this->defaultSubject($contactMessage),
+            'body' => $request->validated('body'),
+            'attachments' => $request->validated('attachments') ?: null,
+            'status' => ContactReplyStatus::Queued,
+        ]);
+
+        SendContactReply::dispatchAfterResponse($reply);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Balasan masuk antrean dan sedang dikirim.']);
+
+        return to_route('admin.contact-messages.index');
+    }
+
+    private function defaultSubject(ContactMessage $contactMessage): string
+    {
+        return "Membalas: {$contactMessage->reason->label()}";
     }
 }

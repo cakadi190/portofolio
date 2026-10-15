@@ -27,6 +27,9 @@ class ContactMessageReceived extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'mail.contact-message-received');
+        return new Content(
+            view: 'mail.contact-message-received',
+            text: 'mail.text.contact-message-received',
+        );
     }
 }

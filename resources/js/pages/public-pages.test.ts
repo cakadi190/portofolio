@@ -471,7 +471,7 @@ describe('BlogShow', () => {
       comments: { data: [] },
       totalComments: 0,
       ...sidebar,
-    });
+    } as never);
 
     expect(screen.getByRole('link', { name: 'Artikel Lain' })).toBeTruthy();
     expect(
@@ -507,7 +507,7 @@ describe('BlogShow', () => {
       ...props,
       ...sidebar,
       adjacent: { previous: null, next: null },
-    });
+    } as never);
 
     expect(
       screen.queryByRole('navigation', { name: 'Navigasi artikel' }),
@@ -520,7 +520,7 @@ describe('BlogShow', () => {
       comments: { data: [] },
       totalComments: 0,
       ...sidebar,
-    });
+    } as never);
 
     expect(
       screen.getByRole('navigation', { name: 'Navigasi artikel' }),
@@ -533,7 +533,7 @@ describe('BlogShow', () => {
       comments: { data: [] },
       totalComments: 0,
       ...sidebar,
-    });
+    } as never);
 
     expect(hrefOf(screen.getByRole('link', { name: /Edit artikel/i }))).toBe(
       '/admin/posts/7/edit',
@@ -552,7 +552,7 @@ describe('BlogShow', () => {
         tags: [],
         excerpt: 'Ringkas',
       },
-    });
+    } as never);
 
     expect(screen.getByText('Belum dipublikasikan')).toBeTruthy();
     expect(screen.getByText('Belum ada tag.')).toBeTruthy();
@@ -586,7 +586,7 @@ describe('BlogShow', () => {
         ],
       },
       totalComments: 2,
-    });
+    } as never);
 
     expect(screen.getByText('Komentar (2)')).toBeTruthy();
     expect(screen.getByText('Balasan bersarang')).toBeTruthy();

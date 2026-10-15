@@ -349,8 +349,9 @@
 >
   {#snippet children()}
     {#if editingPlace}
+      {@const current = editingPlace}
       <Form
-        {...update.form(editingPlace.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         options={{ preserveScroll: true, only: ['coffeePlaces', 'regions'], reset: ['coffeePlaces'] }}
@@ -363,7 +364,7 @@
               id="edit-name"
               name="name"
               required
-              value={editingPlace.name}
+              value={current.name}
               invalid={!!errors.name}
             />
             <Field.Feedback message={errors.name} />
@@ -375,7 +376,7 @@
               id="edit-address"
               name="address"
               required
-              value={editingPlace.address}
+              value={current.address}
               invalid={!!errors.address}
             />
             <Field.Feedback message={errors.address} />
@@ -388,7 +389,7 @@
               name="description"
               class="form-control"
               class:is-invalid={!!errors.description}
-              rows="3">{editingPlace.description ?? ''}</textarea
+              rows="3">{current.description ?? ''}</textarea
             >
             <Field.Feedback message={errors.description} />
           </Field.Group>
@@ -397,7 +398,7 @@
             <Field.Label for="edit-image">Foto</Field.Label>
             <MediaField
               name="image"
-              value={editingPlace.image}
+              value={current.image}
               invalid={!!errors.image}
             />
             <Field.Feedback message={errors.image} />
@@ -405,13 +406,13 @@
 
           <Field.Group>
             <Field.Label>Galeri</Field.Label>
-            <MediaGalleryField value={editingPlace.galleries} {errors} />
+            <MediaGalleryField value={current.galleries} {errors} />
           </Field.Group>
 
           <MapPicker
             idPrefix="edit"
-            latitude={editingPlace.latitude}
-            longitude={editingPlace.longitude}
+            latitude={current.latitude}
+            longitude={current.longitude}
             latitudeError={errors.latitude}
             longitudeError={errors.longitude}
           />
@@ -422,7 +423,7 @@
               id="edit-map_url"
               name="map_url"
               type="url"
-              value={editingPlace.map_url}
+              value={current.map_url}
               invalid={!!errors.map_url}
             />
             <Field.Feedback message={errors.map_url} />
@@ -433,7 +434,7 @@
             <Field.Input placeholder="Masukkan penyedia WiFi"
               id="edit-wifi_provider"
               name="wifi_provider"
-              value={editingPlace.wifi_provider}
+              value={current.wifi_provider}
               invalid={!!errors.wifi_provider}
             />
             <Field.Feedback message={errors.wifi_provider} />
@@ -447,7 +448,7 @@
                   id="edit-wifi_speed"
                   name="wifi_speed"
                   items={wifiSpeeds}
-                  value={editingPlace.wifi_speed}
+                  value={current.wifi_speed}
                   required
                   invalid={!!errors.wifi_speed}
                 />
@@ -461,7 +462,7 @@
                   id="edit-price_tier"
                   name="price_tier"
                   items={priceTiers}
-                  value={editingPlace.price_tier}
+                  value={current.price_tier}
                   required
                   invalid={!!errors.price_tier}
                 />
@@ -478,7 +479,7 @@
                   id="edit-park_fee"
                   name="park_fee"
                   type="number"
-                  value={editingPlace.park_fee}
+                  value={current.park_fee}
                   invalid={!!errors.park_fee}
                 />
                 <Field.Feedback message={errors.park_fee} />
@@ -487,14 +488,14 @@
             <div class="col-sm-4">
               <Field.Group>
                 <Field.Label for="edit-opens_at">Buka</Field.Label>
-                <TimePicker id="edit-opens_at" name="opens_at" value={editingPlace.opens_at} invalid={!!errors.opens_at} />
+                <TimePicker id="edit-opens_at" name="opens_at" value={current.opens_at} invalid={!!errors.opens_at} />
                 <Field.Feedback message={errors.opens_at} />
               </Field.Group>
             </div>
             <div class="col-sm-4">
               <Field.Group>
                 <Field.Label for="edit-closes_at">Tutup</Field.Label>
-                <TimePicker id="edit-closes_at" name="closes_at" value={editingPlace.closes_at} invalid={!!errors.closes_at} />
+                <TimePicker id="edit-closes_at" name="closes_at" value={current.closes_at} invalid={!!errors.closes_at} />
                 <Field.Feedback message={errors.closes_at} />
               </Field.Group>
             </div>
@@ -507,7 +508,7 @@
               list="region-options"
               autocomplete="off"
               name="region"
-              value={editingPlace.region}
+              value={current.region}
               invalid={!!errors.region}
             />
             <Field.Feedback message={errors.region} />
@@ -522,7 +523,7 @@
                     id="edit-facility-{facility.value}"
                     name="facilities[]"
                     value={facility.value}
-          checked={editingPlace.facilities?.includes(facility.value) ?? false}
+          checked={current.facilities?.includes(facility.value) ?? false}
                   >
                     {facility.label}
                   </Field.Input.Check>
@@ -537,7 +538,7 @@
             id="edit-is_recommended"
             name="is_recommended"
             value="1"
-            checked={editingPlace.is_recommended}
+            checked={current.is_recommended}
           >
             Rekomendasikan tempat ini
           </Field.Input.Check>

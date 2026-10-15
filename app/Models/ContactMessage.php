@@ -7,6 +7,7 @@ use App\Enums\ContactReason;
 use Database\Factories\ContactMessageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ContactMessage extends Model
 {
@@ -24,5 +25,13 @@ class ContactMessage extends Model
             'reason' => ContactReason::class,
             'read_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return HasMany<ContactMessageReply, $this>
+     */
+    public function replies(): HasMany
+    {
+        return $this->hasMany(ContactMessageReply::class)->latest();
     }
 }

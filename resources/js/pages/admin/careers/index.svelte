@@ -209,8 +209,9 @@
 >
   {#snippet children()}
     {#if editingCareer}
+      {@const current = editingCareer}
       <Form
-        {...update.form(editingCareer.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -222,7 +223,7 @@
               id="edit-position"
               name="position"
               required
-              value={editingCareer.position}
+              value={current.position}
               invalid={!!errors.position}
             />
             <Field.Feedback message={errors.position} />
@@ -234,7 +235,7 @@
               id="edit-company"
               name="company"
               required
-              value={editingCareer.company}
+              value={current.company}
               invalid={!!errors.company}
             />
             <Field.Feedback message={errors.company} />
@@ -246,7 +247,7 @@
               id="edit-location"
               name="location"
               required
-              value={editingCareer.location}
+              value={current.location}
               invalid={!!errors.location}
             />
             <Field.Feedback message={errors.location} />
@@ -259,7 +260,7 @@
                 <DatePicker
                   id="edit-start_date"
                   name="start_date"
-                  value={editingCareer.start_date}
+                  value={current.start_date}
                   invalid={!!errors.start_date}
                 />
                 <Field.Feedback message={errors.start_date} />
@@ -271,7 +272,7 @@
                 <DatePicker
                   id="edit-end_date"
                   name="end_date"
-                  value={editingCareer.end_date}
+                  value={current.end_date}
                   invalid={!!errors.end_date}
                 />
                 <Field.Feedback message={errors.end_date} />

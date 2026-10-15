@@ -2,6 +2,7 @@
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
+  import ContactReplyForm from '@/components/admin/contact-reply-form.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import FormModal from '@/components/form-modal.svelte';
   import { router } from '@inertiajs/svelte';
@@ -20,6 +21,17 @@
     reason: string;
     reason_label: string;
     message: string;
+    default_subject: string;
+    replies: {
+      id: number;
+      subject: string;
+      status: 'queued' | 'sent' | 'failed';
+      status_label: string;
+      error: string | null;
+      author: string | null;
+      attachments: string[];
+      created_at: string;
+    }[];
     read_at: string | null;
     created_at: string;
   };
@@ -27,10 +39,17 @@
   let {
     messages,
     filters,
-  }: { messages: InfiniteList<ContactMessage>; filters: TableFilters } = $props();
+  }: { messages: InfiniteList<ContactMessage>; filters: TableFilters } =
+    $props();
 
   let viewOpen = $state(false);
   let viewing = $state<ContactMessage | null>(null);
+  let replying = $state(false);
+  const replyBadge = {
+    queued: 'text-bg-secondary',
+    sent: 'text-bg-success',
+    failed: 'text-bg-danger',
+  };
 
   function toggleRead(message: ContactMessage): void {
     router.put(update(message.id).url, {}, { preserveScroll: true });
@@ -38,6 +57,7 @@
 
   function openMessage(message: ContactMessage): void {
     viewing = message;
+    replying = false;
     viewOpen = true;
 
     if (!message.read_at) {
@@ -50,7 +70,7 @@
 
 <AdminPageHeader
   title="Pesan Masuk"
-  subtitle="Pesan yang dikirim pengunjung lewat formulir di halaman Hubungi Saya."
+  subtitle="Pesan yang dikirim pengunjung lewat formulir di halaman Hubungi Saya. Balas langsung dari sini; balasan dikirim lewat email."
 />
 
 <DataTable
@@ -120,17 +140,56 @@
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html viewing.message}
       </div>
-      <div class="d-flex justify-content-end gap-2">
-        <a
-          class="btn btn-outline-primary"
-          href={`mailto:${viewing.email}`}>Balas via Email</a
-        >
-        <button
-          type="button"
-          class="btn btn-primary"
-          onclick={() => (viewOpen = false)}>Tutup</button
-        >
-      </div>
+      {#if viewing.replies.length > 0}
+        <h6 class="mb-2">Riwayat Balasan</h6>
+        <ul class="list-unstyled d-flex flex-column gap-2 mb-3">
+          {#each viewing.replies as item (item.id)}
+            <li class="border rounded-3 px-3 py-2">
+              <div
+                class="d-flex justify-content-between align-items-start gap-2"
+              >
+                <span class="fw-semibold">{item.subject}</span>
+                <span class={`badge ${replyBadge[item.status]}`}
+                  >{item.status_label}</span
+                >
+              </div>
+              <small class="opacity-75">
+                {formatDate(item.created_at)}{item.author
+                  ? ` · ${item.author}`
+                  : ''}
+                {item.attachments.length > 0
+                  ? ` · ${item.attachments.length} lampiran`
+                  : ''}
+              </small>
+              {#if item.error}
+                <small class="d-block text-danger">{item.error}</small>
+              {/if}
+            </li>
+          {/each}
+        </ul>
+      {/if}
+
+      {#if replying}
+        <ContactReplyForm
+          messageId={viewing.id}
+          defaultSubject={viewing.default_subject}
+          onSent={() => (viewOpen = false)}
+          onCancel={() => (replying = false)}
+        />
+      {:else}
+        <div class="d-flex justify-content-end gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            onclick={() => (replying = true)}>Balas</button
+          >
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick={() => (viewOpen = false)}>Tutup</button
+          >
+        </div>
+      {/if}
     {/if}
   {/snippet}
 </FormModal>

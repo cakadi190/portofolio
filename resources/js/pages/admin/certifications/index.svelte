@@ -259,8 +259,9 @@
 >
   {#snippet children()}
     {#if editingCertification}
+      {@const current = editingCertification}
       <Form
-        {...update.form(editingCertification.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -272,7 +273,7 @@
               id="edit-title"
               name="title"
               required
-              value={editingCertification.title}
+              value={current.title}
               invalid={!!errors.title}
             />
             <Field.Feedback message={errors.title} />
@@ -284,7 +285,7 @@
               id="edit-issuer"
               name="issuer"
               required
-              value={editingCertification.issuer}
+              value={current.issuer}
               invalid={!!errors.issuer}
             />
             <Field.Feedback message={errors.issuer} />
@@ -297,7 +298,7 @@
                 <DatePicker
                   id="edit-issued_at"
                   name="issued_at"
-                  value={editingCertification.issued_at?.slice(0, 10)}
+                  value={current.issued_at?.slice(0, 10)}
                   invalid={!!errors.issued_at}
                 />
                 <Field.Feedback message={errors.issued_at} />
@@ -309,7 +310,7 @@
                 <DatePicker
                   id="edit-expires_at"
                   name="expires_at"
-                  value={editingCertification.expires_at?.slice(0, 10)}
+                  value={current.expires_at?.slice(0, 10)}
                   invalid={!!errors.expires_at}
                 />
                 <Field.Feedback message={errors.expires_at} />
@@ -325,7 +326,7 @@
                 <Field.Input placeholder="Masukkan ID kredensial"
                   id="edit-credential_id"
                   name="credential_id"
-                  value={editingCertification.credential_id}
+                  value={current.credential_id}
                   invalid={!!errors.credential_id}
                 />
                 <Field.Feedback message={errors.credential_id} />
@@ -340,7 +341,7 @@
                   id="edit-credential_url"
                   name="credential_url"
                   type="url"
-                  value={editingCertification.credential_url}
+                  value={current.credential_url}
                   invalid={!!errors.credential_url}
                 />
                 <Field.Feedback message={errors.credential_url} />
@@ -356,7 +357,7 @@
               name="file"
               accept="all"
               required
-              value={editingCertification.file}
+              value={current.file}
               invalid={!!errors.file}
             />
             <Field.Feedback message={errors.file} />

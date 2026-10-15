@@ -125,5 +125,6 @@
     "resources/js/**/*.svelte",
     "vite.config.ts",
     "vite-*.ts"
-  ]
+  ],
+  "exclude": ["resources/js/wayfinder/Illuminate"]
 }

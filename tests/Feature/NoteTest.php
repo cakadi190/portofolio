@@ -76,3 +76,29 @@ test('a note can be assigned to another author and defaults to the current user'
     expect(Note::query()->where('title', 'Milik redaktur')->value('user_id'))->toBe($other->id)
         ->and(Note::query()->where('title', 'Milik saya')->value('user_id'))->toBe($admin->id);
 });
+
+test('a published note is served as markdown with a yaml header', function () {
+    $tag = Tag::factory()->create(['name' => 'laravel']);
+    $note = Note::factory()->create([
+        'title' => 'Catatan: Markdown',
+        'content' => '<h2>Judul</h2><p>Halo <strong>dunia</strong><script>alert(1)</script></p><figure><img src="/storage/a.png" alt="A"><figcaption>Keterangan</figcaption></figure>',
+    ]);
+    $note->tags()->attach($tag);
+
+    $response = $this->get(route('notes.markdown', $note))->assertOk();
+
+    expect($response->headers->get('Content-Type'))->toStartWith('text/markdown');
+    $body = $response->getContent();
+    expect($body)->toStartWith("---\n")
+        ->toContain("title: 'Catatan: Markdown'")
+        ->toContain('- laravel')
+        ->toContain('## Judul')
+        ->toContain('**dunia**')
+        ->toContain(url('/storage/a.png'))
+        ->toContain('*Keterangan*')
+        ->not->toContain('alert');
+});
+
+test('draft notes have no markdown version', function () {
+    $this->get(route('notes.markdown', Note::factory()->draft()->create()))->assertNotFound();
+});

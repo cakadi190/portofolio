@@ -24,6 +24,8 @@ const message = (id: number, readAt: string | null) => ({
   reason: 'kerja',
   reason_label: 'Kerja sama',
   message: '<p>Halo, <strong>saya tertarik</strong></p>',
+  default_subject: 'Membalas: Kerja sama',
+  replies: [],
   read_at: readAt,
   created_at: '2024-05-17T00:00:00Z',
 });
@@ -67,15 +69,31 @@ describe('admin contact messages page (full flow)', () => {
     );
     expect(screen.getByText('saya tertarik')).toBeTruthy();
     expect(
-      screen
-        .getByRole('link', { name: 'Balas via Email', hidden: true })
-        .getAttribute('href'),
-    ).toBe('mailto:p1@mail.test');
+      screen.getByRole('button', { name: 'Balas', hidden: true }),
+    ).toBeTruthy();
     expect(router.put).toHaveBeenCalledWith(
       expect.stringMatching(/\/admin\/contact-messages\/1$/),
       {},
       expect.objectContaining({ preserveScroll: true }),
     );
+  });
+
+  it('opens the reply form with the default subject as placeholder', async () => {
+    render(ContactMessages, { messages, filters });
+
+    await fireEvent.click(screen.getAllByRole('button', { name: 'Lihat' })[1]);
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Balas', hidden: true }),
+    );
+
+    const subject = (await screen.findByLabelText('Subjek (opsional)', {
+      selector: 'input',
+    })) as HTMLInputElement;
+
+    expect(subject.placeholder).toBe('Membalas: Kerja sama');
+    expect(
+      screen.getByRole('button', { name: /Kirim Balasan/, hidden: true }),
+    ).toBeTruthy();
   });
 
   it('does not re-mark an already read message', async () => {

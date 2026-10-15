@@ -145,40 +145,41 @@
 <FormModal bind:open={editOpen} title="Ubah Komunitas" subtitle={editing?.name ?? ''}>
   {#snippet children()}
     {#if editing}
-      <Form {...update.form(editing.id)} class="d-flex flex-column gap-3" novalidate onSuccess={() => (editOpen = false)}>
+      {@const current = editing}
+      <Form {...update.form(current.id)} class="d-flex flex-column gap-3" novalidate onSuccess={() => (editOpen = false)}>
         {#snippet children({ errors, processing })}
         <Field.Group>
           <Field.Label for="edit-name">Nama</Field.Label>
-          <Field.Input placeholder="Masukkan nama" id="edit-name" name="name" required value={editing.name} invalid={!!errors.name} />
+          <Field.Input placeholder="Masukkan nama" id="edit-name" name="name" required value={current.name} invalid={!!errors.name} />
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="edit-platform">Platform</Field.Label>
-          <Select id="edit-platform" name="platform" items={platforms} value={editing.platform} required invalid={!!errors.platform} />
+          <Select id="edit-platform" name="platform" items={platforms} value={current.platform} required invalid={!!errors.platform} />
           <Field.Feedback message={errors.platform} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="edit-invite_url">Tautan Undangan</Field.Label>
-          <Field.Input placeholder="https://" id="edit-invite_url" name="invite_url" type="url" required value={editing.invite_url} invalid={!!errors.invite_url} />
+          <Field.Input placeholder="https://" id="edit-invite_url" name="invite_url" type="url" required value={current.invite_url} invalid={!!errors.invite_url} />
           <Field.Feedback message={errors.invite_url} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="edit-member_count">Jumlah Anggota</Field.Label>
-          <Field.Input placeholder="Opsional" id="edit-member_count" name="member_count" type="number" min="0" value={editing.member_count} invalid={!!errors.member_count} />
+          <Field.Input placeholder="Opsional" id="edit-member_count" name="member_count" type="number" min="0" value={current.member_count} invalid={!!errors.member_count} />
           <Field.Feedback message={errors.member_count} />
         </Field.Group>
 
         <Field.Group>
           <Field.Label for="edit-description">Deskripsi</Field.Label>
-          <textarea placeholder="Masukkan deskripsi" id="edit-description" name="description" class="form-control" class:is-invalid={!!errors.description} rows="3">{editing.description ?? ''}</textarea>
+          <textarea placeholder="Masukkan deskripsi" id="edit-description" name="description" class="form-control" class:is-invalid={!!errors.description} rows="3">{current.description ?? ''}</textarea>
           <Field.Feedback message={errors.description} />
         </Field.Group>
 
         <input type="hidden" name="is_featured" value="0" />
-        <Field.Input.Check id="edit-is_featured" name="is_featured" value="1" checked={editing.is_featured}>
+        <Field.Input.Check id="edit-is_featured" name="is_featured" value="1" checked={current.is_featured}>
           Tampilkan sebagai unggulan
         </Field.Input.Check>
 

@@ -5,13 +5,11 @@ namespace App\Http\Controllers;
 use App\Enums\ContactReason;
 use App\Enums\SystemSettingGroup;
 use App\Http\Requests\ContactMessageRequest;
-use App\Mail\ContactMessageConfirmation;
-use App\Mail\ContactMessageReceived;
+use App\Jobs\SendContactAdminNotification;
+use App\Jobs\SendContactReceipt;
 use App\Models\ContactMessage;
-use App\Models\SystemSetting;
 use App\Services\SystemSettingService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -72,13 +70,14 @@ class ContactController extends Controller
     }
 
     /**
-     * Store a visitor message for the admin inbox.
+     * Store a visitor message for the admin inbox, then queue the receipt to the sender and the notification to the admin.
      */
     public function store(ContactMessageRequest $request): RedirectResponse
     {
         $contactMessage = ContactMessage::query()->create($request->validated());
 
-        $this->sendMessageEmails($contactMessage);
+        SendContactReceipt::dispatchAfterResponse($contactMessage);
+        SendContactAdminNotification::dispatchAfterResponse($contactMessage);
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -86,19 +85,5 @@ class ContactController extends Controller
         ]);
 
         return to_route('contact.index');
-    }
-
-    /**
-     * Email the message to the configured recipient and a confirmation to the
-     * sender. Mail failures are reported but never lose the stored message.
-     */
-    private function sendMessageEmails(ContactMessage $contactMessage): void
-    {
-        try {
-            Mail::to($this->systemSettings->get(SystemSetting::CONTACT_RECIPIENT_EMAIL, config('mail.from.address')))->send(new ContactMessageReceived($contactMessage));
-            Mail::to($contactMessage->email)->send(new ContactMessageConfirmation($contactMessage));
-        } catch (\Throwable $exception) {
-            report($exception);
-        }
     }
 }

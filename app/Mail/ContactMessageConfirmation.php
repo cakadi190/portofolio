@@ -24,6 +24,9 @@ class ContactMessageConfirmation extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'mail.contact-message-confirmation');
+        return new Content(
+            view: 'mail.contact-message-confirmation',
+            text: 'mail.text.contact-message-confirmation',
+        );
     }
 }

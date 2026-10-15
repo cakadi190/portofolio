@@ -194,7 +194,7 @@ describe('BlogHomeSection', () => {
   it('renders a card per post and a link to the blog', () => {
     render(BlogHomeSection, {
       posts: [post, { ...post, slug: 'dua', title: 'Dua' }],
-    });
+    } as never);
 
     expect(screen.getByText('Judul')).toBeTruthy();
     expect(screen.getByText('Dua')).toBeTruthy();

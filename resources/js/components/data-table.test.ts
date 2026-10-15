@@ -41,14 +41,17 @@ const filters = (overrides = {}) => ({
 });
 
 const mount = (props: Record<string, unknown> = {}) =>
-  render(DataTable as never, {
-    data: paginated(),
-    filters: filters(),
-    url: '/admin/things',
-    columns,
-    row,
-    ...props,
-  });
+  render(
+    DataTable as never,
+    {
+      data: paginated(),
+      filters: filters(),
+      url: '/admin/things',
+      columns,
+      row,
+      ...props,
+    } as never,
+  );
 
 afterEach(() => {
   vi.useRealTimers();

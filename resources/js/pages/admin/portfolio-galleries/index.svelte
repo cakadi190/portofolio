@@ -163,8 +163,9 @@
 >
   {#snippet children()}
     {#if editingGallery}
+      {@const current = editingGallery}
       <Form
-        {...update.form(editingGallery.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -179,7 +180,7 @@
                 value: option.id,
                 label: option.name,
               }))}
-              value={editingGallery.portfolio_id}
+              value={current.portfolio_id}
               required
               invalid={!!errors.portfolio_id}
             />
@@ -191,7 +192,7 @@
             <MediaField
               name="image_url"
               required
-              value={editingGallery.image_url}
+              value={current.image_url}
               invalid={!!errors.image_url}
             />
             <Field.Feedback message={errors.image_url} />
@@ -202,7 +203,7 @@
             <Field.Input placeholder="Masukkan deskripsi"
               id="edit-description"
               name="description"
-              value={editingGallery.description}
+              value={current.description}
               invalid={!!errors.description}
             />
             <Field.Feedback message={errors.description} />

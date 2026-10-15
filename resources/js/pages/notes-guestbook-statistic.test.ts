@@ -28,7 +28,7 @@ describe('NotesIndex', () => {
       ]),
       tags: ['react'],
       activeTag: null,
-    });
+    } as never);
 
     expect(document.title).toContain('Catatan Singkat');
     expect(screen.getByText('Auth Context')).toBeTruthy();
@@ -37,7 +37,11 @@ describe('NotesIndex', () => {
   });
 
   it('shows an empty state', () => {
-    render(NotesIndex, { notes: paginated([]), tags: [], activeTag: null });
+    render(NotesIndex, {
+      notes: paginated([]),
+      tags: [],
+      activeTag: null,
+    } as never);
 
     expect(screen.getByText('Belum Ada Catatan')).toBeTruthy();
   });
@@ -87,7 +91,7 @@ describe('GuestbookPage', () => {
         ],
       },
       totalEntries: 2,
-    });
+    } as never);
 
     expect(screen.getByText('Halo dunia')).toBeTruthy();
     expect(screen.getByText('Halo juga')).toBeTruthy();

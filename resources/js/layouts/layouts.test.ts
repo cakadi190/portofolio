@@ -17,11 +17,14 @@ describe.each([
   ['AuthLayout (default split)', AuthLayout],
 ])('%s', (_name, Layout) => {
   it('renders the heading, description, body and theme toggle', () => {
-    render(Layout as never, {
-      title: 'Masuk',
-      description: 'Silakan masuk',
-      children: content,
-    });
+    render(
+      Layout as never,
+      {
+        title: 'Masuk',
+        description: 'Silakan masuk',
+        children: content,
+      } as never,
+    );
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Masuk' }),

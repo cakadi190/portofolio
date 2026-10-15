@@ -1,12 +1,16 @@
-<!doctype html>
-<html lang="id">
-<body style="font-family: Arial, sans-serif; color: #212529; line-height: 1.6;">
-    <p>Halo {{ $contactMessage->name }},</p>
-    <p>Terima kasih sudah menghubungi {{ config('app.name') }}. Pesan Anda dengan keperluan <strong>{{ $contactMessage->reason->label() }}</strong> sudah kami terima dan akan segera diproses.</p>
-    <p>Berikut salinan pesan Anda:</p>
-    <blockquote style="border-left: 3px solid #ced4da; margin: 0; padding-left: 12px;">
-        {!! $contactMessage->message !!}
-    </blockquote>
-    <p>Salam,<br>{{ config('app.name') }}</p>
-</body>
-</html>
+@extends('mail.layout')
+
+@section('title', 'Pesan Anda sudah kami terima')
+@section('preheader', 'Terima kasih sudah menghubungi kami, pesan Anda akan segera diproses.')
+@section('heading', 'Pesan Anda sudah kami terima')
+
+@section('content')
+    <p>Halo, <strong>{{ $contactMessage->name }}</strong>.</p>
+    <p>Terima kasih sudah menghubungi {{ config('app.name') }}. Pesan Anda dengan keperluan <strong>{{ $contactMessage->reason->label() }}</strong> sudah kami terima dan akan segera diproses. Balasan akan dikirim ke alamat email ini.</p>
+    <p style="margin-bottom:8px;color:#5f6f86;font-size:13px;">Salinan pesan Anda:</p>
+    <div class="quote" style="padding:12px 16px;margin:0 0 8px;">
+        {!! \App\Services\HtmlSanitizer::clean($contactMessage->message) !!}
+    </div>
+@endsection
+
+@section('footnote', 'Anda menerima email ini karena mengirim pesan lewat formulir kontak. Jika bukan Anda, abaikan saja email ini.')

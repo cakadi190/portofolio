@@ -246,8 +246,9 @@
 >
   {#snippet children()}
     {#if editingUser}
+      {@const current = editingUser}
       <Form
-        {...update.form(editingUser.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -259,7 +260,7 @@
               id="edit-name"
               name="name"
               required
-              value={editingUser.name}
+              value={current.name}
               invalid={!!errors.name}
             />
             <Field.Feedback message={errors.name} />
@@ -272,7 +273,7 @@
               name="email"
               type="email"
               required
-              value={editingUser.email}
+              value={current.email}
               invalid={!!errors.email}
             />
             <Field.Feedback message={errors.email} />
@@ -296,7 +297,7 @@
               id="edit-account_type"
               name="account_type"
               items={accountTypes}
-              value={editingUser.account_type}
+              value={current.account_type}
               required
               invalid={!!errors.account_type}
             />
@@ -311,7 +312,7 @@
                 <Field.Input placeholder="08xxxxxxxxxx"
                   id="edit-phone"
                   name="phone"
-                  value={editingUser.phone}
+                  value={current.phone}
                   invalid={!!errors.phone}
                 />
                 <Field.Feedback message={errors.phone} />
@@ -324,7 +325,7 @@
                   id="edit-gender"
                   name="gender"
                   items={genders}
-                  value={editingUser.gender}
+                  value={current.gender}
                   invalid={!!errors.gender}
                   placeholder="—"
                 />
@@ -337,7 +338,7 @@
             <Field.Label for="edit-avatar">Foto Profil</Field.Label>
             <MediaField
               name="avatar"
-              value={editingUser.avatar}
+              value={current.avatar}
               invalid={!!errors.avatar}
             />
             <Field.Feedback message={errors.avatar} />

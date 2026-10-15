@@ -114,8 +114,9 @@
 >
   {#snippet children()}
     {#if editingTag}
+      {@const current = editingTag}
       <Form
-        {...update.form(editingTag.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -127,7 +128,7 @@
               id="edit-name"
               name="name"
               required
-              value={editingTag.name}
+              value={current.name}
               invalid={!!errors.name}
             />
             <Field.Feedback message={errors.name} />

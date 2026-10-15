@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Engagement } from '@/components/speaking-item.svelte';
   import AppHead from '@/components/app-head.svelte';
   import BlogHomeSection from '@/components/home/blog-home-section.svelte';
   import ElkuslaSection from '@/components/home/elkusla-section.svelte';
@@ -26,17 +27,6 @@
     author: string | null;
   };
 
-  type Speaking = {
-    id: number;
-    title: string;
-    organizer: string;
-    roleLabel: string;
-    formatLabel: string;
-    location: string | null;
-    startsAt: string;
-    poster: string | null;
-  };
-
   type Stat = { value: number; suffix: string; label: string };
 
   let {
@@ -44,7 +34,7 @@
     portfolios = [],
     speakings = [],
     posts = [],
-  }: { stats?: Stat[]; portfolios?: Portfolio[]; speakings?: Speaking[]; posts?: Post[] } = $props();
+  }: { stats?: Stat[]; portfolios?: Portfolio[]; speakings?: Engagement[]; posts?: Post[] } = $props();
 </script>
 
 <AppHead title={"Catatan Seorang Wirausahawan Muda & Software Engineer"} brandFirst />

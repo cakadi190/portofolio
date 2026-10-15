@@ -72,6 +72,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('activity-logs/{activity}', [ActivityLogController::class, 'show'])->whereNumber('activity')->name('activity-logs.show');
         Route::get('visitor-analytics', [VisitorAnalyticsController::class, 'index'])->name('visitor-analytics.index');
         Route::put('system-settings', [SystemSettingController::class, 'update'])->name('system-settings.update');
+        Route::post('contact-messages/{contactMessage}/replies', [ContactMessageController::class, 'reply'])->middleware('throttle:20,1')->name('contact-messages.reply');
         Route::resource('contact-messages', ContactMessageController::class)->parameters(['contact-messages' => 'contactMessage'])->only(['index', 'update', 'destroy']);
         Route::resource('educations', EducationController::class)->parameters(['educations' => 'education'])->only($only);
         Route::resource('media', MediaController::class)->parameters(['media' => 'media'])->only(['index', 'update', 'destroy']);

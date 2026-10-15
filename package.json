@@ -11,7 +11,7 @@
     "test": "vp test run",
     "test:watch": "vp test",
     "test:coverage": "vp test run --coverage",
-    "types:check": "svelte-check --tsconfig ./tsconfig.json",
+    "types:check": "svelte-check --tsgo --tsconfig ./tsconfig.json",
     "format:svelte": "prettier --write \"resources/js/**/**/*.svelte\""
   },
   "dependencies": {
@@ -67,7 +67,7 @@
     "sass-embedded": "^1.105.1",
     "svelte-check": "^4.7.6",
     "svelte-preprocess": "^6.0.5",
-    "typescript": "~7.0.2",
+    "typescript": "~6",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.3",
     "vite-plus": "0.3.3"
   },

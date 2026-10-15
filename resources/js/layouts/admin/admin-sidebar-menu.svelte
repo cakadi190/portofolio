@@ -188,7 +188,7 @@
       {@const id = branchId(position)}
       {@const hasChildren = (entry.children?.length ?? 0) > 0}
       {@const childActive = hasActiveDescendant(entry)}
-      {@const open = hasChildren && isOpen(id, childActive)}
+      {@const open = hasChildren && isOpen(id)}
       <li
         class="sm-item"
         class:sm-item--active={entry.active}

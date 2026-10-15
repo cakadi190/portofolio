@@ -334,8 +334,9 @@
 >
   {#snippet children()}
     {#if editingEducation}
+      {@const current = editingEducation}
       <Form
-        {...update.form(editingEducation.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -347,7 +348,7 @@
               id="edit-name"
               name="name"
               required
-              value={editingEducation.name}
+              value={current.name}
               invalid={!!errors.name}
             />
             <Field.Feedback message={errors.name} />
@@ -357,7 +358,7 @@
             <Field.Label for="edit-logo">Logo</Field.Label>
             <MediaField
               name="logo"
-              value={editingEducation.logo}
+              value={current.logo}
               invalid={!!errors.logo}
             />
             <Field.Feedback message={errors.logo} />
@@ -369,7 +370,7 @@
               id="edit-website"
               name="website"
               type="url"
-              value={editingEducation.website}
+              value={current.website}
               invalid={!!errors.website}
             />
             <Field.Feedback message={errors.website} />
@@ -383,7 +384,7 @@
                   id="edit-level"
                   name="level"
                   items={levels}
-                  value={editingEducation.level}
+                  value={current.level}
                   required
                   invalid={!!errors.level}
                 />
@@ -396,7 +397,7 @@
                 <Field.Input placeholder="Masukkan kelas/angkatan"
                   id="edit-grade"
                   name="grade"
-                  value={editingEducation.grade}
+                  value={current.grade}
                   invalid={!!errors.grade}
                 />
                 <Field.Feedback message={errors.grade} />
@@ -411,7 +412,7 @@
                 <Field.Input placeholder="Masukkan jurusan"
                   id="edit-department"
                   name="department"
-                  value={editingEducation.department}
+                  value={current.department}
                   invalid={!!errors.department}
                 />
                 <Field.Feedback message={errors.department} />
@@ -424,7 +425,7 @@
                 <Field.Input placeholder="Masukkan program studi"
                   id="edit-study_program"
                   name="study_program"
-                  value={editingEducation.study_program}
+                  value={current.study_program}
                   invalid={!!errors.study_program}
                 />
                 <Field.Feedback message={errors.study_program} />
@@ -438,7 +439,7 @@
               id="edit-place"
               name="place"
               required
-              value={editingEducation.place}
+              value={current.place}
               invalid={!!errors.place}
             />
             <Field.Feedback message={errors.place} />
@@ -451,7 +452,7 @@
                 <DatePicker
                   id="edit-start_date"
                   name="start_date"
-                  value={editingEducation.start_date}
+                  value={current.start_date}
                   invalid={!!errors.start_date}
                 />
                 <Field.Feedback message={errors.start_date} />
@@ -463,7 +464,7 @@
                 <DatePicker
                   id="edit-end_date"
                   name="end_date"
-                  value={editingEducation.end_date}
+                  value={current.end_date}
                   invalid={!!errors.end_date}
                 />
                 <Field.Feedback message={errors.end_date} />
@@ -480,7 +481,7 @@
                 <Field.Input placeholder="Masukkan label nilai"
                   id="edit-academic_score_label"
                   name="academic_score_label"
-                  value={editingEducation.academic_score_label}
+                  value={current.academic_score_label}
                   invalid={!!errors.academic_score_label}
                 />
                 <Field.Feedback message={errors.academic_score_label} />
@@ -495,7 +496,7 @@
                   id="edit-academic_score_type"
                   name="academic_score_type"
                   items={scoreTypes}
-                  value={editingEducation.academic_score_type}
+                  value={current.academic_score_type}
                   invalid={!!errors.academic_score_type}
                   placeholder="—"
                 />
@@ -513,7 +514,7 @@
                   name="academic_score_value"
                   type="number"
                   step="0.01"
-                  value={editingEducation.academic_score_value}
+                  value={current.academic_score_value}
                   invalid={!!errors.academic_score_value}
                 />
                 <Field.Feedback message={errors.academic_score_value} />
@@ -527,7 +528,7 @@
                   name="academic_score_scale"
                   type="number"
                   step="0.01"
-                  value={editingEducation.academic_score_scale}
+                  value={current.academic_score_scale}
                   invalid={!!errors.academic_score_scale}
                 />
                 <Field.Feedback message={errors.academic_score_scale} />

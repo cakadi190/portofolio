@@ -39,7 +39,7 @@ describe('blog taxonomy pages', () => {
         { name: 'Gaya Hidup', slug: 'gaya-hidup', color: null, count: 2 },
       ],
       relatedTags: [{ name: 'laravel', slug: 'laravel', count: 1 }],
-    });
+    } as never);
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Tech' }),
@@ -59,7 +59,7 @@ describe('blog taxonomy pages', () => {
       tag: { name: 'kosong', slug: 'kosong' },
       posts: paginated([]),
       relatedTags: [],
-    });
+    } as never);
     expect(
       screen.getByText(/Belum ada artikel yang diterbitkan dengan tag kosong/),
     ).toBeTruthy();

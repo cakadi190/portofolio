@@ -40,7 +40,7 @@ let callCounts: Record<string, number>;
 
 beforeAll(async () => {
   await import('@/app');
-  config = mocks.createInertiaApp.mock.calls[0][0] as Config;
+  config = (mocks.createInertiaApp.mock.calls as unknown[][])[0][0] as Config;
   // `restoreMocks` wipes call history between tests, so snapshot it here.
   callCounts = Object.fromEntries(
     Object.entries(mocks).map(([name, mock]) => [name, mock.mock.calls.length]),

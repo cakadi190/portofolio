@@ -149,8 +149,9 @@
 >
   {#snippet children()}
     {#if editingCategory}
+      {@const current = editingCategory}
       <Form
-        {...update.form(editingCategory.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -162,7 +163,7 @@
               id="edit-name"
               name="name"
               required
-              value={editingCategory.name}
+              value={current.name}
               invalid={!!errors.name}
             />
             <Field.Feedback message={errors.name} />
@@ -174,7 +175,7 @@
               id="edit-color"
               name="color"
               type="color"
-              value={editingCategory.color ?? '#000000'}
+              value={current.color ?? '#000000'}
               invalid={!!errors.color}
             />
             <Field.Feedback message={errors.color} />

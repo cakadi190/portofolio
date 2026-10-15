@@ -30,3 +30,5 @@ yarn-error.log
 /.zed
 coverage
 /storage/fonts
+
+.svelte-check/

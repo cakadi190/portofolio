@@ -238,8 +238,9 @@
 >
   {#snippet children()}
     {#if editingRating}
+      {@const current = editingRating}
       <Form
-        {...update.form(editingRating.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -254,7 +255,7 @@
                 value: option.id,
                 label: option.name,
               }))}
-              value={editingRating.portfolio_id}
+              value={current.portfolio_id}
               required
               invalid={!!errors.portfolio_id}
             />
@@ -266,7 +267,7 @@
             <Field.Input
               id="edit-reviewer_name"
               name="reviewer_name"
-              value={editingRating.reviewer_name}
+              value={current.reviewer_name}
               required
               invalid={!!errors.reviewer_name}
             />
@@ -279,7 +280,7 @@
               id="edit-reviewer_email"
               name="reviewer_email"
               type="email"
-              value={editingRating.reviewer_email}
+              value={current.reviewer_email}
               required
               invalid={!!errors.reviewer_email}
             />
@@ -293,7 +294,7 @@
             <Field.Input
               id="edit-reviewer_company"
               name="reviewer_company"
-              value={editingRating.reviewer_company}
+              value={current.reviewer_company}
               invalid={!!errors.reviewer_company}
             />
             <Field.Feedback message={errors.reviewer_company} />
@@ -304,7 +305,7 @@
             <Field.Input
               id="edit-title"
               name="title"
-              value={editingRating.title}
+              value={current.title}
               required
               invalid={!!errors.title}
             />
@@ -320,7 +321,7 @@
                 value,
                 label: String(value),
               }))}
-              value={editingRating.rating}
+              value={current.rating}
               required
               invalid={!!errors.rating}
               searchable={false}
@@ -333,7 +334,7 @@
             <RichTextEditor
               name="comment"
               minimal
-              value={editingRating.comment}
+              value={current.comment}
               invalid={!!errors.comment}
             />
             <Field.Feedback message={errors.comment} />
@@ -344,7 +345,7 @@
             id="edit-is_approved"
             name="is_approved"
             value="1"
-            checked={editingRating.is_approved}
+            checked={current.is_approved}
             >Tampilkan di halaman publik</Field.Input.Check
           >
 

@@ -94,7 +94,7 @@
             {#each techStack as item, index (index)}
               {#if item.separator}
                 <div class="vr h-100"></div>
-              {:else}
+              {:else if item.icon}
                 <span
                   class="tech-stack"
                   data-bs-toggle="tooltip"

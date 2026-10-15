@@ -70,6 +70,7 @@ Route::prefix('blog')->name('blog.')->group(function () {
 Route::prefix('notes')->name('notes.')->group(function () {
     Route::get('/', [NoteController::class, 'index'])->name('index');
     Route::get('{note:slug}', [NoteController::class, 'show'])->name('show');
+    Route::get('{note:slug}/markdown', [NoteController::class, 'markdown'])->name('markdown');
 });
 
 Route::get('statistic', [StatisticController::class, 'index'])->name('statistic.index');

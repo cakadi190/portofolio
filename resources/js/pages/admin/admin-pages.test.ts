@@ -129,7 +129,7 @@ const indexPages: Case[] = [
 
 describe.each(indexPages)('admin %s page', (title, Page, props) => {
   it('renders its header, search and empty table', () => {
-    render(Page, props as never);
+    render(Page as never, props as never);
 
     expect(document.title).toContain(title);
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeTruthy();
@@ -149,7 +149,7 @@ describe('admin settings pages', () => {
         avatar: null,
       },
       genders: options,
-    });
+    } as never);
 
     expect(document.title).toContain('Profil Saya');
     expect(
@@ -217,7 +217,10 @@ describe('admin forms', () => {
   });
 
   it('ClarificationForm renders the create heading and lets sources be added and removed', async () => {
-    render(ClarificationForm, { clarification: null, verdicts: options });
+    render(ClarificationForm, {
+      clarification: null,
+      verdicts: options,
+    } as never);
 
     expect(document.title).toContain('Tulis Klarifikasi Baru');
     expect(document.querySelector('textarea[name="claim"]')).not.toBeNull();
@@ -257,7 +260,7 @@ describe('admin forms', () => {
         is_published: true,
         published_at: '2026-10-11 10:00:00',
       },
-    });
+    } as never);
 
     expect(document.title).toContain('Ubah Klarifikasi');
     expect(

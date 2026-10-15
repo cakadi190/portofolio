@@ -4,7 +4,7 @@
     { code: 'en', flag: 'fi-us', label: 'Bahasa Inggris' },
   ] as const;
 
-  let current = $state(locales[0]);
+  let current = $state<(typeof locales)[number]>(locales[0]);
 </script>
 
 <div class="dropdown dropdown-uncaret">

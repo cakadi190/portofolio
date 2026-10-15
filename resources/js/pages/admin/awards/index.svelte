@@ -215,8 +215,9 @@
 >
   {#snippet children()}
     {#if editingAward}
+      {@const current = editingAward}
       <Form
-        {...update.form(editingAward.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -228,7 +229,7 @@
               id="edit-title"
               name="title"
               required
-              value={editingAward.title}
+              value={current.title}
               invalid={!!errors.title}
             />
             <Field.Feedback message={errors.title} />
@@ -241,7 +242,7 @@
               name="type"
               items={types}
               required
-              value={editingAward.type}
+              value={current.type}
               invalid={!!errors.type}
             />
             <Field.Feedback message={errors.type} />
@@ -253,7 +254,7 @@
               id="edit-event_name"
               name="event_name"
               required
-              value={editingAward.event_name}
+              value={current.event_name}
               invalid={!!errors.event_name}
             />
             <Field.Feedback message={errors.event_name} />
@@ -268,7 +269,7 @@
                   name="year"
                   type="number"
                   required
-                  value={editingAward.year}
+                  value={current.year}
                   invalid={!!errors.year}
                 />
                 <Field.Feedback message={errors.year} />
@@ -281,7 +282,7 @@
                   id="edit-rank"
                   name="rank"
                   type="number"
-                  value={editingAward.rank}
+                  value={current.rank}
                   invalid={!!errors.rank}
                 />
                 <Field.Feedback message={errors.rank} />
@@ -294,7 +295,7 @@
             <DatePicker
               id="edit-awarded_at"
               name="awarded_at"
-              value={editingAward.awarded_at}
+              value={current.awarded_at}
               invalid={!!errors.awarded_at}
             />
             <Field.Feedback message={errors.awarded_at} />

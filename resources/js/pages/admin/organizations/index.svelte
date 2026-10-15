@@ -172,8 +172,9 @@
 >
   {#snippet children()}
     {#if editingOrganization}
+      {@const current = editingOrganization}
       <Form
-        {...update.form(editingOrganization.id)}
+        {...update.form(current.id)}
         class="d-flex flex-column gap-3"
         novalidate
         onSuccess={() => (editOpen = false)}
@@ -185,7 +186,7 @@
               id="edit-name"
               name="name"
               required
-              value={editingOrganization.name}
+              value={current.name}
               invalid={!!errors.name}
             />
             <Field.Feedback message={errors.name} />
@@ -198,7 +199,7 @@
               name="description"
               class="form-control"
               class:is-invalid={!!errors.description}
-              rows="3">{editingOrganization.description ?? ''}</textarea
+              rows="3">{current.description ?? ''}</textarea
             >
             <Field.Feedback message={errors.description} />
           </Field.Group>
@@ -210,7 +211,7 @@
                 <DatePicker
                   id="edit-start_date"
                   name="start_date"
-                  value={editingOrganization.start_date}
+                  value={current.start_date}
                   invalid={!!errors.start_date}
                 />
                 <Field.Feedback message={errors.start_date} />
@@ -222,7 +223,7 @@
                 <DatePicker
                   id="edit-end_date"
                   name="end_date"
-                  value={editingOrganization.end_date}
+                  value={current.end_date}
                   invalid={!!errors.end_date}
                 />
                 <Field.Feedback message={errors.end_date} />

@@ -17,7 +17,10 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\PasswordResetLinkSent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +75,33 @@ class AppServiceProvider extends ServiceProvider
         $this->configureAuthorization();
         $this->configureAuditListeners();
         $this->configureSecurityToasts();
+        $this->configureAuthMails();
+    }
+
+    /**
+     * Render the framework's reset-password and verify-email mails with the site's mail layout.
+     */
+    protected function configureAuthMails(): void
+    {
+        ResetPassword::toMailUsing(function (object $notifiable, string $token): MailMessage {
+            $url = url(route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()], false));
+
+            return (new MailMessage)
+                ->subject('Reset Password')
+                ->view(['mail.auth.reset-password', 'mail.text.reset-password'], [
+                    'name' => $notifiable->name,
+                    'url' => $url,
+                    'expires' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire'),
+                ]);
+        });
+
+        VerifyEmail::toMailUsing(fn (object $notifiable, string $url): MailMessage => (new MailMessage)
+            ->subject('Verifikasi Alamat Email')
+            ->view(['mail.auth.verify-email', 'mail.text.verify-email'], [
+                'name' => $notifiable->name,
+                'url' => $url,
+                'expires' => config('auth.verification.expire', 60),
+            ]));
     }
 
     /**
