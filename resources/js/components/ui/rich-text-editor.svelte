@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import AlignCenter from '@lucide/svelte/icons/align-center';
   import AlignLeft from '@lucide/svelte/icons/align-left';
   import AlignRight from '@lucide/svelte/icons/align-right';

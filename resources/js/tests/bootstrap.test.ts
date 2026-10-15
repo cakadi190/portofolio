@@ -1,4 +1,4 @@
-import { Dropdown, Modal, Tooltip } from 'bootstrap';
+import { Dropdown, Modal, Tooltip } from '@/lib/bootstrap';
 import { describe, expect, it } from 'vitest';
 
 describe('bootstrap setup', () => {

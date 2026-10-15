@@ -78,7 +78,7 @@
 
     node.addEventListener('hidden.bs.modal', onHidden);
 
-    void import('bootstrap').then(({ Modal }) => {
+    void import('@/lib/bootstrap').then(({ Modal }) => {
       if (disposed) {
         return;
       }

@@ -1,6 +1,10 @@
 import { cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+// Components load Bootstrap lazily; transforming its ES sources on first use can
+// outlast `vi.waitFor`'s default 1s, so pay that cost before any test starts.
+await import('@/lib/bootstrap');
+
 vi.mock(
   '../../../node_modules/@inertiajs/svelte/dist/components/InfiniteScroll.svelte',
   async () => ({

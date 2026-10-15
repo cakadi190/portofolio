@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../../css/content.scss';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';

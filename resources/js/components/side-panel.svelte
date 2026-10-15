@@ -33,7 +33,7 @@
 
     node.addEventListener('hidden.bs.offcanvas', onHidden);
 
-    void import('bootstrap').then(({ Offcanvas }) => {
+    void import('@/lib/bootstrap').then(({ Offcanvas }) => {
       if (disposed) {
         return;
       }

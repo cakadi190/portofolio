@@ -13,13 +13,6 @@ iconCollections.forEach((collection) => addCollection(collection));
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-// The server-rendered HTML must not play the reveal animations itself: Svelte
-// hydration would restart them, so they run once, right after hydration.
-const markMotionReady = () =>
-  window.requestAnimationFrame(() =>
-    document.documentElement.classList.add('motion-ready'),
-  );
-
 // Keep this a top-level `void createInertiaApp(...).then(...)`: the Inertia Vite
 // plugin only recognises (and wraps with the SSR server bootstrap) a bare call,
 // optionally behind `void`/`await`/`.then()`. Wrapping it in `Promise.resolve()`
@@ -45,10 +38,6 @@ void createInertiaApp({
     showSpinner: true,
     includeCSS: true,
   },
-}).then(() => {
-  if (typeof document !== 'undefined') {
-    markMotionReady();
-  }
 });
 
 if (typeof document !== 'undefined') {
@@ -63,7 +52,7 @@ if (typeof document !== 'undefined') {
 
   // Bootstrap's JS bundle touches `document` at import time, so it must
   // only load in the browser, never during SSR.
-  void import('bootstrap');
+  void import('@/lib/bootstrap');
 
   // Layers a shadcn/popover-style fade + zoom on top of Bootstrap's dropdown
   // show/hide lifecycle for every `.dropdown-menu` on the page.

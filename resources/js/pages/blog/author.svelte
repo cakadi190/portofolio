@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import { Link } from '@inertiajs/svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import FileText from '@lucide/svelte/icons/file-text';
@@ -38,8 +39,7 @@
 
       <div class="author-card">
         <span
-          class="author-avatar reveal reveal-spring reveal-right"
-          style="--reveal-delay: 400ms"
+          class="author-avatar"
           aria-hidden={author.avatar ? undefined : 'true'}
         >
           {#if author.avatar}
@@ -55,13 +55,12 @@
         </span>
 
         <div class="author-body">
-          <h1 class="author-name reveal reveal-spring reveal-left">
+          <h1 class="author-name">
             {author.name}
           </h1>
 
           <div
-            class="author-chips reveal reveal-spring reveal-left"
-            style="--reveal-delay: 100ms"
+            class="author-chips"
           >
             {#if author.username}
               <span class="author-chip author-chip-handle"
@@ -76,8 +75,7 @@
 
           {#if author.bio}
             <div
-              class="wysiwyg-content-wrapper author-bio reveal reveal-spring reveal-left"
-              style="--reveal-delay: 200ms"
+              class="wysiwyg-content-wrapper author-bio"
             >
               <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html author.bio}

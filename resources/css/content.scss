@@ -1,0 +1,6 @@
+// Typography and syntax highlighting for editor-authored (Tiptap) HTML. Kept
+// out of `app.scss` so the render-blocking global stylesheet stays small:
+// only pages that render `.wysiwyg-content-wrapper` or highlighted code import
+// this file, and Vite ships it as its own CSS chunk next to those pages.
+@import 'components/wysiwyg-content';
+@import 'components/hljs-theme';

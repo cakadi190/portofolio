@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import { badgeStyle } from '@/lib/badge';
   import AppHead from '@/components/app-head.svelte';
   import { highlightCode } from '@/lib/highlight/action';

@@ -365,7 +365,9 @@
 
   &.is-role {
     background: color-mix(in srgb, var(--neo-primary) 15%, transparent);
-    color: var(--neo-primary);
+    // The raw brand green is only ~2.3:1 on this tint; the emphasis shade
+    // passes WCAG AA in both themes.
+    color: var(--neo-primary-text-emphasis);
   }
 }
 

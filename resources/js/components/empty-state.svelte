@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../css/content.scss';
   let {
     title,
     text,

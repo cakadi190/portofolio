@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import AppHead from '@/components/app-head.svelte';
   import CardPortfolio from '@/components/card-portfolio.svelte';
   import HeaderPage from '@/components/header-page.svelte';

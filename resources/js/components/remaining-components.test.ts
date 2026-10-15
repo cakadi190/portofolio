@@ -88,7 +88,7 @@ describe('HeaderHome', () => {
   it('initialises Bootstrap tooltips on the tech stack', async () => {
     render(HeaderHome);
 
-    const { Tooltip } = await import('bootstrap');
+    const { Tooltip } = await import('@/lib/bootstrap');
 
     await vi.waitFor(() =>
       expect(

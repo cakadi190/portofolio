@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import Icon from '@iconify/svelte';
   import Expand from '@lucide/svelte/icons/expand';

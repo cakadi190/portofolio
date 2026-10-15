@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import Calendar from '@lucide/svelte/icons/calendar';
   import Clock from '@lucide/svelte/icons/clock';
   import Eye from '@lucide/svelte/icons/eye';

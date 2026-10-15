@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import Bold from '@lucide/svelte/icons/bold';
   import Check from '@lucide/svelte/icons/check';
   import Code from '@lucide/svelte/icons/code';

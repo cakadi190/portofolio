@@ -15,8 +15,6 @@
     children?: Snippet;
   } = $props();
 
-  const titleDelay = $derived(backTo ? '100ms' : '0ms');
-  const subtitleDelay = $derived(backTo ? '200ms' : '100ms');
 </script>
 
 <header class="page-masthead">
@@ -26,26 +24,15 @@
         {#if backTo}
           <Link
             href={backTo}
-            class="btn btn-link btn-navigation d-flex align-items-center gap-2 reveal reveal-spring reveal-left"
-            style="--reveal-delay: 0ms"
+            class="btn btn-link btn-navigation d-flex align-items-center gap-2"
           >
             <ChevronLeft size={16} />
             <span>Kembali</span>
           </Link>
         {/if}
 
-        <h1
-          class="reveal reveal-spring reveal-left"
-          style={`--reveal-delay: ${titleDelay}`}
-        >
-          {title}
-        </h1>
-        <h2
-          class="h4 opacity-75 fw-normal lh-base mb-0 reveal reveal-spring reveal-left"
-          style={`--reveal-delay: ${subtitleDelay}`}
-        >
-          {subtitle}
-        </h2>
+        <h1>{title}</h1>
+        <h2 class="h4 opacity-75 fw-normal lh-base mb-0">{subtitle}</h2>
 
         {@render children?.()}
       </div>

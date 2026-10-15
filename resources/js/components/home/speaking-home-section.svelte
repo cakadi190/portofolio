@@ -22,6 +22,7 @@
       <Link
         href="/speaking"
         class="btn btn-outline-primary d-flex align-items-center gap-2"
+        aria-label="Lihat Selengkapnya: Pembicara &amp; Mentoring"
       >
         <span>Lihat Selengkapnya</span>
         <ArrowRight size={16} />

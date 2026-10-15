@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../../../css/content.scss';
   import Calendar from '@lucide/svelte/icons/calendar';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import AppHead from '@/components/app-head.svelte';

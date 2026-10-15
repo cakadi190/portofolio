@@ -3,11 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        {{-- Reveal animations wait for hydration (`motion-ready`, set in app.ts) so they play once; the timer is a safety net if the bundle never boots. --}}
-        <script>
-            document.documentElement.classList.add('js');
-            setTimeout(function () { document.documentElement.classList.add('motion-ready'); }, 3000);
-        </script>
+        <script>document.documentElement.classList.add('js');</script>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -108,7 +104,7 @@
             {{-- LCP element of the home page: responsive photo, fetched at high priority. --}}
             <link rel="preload" as="image" href="{{ Vite::asset('resources/images/hero/fotoku-640.webp') }}" imagesrcset="{{ Vite::asset('resources/images/hero/fotoku-480.webp') }} 480w, {{ Vite::asset('resources/images/hero/fotoku-640.webp') }} 640w, {{ Vite::asset('resources/images/hero/fotoku-800.webp') }} 800w" imagesizes="(min-width: 768px) 40vw, 90vw" fetchpriority="high">
         @endif
-        <link rel="preconnect" href="https://api.iconify.design" crossorigin>
+        <link rel="dns-prefetch" href="https://api.iconify.design">
         <link rel="dns-prefetch" href="https://api.simplesvg.com">
 
         <x-analytics />

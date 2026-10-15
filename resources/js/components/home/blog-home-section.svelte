@@ -23,7 +23,7 @@
         <h2 class="mb-1">Blog</h2>
         <p class="mb-0 opacity-75">Artikel terbaru yang sudah saya tulis.</p>
       </div>
-      <Link href="/blog" class="btn btn-outline-primary d-flex align-items-center gap-2">
+      <Link href="/blog" class="btn btn-outline-primary d-flex align-items-center gap-2" aria-label="Lihat Selengkapnya: Blog">
         <span>Lihat Selengkapnya</span>
         <ArrowRight size={16} />
       </Link>
