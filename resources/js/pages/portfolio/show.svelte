@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import Icon from '@iconify/svelte';
   import Expand from '@lucide/svelte/icons/expand';
   import Link2 from '@lucide/svelte/icons/link-2';
@@ -175,7 +175,12 @@
                           <img
                             src={gallery.thumb ?? gallery.url}
                             width={gallery.size ? 640 : undefined}
-                            height={gallery.size ? Math.round((640 * gallery.size.height) / gallery.size.width) : undefined}
+                            height={gallery.size
+                              ? Math.round(
+                                  (640 * gallery.size.height) /
+                                    gallery.size.width,
+                                )
+                              : undefined}
                             alt={gallery.title ??
                               `${portfolio.name} ${position + 1}`}
                             loading="lazy"
@@ -386,15 +391,15 @@
                             <Field.Feedback message={errors.comment} />
                           </Field.Group>
 
-                          <Turnstile error={errors['cf-turnstile-response']} />
-
-                          <div>
+                          <CaptchaSubmitRow
+                            error={errors['cf-turnstile-response']}
+                          >
                             <button
                               type="submit"
                               class="btn btn-primary"
                               disabled={processing}>Kirim Ulasan</button
                             >
-                          </div>
+                          </CaptchaSubmitRow>
                           <p class="small opacity-75 mb-0">
                             Ulasan dimoderasi dan merupakan pendapat pengulas.
                             Baca <a href="/disclaimer">kebijakan ulasan</a>.

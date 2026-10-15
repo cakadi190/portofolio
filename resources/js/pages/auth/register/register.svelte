@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Form, Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
@@ -76,16 +76,16 @@
         > dari Catatan Cak Adi.
       </Field.Input.Check>
 
-      <Turnstile error={errors['cf-turnstile-response']} />
-
-      <button
-        type="submit"
-        class="btn btn-primary mt-2 w-100"
-        disabled={processing}
-        data-test="register-user-button"
-      >
-        Buat akun
-      </button>
+      <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          disabled={processing}
+          data-test="register-user-button"
+        >
+          Buat akun
+        </button>
+      </CaptchaSubmitRow>
     </div>
 
     <div class="text-center small text-muted">

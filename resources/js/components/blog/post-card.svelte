@@ -7,7 +7,8 @@
   import { show as showTag } from '@/wayfinder/routes/blog/tags';
   import type { BlogPostCard } from './types';
 
-  let { post, eager = false }: { post: BlogPostCard; eager?: boolean } = $props();
+  let { post, eager = false }: { post: BlogPostCard; eager?: boolean } =
+    $props();
 
   const category = $derived(post.categories[0]);
 </script>

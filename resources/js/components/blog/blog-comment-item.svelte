@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Form } from '@inertiajs/svelte';
+  import { Form, page } from '@inertiajs/svelte';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ThreadAvatar from '@/components/thread-avatar.svelte';
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Field } from '@/components/ui/field';
   import RichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
   import { store } from '@/wayfinder/routes/blog/comments';
@@ -16,19 +16,19 @@
     comment,
     postSlug,
     depth = 0,
-    canComment,
     replyingTo,
     onReply,
   }: {
     comment: BlogCommentNode;
     postSlug: string;
     depth?: number;
-    canComment: boolean;
     replyingTo: number | null;
     onReply: (id: number | null) => void;
   } = $props();
 
   let collapsed = $state(false);
+
+  const isGuest = $derived(!page.props.auth?.user);
 
   const postedAt = $derived(
     new Date(comment.createdAt).toLocaleDateString('id-ID', {
@@ -52,16 +52,14 @@
         {@html comment.body}
       </div>
 
-      {#if canComment}
-        <button
-          type="button"
-          class="thread-action"
-          aria-expanded={replyingTo === comment.id}
-          onclick={() => onReply(replyingTo === comment.id ? null : comment.id)}
-        >
-          {replyingTo === comment.id ? 'Batal' : 'Balas'}
-        </button>
-      {/if}
+      <button
+        type="button"
+        class="thread-action"
+        aria-expanded={replyingTo === comment.id}
+        onclick={() => onReply(replyingTo === comment.id ? null : comment.id)}
+      >
+        {replyingTo === comment.id ? 'Batal' : 'Balas'}
+      </button>
 
       {#if replyingTo === comment.id}
         <Form
@@ -72,6 +70,33 @@
         >
           {#snippet children({ errors, processing })}
             <input type="hidden" name="parent_id" value={comment.id} />
+            {#if isGuest}
+              <div class="row g-3">
+                <Field.Group class="col-md-6">
+                  <Field.Label for={`reply-guest-name-${comment.id}`}
+                    >Nama</Field.Label
+                  >
+                  <Field.Input
+                    id={`reply-guest-name-${comment.id}`}
+                    name="guest_name"
+                    invalid={!!errors.guest_name}
+                  />
+                  <Field.Feedback message={errors.guest_name} />
+                </Field.Group>
+                <Field.Group class="col-md-6">
+                  <Field.Label for={`reply-guest-email-${comment.id}`}
+                    >Email</Field.Label
+                  >
+                  <Field.Input
+                    id={`reply-guest-email-${comment.id}`}
+                    name="guest_email"
+                    type="email"
+                    invalid={!!errors.guest_email}
+                  />
+                  <Field.Feedback message={errors.guest_email} />
+                </Field.Group>
+              </div>
+            {/if}
             <Field.Group>
               <Field.Label>Balas {comment.author}</Field.Label>
               <RichTextEditor
@@ -82,14 +107,13 @@
               />
               <Field.Feedback message={errors.body ?? errors.parent_id} />
             </Field.Group>
-            <Turnstile error={errors['cf-turnstile-response']} />
-            <div>
+            <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
               <button
                 type="submit"
                 class="btn btn-primary btn-sm"
                 disabled={processing}>Kirim Balasan</button
               >
-            </div>
+            </CaptchaSubmitRow>
           {/snippet}
         </Form>
       {/if}
@@ -120,7 +144,6 @@
           comment={reply}
           {postSlug}
           depth={depth + 1}
-          {canComment}
           {replyingTo}
           {onReply}
         />

@@ -2,6 +2,8 @@ import Activity from '@lucide/svelte/icons/activity';
 import ChartColumn from '@lucide/svelte/icons/chart-column';
 import Award from '@lucide/svelte/icons/award';
 import BadgeCheck from '@lucide/svelte/icons/badge-check';
+import Tv from '@lucide/svelte/icons/tv';
+import Users from '@lucide/svelte/icons/users';
 import Coffee from '@lucide/svelte/icons/coffee';
 import FolderKanban from '@lucide/svelte/icons/folder-kanban';
 import GraduationCap from '@lucide/svelte/icons/graduation-cap';
@@ -114,6 +116,18 @@ export function adminMenu(
     },
     blog,
     notes,
+    {
+      label: 'Komunitas Dev ID',
+      icon: Users,
+      href: '/admin/dev-communities',
+      active: isActive('/admin/dev-communities'),
+    },
+    {
+      label: 'Channel Programmer',
+      icon: Tv,
+      href: '/admin/programmer-channels',
+      active: isActive('/admin/programmer-channels'),
+    },
     {
       label: 'Kedai Kopi',
       icon: Coffee,

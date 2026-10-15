@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
   import { store } from '@/wayfinder/routes/login';
@@ -59,16 +59,16 @@
         Ingatkan saya
       </Field.Input.Check>
 
-      <Turnstile error={errors['cf-turnstile-response']} />
-
-      <button
-        type="submit"
-        class="btn btn-primary w-100"
-        disabled={processing}
-        data-test="login-button"
-      >
-        Masuk
-      </button>
+      <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          disabled={processing}
+          data-test="login-button"
+        >
+          Masuk
+        </button>
+      </CaptchaSubmitRow>
     </div>
   {/snippet}
 </Form>

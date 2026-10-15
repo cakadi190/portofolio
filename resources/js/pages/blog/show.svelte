@@ -8,6 +8,8 @@
   import type { BlogCommentNode } from '@/components/blog/types';
   import { Link } from '@inertiajs/svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+  import Folder from '@lucide/svelte/icons/folder';
+  import Tags from '@lucide/svelte/icons/tags';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import type { BlogPostCard } from '@/components/blog/types';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
@@ -174,39 +176,40 @@
           </div>
 
           {#if post.categories.length || post.tags.length}
-            <dl class="post-taxonomy">
+            <div class="post-taxonomy">
               {#if post.categories.length}
                 <div class="post-taxonomy-row">
-                  <dt>Kategori</dt>
-                  <dd>
-                    <ul>
-                      {#each post.categories as category (category.slug)}
-                        <li>
-                          <Link href={showCategory(category.slug).url}
-                            >{category.name}</Link
-                          >
-                        </li>
-                      {/each}
-                    </ul>
-                  </dd>
+                  <Folder size={18} aria-label="Kategori" role="img" />
+                  <div class="d-flex flex-wrap gap-2">
+                    {#each post.categories as category (category.slug)}
+                      <Link
+                        href={showCategory(category.slug).url}
+                        class="badge text-decoration-none"
+                        style={badgeStyle(category.color)}
+                      >
+                        {category.name}
+                      </Link>
+                    {/each}
+                  </div>
                 </div>
               {/if}
 
               {#if post.tags.length}
                 <div class="post-taxonomy-row">
-                  <dt>Tagar</dt>
-                  <dd>
-                    <ul>
-                      {#each post.tags as tag (tag.slug)}
-                        <li>
-                          <Link href={showTag(tag.slug).url}>#{tag.name}</Link>
-                        </li>
-                      {/each}
-                    </ul>
-                  </dd>
+                  <Tags size={18} aria-label="Tagar" role="img" />
+                  <div class="d-flex flex-wrap gap-2">
+                    {#each post.tags as tag (tag.slug)}
+                      <Link
+                        href={showTag(tag.slug).url}
+                        class="badge tag-badge text-decoration-none"
+                      >
+                        {tag.name}
+                      </Link>
+                    {/each}
+                  </div>
                 </div>
               {/if}
-            </dl>
+            </div>
           {/if}
 
           <p class="small opacity-75 mt-2">
@@ -269,63 +272,13 @@
 
   .post-taxonomy-row {
     display: flex;
-    align-items: baseline;
-    gap: 1rem;
-  }
-
-  .post-taxonomy dt {
-    flex: 0 0 4.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    align-items: flex-start;
+    gap: 0.75rem;
     color: var(--neo-secondary-color);
   }
 
-  .post-taxonomy dd {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-  }
-
-  .post-taxonomy ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem 0.5rem;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-  }
-
-  .post-taxonomy li :global(a) {
-    display: inline-block;
-    padding: 0.125rem 0.625rem;
-    font-size: 0.875rem;
-    color: var(--neo-body-color);
-    text-decoration: none;
-    border: 1px solid var(--neo-border-color);
-    border-radius: 999px;
-    transition:
-      color 0.15s,
-      border-color 0.15s,
-      background-color 0.15s;
-  }
-
-  .post-taxonomy li :global(a:hover),
-  .post-taxonomy li :global(a:focus-visible) {
-    color: var(--neo-primary);
-    border-color: var(--neo-primary);
-    background: var(--neo-primary-bg-subtle);
-  }
-
-  @media (max-width: 575.98px) {
-    .post-taxonomy-row {
-      flex-direction: column;
-      gap: 0.375rem;
-    }
-
-    .post-taxonomy dt {
-      flex-basis: auto;
-    }
+  .post-taxonomy-row > :global(svg) {
+    flex: 0 0 auto;
+    margin-top: 0.125rem;
   }
 </style>

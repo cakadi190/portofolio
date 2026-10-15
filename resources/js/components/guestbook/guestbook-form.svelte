@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Form, page } from '@inertiajs/svelte';
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Field } from '@/components/ui/field';
   import RichTextEditor from '@/components/ui/lazy-rich-text-editor.svelte';
   import { store } from '@/wayfinder/routes/guestbook';
@@ -44,7 +44,9 @@
       {#if isGuest}
         <div class="row g-3">
           <Field.Group class="col-md-6">
-            <Field.Label for={`guest-name-${parentId ?? 'root'}`}>Nama</Field.Label>
+            <Field.Label for={`guest-name-${parentId ?? 'root'}`}
+              >Nama</Field.Label
+            >
             <Field.Input
               id={`guest-name-${parentId ?? 'root'}`}
               name="guest_name"
@@ -54,7 +56,9 @@
             <Field.Feedback message={errors.guest_name} />
           </Field.Group>
           <Field.Group class="col-md-6">
-            <Field.Label for={`guest-email-${parentId ?? 'root'}`}>Email</Field.Label>
+            <Field.Label for={`guest-email-${parentId ?? 'root'}`}
+              >Email</Field.Label
+            >
             <Field.Input
               id={`guest-email-${parentId ?? 'root'}`}
               name="guest_email"
@@ -78,11 +82,11 @@
         <Field.Feedback message={errors.body ?? errors.parent_id} />
       </Field.Group>
 
-      <Turnstile error={errors['cf-turnstile-response']} />
-
-      <div>
-        <button type="submit" class="btn btn-primary" disabled={processing}>{submitLabel}</button>
-      </div>
+      <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
+        <button type="submit" class="btn btn-primary" disabled={processing}
+          >{submitLabel}</button
+        >
+      </CaptchaSubmitRow>
 
       {#if isGuest}
         <p class="small opacity-75 mb-0">

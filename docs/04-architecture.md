@@ -48,6 +48,7 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 - Fungsi rute selalu dari Wayfinder (`@/wayfinder/routes/admin/<modul>`), bukan string URL manual.
 - Dropdown: jangan pakai `<select>` native; pakai `@/components/ui/select.svelte` (pembungkus svelte-select v6). Dalam `<Form>` beri `name`; di luar form pakai `bind:value` atau `onchange(value | null)` (dipanggil juga saat dihapus). Opsi: `required`, `placeholder` (label "semua/bawaan" saat kosong), `size="sm"`, `inline`, `ariaLabel`, `class`.
 - Field berkas: `MediaField` (hidden input berisi path). Editor: `RichTextEditor` + `MediaPickerModal`.
+- Formulir ber-captcha memakai `CaptchaSubmitRow` (`components/captcha-submit-row.svelte`): captcha di kiri dan tombol kirim di kanan pada desktop; captcha selebar penuh dengan tombol fit-content di bawahnya pada mobile.
 - Teks UI Bahasa Indonesia.
 
 ## Pengujian frontend (Vitest)

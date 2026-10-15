@@ -5,11 +5,7 @@
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import BlogCommentEditModal from '@/components/admin/blog-comment-edit-modal.svelte';
   import { formatDate } from '@/lib/utils';
-  import {
-    destroy,
-    index,
-    show,
-  } from '@/wayfinder/routes/admin/blog-comments';
+  import { destroy, index, show } from '@/wayfinder/routes/admin/blog-comments';
 
   type Option = { value: string; label: string };
 
@@ -20,6 +16,8 @@
     status: string;
     depth: number;
     created_at: string;
+    guest_name: string | null;
+    guest_email: string | null;
     user: { id: number; name: string; email: string } | null;
     post: { id: number; title: string; slug: string } | null;
   };
@@ -48,18 +46,27 @@
   }
 
   /** Comment bodies are stored as HTML; lists and headings show them as one line of text. */
-  const plain = (html: string): string => html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const plain = (html: string): string =>
+    html
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
 </script>
 
 {#snippet author(node: Node)}
-  <strong>{node.user?.name ?? 'Pengguna terhapus'}</strong>
-  {#if node.user}<small class="opacity-75"> · {node.user.email}</small>{/if}
+  <strong>{node.user?.name ?? node.guest_name ?? 'Pengguna terhapus'}</strong>
+  {#if node.user}<small class="opacity-75">
+      · {node.user.email}</small
+    >{:else if node.guest_email}<small class="opacity-75">
+      · {node.guest_email} · tamu</small
+    >{/if}
   <small class="opacity-75"> · {formatDate(node.created_at)}</small>
   <span
     class="badge ms-1"
     class:text-bg-success={node.status === 'approved'}
     class:text-bg-warning={node.status === 'pending'}
-    class:text-bg-danger={node.status === 'rejected'}>{statusLabel(node.status)}</span
+    class:text-bg-danger={node.status === 'rejected'}
+    >{statusLabel(node.status)}</span
   >
 {/snippet}
 
@@ -78,8 +85,10 @@
 
 {#if blogComment.post}
   <p class="mb-4">
-    Artikel: <a href={`/blog/${blogComment.post.slug}`} target="_blank" rel="noopener"
-      >{blogComment.post.title}</a
+    Artikel: <a
+      href={`/blog/${blogComment.post.slug}`}
+      target="_blank"
+      rel="noopener">{blogComment.post.title}</a
     >
   </p>
 {/if}
@@ -102,7 +111,9 @@
 <div class="card border-primary mb-4">
   <div class="card-body">
     <div class="mb-2">{@render author(blogComment)}</div>
-    <div class="mb-3" style="overflow-wrap: anywhere;">{@html blogComment.body}</div>
+    <div class="mb-3" style="overflow-wrap: anywhere;">
+      {@html blogComment.body}
+    </div>
     <div class="d-flex gap-2">
       <button
         type="button"

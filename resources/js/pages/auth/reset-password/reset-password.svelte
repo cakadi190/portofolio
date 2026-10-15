@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import { Field } from '@/components/ui/field';
@@ -79,16 +79,16 @@
         <Field.Feedback message={errors.password_confirmation} />
       </Field.Group>
 
-      <Turnstile error={errors['cf-turnstile-response']} />
-
-      <button
-        type="submit"
-        class="btn btn-primary mt-3 w-100"
-        disabled={processing}
-        data-test="reset-password-button"
-      >
-        Atur ulang kata sandi
-      </button>
+      <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          disabled={processing}
+          data-test="reset-password-button"
+        >
+          Atur ulang kata sandi
+        </button>
+      </CaptchaSubmitRow>
     </div>
   {/snippet}
 </Form>

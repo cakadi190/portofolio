@@ -11,6 +11,7 @@ use App\Http\Controllers\ClarificationController;
 use App\Http\Controllers\CoffeeShopController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DevCommunityController;
 use App\Http\Controllers\DisclaimerController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\GuestbookController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PdfTrustController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PortfolioReviewController;
+use App\Http\Controllers\ProgrammerChannelController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SitemapController;
@@ -61,7 +63,7 @@ Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('authors/{author:username}', fn (User $author) => redirect()->route('blog.authors.show', $author, 301));
     Route::get('{post:slug}', [BlogController::class, 'show'])->name('show');
     Route::post('{post:slug}/comments', [BlogCommentController::class, 'store'])
-        ->middleware(['auth', 'verified', 'throttle:10,1'])
+        ->middleware('throttle:10,1')
         ->name('comments.store');
 });
 
@@ -102,6 +104,8 @@ Route::get('certifications/{slug}', [CertificationController::class, 'show'])->n
 
 Route::prefix('resources')->name('resources.')->group(function () {
     Route::get('coffee-shops', [CoffeeShopController::class, 'index'])->name('coffee-shops.index');
+    Route::get('dev-communities', [DevCommunityController::class, 'index'])->name('dev-communities.index');
+    Route::get('programmer-channels', [ProgrammerChannelController::class, 'index'])->name('programmer-channels.index');
 });
 
 // Legacy Indonesian URLs, permanently redirected so indexed links keep working.

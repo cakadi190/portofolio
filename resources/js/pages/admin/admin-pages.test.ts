@@ -7,6 +7,8 @@ import Careers from '@/pages/admin/careers/index.svelte';
 import ClarificationForm from '@/pages/admin/clarifications/form.svelte';
 import Clarifications from '@/pages/admin/clarifications/index.svelte';
 import Certifications from '@/pages/admin/certifications/index.svelte';
+import DevCommunities from '@/pages/admin/dev-communities/index.svelte';
+import ProgrammerChannels from '@/pages/admin/programmer-channels/index.svelte';
 import CoffeePlaces from '@/pages/admin/coffee-places/index.svelte';
 import ContactMessages from '@/pages/admin/contact-messages/index.svelte';
 import Educations from '@/pages/admin/educations/index.svelte';
@@ -80,6 +82,8 @@ const indexPages: Case[] = [
       filters,
     },
   ],
+  ['Komunitas Dev ID', DevCommunities, { communities: empty, platforms: options, filters }],
+  ['Channel Programmer', ProgrammerChannels, { channels: empty, platforms: options, filters }],
   ['Pesan Masuk', ContactMessages, { messages: empty, filters }],
   [
     'Riwayat Pendidikan',

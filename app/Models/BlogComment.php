@@ -15,12 +15,14 @@ use Illuminate\Support\Carbon;
 /**
  * A reader comment on a blog post, nestable to any depth through `parent_id`.
  *
- * Only `body` is mass assignable. `post_id`, `user_id`, `parent_id` and
- * `status` are always set explicitly by trusted server code.
+ * Only `body` is mass assignable. `post_id`, `user_id`, `guest_name`, `guest_email`,
+ * `parent_id` and `status` are always set explicitly by trusted server code.
  *
  * @property int $id
  * @property int $post_id
  * @property int|null $user_id
+ * @property string|null $guest_name
+ * @property string|null $guest_email
  * @property int|null $parent_id
  * @property string $body
  * @property BlogCommentStatus $status

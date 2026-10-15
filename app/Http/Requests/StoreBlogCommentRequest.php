@@ -14,7 +14,7 @@ class StoreBlogCommentRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        return true;
     }
 
     /**
@@ -29,6 +29,8 @@ class StoreBlogCommentRequest extends FormRequest
         $post = $this->route('post');
 
         return [
+            'guest_name' => [Rule::requiredIf($this->user() === null), 'nullable', 'string', 'max:100'],
+            'guest_email' => [Rule::requiredIf($this->user() === null), 'nullable', 'email', 'max:255'],
             'body' => ['required', 'string', 'max:5000'],
             'parent_id' => [
                 'nullable',
@@ -46,6 +48,8 @@ class StoreBlogCommentRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'guest_name' => 'nama',
+            'guest_email' => 'email',
             'body' => 'komentar',
             'parent_id' => 'komentar yang dibalas',
         ];

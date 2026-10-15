@@ -33,7 +33,7 @@ class BlogCommentController extends Controller
                     ->when($status, fn ($query) => $query->where('status', $status))
                     ->latest(),
                 $request,
-                ['body', 'post.title', 'user.name'],
+                ['body', 'post.title', 'user.name', 'guest_name'],
                 ['status', 'created_at'],
             )),
             'filters' => [...$this->tableFilters($request, ['status', 'created_at']), 'status' => $status?->value],
@@ -97,6 +97,8 @@ class BlogCommentController extends Controller
             'status' => $comment->status->value,
             'depth' => $depth,
             'created_at' => $comment->created_at,
+            'guest_name' => $comment->guest_name,
+            'guest_email' => $comment->guest_email,
             'user' => $comment->user ? $comment->user->only(['id', 'name', 'email', 'avatar']) : null,
             'post' => $comment->relationLoaded('post') ? $comment->post->only(['id', 'title', 'slug']) : null,
         ];

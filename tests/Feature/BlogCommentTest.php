@@ -5,22 +5,24 @@ use App\Models\BlogComment;
 use App\Models\Post;
 use App\Models\User;
 
-test('guests cannot post comments', function () {
+test('a guest comment needs a name and email and waits for moderation', function () {
     $post = Post::factory()->create();
 
-    $this->post(route('blog.comments.store', $post), ['body' => 'Halo'])->assertRedirect(route('login'));
-
+    $this->post(route('blog.comments.store', $post), ['body' => 'Halo'])
+        ->assertSessionHasErrors(['guest_name', 'guest_email']);
     expect(BlogComment::count())->toBe(0);
-});
 
-test('users with an unverified email cannot post comments', function () {
-    $post = Post::factory()->create();
+    $this->post(route('blog.comments.store', $post), [
+        'guest_name' => 'Tamu',
+        'guest_email' => 'tamu@example.com',
+        'body' => 'Halo',
+    ])->assertRedirect(route('blog.show', $post));
 
-    $this->actingAs(User::factory()->unverified()->create())
-        ->post(route('blog.comments.store', $post), ['body' => 'Halo'])
-        ->assertRedirect(route('verification.notice'));
-
-    expect(BlogComment::count())->toBe(0);
+    $comment = BlogComment::sole();
+    expect($comment->user_id)->toBeNull()
+        ->and($comment->guest_name)->toBe('Tamu')
+        ->and($comment->guest_email)->toBe('tamu@example.com')
+        ->and($comment->status)->toBe(BlogCommentStatus::Pending);
 });
 
 test('a user creates a root comment that waits for moderation', function () {

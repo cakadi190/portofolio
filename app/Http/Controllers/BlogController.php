@@ -222,7 +222,7 @@ class BlogController extends Controller
             fn (BlogComment $comment, Collection $replies): array => [
                 'id' => $comment->id,
                 'body' => HtmlSanitizer::richText($comment->body),
-                'author' => $comment->user?->name ?? 'Pengguna terhapus',
+                'author' => $comment->user?->name ?? $comment->guest_name ?? 'Pengguna terhapus',
                 'authorAvatar' => $comment->user?->avatar,
                 'createdAt' => $comment->created_at,
                 'replies' => $replies,

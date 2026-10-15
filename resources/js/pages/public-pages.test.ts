@@ -554,7 +554,7 @@ describe('BlogShow', () => {
     expect(screen.queryByAltText('Judul Artikel')).toBeNull();
   });
 
-  it('shows a nested comment thread with a login prompt for guests', () => {
+  it('shows a nested comment thread with name and email fields for guests', () => {
     render(BlogShow, {
       ...sidebar,
       post,
@@ -582,8 +582,8 @@ describe('BlogShow', () => {
 
     expect(screen.getByText('Komentar (2)')).toBeTruthy();
     expect(screen.getByText('Balasan bersarang')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Masuk' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Balas' })).toBeNull();
-    expect(screen.queryByLabelText('Tulis komentar')).toBeNull();
+    expect(screen.getByLabelText('Nama')).toBeTruthy();
+    expect(screen.getByLabelText('Email')).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Balas' }).length).toBeGreaterThan(0);
   });
 });

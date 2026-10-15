@@ -4,6 +4,8 @@ import ContactPage from '@/pages/contact/index.svelte';
 import EducationPage from '@/pages/education/index.svelte';
 import PortfolioShow from '@/pages/portfolio/show.svelte';
 import AboutMe from '@/pages/tentang/saya.svelte';
+import CommunityPage from '@/pages/sumber-daya/komunitas-dev-id.svelte';
+import ChannelPage from '@/pages/sumber-daya/channel-programmer.svelte';
 import CoffeePage from '@/pages/sumber-daya/tempat-ngopi.svelte';
 
 const router = vi.hoisted(() => ({ get: vi.fn() }));
@@ -219,5 +221,51 @@ describe('CoffeePage', () => {
     });
 
     expect(screen.getAllByText('Kopi Senja').length).toBeGreaterThan(0);
+  });
+});
+
+describe('Dev community and programmer channel pages', () => {
+  const list = (data: any[]) => ({
+    data,
+    current_page: 1,
+    last_page: 1,
+    per_page: 12,
+    total: data.length,
+    from: 1,
+    to: data.length,
+    prev_page_url: null,
+    next_page_url: null,
+  });
+  const platforms = [{ value: 'discord', label: 'Discord' }];
+  const item = {
+    id: 1,
+    name: 'AlgoHub',
+    platform: 'discord',
+    platformLabel: 'Discord',
+    description: 'Komunitas ngoding',
+    url: 'https://discord.gg/x',
+    memberCount: 1200,
+    isFeatured: true,
+  };
+
+  it('lists communities with an external join link', () => {
+    render(CommunityPage, {
+      communities: list([item]),
+      platforms,
+      filters: { platform: null },
+    });
+
+    expect(screen.getByText('AlgoHub')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Gabung/ }).getAttribute('href')).toBe('https://discord.gg/x');
+  });
+
+  it('shows an empty state for channels', () => {
+    render(ChannelPage, {
+      channels: list([]),
+      platforms,
+      filters: { platform: null },
+    });
+
+    expect(screen.getByText('Channel Belum Tersedia')).toBeTruthy();
   });
 });

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import Icon from '@iconify/svelte';
   import Info from '@lucide/svelte/icons/info';
   import Send from '@lucide/svelte/icons/send';
@@ -47,14 +47,19 @@
             <div class="alert bg-warning-subtle d-flex gap-3">
               <Info size={32} class="flex-shrink-0" />
               <div class="content">
-                Sebagai peringatan keras! Informasi yang saya berikan dibawah ini hanya untuk
-                <strong>Kebutuhan Bisnis Saja</strong>. Selebihnya jika kamu ingin terhubung, bisa langsung
-                kirimkan pesan ke sosial media saya dengan syarat harus sopan dan memperkenalkan diri dan
-                dari instansi, institusi, perusahaan dan atau daerah mana. Insyaallah saya akan menjawab
-                secepatnya.
+                Sebagai peringatan keras! Informasi yang saya berikan dibawah
+                ini hanya untuk
+                <strong>Kebutuhan Bisnis Saja</strong>. Selebihnya jika kamu
+                ingin terhubung, bisa langsung kirimkan pesan ke sosial media
+                saya dengan syarat harus sopan dan memperkenalkan diri dan dari
+                instansi, institusi, perusahaan dan atau daerah mana. Insyaallah
+                saya akan menjawab secepatnya.
               </div>
             </div>
-            <p>Saya sangat menghargai kamu apabila menggunakan fitur ini dengan penuh tanggungjawab.</p>
+            <p>
+              Saya sangat menghargai kamu apabila menggunakan fitur ini dengan
+              penuh tanggungjawab.
+            </p>
           </div>
 
           <div class="mt-4 border-top pt-4" id="information">
@@ -75,7 +80,9 @@
                         <td class="w-25 text-nowrap">{item.label}</td>
                         <td>
                           {#if item.url}
-                            <a href={item.url} target="_blank" rel="noopener">{item.value}</a>
+                            <a href={item.url} target="_blank" rel="noopener"
+                              >{item.value}</a
+                            >
                           {:else}
                             {item.value}
                           {/if}
@@ -88,7 +95,9 @@
                       </tr>
                     {:else}
                       <tr>
-                        <td colspan="2" class="text-center opacity-75">Belum ada informasi kontak.</td>
+                        <td colspan="2" class="text-center opacity-75"
+                          >Belum ada informasi kontak.</td
+                        >
                       </tr>
                     {/each}
                   </tbody>
@@ -97,19 +106,24 @@
             </div>
 
             <p>
-              Jika Anda membutuhkan informasi lebih lanjut, seperti nomor telepon saya, jangan ragu untuk
-              mengirimkan email kepada saya terlebih dahulu.
+              Jika Anda membutuhkan informasi lebih lanjut, seperti nomor
+              telepon saya, jangan ragu untuk mengirimkan email kepada saya
+              terlebih dahulu.
             </p>
           </div>
 
           <div class="mt-4 border-top pt-4" id="socmed">
             <h2 class="h4 mb-3">Sosial Media</h2>
             <p>
-              Kalau kamu mau cari semua sosial mediaku, kamu bisa menggunakan pencarian
-              <strong>@cakadi190 / @cakadi.id</strong> yang mana itu adalah nama pengguna di hampir semua
-              sosialku.
+              Kalau kamu mau cari semua sosial mediaku, kamu bisa menggunakan
+              pencarian
+              <strong>@cakadi190 / @cakadi.id</strong> yang mana itu adalah nama pengguna
+              di hampir semua sosialku.
             </p>
-            <p>Tapi mungkin kamu gak punya waktu untuk nyari sosmedku, bisa deh pake daftar tautan dibawah ini.</p>
+            <p>
+              Tapi mungkin kamu gak punya waktu untuk nyari sosmedku, bisa deh
+              pake daftar tautan dibawah ini.
+            </p>
             <div class="card mb-4 overflow-hidden">
               <div class="table-responsive">
                 <table class="table mb-0 table-padded">
@@ -125,9 +139,18 @@
                         <td class="w-25 text-nowrap">{link.label}</td>
                         <td>
                           {#if link.url}
-                            <a href={link.url} target="_blank" rel="noopener" class="text-decoration-none d-inline-flex align-items-center gap-1">
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener"
+                              class="text-decoration-none d-inline-flex align-items-center gap-1"
+                            >
                               {link.value}
-                              <Icon icon="lucide:external-link" width={14} height={14} />
+                              <Icon
+                                icon="lucide:external-link"
+                                width={14}
+                                height={14}
+                              />
                             </a>
                           {:else}
                             {link.value}
@@ -136,7 +159,9 @@
                       </tr>
                     {:else}
                       <tr>
-                        <td colspan="2" class="text-center opacity-75">Belum ada sosial media.</td>
+                        <td colspan="2" class="text-center opacity-75"
+                          >Belum ada sosial media.</td
+                        >
                       </tr>
                     {/each}
                   </tbody>
@@ -148,9 +173,11 @@
           <div class="border-top pt-4 mt-4" id="form-contact">
             <h2 class="h3">Atau Kirim Pesan Melalui Form Ini</h2>
             <p class="opacity-75">
-              Gunakan formulir dibawah ini dan terhubung dengan saya supaya lebih kenal, akrab dan bisa
-              dapet proyek dadakan dari saya. Mohon jangan kirimkan pesan lebih dari 5x, karena bisa
-              membebani <em>server</em>!
+              Gunakan formulir dibawah ini dan terhubung dengan saya supaya
+              lebih kenal, akrab dan bisa dapet proyek dadakan dari saya. Mohon
+              jangan kirimkan pesan lebih dari 5x, karena bisa membebani <em
+                >server</em
+              >!
             </p>
 
             {#key formKey}
@@ -165,11 +192,18 @@
                   <div class="row g-3">
                     <Field.Group class="col-md-6">
                       <Field.Label for="fullName">Nama Lengkapmu</Field.Label>
-                      <Field.Input id="fullName" name="name" placeholder="Mis: Cak Adi" invalid={!!errors.name} />
+                      <Field.Input
+                        id="fullName"
+                        name="name"
+                        placeholder="Mis: Cak Adi"
+                        invalid={!!errors.name}
+                      />
                       <Field.Feedback message={errors.name} />
                     </Field.Group>
                     <Field.Group class="col-md-6">
-                      <Field.Label for="contactEmail">Surel (atau <em>E-Mail</em>)</Field.Label>
+                      <Field.Label for="contactEmail"
+                        >Surel (atau <em>E-Mail</em>)</Field.Label
+                      >
                       <Field.Input
                         id="contactEmail"
                         name="email"
@@ -182,7 +216,8 @@
                   </div>
 
                   <Field.Group>
-                    <Field.Label for="contactReason">Ada Perlu Apa?</Field.Label>
+                    <Field.Label for="contactReason">Ada Perlu Apa?</Field.Label
+                    >
                     <Select
                       id="contactReason"
                       name="reason"
@@ -205,14 +240,16 @@
                     <Field.Feedback message={errors.message} />
                   </Field.Group>
 
-                  <Turnstile error={errors['cf-turnstile-response']} />
-
-                  <div>
-                    <button type="submit" class="btn btn-primary d-flex gap-2 align-items-center" disabled={processing}>
+                  <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
+                    <button
+                      type="submit"
+                      class="btn btn-primary d-flex gap-2 align-items-center"
+                      disabled={processing}
+                    >
                       <span>Kirim</span>
                       <Send size={16} />
                     </button>
-                  </div>
+                  </CaptchaSubmitRow>
                 {/snippet}
               </Form>
             {/key}
@@ -226,9 +263,21 @@
             </div>
             <div class="card-body">
               <ul class="nav nav-pills flex-column align-items-stretch">
-                <li class="nav-item"><a href="#information" class="nav-link py-3 w-100 text-start">Informasi Kontak</a></li>
-                <li class="nav-item"><a href="#socmed" class="nav-link py-3 w-100 text-start">Sosial Media</a></li>
-                <li class="nav-item"><a href="#form-contact" class="nav-link py-3 w-100 text-start">Formulir Kontak</a></li>
+                <li class="nav-item">
+                  <a href="#information" class="nav-link py-3 w-100 text-start"
+                    >Informasi Kontak</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a href="#socmed" class="nav-link py-3 w-100 text-start"
+                    >Sosial Media</a
+                  >
+                </li>
+                <li class="nav-item">
+                  <a href="#form-contact" class="nav-link py-3 w-100 text-start"
+                    >Formulir Kontak</a
+                  >
+                </li>
               </ul>
             </div>
           </div>

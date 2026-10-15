@@ -142,7 +142,9 @@
     color: var(--neo-primary);
     background: var(--neo-primary-bg-subtle);
     border-radius: 50%;
-    box-shadow: 0 0 0 2px var(--neo-body-bg), 0 0 0 3px var(--neo-border-color);
+    box-shadow:
+      0 0 0 2px var(--neo-body-bg),
+      0 0 0 3px var(--neo-border-color);
     user-select: none;
   }
 
@@ -226,7 +228,6 @@
     border-color: var(--neo-primary);
     background: var(--neo-primary-bg-subtle);
   }
-
 
   @media (max-width: 575.98px) {
     .post-meta-share-label {

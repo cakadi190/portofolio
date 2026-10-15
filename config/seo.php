@@ -139,6 +139,18 @@ return [
             'changefreq' => 'monthly',
             'priority' => '0.5',
         ],
+        'resources.dev-communities.index' => [
+            'title' => 'Komunitas Dev ID',
+            'description' => 'Daftar komunitas developer Indonesia di Discord, WhatsApp, dan Telegram.',
+            'changefreq' => 'weekly',
+            'priority' => '0.5',
+        ],
+        'resources.programmer-channels.index' => [
+            'title' => 'Channel Programmer',
+            'description' => 'Daftar channel programmer yang direkomendasikan: YouTube, Telegram, dan lainnya.',
+            'changefreq' => 'weekly',
+            'priority' => '0.5',
+        ],
         'disclaimer.index' => [
             'title' => 'Penyangkalan & Ketentuan',
             'description' => 'Penyangkalan, ketentuan penggunaan, dan kebijakan komentar di situs pribadi Cak Adi, termasuk cara mengajukan koreksi atau hak jawab.',

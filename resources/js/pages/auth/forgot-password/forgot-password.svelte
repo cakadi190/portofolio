@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-  import Turnstile from '@/components/turnstile.svelte';
+  import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import TextLink from '@/components/text-link.svelte';
@@ -46,18 +46,16 @@
         <Field.Feedback message={errors.email} />
       </Field.Group>
 
-      <Turnstile error={errors['cf-turnstile-response']} />
-
-      <div class="d-flex align-items-center justify-content-start">
+      <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
         <button
           type="submit"
-          class="btn btn-primary w-100"
+          class="btn btn-primary"
           disabled={processing}
           data-test="email-password-reset-link-button"
         >
           Kirim tautan atur ulang kata sandi
         </button>
-      </div>
+      </CaptchaSubmitRow>
     {/snippet}
   </Form>
 

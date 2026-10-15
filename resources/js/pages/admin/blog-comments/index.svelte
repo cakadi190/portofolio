@@ -7,11 +7,7 @@
   import BlogCommentEditModal from '@/components/admin/blog-comment-edit-modal.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { formatDate } from '@/lib/utils';
-  import {
-    destroy,
-    index,
-    show,
-  } from '@/wayfinder/routes/admin/blog-comments';
+  import { destroy, index, show } from '@/wayfinder/routes/admin/blog-comments';
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
@@ -24,6 +20,8 @@
     replies_count: number;
     created_at: string;
     post: { id: number; title: string; slug: string };
+    guest_name: string | null;
+    guest_email: string | null;
     user: { id: number; name: string; email: string } | null;
     parent: { id: number; body: string } | null;
   };
@@ -47,7 +45,11 @@
   function filterStatus(status: string | number | null): void {
     router.get(
       index().url,
-      { ...filters, status: status ? String(status) : undefined, page: undefined },
+      {
+        ...filters,
+        status: status ? String(status) : undefined,
+        page: undefined,
+      },
       { preserveState: true, replace: true, reset: ['blogComments'] },
     );
   }
@@ -58,7 +60,11 @@
   }
 
   /** Comment bodies are stored as HTML; lists and headings show them as one line of text. */
-  const plain = (html: string): string => html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const plain = (html: string): string =>
+    html
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
 </script>
 
 <AppHead title="Komentar Blog" />
@@ -86,13 +92,13 @@
 >
   {#snippet toolbar()}
     <Select
-        inline
-        ariaLabel="Filter status"
-        placeholder="Semua status"
-        items={statuses}
-        value={filters.status || null}
-        onchange={filterStatus}
-      />
+      inline
+      ariaLabel="Filter status"
+      placeholder="Semua status"
+      items={statuses}
+      value={filters.status || null}
+      onchange={filterStatus}
+    />
   {/snippet}
   {#snippet row(comment)}
     <tr>
@@ -112,6 +118,10 @@
         {#if comment.user}
           {comment.user.name}<br /><small class="opacity-75"
             >{comment.user.email}</small
+          >
+        {:else if comment.guest_name}
+          {comment.guest_name}<br /><small class="opacity-75"
+            >{comment.guest_email} · tamu</small
           >
         {:else}
           <em class="opacity-75">Pengguna terhapus</em>

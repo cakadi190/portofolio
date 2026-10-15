@@ -28,8 +28,12 @@ describe('PostMeta', () => {
     expect(whatsapp?.href).toContain('wa.me');
     expect(whatsapp?.href).toContain(encodeURIComponent('Judul Artikel'));
     expect(
-      document.querySelector('a[aria-label="Bagikan lewat Email"]')?.getAttribute('href'),
+      document
+        .querySelector('a[aria-label="Bagikan lewat Email"]')
+        ?.getAttribute('href'),
     ).toMatch(/^mailto:/);
-    expect(document.querySelector('button[aria-label="Salin tautan"]')).toBeTruthy();
+    expect(
+      document.querySelector('button[aria-label="Salin tautan"]'),
+    ).toBeTruthy();
   });
 });

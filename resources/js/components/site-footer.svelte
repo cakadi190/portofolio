@@ -12,6 +12,8 @@
   import { index as education } from '@/wayfinder/routes/education';
   import { index as portfolios } from '@/wayfinder/routes/portfolios';
   import { index as coffeeShops } from '@/wayfinder/routes/resources/coffee-shops';
+  import { index as devCommunities } from '@/wayfinder/routes/resources/dev-communities';
+  import { index as programmerChannels } from '@/wayfinder/routes/resources/programmer-channels';
   import { index as services } from '@/wayfinder/routes/services';
   import { index as clarifications } from '@/wayfinder/routes/clarifications';
   import { index as speaking } from '@/wayfinder/routes/speaking';
@@ -62,8 +64,8 @@
     { label: 'Buku Tamu', href: guestbook().url },
     { label: 'Statistik', href: statistic().url },
     { label: 'Klarifikasi', href: clarifications().url },
-    { label: 'Referensi Ngoding', href: '#' },
-    { label: 'Contekan Kode', href: '#' },
+    { label: 'Channel Programmer', href: programmerChannels().url },
+    { label: 'Komunitas Dev ID', href: devCommunities().url },
     { label: 'Tempat Ngopi', href: coffeeShops().url },
   ];
 

@@ -12,8 +12,8 @@ use Inertia\Inertia;
 class BlogCommentController extends Controller
 {
     /**
-     * Store a comment or reply by the signed-in user. Visitor comments wait
-     * for moderation; blogging staff are published immediately.
+     * Store a comment or reply. Only blogging staff are published immediately; everyone else, signed in or
+     * not, waits for moderation. A signed-out visitor leaves a name and email (kept private).
      */
     public function store(StoreBlogCommentRequest $request, Post $post): RedirectResponse
     {
@@ -23,9 +23,11 @@ class BlogCommentController extends Controller
 
         $comment = new BlogComment($request->safe()->only('body'));
         $comment->post_id = $post->id;
-        $comment->user_id = $user->id;
+        $comment->user_id = $user?->id;
+        $comment->guest_name = $user ? null : $request->validated('guest_name');
+        $comment->guest_email = $user ? null : $request->validated('guest_email');
         $comment->parent_id = $request->validated('parent_id');
-        $comment->status = $user->canManageBlog() ? BlogCommentStatus::Approved : BlogCommentStatus::Pending;
+        $comment->status = $user?->canManageBlog() ? BlogCommentStatus::Approved : BlogCommentStatus::Pending;
         $comment->save();
 
         Inertia::flash('toast', [
