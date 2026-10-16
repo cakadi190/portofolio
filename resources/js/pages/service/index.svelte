@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { badgeStyle } from '@/lib/badge';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -17,15 +18,15 @@
   let { services }: { services: Service[] } = $props();
 </script>
 
-<AppHead title="Layanan Saya" />
+<AppHead title={t('services.title')} />
 
 <div>
-  <HeaderPage title="Layanan Saya" subtitle="Berikut layanan yang bisa saya berikan dan layani untuk anda." />
+  <HeaderPage title={t('services.title')} subtitle={t('services.subtitle')} />
 
   <section class="need-space pt-0">
     <div class="container">
       {#if services.length === 0}
-        <EmptyState title="Belum Ada Layanan" text="Belum ada layanan yang tersedia saat ini." />
+        <EmptyState title={t('services.empty_title')} text={t('services.empty_text')} />
       {:else}
         <div class="row">
           {#each services as service, index (service.slug)}
@@ -48,7 +49,7 @@
                       <h2 class="h5 card-title mb-0">{service.name}</h2>
                       <div>
                         <span class="badge" style={badgeStyle(service.color)}>
-                          {service.portfoliosCount} proyek
+                          {t('services.projects', { count: service.portfoliosCount })}
                         </span>
                       </div>
                     </div>

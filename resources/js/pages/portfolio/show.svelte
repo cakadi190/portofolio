@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localizeForm, localizeHref } from '@/lib/i18n';
+  import { localizeForm, localizeHref, t } from '@/lib/i18n';
   import '../../../css/content.scss';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import Icon from '@iconify/svelte';
@@ -79,8 +79,8 @@
 <div id="project-detail">
   <HeaderPage
     backTo="/portfolio"
-    title="Detail Proyek"
-    subtitle="Berikut saya tampilkan detail proyek yang saya kerjakan ini."
+    title={t('portfolios.show.heading')}
+    subtitle={t('portfolios.show.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -117,7 +117,7 @@
                   class="d-flex gap-2 align-items-center btn btn-outline-primary"
                 >
                   <Icon icon="fa6-brands:github" />
-                  <span>Source Code</span>
+                  <span>{t('portfolios.show.source')}</span>
                 </a>
               {/if}
               {#if portfolio.demoLink}
@@ -128,7 +128,7 @@
                   class="d-flex gap-2 align-items-center btn btn-primary"
                 >
                   <Link2 size={16} />
-                  <span>Live Demo</span>
+                  <span>{t('portfolios.show.demo')}</span>
                 </a>
               {/if}
             </div>
@@ -137,7 +137,7 @@
           <div class="row flex-column-reverse flex-md-row gy-5">
             <div class="col-md-8">
               <div class="mb-5">
-                <h2 id="description" class="h3">Deskripsi Proyek</h2>
+                <h2 id="description" class="h3">{t('portfolios.show.description')}</h2>
                 {#if portfolio.description}
                   <div
                     class="wysiwyg-content-wrapper"
@@ -147,12 +147,12 @@
                     {@html portfolio.description}
                   </div>
                 {:else}
-                  <p class="opacity-75">Belum ditambahkan deskripsi.</p>
+                  <p class="opacity-75">{t('portfolios.show.no_description')}</p>
                 {/if}
               </div>
 
               <div class="mb-5">
-                <h2 id="techstack" class="h3">Dibangun Dengan</h2>
+                <h2 id="techstack" class="h3">{t('portfolios.show.built_with')}</h2>
 
                 <div class="d-flex gap-3 align-items-center flex-wrap">
                   {#each portfolio.technologies as tech (tech)}
@@ -162,7 +162,7 @@
               </div>
 
               <div class="mb-5" id="gallery">
-                <h2 class="h3">Galeri dan Pratinjau Proyek</h2>
+                <h2 class="h3">{t('portfolios.show.gallery')}</h2>
 
                 {#if portfolio.galleries.length > 0}
                   <div class="row g-3">
@@ -171,7 +171,9 @@
                         <button
                           type="button"
                           class="position-relative d-block w-100 p-0 border rounded-3 overflow-hidden bg-transparent"
-                          aria-label={`Pratinjau ${gallery.title || `gambar ${position + 1}`}`}
+                          aria-label={t('portfolios.show.preview', {
+                            title: gallery.title || t('portfolios.show.image_n', { n: position + 1 }),
+                          })}
                           onclick={() => openLightbox(position)}
                         >
                           <img
@@ -211,19 +213,19 @@
                     images={lightboxImages}
                   />
                 {:else}
-                  <p class="opacity-75">Belum ada galeri untuk proyek ini.</p>
+                  <p class="opacity-75">{t('portfolios.show.no_gallery')}</p>
                 {/if}
               </div>
 
               <div id="rating">
-                <h2 class="h3">Penilaian Proyek Ini</h2>
+                <h2 class="h3">{t('portfolios.show.rating')}</h2>
 
                 {#if reviewSummary.count > 0}
                   <p class="d-flex align-items-center gap-2 mb-4">
                     <Star size={20} class="text-warning" fill="currentColor" />
                     <strong>{reviewSummary.average}</strong>
                     <span class="opacity-75"
-                      >dari {reviewSummary.count} ulasan</span
+                      >{t('portfolios.show.review_count', { count: reviewSummary.count })}</span
                     >
                   </p>
 
@@ -244,7 +246,7 @@
                             </div>
                             <span
                               class="d-flex text-warning"
-                              aria-label={`${review.rating} dari 5`}
+                              aria-label={t('portfolios.show.out_of_five', { rating: review.rating })}
                             >
                               {#each [1, 2, 3, 4, 5] as value (value)}
                                 <Star
@@ -267,18 +269,13 @@
                     {/each}
                   </div>
                 {:else}
-                  <p class="opacity-75 mb-4">
-                    Belum ada ulasan. Jadilah yang pertama memberi penilaian!
-                  </p>
+                  <p class="opacity-75 mb-4">{t('portfolios.show.no_reviews')}</p>
                 {/if}
 
                 <div class="card rounded-4">
                   <div class="card-body p-4">
-                    <h3 class="h5">Tulis Ulasan</h3>
-                    <p class="opacity-75">
-                      Semua kolom bertanda <span class="text-danger">*</span> wajib
-                      diisi. Ulasan tampil setelah ditinjau.
-                    </p>
+                    <h3 class="h5">{t('portfolios.review.title')}</h3>
+                    <p class="opacity-75">{@html t('portfolios.review.required')}</p>
 
                     {#key formKey}
                       <Form
@@ -295,27 +292,23 @@
                           <div class="row g-3">
                             <Field.Group class="col-md-6">
                               <Field.Label for="review-name"
-                                >Nama <span class="text-danger">*</span
-                                ></Field.Label
-                              >
+                                >{t('portfolios.review.name')} <span class="text-danger">*</span></Field.Label>
                               <Field.Input
                                 id="review-name"
                                 name="reviewer_name"
-                                placeholder="Nama Anda"
+                                placeholder={t('portfolios.review.name_placeholder')}
                                 invalid={!!errors.reviewer_name}
                               />
                               <Field.Feedback message={errors.reviewer_name} />
                             </Field.Group>
                             <Field.Group class="col-md-6">
                               <Field.Label for="review-email"
-                                >Email <span class="text-danger">*</span
-                                ></Field.Label
-                              >
+                                >{t('form.email')} <span class="text-danger">*</span></Field.Label>
                               <Field.Input
                                 id="review-email"
                                 name="reviewer_email"
                                 type="email"
-                                placeholder="email@contoh.com"
+                                placeholder={t('portfolios.review.email_placeholder')}
                                 invalid={!!errors.reviewer_email}
                               />
                               <Field.Feedback message={errors.reviewer_email} />
@@ -324,12 +317,12 @@
 
                           <Field.Group>
                             <Field.Label for="review-company"
-                              >Perusahaan / Jabatan</Field.Label
+                              >{t('portfolios.review.company')}</Field.Label
                             >
                             <Field.Input
                               id="review-company"
                               name="reviewer_company"
-                              placeholder="Opsional"
+                              placeholder={t('portfolios.review.optional')}
                               invalid={!!errors.reviewer_company}
                             />
                             <Field.Feedback message={errors.reviewer_company} />
@@ -337,23 +330,18 @@
 
                           <Field.Group>
                             <Field.Label for="review-title"
-                              >Judul Ulasan <span class="text-danger">*</span
-                              ></Field.Label
-                            >
+                              >{t('portfolios.review.review_title')} <span class="text-danger">*</span></Field.Label>
                             <Field.Input
                               id="review-title"
                               name="title"
-                              placeholder="Ringkasan singkat pengalaman Anda"
+                              placeholder={t('portfolios.review.title_placeholder')}
                               invalid={!!errors.title}
                             />
                             <Field.Feedback message={errors.title} />
                           </Field.Group>
 
                           <Field.Group>
-                            <Field.Label
-                              >Penilaian <span class="text-danger">*</span
-                              ></Field.Label
-                            >
+                            <Field.Label>{t('portfolios.review.rating')} <span class="text-danger">*</span></Field.Label>
                             <input
                               type="hidden"
                               name="rating"
@@ -364,7 +352,7 @@
                                 <button
                                   type="button"
                                   class="btn btn-link p-0 text-warning"
-                                  aria-label={`${value} bintang`}
+                                  aria-label={t('portfolios.review.stars', { value })}
                                   onclick={() => (selectedRating = value)}
                                 >
                                   <Star
@@ -380,14 +368,11 @@
                           </Field.Group>
 
                           <Field.Group>
-                            <Field.Label
-                              >Isi Ulasan <span class="text-danger">*</span
-                              ></Field.Label
-                            >
+                            <Field.Label>{t('portfolios.review.body')} <span class="text-danger">*</span></Field.Label>
                             <RichTextEditor
                               name="comment"
                               minimal
-                              placeholder="Ceritakan pengalaman Anda..."
+                              placeholder={t('portfolios.review.body_placeholder')}
                               invalid={!!errors.comment}
                             />
                             <Field.Feedback message={errors.comment} />
@@ -399,12 +384,12 @@
                             <button
                               type="submit"
                               class="btn btn-primary"
-                              disabled={processing}>Kirim Ulasan</button
+                              disabled={processing}>{t('portfolios.review.submit')}</button
                             >
                           </CaptchaSubmitRow>
                           <p class="small opacity-75 mb-0">
-                            Ulasan dimoderasi dan merupakan pendapat pengulas.
-                            Baca <a href={localizeHref('/disclaimer')}>kebijakan ulasan</a>.
+                            {t('portfolios.review.note')}
+                            <a href={localizeHref('/disclaimer')}>{t('portfolios.review.policy')}</a>.
                           </p>
                         {/snippet}
                       </Form>
@@ -416,7 +401,7 @@
             <div class="col-md-4">
               <div class="card sticky-top rounded-4">
                 <div class="card-header p-4">
-                  <h2 class="h4 mb-0">Navigasi</h2>
+                  <h2 class="h4 mb-0">{t('portfolios.nav.title')}</h2>
                 </div>
                 <div class="card-body">
                   <ul class="nav nav-pills flex-column align-items-stretch">
@@ -424,25 +409,21 @@
                       <a
                         href="#description"
                         class="nav-link py-3 w-100 text-start"
-                        >Deskripsi Proyek</a
-                      >
+                        >{t('portfolios.show.description')}</a>
                     </li>
                     <li class="nav-item">
                       <a
                         href="#techstack"
                         class="nav-link py-3 w-100 text-start"
-                        >Dibangun Dengan</a
-                      >
+                        >{t('portfolios.show.built_with')}</a>
                     </li>
                     <li class="nav-item">
                       <a href="#gallery" class="nav-link py-3 w-100 text-start"
-                        >Galeri</a
-                      >
+                        >{t('portfolios.show.gallery_short')}</a>
                     </li>
                     <li class="nav-item">
                       <a href="#rating" class="nav-link py-3 w-100 text-start"
-                        >Penilaian</a
-                      >
+                        >{t('portfolios.show.rating_short')}</a>
                     </li>
                   </ul>
                 </div>

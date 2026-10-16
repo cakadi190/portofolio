@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localizeHref } from '@/lib/i18n';
+  import { localizeHref, t, intlLocale } from '@/lib/i18n';
   import '../../../css/content.scss';
   import { badgeStyle } from '@/lib/badge';
   import AppHead from '@/components/app-head.svelte';
@@ -52,12 +52,12 @@
 
   const publishedLabel = $derived(
     post.publishedAt
-      ? new Date(post.publishedAt).toLocaleDateString('id-ID', {
+      ? new Date(post.publishedAt).toLocaleDateString(intlLocale(), {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
-      : 'Belum dipublikasikan',
+      : t('post.unpublished'),
   );
 </script>
 
@@ -111,7 +111,7 @@
               <div class="sticky-sidebar d-flex flex-column gap-4">
                 <div class="card rounded-4 overflow-hidden">
                   <div class="card-header p-4">
-                    <h2 class="h4 mb-0">Artikel Lainnya</h2>
+                    <h2 class="h4 mb-0">{t('blog.show.other_posts')}</h2>
                   </div>
                   {#if otherPosts.length}
                     <ul class="list-group list-group-flush">
@@ -128,14 +128,14 @@
                     </ul>
                   {:else}
                     <div class="card-body opacity-75">
-                      Belum ada artikel lain.
+                      {t('blog.show.no_other_posts')}
                     </div>
                   {/if}
                 </div>
 
                 <div class="card rounded-4 overflow-hidden">
                   <div class="card-header p-4">
-                    <h2 class="h4 mb-0">Kategori</h2>
+                    <h2 class="h4 mb-0">{t('blog.show.categories')}</h2>
                   </div>
                   {#if categories.length}
                     <ul class="taxonomy-list">
@@ -156,13 +156,13 @@
                       {/each}
                     </ul>
                   {:else}
-                    <div class="card-body opacity-75">Belum ada kategori.</div>
+                    <div class="card-body opacity-75">{t('blog.show.no_categories')}</div>
                   {/if}
                 </div>
 
                 <div class="card rounded-4 overflow-hidden">
                   <div class="card-header p-4">
-                    <h2 class="h4 mb-0">Tag</h2>
+                    <h2 class="h4 mb-0">{t('blog.show.tags')}</h2>
                   </div>
                   {#if tags.length}
                     <ul class="taxonomy-list">
@@ -180,7 +180,7 @@
                       {/each}
                     </ul>
                   {:else}
-                    <div class="card-body opacity-75">Belum ada tag.</div>
+                    <div class="card-body opacity-75">{t('blog.show.no_tags')}</div>
                   {/if}
                 </div>
               </div>
@@ -191,7 +191,7 @@
             <div class="post-taxonomy">
               {#if post.categories.length}
                 <div class="post-taxonomy-row">
-                  <Folder size={18} aria-label="Kategori" role="img" />
+                  <Folder size={18} aria-label={t('blog.show.categories')} role="img" />
                   <div class="d-flex flex-wrap gap-2">
                     {#each post.categories as category (category.slug)}
                       <Link
@@ -215,7 +215,7 @@
 
               {#if post.tags.length}
                 <div class="post-taxonomy-row">
-                  <Tags size={18} aria-label="Tagar" role="img" />
+                  <Tags size={18} aria-label={t('blog.show.tag_icon')} role="img" />
                   <div class="d-flex flex-wrap gap-2">
                     {#each post.tags as tag (tag.slug)}
                       <Link
@@ -232,14 +232,14 @@
           {/if}
 
           <p class="small opacity-75 mt-2">
-            Artikel ini adalah pendapat pribadi penulis, bukan nasihat
-            profesional. Lihat <a href={localizeHref('/disclaimer')}>penyangkalan</a>.
+            {t('blog.show.disclaimer_before')}
+            <a href={localizeHref('/disclaimer')}>{t('blog.show.disclaimer_link')}</a>.
           </p>
 
           {#if adjacent.previous || adjacent.next}
             <nav
               class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-5 pt-4 border-top"
-              aria-label="Navigasi artikel"
+              aria-label={t('blog.show.article_nav')}
             >
               {#if adjacent.previous}
                 <Link
@@ -249,7 +249,7 @@
                 >
                   <ChevronLeft size={18} />
                   <span>
-                    <small class="d-block opacity-75">Artikel sebelumnya</small>
+                    <small class="d-block opacity-75">{t('blog.show.previous')}</small>
                     {adjacent.previous.title}
                   </span>
                 </Link>
@@ -263,7 +263,7 @@
                   rel="next"
                 >
                   <span>
-                    <small class="d-block opacity-75">Artikel berikutnya</small>
+                    <small class="d-block opacity-75">{t('blog.show.next')}</small>
                     {adjacent.next.title}
                   </span>
                   <ChevronRight size={18} />

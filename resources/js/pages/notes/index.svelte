@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Eye from '@lucide/svelte/icons/eye';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -24,15 +25,15 @@
   }: { notes: InfiniteList<Note>; tags: string[]; activeTag: string | null } =
     $props();
 
-  const numberFormat = new Intl.NumberFormat('id-ID');
+  const numberFormat = $derived(new Intl.NumberFormat(intlLocale()));
 </script>
 
-<AppHead title="Catatan Singkat" />
+<AppHead title={t('notes.title')} />
 
 <div id="notes-page">
   <HeaderPage
-    title="Catatan Singkat"
-    subtitle="Catatan pribadi saya yang tidak cukup panjang untuk jadi artikel."
+    title={t('notes.title')}
+    subtitle={t('notes.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -40,12 +41,12 @@
       <div class="row">
         <div class="col-lg-8 mx-auto">
           {#if tags.length}
-            <nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Filter topik">
+            <nav class="d-flex flex-wrap gap-2 mb-4" aria-label={t('notes.filter')}>
               <Link
                 href={index().url}
                 class={`badge tag-badge text-decoration-none ${activeTag === null ? 'text-bg-primary' : ''}`}
               >
-                Semua
+                {t('notes.all')}
               </Link>
               {#each tags as tag (tag)}
                 <Link
@@ -60,8 +61,8 @@
 
           {#if notes.data.length === 0}
             <EmptyState
-              title="Belum Ada Catatan"
-              text="Belum ada catatan yang tersedia saat ini."
+              title={t('notes.empty_title')}
+              text={t('notes.empty_text')}
             />
           {:else}
             <InfiniteFeed data="notes">
@@ -78,10 +79,10 @@
                       <h2 class="h5 card-title mb-0">{note.title}</h2>
                       <small
                         class="opacity-75 d-inline-flex align-items-center gap-1"
-                        title="Jumlah tayangan"
+                        title={t('unit.views_label')}
                       >
                         <Eye size={14} />
-                        {numberFormat.format(note.views)} tayangan
+                        {t('unit.views', { count: numberFormat.format(note.views) })}
                       </small>
                     </div>
                     {#if note.excerpt}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Icon from '@iconify/svelte';
   import Eye from '@lucide/svelte/icons/eye';
   import Medal from '@lucide/svelte/icons/medal';
@@ -70,10 +71,10 @@
   ];
 </script>
 
-<AppHead title="Tentang Saya" />
+<AppHead title={t('about.title')} />
 
 <div id="about-me">
-  <HeaderPage title="Tentang Saya" subtitle="Berikut sekilas tentang diri saya pribadi" />
+  <HeaderPage title={t('about.title')} subtitle={t('about.subtitle')} />
 
   <section class="need-space pt-0">
     <div class="container">
@@ -85,8 +86,8 @@
                 class="card card-body rounded-4 p-4 text-center align-items-center"
               >
                 <Medal size={48} />
-                <strong class="h3 mb-0 pt-3">{yearsExperience} Tahun</strong>
-                <span>Berpengalaman</span>
+                <strong class="h3 mb-0 pt-3">{t('about.years', { count: yearsExperience })}</strong>
+                <span>{t('about.experienced')}</span>
               </div>
             </div>
             <div class="col-md-4">
@@ -94,8 +95,8 @@
                 class="card card-body rounded-4 p-4 text-center align-items-center"
               >
                 <Handshake size={48} />
-                <strong class="h3 mb-0 pt-3">{yearsServing} Tahun</strong>
-                <span>Melayani</span>
+                <strong class="h3 mb-0 pt-3">{t('about.years', { count: yearsServing })}</strong>
+                <span>{t('about.serving')}</span>
               </div>
             </div>
             <div class="col-md-4">
@@ -105,7 +106,7 @@
               >
                 <Briefcase size={48} />
                 <strong class="h3 mb-0 pt-3">{totalProjects}</strong>
-                <span>Proyek</span>
+                <span>{t('about.projects')}</span>
               </Link>
             </div>
           </div>
@@ -118,60 +119,32 @@
                   width="787"
                   height="572"
                   class="w-100 h-auto"
-                  alt="Ilustrasi programmer"
+                  alt={t('about.illustration')}
                 />
               </div>
               <div class="col-md-7">
-                <p>
-                  Hai, saya <strong>Amir Zuhdi Wibowo, A.Md.Kom.</strong>, seorang
-                  <strong>Software Engineer</strong> dan <strong>Wirausahawan</strong> yang hobi ngulik dari
-                  front-end sampai back-end. Saya senang membuat aplikasi web yang nggak cuma berfungsi
-                  dengan baik tapi juga enak dilihat. Dari HTML, CSS, JavaScript, sampai PHP, saya punya
-                  pengalaman yang luas untuk memastikan proyek web berjalan lancar dan terlihat menarik.
-                </p>
-                <p>
-                  Selain coding, saya juga jago di beberapa bidang IT lainnya. Saya bisa bikin desain
-                  grafis yang kece dengan Photoshop dan Illustrator, merancang UI/UX yang user-friendly
-                  pakai Figma, dan bahkan reparasi komputer ringan kalau ada masalah. Kombinasi
-                  keterampilan ini bikin saya siap banget untuk memberikan yang terbaik di setiap proyek
-                  yang saya kerjakan.
-                </p>
+                <p>{@html t('about.intro1')}</p>
+                <p>{t('about.intro2')}</p>
               </div>
             </div>
           </div>
 
           <div id="history" class="pb-4 mb-4 border-bottom">
-            <h2 class="h4">Sejarah Singkat</h2>
+            <h2 class="h4">{t('about.history.title')}</h2>
 
             <p>
-              Perjalanan saya sebagai programmer dimulai secara tidak sengaja pada pertengahan 2015 saat
-              mengerjakan tugas PKn. Awalnya berkenalan dengan
-              <a href="https://blogger.com" rel="noreferrer" target="_blank">Blogger</a>, lalu beralih ke
-              WordPress, yang memperkenalkan saya pada konsep CMS yang lebih kompleks. Langkah berikutnya
-              membawa saya ke dunia hosting dan manajemen server, di mana saya mempelajari panel kontrol
-              seperti cPanel dan aspek teknis di balik sebuah website.
+              {t('about.history.p1_before')}
+              <a href="https://blogger.com" rel="noreferrer" target="_blank">Blogger</a>{t('about.history.p1_after')}
             </p>
 
-            <p>
-              Perjalanan ini berlanjut dengan mempelajari dasar-dasar HTML, CSS, dan JavaScript untuk
-              frontend, serta PHP dan MySQL untuk backend. Saya menghadapi berbagai tantangan, dari error
-              yang membingungkan hingga konsep-konsep sulit. Seiring waktu, saya mengeksplorasi teknologi
-              modern seperti Node.js dan React, memperluas pemahaman saya tentang ekosistem pengembangan
-              web fullstack.
-            </p>
+            <p>{t('about.history.p2')}</p>
 
-            <p>
-              Menjadi fullstack developer adalah perjalanan penuh liku. Ada saat-saat frustrasi ketika
-              menghadapi bug atau konfigurasi server yang kompleks, namun juga ada momen membahagiakan
-              saat berhasil mengoptimalkan website atau mengimplementasikan fitur challenging. Kini,
-              setelah bertahun-tahun, saya bersyukur atas perjalanan tidak disengaja ini yang telah
-              membentuk karir dan passion saya dalam dunia pengembangan web.
-            </p>
+            <p>{t('about.history.p3')}</p>
           </div>
 
           <div id="skills" class="pb-5 mb-5 border-bottom">
-            <h2 class="h4">Keahlian Saya</h2>
-            <p class="opacity-75 mb-5">Keahlian profesional saya.</p>
+            <h2 class="h4">{t('about.skills.title')}</h2>
+            <p class="opacity-75 mb-5">{t('about.skills.subtitle')}</p>
 
             <div class="skill-main-wrapper">
               {#each skillset as item (item.name)}
@@ -184,11 +157,11 @@
           </div>
 
           <div id="certification">
-            <h2 class="h4">Sertifikasi Saya</h2>
+            <h2 class="h4">{t('about.certs.title')}</h2>
             {#if certifications.length === 0}
-              <p class="opacity-75 mb-0">Belum ada sertifikasi yang ditambahkan saat ini.</p>
+              <p class="opacity-75 mb-0">{t('about.certs.empty')}</p>
             {:else}
-              <p class="opacity-75 mb-4">Sertifikat dan kredensial yang pernah saya peroleh.</p>
+              <p class="opacity-75 mb-4">{t('about.certs.subtitle')}</p>
 
               <div class="row g-4">
                 {#each certifications as certification (certification.id)}
@@ -202,12 +175,12 @@
                           href={certification.pageUrl}
                           class="btn btn-sm btn-primary flex-shrink-0 d-none d-md-inline-block"
                         >
-                          Show Certificate
+                          {t('about.certs.show')}
                         </Link>
                         <Link
                           href={certification.pageUrl}
                           class="btn btn-sm btn-primary flex-shrink-0 d-md-none"
-                          aria-label="Lihat sertifikat {certification.title}"
+                          aria-label={t('about.certs.view', { title: certification.title })}
                         >
                           <Eye size={18} />
                         </Link>
@@ -224,24 +197,24 @@
             class="card sticky-top overflow-hidden rounded-4"
           >
             <div class="card-header p-4">
-              <h2 class="h4 mb-0">Navigasi</h2>
+              <h2 class="h4 mb-0">{t('about.nav.title')}</h2>
             </div>
             <div class="card-body">
               <ul class="nav nav-pills flex-column align-items-stretch">
                 <li class="nav-item">
-                  <a href="#about-me" class="nav-link py-3 w-100 text-start">Tentang Saya</a>
+                  <a href="#about-me" class="nav-link py-3 w-100 text-start">{t('about.nav.about')}</a>
                 </li>
                 <li class="nav-item">
-                  <a href="#history" class="nav-link py-3 w-100 text-start">Sejarah Singkat Saya</a>
+                  <a href="#history" class="nav-link py-3 w-100 text-start">{t('about.nav.history')}</a>
                 </li>
                 <li class="nav-item">
-                  <a href="#skills" class="nav-link py-3 w-100 text-start">Keahlian</a>
+                  <a href="#skills" class="nav-link py-3 w-100 text-start">{t('about.nav.skills')}</a>
                 </li>
                 <li class="nav-item">
-                  <a href="#certification" class="nav-link py-3 w-100 text-start">Sertifikasi</a>
+                  <a href="#certification" class="nav-link py-3 w-100 text-start">{t('about.nav.certs')}</a>
                 </li>
                 <li class="nav-item">
-                  <a href="#skills" class="nav-link py-3 w-100 text-start">Perkakas</a>
+                  <a href="#skills" class="nav-link py-3 w-100 text-start">{t('about.nav.tools')}</a>
                 </li>
               </ul>
             </div>

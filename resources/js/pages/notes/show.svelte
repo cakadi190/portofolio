@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import '../../../css/content.scss';
   import Calendar from '@lucide/svelte/icons/calendar';
   import Clock from '@lucide/svelte/icons/clock';
@@ -22,12 +23,12 @@
 
   const publishedLabel = $derived(
     note.publishedAt
-      ? new Date(note.publishedAt).toLocaleDateString('id-ID', {
+      ? new Date(note.publishedAt).toLocaleDateString(intlLocale(), {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
-      : 'Belum dipublikasikan',
+      : t('post.unpublished'),
   );
 </script>
 
@@ -54,11 +55,11 @@
               </span>
               <span class="d-inline-flex align-items-center gap-2">
                 <Clock size={16} />
-                {note.readingMinutes} menit baca
+                {t('unit.reading_minutes', { count: note.readingMinutes })}
               </span>
               <span class="d-inline-flex align-items-center gap-2">
                 <Eye size={16} />
-                {new Intl.NumberFormat('id-ID').format(note.views)} tayangan
+                {t('unit.views', { count: new Intl.NumberFormat(intlLocale()).format(note.views) })}
               </span>
             </div>
             {#if note.tags.length}

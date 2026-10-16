@@ -9,6 +9,7 @@ use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
+use App\Support\AppLocale;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -69,7 +70,7 @@ class PortfolioController extends Controller
                 'dateCreated' => $portfolio->created_at?->toAtomString(),
                 'dateModified' => $portfolio->updated_at?->toAtomString(),
                 'keywords' => $portfolio->technologies->pluck('name')->implode(', '),
-                'inLanguage' => 'id-ID',
+                'inLanguage' => AppLocale::languageTag(),
                 'author' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],
             ]],
         ]);

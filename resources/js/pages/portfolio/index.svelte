@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import CardPortfolio from '@/components/card-portfolio.svelte';
   import EmptyState from '@/components/empty-state.svelte';
@@ -18,19 +19,19 @@
   let { portfolios }: { portfolios: InfiniteList<Portfolio> } = $props();
 </script>
 
-<AppHead title="Portofolio" />
+<AppHead title={t('portfolios.title')} />
 
 <div id="porto-page">
   <HeaderPage
-    title="Portofolio"
-    subtitle="Daftar semua proyek dan portofolio saya yang sudah diselesaikan maupun belum."
+    title={t('portfolios.title')}
+    subtitle={t('portfolios.subtitle')}
   />
 
   <section class="need-space pt-0">
     <div class="container">
       <div class="row">
         {#if portfolios.data.length === 0}
-          <EmptyState title="Belum Ada Portofolio" text="Belum ada portofolio yang tersedia saat ini." />
+          <EmptyState title={t('portfolios.empty_title')} text={t('portfolios.empty_text')} />
         {:else}
           <div class="col-md-12 mx-auto">
             <InfiniteFeed data="portfolios">

@@ -40,12 +40,7 @@ class StoreGuestbookEntryRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return [
-            'guest_name' => 'nama',
-            'guest_email' => 'email',
-            'body' => 'pesan',
-            'parent_id' => 'pesan yang dibalas',
-        ];
+        return trans('validation.forms.guestbook');
     }
 
     protected function prepareForValidation(): void

@@ -11,6 +11,7 @@ use App\Models\Tag;
 use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
 use App\Services\SeoService;
+use App\Support\AppLocale;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -81,7 +82,7 @@ class BlogController extends Controller
                 'image' => $coverImage ? [url($coverImage)] : [url(config('seo.image'))],
                 'datePublished' => $post->published_at?->toAtomString(),
                 'dateModified' => $post->updated_at?->toAtomString(),
-                'inLanguage' => 'id-ID',
+                'inLanguage' => AppLocale::languageTag(),
                 'mainEntityOfPage' => route('blog.show', $post),
                 'keywords' => $post->tags->pluck('name')->implode(', '),
                 'author' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],

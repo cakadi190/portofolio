@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Briefcase from '@lucide/svelte/icons/briefcase';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
@@ -14,14 +15,14 @@
   let { careers }: { careers: Career[] } = $props();
 
   function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    return new Date(date).toLocaleDateString(intlLocale(), { month: 'long', year: 'numeric' });
   }
 </script>
 
-<AppHead title="Karir Saya" />
+<AppHead title={t('career.title')} />
 
 <div id="career-page">
-  <HeaderPage title="Karir" subtitle="Biar gak dikira pengangguran sama orang lain." />
+  <HeaderPage title={t('career.heading')} subtitle={t('career.subtitle')} />
 
   <section class="need-space pt-0">
     <div class="container">
@@ -38,7 +39,7 @@
                 <h2 class="h5 mb-1">{exp.position}</h2>
                 <small class="text-muted">{exp.company} | {exp.location}</small>
                 <p class="mb-0">
-                  {formatDate(exp.startDate)} - {exp.endDate ? formatDate(exp.endDate) : 'Sekarang'}
+                  {formatDate(exp.startDate)} - {exp.endDate ? formatDate(exp.endDate) : t('time.present')}
                 </p>
               </div>
             </div>

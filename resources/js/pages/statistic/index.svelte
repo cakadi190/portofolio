@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
@@ -20,39 +21,39 @@
   } = $props();
 
   const format = (value: number): string =>
-    new Intl.NumberFormat('id-ID').format(value);
+    new Intl.NumberFormat(intlLocale()).format(value);
 
-  const groups = [
-    { key: 'blog', label: 'Blog', prefix: '/blog' },
-    { key: 'notes', label: 'Catatan', prefix: '/notes' },
-  ] as const;
+  const groups = $derived([
+    { key: 'blog', label: t('statistic.group.blog'), prefix: '/blog' },
+    { key: 'notes', label: t('statistic.group.notes'), prefix: '/notes' },
+  ] as const);
 
   const stats = $derived([
     {
       value: format(siteViews),
       suffix: '',
-      label: 'Tayangan halaman di seluruh situs',
+      label: t('statistic.views.site'),
     },
     {
       value: format(blog.views),
       suffix: '',
-      label: `Tayangan dari ${format(blog.count)} artikel blog`,
+      label: t('statistic.views.blog', { count: format(blog.count) }),
     },
     {
       value: format(notes.views),
       suffix: '',
-      label: `Tayangan dari ${format(notes.count)} catatan singkat`,
+      label: t('statistic.views.notes', { count: format(notes.count) }),
     },
-    { value: format(guestbookCount), suffix: '', label: 'Pesan di buku tamu' },
+    { value: format(guestbookCount), suffix: '', label: t('statistic.guestbook') },
   ]);
 </script>
 
-<AppHead title="Statistik Situs" />
+<AppHead title={t('statistic.title')} />
 
 <div id="statistic-page">
   <HeaderPage
-    title="Statistik Situs"
-    subtitle="Angka tayangan halaman situs, artikel, dan catatan singkat."
+    title={t('statistic.title')}
+    subtitle={t('statistic.subtitle')}
   />
 
   <StatsHomeSection {stats} />
@@ -66,8 +67,8 @@
           <table class="table align-middle">
             <thead>
               <tr>
-                <th>Judul</th>
-                <th class="text-end">Tayangan</th>
+                <th>{t('statistic.col.title')}</th>
+                <th class="text-end">{t('statistic.col.views')}</th>
               </tr>
             </thead>
             <tbody>
@@ -82,14 +83,14 @@
               {:else}
                 <tr>
                   <td colspan="2" class="text-center opacity-75"
-                    >Belum ada data.</td
+                    >{t('statistic.empty')}</td
                   >
                 </tr>
               {/each}
             </tbody>
             <tfoot>
               <tr class="fw-semibold">
-                <td>Total</td>
+                <td>{t('statistic.total')}</td>
                 <td class="text-end">{format(data.views)}</td>
               </tr>
             </tfoot>
@@ -98,9 +99,8 @@
       {/each}
 
       <p class="small opacity-75">
-        Angka berasal dari pengunjung manusia (bot tidak dihitung). Satu
-        pengunjung dihitung sekali dalam rentang beberapa detik per halaman.
-        <Link href="/guestbook">Tulis pesan di buku tamu</Link>.
+        {t('statistic.footnote')}
+        <Link href="/guestbook">{t('statistic.write')}</Link>.
       </p>
     </div>
   </section>

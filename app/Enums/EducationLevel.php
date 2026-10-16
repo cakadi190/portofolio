@@ -15,15 +15,4 @@ enum EducationLevel: string
     case JuniorHighSchool = 'jhs';
     case SeniorHighSchool = 'shs';
     case University = 'university';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Kindergarten => 'TK / PAUD / TPQ',
-            self::ElementarySchool => 'Sekolah Dasar (SD)',
-            self::JuniorHighSchool => 'Sekolah Menengah Pertama (SMP)',
-            self::SeniorHighSchool => 'Sekolah Menengah Atas (SMA/SMK)',
-            self::University => 'Perguruan Tinggi',
-        };
-    }
 }

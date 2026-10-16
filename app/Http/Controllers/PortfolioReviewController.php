@@ -18,7 +18,7 @@ class PortfolioReviewController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Terima kasih! Ulasan Anda akan tampil setelah ditinjau.',
+            'message' => __('flash.review.pending'),
         ]);
 
         return to_route('portfolios.show', $portfolio);

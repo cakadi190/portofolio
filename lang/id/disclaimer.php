@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'title' => 'Penyangkalan & Ketentuan',
+    'subtitle' => 'Aturan penggunaan situs, kebijakan komentar, dan cara mengajukan koreksi.',
+    's.opinion.title' => 'Opini pribadi',
+    's.opinion.body' => 'Artikel, catatan, dan klarifikasi di situs ini adalah pendapat dan pengalaman pribadi pemilik situs, bukan nasihat profesional, hukum, maupun finansial.',
+    's.accuracy.title' => 'Tanpa jaminan akurasi',
+    's.accuracy.body' => 'Saya berusaha menulis dengan benar, tetapi informasi dapat usang atau keliru. Gunakan dengan pertimbangan sendiri dan verifikasi ke sumber resmi sebelum mengambil keputusan.',
+    's.links.title' => 'Tautan pihak ketiga',
+    's.links.body' => 'Situs ini memuat tautan ke situs lain. Isi, kebijakan, dan keamanan situs tersebut berada di luar kendali saya.',
+    's.copyright.title' => 'Hak cipta',
+    's.copyright.body' => 'Tulisan dan karya asli di situs ini dilindungi hak cipta. Anda boleh mengutip sebagian dengan menyebutkan sumber dan tautan; penyalinan penuh memerlukan izin tertulis.',
+    's.comments.title' => 'Komentar dan ulasan',
+    's.comments.body' => 'Komentar blog dan ulasan portofolio dimoderasi dan mencerminkan pendapat penulisnya. Saya berhak menolak atau menghapus konten yang berisi spam, ujaran kebencian, data pribadi, atau tuduhan tanpa dasar.',
+    's.clarifications.title' => 'Klarifikasi',
+    's.clarifications.body' => 'Halaman klarifikasi adalah tanggapan pemilik situs sebagai pihak yang bersangkutan dan bukan pemeriksaan fakta independen.',
+    's.liability.title' => 'Batas tanggung jawab',
+    's.liability.body' => 'Penggunaan situs ini sepenuhnya menjadi tanggung jawab Anda. Saya tidak bertanggung jawab atas kerugian yang timbul dari penggunaan informasi di dalamnya.',
+    'correction.title' => 'Koreksi dan hak jawab',
+    'correction.before' => 'Bila Anda menemukan kekeliruan atau merasa dirugikan oleh konten di sini, pilih keperluan "Koreksi / Hak Jawab" pada',
+    'correction.form' => 'formulir kontak',
+    'correction.middle' => 'Lihat juga',
+    'correction.list' => 'daftar klarifikasi',
+];

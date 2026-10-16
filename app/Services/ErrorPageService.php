@@ -7,18 +7,18 @@ class ErrorPageService
     /**
      * Status codes that get a dedicated Inertia error page.
      *
-     * @var array<int, array{title: string, text: string, image: string}>
+     * @var array<int, array{image: string}>
      */
     private const PAGES = [
-        400 => ['title' => 'Permintaan Tidak Valid', 'text' => 'Permintaan yang Anda kirim tidak dapat diproses.', 'image' => '400'],
-        401 => ['title' => 'Sesi Anda Berakhir', 'text' => 'Silakan masuk kembali untuk melanjutkan.', 'image' => '403'],
-        403 => ['title' => 'Akses Ditolak', 'text' => 'Anda tidak memiliki izin untuk membuka halaman ini.', 'image' => '403'],
-        404 => ['title' => 'Tidak Ditemukan', 'text' => 'Halaman yang Anda cari tidak tersedia atau sudah dipindahkan.', 'image' => '404'],
-        405 => ['title' => 'Metode Tidak Diizinkan', 'text' => 'Halaman ini tidak dapat dibuka dengan cara tersebut.', 'image' => '400'],
-        419 => ['title' => 'Sesi Kedaluwarsa', 'text' => 'Muat ulang halaman lalu coba lagi.', 'image' => '400'],
-        429 => ['title' => 'Terlalu Banyak Permintaan', 'text' => 'Coba lagi sebentar lagi.', 'image' => '429'],
-        500 => ['title' => 'Ups, Terjadi Kesalahan', 'text' => 'Saat ini kami sedang memperbaiki kesalahan ini.', 'image' => '500'],
-        503 => ['title' => 'Sedang Dalam Pemeliharaan', 'text' => 'Kami akan segera kembali. Silakan coba beberapa saat lagi.', 'image' => '503'],
+        400 => ['image' => '400'],
+        401 => ['image' => '403'],
+        403 => ['image' => '403'],
+        404 => ['image' => '404'],
+        405 => ['image' => '400'],
+        419 => ['image' => '400'],
+        429 => ['image' => '429'],
+        500 => ['image' => '500'],
+        503 => ['image' => '503'],
     ];
 
     /**
@@ -37,8 +37,8 @@ class ErrorPageService
 
         return [
             'status' => $status,
-            'title' => $page['title'],
-            'text' => $page['text'],
+            'title' => __("errors.{$status}.title"),
+            'text' => __("errors.{$status}.text"),
             'image' => "/images/errors/{$page['image']}.svg",
         ];
     }

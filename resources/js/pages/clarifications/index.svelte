@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import VerdictBadge from '@/components/clarification/verdict-badge.svelte';
@@ -32,7 +33,7 @@
 
   function formatDate(value: string | null): string {
     return value
-      ? new Date(value).toLocaleDateString('id-ID', {
+      ? new Date(value).toLocaleDateString(intlLocale(), {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
@@ -41,22 +42,22 @@
   }
 </script>
 
-<AppHead title="Klarifikasi" />
+<AppHead title={t('clarifications.title')} />
 
 <div id="clarifications-page">
   <HeaderPage
-    title="Klarifikasi"
-    subtitle="Hak jawab saya atas kabar atau klaim yang beredar. Ditulis oleh saya sendiri sebagai pihak yang bersangkutan, bukan pemeriksaan fakta independen."
+    title={t('clarifications.title')}
+    subtitle={t('clarifications.subtitle')}
   />
 
   <section class="need-space pt-0">
     <div class="container">
-      <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Saring berdasarkan vonis">
+      <div class="d-flex flex-wrap gap-2 mb-4" aria-label={t('clarifications.filter')}>
         <Link
           href={index().url}
           class={`btn btn-sm ${activeVerdict ? 'btn-outline-secondary' : 'btn-secondary'}`}
         >
-          Semua
+          {t('clarifications.all')}
         </Link>
         {#each verdicts as verdict (verdict.value)}
           <Link
@@ -70,8 +71,8 @@
 
       {#if clarifications.data.length === 0}
         <EmptyState
-          title="Belum Ada Klarifikasi"
-          text="Belum ada klarifikasi yang diterbitkan."
+          title={t('clarifications.empty_title')}
+          text={t('clarifications.empty_text')}
         />
       {:else}
         <InfiniteFeed data="clarifications">
@@ -99,7 +100,7 @@
                   </div>
                   <h2 class="h5 card-title">{item.title}</h2>
                   <p class="small opacity-75 fst-italic mb-2">
-                    Klaim: “{item.claim}”
+                    {t('clarifications.claim', { claim: item.claim })}
                   </p>
                   {#if item.summary}
                     <div class="card-text mb-3 opacity-75">{item.summary}</div>

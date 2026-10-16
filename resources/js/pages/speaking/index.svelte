@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
   import SpeakingItem, {
@@ -46,12 +47,12 @@
   }
 </script>
 
-<AppHead title="Pembicara & Mentoring" />
+<AppHead title={t('speaking.title')} />
 
 <div id="speaking-page">
   <HeaderPage
-    title="Pembicara & Mentoring"
-    subtitle="Berbagi ilmu seputar pengembangan web dan teknologi"
+    title={t('speaking.title')}
+    subtitle={t('speaking.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -59,7 +60,7 @@
       {#if upcoming.length || past.length}
         <div class="speaking-list">
           {#if upcoming.length}
-            <h2 class="speaking-group-title">Akan Datang</h2>
+            <h2 class="speaking-group-title">{t('speaking.upcoming')}</h2>
             {#each upcoming as engagement, index (engagement.id)}
               <SpeakingItem
                 {engagement}
@@ -70,14 +71,14 @@
             {/each}
           {/if}
           {#if past.length}
-            <h2 class="speaking-group-title">Telah Berlangsung</h2>
+            <h2 class="speaking-group-title">{t('speaking.past')}</h2>
             {#each past as engagement (engagement.id)}
               <SpeakingItem {engagement} onposter={openPoster} />
             {/each}
           {/if}
         </div>
       {:else}
-        <p class="opacity-75">Belum ada acara yang terarsip.</p>
+        <p class="opacity-75">{t('speaking.empty')}</p>
       {/if}
     </div>
   </section>
@@ -85,14 +86,11 @@
 
 <FormModal
   bind:open={zoneOpen}
-  title="Waktu di Zona Waktu Lain"
+  title={t('speaking.zones.title')}
   subtitle={zoneEngagement?.title ?? ''}
 >
   {#snippet children()}
-    <p class="small opacity-75">
-      Jadwal resmi acara dalam WIB. Berikut padanannya di zona waktu lain agar
-      Anda tidak ketinggalan.
-    </p>
+    <p class="small opacity-75">{t('speaking.zones.note')}</p>
     <ul class="list-group">
       {#each zones as zone (zone.key)}
         <li
@@ -102,7 +100,7 @@
           <span class="fw-semibold">
             {zone.label}
             {#if zone.isDevice}
-              <span class="badge text-bg-light ms-1">Zona Anda</span>
+              <span class="badge text-bg-light ms-1">{t('speaking.zones.yours')}</span>
             {/if}
           </span>
           <span>

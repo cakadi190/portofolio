@@ -4,10 +4,11 @@ namespace App\Enums;
 
 use App\Enums\Concerns\HasEnumOptions;
 use App\Enums\Concerns\HasEnumValues;
+use App\Enums\Concerns\HasLabel;
 
 enum CafeFacility: string
 {
-    use HasEnumOptions, HasEnumValues;
+    use HasEnumOptions, HasEnumValues, HasLabel;
 
     case Outdoor = 'outdoor';
     case Indoor = 'indoor';
@@ -25,26 +26,4 @@ enum CafeFacility: string
     case Food = 'food';
     case Delivery = 'delivery';
     case Open24Hours = 'open_24_hours';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Outdoor => 'Outdoor',
-            self::Indoor => 'Indoor',
-            self::AirConditioner => 'AC',
-            self::WorkFromCafe => 'WFC (Work From Cafe)',
-            self::Hangout => 'Nongkrong',
-            self::Smoking => 'Smoking Area',
-            self::NonSmoking => 'Non-Smoking Area',
-            self::Musholla => 'Musholla',
-            self::PowerOutlet => 'Colokan Listrik',
-            self::Parking => 'Area Parkir',
-            self::Toilet => 'Toilet',
-            self::LiveMusic => 'Live Music',
-            self::MeetingRoom => 'Ruang Meeting',
-            self::Food => 'Makanan Berat',
-            self::Delivery => 'Pesan Antar',
-            self::Open24Hours => 'Buka 24 Jam',
-        };
-    }
 }

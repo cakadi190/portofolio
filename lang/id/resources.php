@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'all_platforms' => 'Semua Platform',
+    'featured' => '★ Unggulan',
+    'coffee.title' => 'Tempat Ngopi',
+    'coffee.subtitle' => 'Berikut daftar tempat ngopi yang aku rekomendasikan.',
+    'coffee.disclaimer' => 'Dan mohon maaf, saya tidak terafiliasi terhadap salah satu kafe / warkop ini, jadi apabila ada kesalahan mohon segera hubungi saya supaya segera saya perbaharui.',
+    'coffee.choose_city' => 'Pilih Kota',
+    'coffee.all_cities' => 'Semua Kota',
+    'coffee.search_label' => 'Cari kafe atau lokasi',
+    'coffee.search' => 'Cari',
+    'coffee.empty_title' => 'Tempat Ngopi Tidak Ditemukan',
+    'coffee.empty_text' => 'Kami tidak dapat menemukan tempat ngopi dengan kriteria tersebut.',
+    'communities.title' => 'Komunitas Dev ID',
+    'communities.subtitle' => 'Daftar grup dan komunitas developer Indonesia yang bisa kamu ikuti untuk belajar, diskusi, dan berjejaring.',
+    'communities.empty_title' => 'Komunitas Belum Tersedia',
+    'communities.empty_text' => 'Belum ada komunitas dengan kriteria tersebut.',
+    'communities.members' => ':count anggota',
+    'communities.join' => 'Gabung',
+    'channels.title' => 'Channel Programmer',
+    'channels.subtitle' => 'Channel YouTube, Telegram, dan akun lain seputar pemrograman yang layak kamu ikuti.',
+    'channels.empty_title' => 'Channel Belum Tersedia',
+    'channels.empty_text' => 'Belum ada channel dengan kriteria tersebut.',
+    'channels.visit' => 'Kunjungi',
+];

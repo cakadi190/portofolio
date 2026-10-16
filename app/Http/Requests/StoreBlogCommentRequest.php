@@ -47,12 +47,7 @@ class StoreBlogCommentRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return [
-            'guest_name' => 'nama',
-            'guest_email' => 'email',
-            'body' => 'komentar',
-            'parent_id' => 'komentar yang dibalas',
-        ];
+        return trans('validation.forms.comment');
     }
 
     protected function prepareForValidation(): void

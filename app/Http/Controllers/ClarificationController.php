@@ -8,6 +8,7 @@ use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
+use App\Support\AppLocale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -88,7 +89,7 @@ class ClarificationController extends Controller
                 'image' => $coverImage ? [url($coverImage)] : [url(config('seo.image'))],
                 'datePublished' => $clarification->published_at->toAtomString(),
                 'dateModified' => $clarification->updated_at?->toAtomString(),
-                'inLanguage' => 'id-ID',
+                'inLanguage' => AppLocale::languageTag(),
                 'mainEntityOfPage' => route('clarifications.show', $clarification),
                 'articleSection' => 'Klarifikasi',
                 'author' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],

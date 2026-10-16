@@ -34,14 +34,7 @@ class PortfolioReviewRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return [
-            'reviewer_name' => 'nama',
-            'reviewer_email' => 'email',
-            'reviewer_company' => 'perusahaan / jabatan',
-            'title' => 'judul ulasan',
-            'rating' => 'penilaian',
-            'comment' => 'isi ulasan',
-        ];
+        return trans('validation.forms.review');
     }
 
     protected function prepareForValidation(): void

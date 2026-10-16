@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import '../../../css/content.scss';
   import Link from '@/components/link.svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
@@ -27,14 +28,14 @@
   const initial = $derived(author.name.trim().charAt(0).toUpperCase() || '?');
 </script>
 
-<AppHead title={`Penulis ${author.name}`} />
+<AppHead title={t('blog.author.title', { name: author.name })} />
 
 <div id="author-page">
   <section class="author-hero">
     <div class="container">
       <Link href={index().url} class="author-back">
         <ChevronLeft size={16} aria-hidden="true" />
-        Kembali
+        {t('action.back')}
       </Link>
 
       <div class="author-card">
@@ -45,7 +46,7 @@
           {#if author.avatar}
             <img
               src={author.avatar}
-              alt={`Foto profil ${author.name}`}
+              alt={t('blog.author.avatar_alt', { name: author.name })}
               width="128"
               height="128"
             />
@@ -69,7 +70,7 @@
             {/if}
             <span class="author-chip">
               <FileText size={14} aria-hidden="true" />
-              {totalPosts} artikel diterbitkan
+              {t('blog.author.published', { count: totalPosts })}
             </span>
           </div>
 
@@ -88,11 +89,11 @@
 
   <section class="need-space">
     <div class="container">
-      <h2 class="author-posts-title">Artikel oleh {author.name}</h2>
+      <h2 class="author-posts-title">{t('blog.author.posts_by', { name: author.name })}</h2>
 
       <PostArchive
         {posts}
-        emptyText={`${author.name} belum menerbitkan artikel.`}
+        emptyText={t('blog.author.empty', { name: author.name })}
       />
     </div>
   </section>

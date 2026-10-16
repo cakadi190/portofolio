@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import PostArchive from '@/components/blog/post-archive.svelte';
   import type { BlogPostCard } from '@/components/blog/types';
@@ -17,13 +18,13 @@
   } = $props();
 </script>
 
-<AppHead title={`Kategori ${category.name}`} />
+<AppHead title={t('blog.category.title', { name: category.name })} />
 
 <div id="category-page">
   <HeaderPage
     backTo={index().url}
     title={category.name}
-    subtitle={`${totalPosts} artikel dalam kategori ini.`}
+    subtitle={t('blog.category.count', { total: totalPosts })}
   />
 
   <section class="need-space pt-0">
@@ -32,8 +33,7 @@
         <div class="col-12">
           <PostArchive
             {posts}
-            emptyTitle="Belum Ada Artikel"
-            emptyText={`Belum ada artikel yang diterbitkan dalam kategori ${category.name}.`}
+            emptyText={t('blog.category.empty', { name: category.name })}
           />
         </div>
       </div>

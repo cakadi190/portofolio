@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Icon from '@iconify/svelte';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
@@ -27,10 +28,10 @@
   }
 </script>
 
-<AppHead title="Penghargaan" />
+<AppHead title={t('awards.title')} />
 
 <div id="achievements-page">
-  <HeaderPage title="Penghargaan Saya" subtitle="Biar gak dikira gak punya pencapaian apa-apa" />
+  <HeaderPage title={t('awards.heading')} subtitle={t('awards.subtitle')} />
 
   <section class="need-space pt-0">
     <div class="container">
@@ -50,7 +51,7 @@
                 <h2 class="h5 mb-1">
                   {award.eventName}
                   {#if isNew(award.awardedAt)}
-                    <span class="badge bg-success ms-2">Baru</span>
+                    <span class="badge bg-success ms-2">{t('awards.new')}</span>
                   {/if}
                 </h2>
                 <p class="mb-0 opacity-75">{award.title}</p>

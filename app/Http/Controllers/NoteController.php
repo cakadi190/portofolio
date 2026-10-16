@@ -9,6 +9,7 @@ use App\Services\HtmlSanitizer;
 use App\Services\NoteMarkdownExporter;
 use App\Services\SeoService;
 use App\Services\Visitors\PageViewCounter;
+use App\Support\AppLocale;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Str;
@@ -83,7 +84,7 @@ class NoteController extends Controller
                 'description' => $description,
                 'datePublished' => $note->published_at?->toAtomString(),
                 'dateModified' => $note->updated_at?->toAtomString(),
-                'inLanguage' => 'id-ID',
+                'inLanguage' => AppLocale::languageTag(),
                 'mainEntityOfPage' => route('notes.show', $note),
                 'keywords' => $note->tags->pluck('name')->implode(', '),
                 'author' => ['@type' => 'Person', 'name' => $seo->author(), 'url' => url('/')],

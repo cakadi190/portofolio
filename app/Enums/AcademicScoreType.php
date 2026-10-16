@@ -12,12 +12,4 @@ enum AcademicScoreType: string
 
     case Gpa = 'gpa';
     case SchoolExam = 'school_exam';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Gpa => 'IPK',
-            self::SchoolExam => 'Nilai Ujian Sekolah',
-        };
-    }
 }

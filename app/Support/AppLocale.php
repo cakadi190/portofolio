@@ -70,6 +70,14 @@ class AppLocale
         return [...$alternates, 'x-default' => $url];
     }
 
+    /**
+     * BCP 47 language tag (`id-ID`) of the language the visitor is reading, for `inLanguage`.
+     */
+    public static function languageTag(): string
+    {
+        return str_replace('_', '-', self::regionalCode(self::urlLocale()));
+    }
+
     public static function isAvailable(?string $locale): bool
     {
         return $locale !== null && in_array($locale, self::available(), true);

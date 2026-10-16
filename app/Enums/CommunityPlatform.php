@@ -4,23 +4,14 @@ namespace App\Enums;
 
 use App\Enums\Concerns\HasEnumOptions;
 use App\Enums\Concerns\HasEnumValues;
+use App\Enums\Concerns\HasLabel;
 
 enum CommunityPlatform: string
 {
-    use HasEnumOptions, HasEnumValues;
+    use HasEnumOptions, HasEnumValues, HasLabel;
 
     case Discord = 'discord';
     case WhatsApp = 'whatsapp';
     case Telegram = 'telegram';
     case Other = 'other';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Discord => 'Discord',
-            self::WhatsApp => 'WhatsApp',
-            self::Telegram => 'Telegram',
-            self::Other => 'Lainnya',
-        };
-    }
 }

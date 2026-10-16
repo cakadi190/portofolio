@@ -33,8 +33,8 @@ class BlogCommentController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => $comment->status === BlogCommentStatus::Approved
-                ? 'Komentar Anda telah dikirim.'
-                : 'Terima kasih! Komentar Anda akan tampil setelah ditinjau.',
+                ? __('flash.comment.sent')
+                : __('flash.comment.pending'),
         ]);
 
         return to_route('blog.show', $post);

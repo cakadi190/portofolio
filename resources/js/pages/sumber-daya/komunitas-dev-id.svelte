@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localizeHref } from '@/lib/i18n';
+  import { localizeHref, t, intlLocale } from '@/lib/i18n';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import Users from '@lucide/svelte/icons/users';
   import { router } from '@inertiajs/svelte';
@@ -39,12 +39,12 @@
   }
 </script>
 
-<AppHead title="Komunitas Dev ID" />
+<AppHead title={t('resources.communities.title')} />
 
 <div id="komunitas-dev-id-page">
   <HeaderPage
-    title="Komunitas Dev ID"
-    subtitle="Daftar grup dan komunitas developer Indonesia yang bisa kamu ikuti untuk belajar, diskusi, dan berjejaring."
+    title={t('resources.communities.title')}
+    subtitle={t('resources.communities.subtitle')}
   />
 
   <section class="need-space pt-0 position-relative">
@@ -55,7 +55,7 @@
           class={`btn btn-sm ${filters.platform ? 'btn-outline-primary' : 'btn-primary'}`}
           onclick={() => selectPlatform(null)}
         >
-          Semua Platform
+          {t('resources.all_platforms')}
         </button>
         {#each platforms as platform (platform.value)}
           <button
@@ -70,8 +70,8 @@
 
       {#if communities.data.length === 0}
         <EmptyState
-          title="Komunitas Belum Tersedia"
-          text="Belum ada komunitas dengan kriteria tersebut."
+          title={t('resources.communities.empty_title')}
+          text={t('resources.communities.empty_text')}
         />
       {:else}
         <InfiniteFeed data="communities">
@@ -85,7 +85,7 @@
                         >{item.platformLabel}</span
                       >
                       {#if item.isFeatured}
-                        <span class="badge text-bg-warning">★ Unggulan</span>
+                        <span class="badge text-bg-warning">{t('resources.featured')}</span>
                       {/if}
                     </div>
                     <h2 class="h5 mb-0">{item.name}</h2>
@@ -95,7 +95,7 @@
                     {#if item.memberCount !== null}
                       <small class="text-muted">
                         <Users size={14} />
-                        {item.memberCount.toLocaleString('id-ID')} anggota
+                        {t('resources.communities.members', { count: item.memberCount.toLocaleString(intlLocale()) })}
                       </small>
                     {/if}
                     <div class="mt-auto pt-2">
@@ -105,7 +105,7 @@
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                       >
-                        Gabung
+                        {t('resources.communities.join')}
                         <ExternalLink size={14} aria-hidden="true" />
                       </a>
                     </div>

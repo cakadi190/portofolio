@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import { home } from '@/wayfinder/routes';
@@ -21,6 +22,6 @@
     <h1 class="display-1">{status}</h1>
     <p class="lead">{title}</p>
 
-    <Link href={home().url} class="btn btn-primary d-block">Kembali</Link>
+    <Link href={home().url} class="btn btn-primary d-block">{t('action.back')}</Link>
   </div>
 </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import PostCard from '@/components/blog/post-card.svelte';
   import type { BlogPostCard } from '@/components/blog/types';
@@ -16,14 +17,14 @@
   } = $props();
 </script>
 
-<AppHead title="Artikel" />
+<AppHead title={t('blog.title')} />
 
 <div id="articles-page">
   <HeaderPage
-    title="Artikel"
+    title={t('blog.title')}
     subtitle={activeCategory
-      ? `Artikel dalam kategori ${activeCategory.name}.`
-      : 'Berikut daftar artikel yang saya tulis.'}
+      ? t('blog.subtitle_category', { name: activeCategory.name })
+      : t('blog.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -31,8 +32,8 @@
       <div class="row">
         {#if posts.data.length === 0}
           <EmptyState
-            title="Belum Ada Artikel"
-            text="Belum ada artikel yang tersedia saat ini."
+            title={t('empty.no_articles_title')}
+            text={t('blog.empty_text')}
           />
         {:else}
           <div class="col-md-12 mx-auto">

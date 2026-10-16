@@ -34,12 +34,7 @@ class ContactMessageRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return [
-            'name' => 'nama lengkap',
-            'email' => 'email',
-            'reason' => 'keperluan',
-            'message' => 'pesan',
-        ];
+        return trans('validation.forms.contact');
     }
 
     protected function prepareForValidation(): void
