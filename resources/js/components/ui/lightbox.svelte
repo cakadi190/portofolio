@@ -35,7 +35,7 @@
     open = $bindable(false),
     images: gallery,
     src,
-    alt = 'Pratinjau',
+    alt = t('ui.pratinjau'),
     index = $bindable(0),
   }: {
     open?: boolean;
@@ -383,7 +383,7 @@
           {#if isVideo}
             {#if failed}
               <div class="lightbox-message lightbox-fallback" role="alert">
-                <p>Format video ini tidak dapat diputar di browser Anda.</p>
+                <p>{t('ui.format_video_ini_tidak_dapat_diputar')}</p>
                 <a class="lightbox-fallback-link" href={current.url} download={current.title ?? ''}>
                   <Download size={16} /> {t('lightbox.download_video')}
                 </a>
@@ -417,9 +417,9 @@
             ></iframe>
           {:else}
             <div class="lightbox-message lightbox-fallback" role="alert">
-              <p>Situs ini tidak mengizinkan video diputar di halaman lain.</p>
+              <p>{t('ui.situs_ini_tidak_mengizinkan_video_diputar')}</p>
               <a class="lightbox-fallback-link" href={current.url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink size={16} /> Tonton di situs asal
+                <ExternalLink size={16} /> {t('ui.tonton_di_situs_asal')}
               </a>
             </div>
           {/if}

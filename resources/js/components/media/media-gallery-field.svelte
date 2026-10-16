@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import ImagePlus from '@lucide/svelte/icons/image-plus';
   import X from '@lucide/svelte/icons/x';
   import Lightbox from '@/components/ui/lightbox.svelte';
@@ -66,7 +67,7 @@
             <button
               type="button"
               class="gallery-preview"
-              aria-label="Pratinjau gambar"
+              aria-label={t('ui.pratinjau_gambar')}
               onclick={() => preview(index)}
             >
               <img src={storageUrl(item.image_url) ?? ''} alt="" loading="lazy" />
@@ -74,7 +75,7 @@
             <button
               type="button"
               class="gallery-remove"
-              aria-label="Hapus dari galeri"
+              aria-label={t('ui.hapus_dari_galeri')}
               onclick={() => remove(index)}
             >
               <X size={14} />
@@ -85,7 +86,7 @@
             class="form-control form-control-sm mt-2"
             class:is-invalid={!!errors[`${name}.${index}.description`]}
             name={`${name}[${index}][description]`}
-            placeholder="Keterangan (opsional)"
+            placeholder={t('ui.keterangan_opsional')}
             maxlength="255"
             bind:value={item.description}
           />
@@ -96,7 +97,7 @@
       {/each}
     </div>
   {:else}
-    <p class="text-muted small mb-0">Belum ada gambar galeri.</p>
+    <p class="text-muted small mb-0">{t('ui.belum_ada_gambar_galeri')}</p>
   {/if}
 
   <div>
@@ -106,14 +107,14 @@
       onclick={() => (pickerOpen = true)}
     >
       <ImagePlus size={16} />
-      Tambah Gambar
+      {t('ui.tambah_gambar')}
     </button>
   </div>
 </div>
 
 <Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
 
-<MediaPickerModal bind:open={pickerOpen} accept="image" multiple title="Pilih Gambar Galeri" {onSelect} />
+<MediaPickerModal bind:open={pickerOpen} accept="image" multiple title={t('ui.pilih_gambar_galeri')} {onSelect} />
 
 <style>
   .gallery-grid {

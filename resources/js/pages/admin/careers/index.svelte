@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -52,11 +53,11 @@
   }
 </script>
 
-<AppHead title="Riwayat Karier" />
+<AppHead title={t('admin-careers.riwayat_karier')} />
 
 <AdminPageHeader
-  title="Riwayat Karier"
-  subtitle="Kelola riwayat pekerjaan Anda."
+  title={t('admin-careers.riwayat_karier')}
+  subtitle={t('admin-careers.kelola_riwayat_pekerjaan_anda')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -66,14 +67,14 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Posisi', key: 'position', sortable: true },
-    { label: 'Perusahaan', key: 'company', sortable: true },
-    { label: 'Lokasi', key: 'location', sortable: true },
-    { label: 'Periode', key: 'start_date', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin-careers.posisi'), key: 'position', sortable: true },
+    { label: t('admin-careers.perusahaan'), key: 'company', sortable: true },
+    { label: t('admin-careers.lokasi'), key: 'location', sortable: true },
+    { label: t('admin-careers.periode'), key: 'start_date', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada karier"
-  emptyText="Tambahkan riwayat karier pertama Anda."
+  emptyTitle={t('admin-careers.belum_ada_karier')}
+  emptyText={t('admin-careers.tambahkan_riwayat_karier_pertama_anda')}
 >
   {#snippet row(career)}
     <tr>
@@ -83,7 +84,7 @@
       <td
         >{formatDate(career.start_date)} &ndash; {career.end_date
           ? formatDate(career.end_date)
-          : 'Sekarang'}</td
+          : t('admin-careers.sekarang')}</td
       >
       <td class="text-end">
         <div class="d-inline-flex gap-2">
@@ -92,7 +93,7 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(career)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(career.id).url}
@@ -106,8 +107,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Karier"
-  subtitle="Catat riwayat pekerjaan baru."
+  title={t('admin-careers.tambah_karier')}
+  subtitle={t('admin-careers.catat_riwayat_pekerjaan_baru')}
   size="lg"
 >
   {#snippet children()}
@@ -119,8 +120,8 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-position">Posisi</Field.Label>
-          <Field.Input placeholder="Masukkan posisi"
+          <Field.Label for="create-position">{t('admin-careers.posisi')}</Field.Label>
+          <Field.Input placeholder={t('admin-careers.masukkan_posisi')}
             id="create-position"
             name="position"
             required
@@ -130,8 +131,8 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-company">Perusahaan</Field.Label>
-          <Field.Input placeholder="Masukkan perusahaan"
+          <Field.Label for="create-company">{t('admin-careers.perusahaan')}</Field.Label>
+          <Field.Input placeholder={t('admin-careers.masukkan_perusahaan')}
             id="create-company"
             name="company"
             required
@@ -141,8 +142,8 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-location">Lokasi</Field.Label>
-          <Field.Input placeholder="Masukkan lokasi"
+          <Field.Label for="create-location">{t('admin-careers.lokasi')}</Field.Label>
+          <Field.Input placeholder={t('admin-careers.masukkan_lokasi')}
             id="create-location"
             name="location"
             required
@@ -154,7 +155,7 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-start_date">Mulai</Field.Label>
+              <Field.Label for="create-start_date">{t('admin.mulai')}</Field.Label>
               <DatePicker
                 id="create-start_date"
                 name="start_date"
@@ -165,7 +166,7 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-end_date">Selesai</Field.Label>
+              <Field.Label for="create-end_date">{t('admin.selesai')}</Field.Label>
               <DatePicker
                 id="create-end_date"
                 name="end_date"
@@ -177,7 +178,7 @@
         </div>
 
         <Field.Group>
-          <Field.Label for="create-portfolios">Portofolio terkait</Field.Label>
+          <Field.Label for="create-portfolios">{t('admin-careers.portofolio_terkait')}</Field.Label>
           <MultiCheck
             name="portfolios"
             options={portfolios.map((p) => ({ value: p.id, label: p.name }))}
@@ -190,10 +191,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -203,7 +204,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Karier"
+  title={t('admin-careers.ubah_karier')}
   subtitle={editingCareer?.position ?? ''}
   size="lg"
 >
@@ -218,8 +219,8 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-position">Posisi</Field.Label>
-            <Field.Input placeholder="Masukkan posisi"
+            <Field.Label for="edit-position">{t('admin-careers.posisi')}</Field.Label>
+            <Field.Input placeholder={t('admin-careers.masukkan_posisi')}
               id="edit-position"
               name="position"
               required
@@ -230,8 +231,8 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-company">Perusahaan</Field.Label>
-            <Field.Input placeholder="Masukkan perusahaan"
+            <Field.Label for="edit-company">{t('admin-careers.perusahaan')}</Field.Label>
+            <Field.Input placeholder={t('admin-careers.masukkan_perusahaan')}
               id="edit-company"
               name="company"
               required
@@ -242,8 +243,8 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-location">Lokasi</Field.Label>
-            <Field.Input placeholder="Masukkan lokasi"
+            <Field.Label for="edit-location">{t('admin-careers.lokasi')}</Field.Label>
+            <Field.Input placeholder={t('admin-careers.masukkan_lokasi')}
               id="edit-location"
               name="location"
               required
@@ -256,7 +257,7 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-start_date">Mulai</Field.Label>
+                <Field.Label for="edit-start_date">{t('admin.mulai')}</Field.Label>
                 <DatePicker
                   id="edit-start_date"
                   name="start_date"
@@ -268,7 +269,7 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-end_date">Selesai</Field.Label>
+                <Field.Label for="edit-end_date">{t('admin.selesai')}</Field.Label>
                 <DatePicker
                   id="edit-end_date"
                   name="end_date"
@@ -281,7 +282,7 @@
           </div>
 
           <Field.Group>
-            <Field.Label for="edit-portfolios">Portofolio terkait</Field.Label>
+            <Field.Label for="edit-portfolios">{t('admin-careers.portofolio_terkait')}</Field.Label>
             <MultiCheck
               name="portfolios"
               options={portfolios.map((p) => ({ value: p.id, label: p.name }))}
@@ -295,10 +296,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'tambahkan_nama_portofolio' => 'Add the portfolio name',
+    'nama_portofolio' => 'Portfolio name',
+    'visibilitas' => 'Visibility',
+    'portofolio_privat' => 'Private portfolio',
+    'tautan' => 'Links',
+    'otomatis_dari_nama' => 'Automatic from the name',
+    'tautan_demo' => 'Demo Link',
+    'kode_sumber' => 'Source Code',
+    'deskripsi_singkat' => 'Short description',
+    'deskripsi_singkat_yang_tampil_di_daftar' => 'A short description shown in the portfolio list',
+    'karier_terkait' => 'Related Career',
+    'kelola_daftar_portofolio_anda' => 'Manage your portfolio list.',
+    'belum_ada_portofolio' => 'No portfolio yet',
+    'tambahkan_portofolio_pertama_anda' => 'Add your first portfolio item.',
+    'ubah_portofolio' => 'Edit Portfolio',
+    'tambah_portofolio_baru' => 'Add a New Portfolio',
+    'hapus_portofolio' => 'Delete portfolio',
+    'hapus_portofolio_ini' => 'Delete this portfolio?',
+    'portofolio_beserta_galerinya_dihapus_permanen_da' => 'The portfolio and its gallery are deleted permanently and cannot be restored.',
+    'tambah_portofolio' => 'Add Portfolio',
+    'sampul' => 'Cover',
+    'privat' => 'Private',
+];

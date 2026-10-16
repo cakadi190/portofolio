@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -47,11 +48,11 @@
   }
 </script>
 
-<AppHead title="Galeri Portofolio" />
+<AppHead title={t('admin-portfolio-galleries.galeri_portofolio')} />
 
 <AdminPageHeader
-  title="Galeri Portofolio"
-  subtitle="Kelola foto galeri untuk tiap portofolio."
+  title={t('admin-portfolio-galleries.galeri_portofolio')}
+  subtitle={t('admin-portfolio-galleries.kelola_foto_galeri_untuk_tiap_portofolio')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -61,8 +62,8 @@
   {filters}
   url={index().url}
   variant="grid"
-  emptyTitle="Belum ada galeri"
-  emptyText="Tambahkan foto galeri pertama Anda."
+  emptyTitle={t('admin-portfolio-galleries.belum_ada_galeri')}
+  emptyText={t('admin-portfolio-galleries.tambahkan_foto_galeri_pertama_anda')}
 >
   {#snippet row(gallery)}
     <div class="col-sm-6 col-lg-4">
@@ -82,7 +83,7 @@
               class="btn btn-sm btn-outline-secondary"
               onclick={() => openEdit(gallery)}
             >
-              Ubah
+              {t('admin.ubah')}
             </button>
             <AdminDeleteButton
               href={destroy(gallery.id).url}
@@ -97,8 +98,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Galeri Portofolio"
-  subtitle="Unggah foto galeri baru."
+  title={t('admin-portfolio-galleries.tambah_galeri_portofolio')}
+  subtitle={t('admin-portfolio-galleries.unggah_foto_galeri_baru')}
 >
   {#snippet children()}
     <Form
@@ -109,7 +110,7 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-portfolio_id">Portofolio</Field.Label>
+          <Field.Label for="create-portfolio_id">{t('admin.portofolio')}</Field.Label>
           <Select
             id="create-portfolio_id"
             name="portfolio_id"
@@ -124,14 +125,14 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-image">Foto</Field.Label>
+          <Field.Label for="create-image">{t('admin.foto')}</Field.Label>
           <MediaField name="image_url" required invalid={!!errors.image_url} />
           <Field.Feedback message={errors.image_url} />
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-description">Deskripsi</Field.Label>
-          <Field.Input placeholder="Masukkan deskripsi"
+          <Field.Label for="create-description">{t('admin.deskripsi')}</Field.Label>
+          <Field.Input placeholder={t('admin.masukkan_deskripsi')}
             id="create-description"
             name="description"
             invalid={!!errors.description}
@@ -145,10 +146,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -158,7 +159,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Galeri Portofolio"
+  title={t('admin-portfolio-galleries.ubah_galeri_portofolio')}
   subtitle={editingGallery?.portfolio.name ?? ''}
 >
   {#snippet children()}
@@ -172,7 +173,7 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-portfolio_id">Portofolio</Field.Label>
+            <Field.Label for="edit-portfolio_id">{t('admin.portofolio')}</Field.Label>
             <Select
               id="edit-portfolio_id"
               name="portfolio_id"
@@ -188,7 +189,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-image">Foto</Field.Label>
+            <Field.Label for="edit-image">{t('admin.foto')}</Field.Label>
             <MediaField
               name="image_url"
               required
@@ -199,8 +200,8 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-description">Deskripsi</Field.Label>
-            <Field.Input placeholder="Masukkan deskripsi"
+            <Field.Label for="edit-description">{t('admin.deskripsi')}</Field.Label>
+            <Field.Input placeholder={t('admin.masukkan_deskripsi')}
               id="edit-description"
               name="description"
               value={current.description}
@@ -215,10 +216,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

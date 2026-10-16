@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -54,7 +55,7 @@
 </script>
 
 {#snippet author(node: Node)}
-  <strong>{node.user?.name ?? node.guest_name ?? 'Pengguna terhapus'}</strong>
+  <strong>{node.user?.name ?? node.guest_name ?? t('admin-blog-comments.pengguna_terhapus')}</strong>
   {#if node.user}<small class="opacity-75">
       · {node.user.email}</small
     >{:else if node.guest_email}<small class="opacity-75">
@@ -74,7 +75,7 @@
 
 <AdminPageHeader
   title={`Komentar #${blogComment.id}`}
-  subtitle="Lihat posisi komentar ini di dalam percakapan."
+  subtitle={t('admin-blog-comments.lihat_posisi_komentar_ini_di_dalam')}
 />
 
 <div class="mb-4">
@@ -85,7 +86,7 @@
 
 {#if blogComment.post}
   <p class="mb-4">
-    Artikel: <a
+    {t('admin-blog-comments.artikel')} <a
       href={`/blog/${blogComment.post.slug}`}
       target="_blank"
       rel="noopener">{blogComment.post.title}</a
@@ -94,14 +95,14 @@
 {/if}
 
 {#if ancestors.length}
-  <h2 class="h6 text-muted">Komentar yang dibalas</h2>
+  <h2 class="h6 text-muted">{t('admin-blog-comments.komentar_yang_dibalas')}</h2>
   <ul class="list-unstyled mb-4">
     {#each ancestors as ancestor, level (ancestor.id)}
       <li class="card mb-2" style={`margin-left: ${level * 1.25}rem;`}>
         <div class="card-body py-2">
           <div>{@render author(ancestor)}</div>
           <div class="text-truncate">{plain(ancestor.body)}</div>
-          <Link href={show(ancestor.id).url} class="small">Buka</Link>
+          <Link href={show(ancestor.id).url} class="small">{t('admin.buka')}</Link>
         </div>
       </li>
     {/each}
@@ -118,12 +119,12 @@
       <button
         type="button"
         class="btn btn-sm btn-outline-secondary"
-        onclick={() => openEdit(blogComment)}>Ubah</button
+        onclick={() => openEdit(blogComment)}>{t('admin.ubah')}</button
       >
       <AdminDeleteButton
         href={destroy(blogComment.id).url}
         label={`Hapus komentar #${blogComment.id}?`}
-        description="Balasan komentar ini tidak ikut dihapus, melainkan naik satu tingkat."
+        description={t('admin-blog-comments.balasan_komentar_ini_tidak_ikut_dihapus')}
       />
     </div>
   </div>
@@ -141,11 +142,11 @@
           <div>{@render author(reply)}</div>
           <div style="overflow-wrap: anywhere;">{@html reply.body}</div>
           <div class="d-flex gap-3 mt-1">
-            <Link href={show(reply.id).url} class="small">Buka</Link>
+            <Link href={show(reply.id).url} class="small">{t('admin.buka')}</Link>
             <button
               type="button"
               class="btn btn-link btn-sm p-0"
-              onclick={() => openEdit(reply)}>Ubah</button
+              onclick={() => openEdit(reply)}>{t('admin.ubah')}</button
             >
           </div>
         </div>
@@ -153,7 +154,7 @@
     {/each}
   </ul>
 {:else}
-  <p class="opacity-75">Belum ada balasan.</p>
+  <p class="opacity-75">{t('admin-blog-comments.belum_ada_balasan')}</p>
 {/if}
 
 <BlogCommentEditModal bind:open={editOpen} comment={editing} {statuses} />

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -64,11 +65,11 @@
   }
 </script>
 
-<AppHead title="Riwayat Pendidikan" />
+<AppHead title={t('admin-educations.riwayat_pendidikan')} />
 
 <AdminPageHeader
-  title="Riwayat Pendidikan"
-  subtitle="Kelola riwayat pendidikan Anda."
+  title={t('admin-educations.riwayat_pendidikan')}
+  subtitle={t('admin-educations.kelola_riwayat_pendidikan_anda')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -78,13 +79,13 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Nama & Tempat', key: 'name', sortable: true },
-    { label: 'Jenjang', key: 'level', sortable: true },
-    { label: 'Periode', key: 'start_date', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin-educations.nama_tempat'), key: 'name', sortable: true },
+    { label: t('admin-educations.jenjang'), key: 'level', sortable: true },
+    { label: t('admin-careers.periode'), key: 'start_date', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada riwayat pendidikan"
-  emptyText="Tambahkan riwayat pendidikan pertama Anda."
+  emptyTitle={t('admin-educations.belum_ada_riwayat_pendidikan')}
+  emptyText={t('admin-educations.tambahkan_riwayat_pendidikan_pertama_anda')}
 >
   {#snippet row(education)}
     <tr>
@@ -96,7 +97,7 @@
       <td
         >{formatDate(education.start_date)} &ndash; {education.end_date
           ? formatDate(education.end_date)
-          : 'Sekarang'}</td
+          : t('admin-careers.sekarang')}</td
       >
       <td class="text-end">
         <div class="d-inline-flex gap-2">
@@ -105,7 +106,7 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(education)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(education.id).url}
@@ -119,8 +120,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Riwayat Pendidikan"
-  subtitle="Catat riwayat pendidikan baru."
+  title={t('admin-educations.tambah_riwayat_pendidikan')}
+  subtitle={t('admin-educations.catat_riwayat_pendidikan_baru')}
   size="lg"
 >
   {#snippet children()}
@@ -132,8 +133,8 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-name">Nama Institusi</Field.Label>
-          <Field.Input placeholder="Masukkan nama institusi"
+          <Field.Label for="create-name">{t('admin-educations.nama_institusi')}</Field.Label>
+          <Field.Input placeholder={t('admin-educations.masukkan_nama_institusi')}
             id="create-name"
             name="name"
             required
@@ -143,13 +144,13 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-logo">Logo</Field.Label>
+          <Field.Label for="create-logo">{t('admin-educations.logo')}</Field.Label>
           <MediaField name="logo" invalid={!!errors.logo} />
           <Field.Feedback message={errors.logo} />
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-website">Website</Field.Label>
+          <Field.Label for="create-website">{t('admin-educations.website')}</Field.Label>
           <Field.Input placeholder="https://contoh.com"
             id="create-website"
             name="website"
@@ -162,7 +163,7 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-level">Jenjang</Field.Label>
+              <Field.Label for="create-level">{t('admin-educations.jenjang')}</Field.Label>
               <Select
                 id="create-level"
                 name="level"
@@ -175,8 +176,8 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-grade">Kelas/Angkatan</Field.Label>
-              <Field.Input placeholder="Masukkan kelas/angkatan"
+              <Field.Label for="create-grade">{t('admin-educations.kelas_angkatan')}</Field.Label>
+              <Field.Input placeholder={t('admin-educations.masukkan_kelas_angkatan')}
                 id="create-grade"
                 name="grade"
                 invalid={!!errors.grade}
@@ -189,8 +190,8 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-department">Jurusan</Field.Label>
-              <Field.Input placeholder="Masukkan jurusan"
+              <Field.Label for="create-department">{t('admin-educations.jurusan')}</Field.Label>
+              <Field.Input placeholder={t('admin-educations.masukkan_jurusan')}
                 id="create-department"
                 name="department"
                 invalid={!!errors.department}
@@ -200,9 +201,9 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-study_program">Program Studi</Field.Label
+              <Field.Label for="create-study_program">{t('admin-educations.program_studi')}</Field.Label
               >
-              <Field.Input placeholder="Masukkan program studi"
+              <Field.Input placeholder={t('admin-educations.masukkan_program_studi')}
                 id="create-study_program"
                 name="study_program"
                 invalid={!!errors.study_program}
@@ -213,8 +214,8 @@
         </div>
 
         <Field.Group>
-          <Field.Label for="create-place">Tempat</Field.Label>
-          <Field.Input placeholder="Masukkan tempat"
+          <Field.Label for="create-place">{t('admin-educations.tempat')}</Field.Label>
+          <Field.Input placeholder={t('admin-educations.masukkan_tempat')}
             id="create-place"
             name="place"
             required
@@ -226,7 +227,7 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-start_date">Mulai</Field.Label>
+              <Field.Label for="create-start_date">{t('admin.mulai')}</Field.Label>
               <DatePicker
                 id="create-start_date"
                 name="start_date"
@@ -237,7 +238,7 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-end_date">Selesai</Field.Label>
+              <Field.Label for="create-end_date">{t('admin.selesai')}</Field.Label>
               <DatePicker
                 id="create-end_date"
                 name="end_date"
@@ -252,12 +253,12 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-academic_score_label"
-                >Label Nilai</Field.Label
+                >{t('admin-educations.label_nilai')}</Field.Label
               >
               <Field.Input
                 id="create-academic_score_label"
                 name="academic_score_label"
-                placeholder="mis. IPK"
+                placeholder={t('admin-educations.mis_ipk')}
                 invalid={!!errors.academic_score_label}
               />
               <Field.Feedback message={errors.academic_score_label} />
@@ -266,7 +267,7 @@
           <div class="col-sm-6">
             <Field.Group>
               <Field.Label for="create-academic_score_type"
-                >Tipe Nilai</Field.Label
+                >{t('admin-educations.tipe_nilai')}</Field.Label
               >
               <Select
                 id="create-academic_score_type"
@@ -283,7 +284,7 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-academic_score_value">Nilai</Field.Label>
+              <Field.Label for="create-academic_score_value">{t('admin-educations.nilai')}</Field.Label>
               <Field.Input placeholder="0"
                 id="create-academic_score_value"
                 name="academic_score_value"
@@ -296,7 +297,7 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-academic_score_scale">Skala</Field.Label>
+              <Field.Label for="create-academic_score_scale">{t('admin-educations.skala')}</Field.Label>
               <Field.Input placeholder="0"
                 id="create-academic_score_scale"
                 name="academic_score_scale"
@@ -315,10 +316,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -328,7 +329,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Riwayat Pendidikan"
+  title={t('admin-educations.ubah_riwayat_pendidikan')}
   subtitle={editingEducation?.name ?? ''}
   size="lg"
 >
@@ -343,8 +344,8 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-name">Nama Institusi</Field.Label>
-            <Field.Input placeholder="Masukkan nama institusi"
+            <Field.Label for="edit-name">{t('admin-educations.nama_institusi')}</Field.Label>
+            <Field.Input placeholder={t('admin-educations.masukkan_nama_institusi')}
               id="edit-name"
               name="name"
               required
@@ -355,7 +356,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-logo">Logo</Field.Label>
+            <Field.Label for="edit-logo">{t('admin-educations.logo')}</Field.Label>
             <MediaField
               name="logo"
               value={current.logo}
@@ -365,7 +366,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-website">Website</Field.Label>
+            <Field.Label for="edit-website">{t('admin-educations.website')}</Field.Label>
             <Field.Input placeholder="https://contoh.com"
               id="edit-website"
               name="website"
@@ -379,7 +380,7 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-level">Jenjang</Field.Label>
+                <Field.Label for="edit-level">{t('admin-educations.jenjang')}</Field.Label>
                 <Select
                   id="edit-level"
                   name="level"
@@ -393,8 +394,8 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-grade">Kelas/Angkatan</Field.Label>
-                <Field.Input placeholder="Masukkan kelas/angkatan"
+                <Field.Label for="edit-grade">{t('admin-educations.kelas_angkatan')}</Field.Label>
+                <Field.Input placeholder={t('admin-educations.masukkan_kelas_angkatan')}
                   id="edit-grade"
                   name="grade"
                   value={current.grade}
@@ -408,8 +409,8 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-department">Jurusan</Field.Label>
-                <Field.Input placeholder="Masukkan jurusan"
+                <Field.Label for="edit-department">{t('admin-educations.jurusan')}</Field.Label>
+                <Field.Input placeholder={t('admin-educations.masukkan_jurusan')}
                   id="edit-department"
                   name="department"
                   value={current.department}
@@ -420,9 +421,9 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-study_program">Program Studi</Field.Label
+                <Field.Label for="edit-study_program">{t('admin-educations.program_studi')}</Field.Label
                 >
-                <Field.Input placeholder="Masukkan program studi"
+                <Field.Input placeholder={t('admin-educations.masukkan_program_studi')}
                   id="edit-study_program"
                   name="study_program"
                   value={current.study_program}
@@ -434,8 +435,8 @@
           </div>
 
           <Field.Group>
-            <Field.Label for="edit-place">Tempat</Field.Label>
-            <Field.Input placeholder="Masukkan tempat"
+            <Field.Label for="edit-place">{t('admin-educations.tempat')}</Field.Label>
+            <Field.Input placeholder={t('admin-educations.masukkan_tempat')}
               id="edit-place"
               name="place"
               required
@@ -448,7 +449,7 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-start_date">Mulai</Field.Label>
+                <Field.Label for="edit-start_date">{t('admin.mulai')}</Field.Label>
                 <DatePicker
                   id="edit-start_date"
                   name="start_date"
@@ -460,7 +461,7 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-end_date">Selesai</Field.Label>
+                <Field.Label for="edit-end_date">{t('admin.selesai')}</Field.Label>
                 <DatePicker
                   id="edit-end_date"
                   name="end_date"
@@ -476,9 +477,9 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-academic_score_label"
-                  >Label Nilai</Field.Label
+                  >{t('admin-educations.label_nilai')}</Field.Label
                 >
-                <Field.Input placeholder="Masukkan label nilai"
+                <Field.Input placeholder={t('admin-educations.masukkan_label_nilai')}
                   id="edit-academic_score_label"
                   name="academic_score_label"
                   value={current.academic_score_label}
@@ -490,7 +491,7 @@
             <div class="col-sm-6">
               <Field.Group>
                 <Field.Label for="edit-academic_score_type"
-                  >Tipe Nilai</Field.Label
+                  >{t('admin-educations.tipe_nilai')}</Field.Label
                 >
                 <Select
                   id="edit-academic_score_type"
@@ -508,7 +509,7 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-academic_score_value">Nilai</Field.Label>
+                <Field.Label for="edit-academic_score_value">{t('admin-educations.nilai')}</Field.Label>
                 <Field.Input placeholder="0"
                   id="edit-academic_score_value"
                   name="academic_score_value"
@@ -522,7 +523,7 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-academic_score_scale">Skala</Field.Label>
+                <Field.Label for="edit-academic_score_scale">{t('admin-educations.skala')}</Field.Label>
                 <Field.Input placeholder="0"
                   id="edit-academic_score_scale"
                   name="academic_score_scale"
@@ -542,10 +543,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'judul_artikel' => 'Article title',
+    'tanggal_terbit_jadwalkan_dengan_tanggal_mendatan' => 'Publish date (schedule with a future date)',
+    'lihat_artikel' => 'View article',
+    'ringkasan_artikel' => 'Article summary',
+    'ringkasan_singkat_yang_tampil_di_daftar' => 'A short summary shown in the article list',
+    'artikel' => 'Articles',
+    'artikel_blog' => 'Blog Articles',
+    'kelola_artikel_blog_anda' => 'Manage your blog articles.',
+    'semua' => 'All',
+    'pulihkan' => 'Restore',
+    'hapus_permanen' => 'Delete permanently',
+    'artikel_tidak_lagi_tampil_di_situs' => 'The article will no longer appear on the site and can be restored from the Trash tab.',
+    'pindahkan' => 'Move',
+    'ubah_artikel' => 'Edit Article',
+    'tulis_artikel_baru' => 'Write a New Article',
+    'pindahkan_ke_sampah' => 'Move to trash',
+    'pindahkan_artikel_ke_sampah' => 'Move the article to the trash?',
+    'tulis_artikel' => 'Write Article',
+    'tanggal' => 'Date',
+    'sampah_kosong' => 'Trash is empty',
+    'belum_ada_artikel' => 'No articles yet',
+    'artikel_yang_dipindahkan_ke_sampah_muncul' => 'Articles moved to the trash appear here.',
+    'tulis_artikel_pertama_anda' => 'Write your first article.',
+    'sampah' => 'Trash',
+];

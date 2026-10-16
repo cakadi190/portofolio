@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Maximize from '@lucide/svelte/icons/maximize';
   import Minimize from '@lucide/svelte/icons/minimize';
 
@@ -33,7 +34,7 @@
   <button
     type="button"
     class="nav-link square nav-fs"
-    aria-label={isFullscreen ? 'Keluar layar penuh' : 'Masuk layar penuh'}
+    aria-label={isFullscreen ? t('admin.keluar_layar_penuh') : t('admin.masuk_layar_penuh')}
     aria-pressed={isFullscreen}
     onclick={toggle}
   >

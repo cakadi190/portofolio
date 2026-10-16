@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import '../../../css/content.scss';
   import Bold from '@lucide/svelte/icons/bold';
   import Check from '@lucide/svelte/icons/check';
@@ -19,7 +20,7 @@
    */
   let {
     value = $bindable(''),
-    ariaLabel = 'Kode HTML',
+    ariaLabel = t('ui.kode_html'),
   }: {
     value?: string;
     ariaLabel?: string;
@@ -179,53 +180,53 @@
 </script>
 
 <div class="hce">
-  <div class="hce-bar" role="toolbar" aria-label="Alat kode HTML">
-    <button type="button" title="Format kode (Ctrl+Shift+F)" onclick={format}
-      ><WandSparkles size={15} /><span>Format</span></button
+  <div class="hce-bar" role="toolbar" aria-label={t('ui.alat_kode_html')}>
+    <button type="button" title={t('ui.format_kode_ctrl_shift_f')} onclick={format}
+      ><WandSparkles size={15} /><span>{t('ui.format')}</span></button
     >
     <span class="hce-sep"></span>
     <button
       type="button"
-      title="Tebal"
+      title={t('ui.tebal')}
       onclick={() => wrap('<strong>', '</strong>', 'teks')}
       ><Bold size={15} /></button
     >
     <button
       type="button"
-      title="Miring"
+      title={t('ui.miring')}
       onclick={() => wrap('<em>', '</em>', 'teks')}><Italic size={15} /></button
     >
     <button
       type="button"
-      title="Kode inline"
+      title={t('ui.kode_inline')}
       onclick={() => wrap('<code>', '</code>', 'kode')}
       ><Code size={15} /></button
     >
     <button
       type="button"
-      title="Tautan"
+      title={t('ui.tautan')}
       onclick={() => wrap('<a href="https://">', '</a>', 'teks')}
       ><Link size={15} /></button
     >
     <button
       type="button"
-      title="Judul 2"
-      onclick={() => wrap('<h2>', '</h2>', 'Judul')}
+      title={t('ui.judul_2')}
+      onclick={() => wrap('<h2>', '</h2>', t('ui.judul'))}
       ><Heading2 size={15} /></button
     >
     <button
       type="button"
-      title="Paragraf"
-      onclick={() => wrap('<p>', '</p>', 'Teks')}><Pilcrow size={15} /></button
+      title={t('ui.paragraf')}
+      onclick={() => wrap('<p>', '</p>', t('ui.teks'))}><Pilcrow size={15} /></button
     >
     <button
       type="button"
       class="hce-copy"
-      title="Salin semua kode"
+      title={t('ui.salin_semua_kode')}
       onclick={copy}
-      >{#if copied}<Check size={15} /><span>Tersalin</span>{:else}<Copy
+      >{#if copied}<Check size={15} /><span>{t('ui.tersalin')}</span>{:else}<Copy
           size={15}
-        /><span>Salin</span>{/if}</button
+        /><span>{t('ui.salin')}</span>{/if}</button
     >
   </div>
 
@@ -258,7 +259,7 @@
   <div class="hce-status">
     <span>Baris {cursor.line}, Kolom {cursor.column}</span>
     <span>{value.length} karakter</span>
-    <span>HTML</span>
+    <span>{t('ui.html')}</span>
   </div>
 </div>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import SettingsLayout from '@/components/admin/settings-layout.svelte';
@@ -73,12 +74,12 @@
   }
 </script>
 
-<AppHead title="Pengaturan Sistem" />
+<AppHead title={t('admin-system-settings.pengaturan_sistem')} />
 
 <div id="system-settings-page">
   <AdminPageHeader
-    title="Pengaturan Sistem"
-    subtitle="Kelola informasi kontak, sosial media, email penerima pesan, serta SEO dan analitik."
+    title={t('admin-system-settings.pengaturan_sistem')}
+    subtitle={t('admin-system-settings.kelola_informasi_kontak_sosial_media_email')}
   />
 
   <Form {...update.form()} novalidate options={{ preserveScroll: true }}>
@@ -163,7 +164,7 @@
                           {#if secretsSet.includes(field.key)}
                             <div class="form-check mt-1">
                               <input class="form-check-input" type="checkbox" id={`clear-${field.key}`} name={`${field.key}__clear`} value="1" />
-                              <label class="form-check-label small" for={`clear-${field.key}`}>Hapus nilai tersimpan</label>
+                              <label class="form-check-label small" for={`clear-${field.key}`}>{t('admin-system-settings.hapus_nilai_tersimpan')}</label>
                             </div>
                           {/if}
                         {:else}
@@ -194,16 +195,16 @@
                           <CircleAlert size={20} class="text-secondary flex-shrink-0 mt-1" aria-hidden="true" />
                         {/if}
                         <div>
-                          <div class="fw-semibold">{active ? 'Integrasi aktif' : 'Integrasi belum aktif'}</div>
+                          <div class="fw-semibold">{active ? t('admin-system-settings.integrasi_aktif') : t('admin-system-settings.integrasi_belum_aktif')}</div>
                           {#if state.reason}
                             <div class="text-muted small">{state.reason}</div>
                           {:else}
-                            <div class="text-muted small">Uji koneksi memakai pengaturan yang sudah tersimpan.</div>
+                            <div class="text-muted small">{t('admin-system-settings.uji_koneksi_memakai_pengaturan_yang_sudah')}</div>
                           {/if}
                         </div>
                       </div>
                       <button type="button" class="btn btn-sm btn-outline-secondary" disabled={!state.configured} onclick={() => router.post(test().url, {}, { preserveScroll: true })}>
-                        Uji koneksi
+                        {t('admin-system-settings.uji_koneksi')}
                       </button>
                     </div>
                   {/if}
@@ -213,7 +214,7 @@
 
             <div class="mt-4">
               <button type="submit" class="btn btn-primary" disabled={processing}>
-                Simpan Perubahan
+                {t('admin-system-settings.simpan_perubahan')}
               </button>
             </div>
           </div>

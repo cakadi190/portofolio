@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -52,11 +53,11 @@
   }
 </script>
 
-<AppHead title="Penghargaan" />
+<AppHead title={t('admin-awards.penghargaan')} />
 
 <AdminPageHeader
-  title="Penghargaan"
-  subtitle="Kelola penghargaan dan sertifikat Anda."
+  title={t('admin-awards.penghargaan')}
+  subtitle={t('admin-awards.kelola_penghargaan_dan_sertifikat_anda')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -66,16 +67,16 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Ikon' },
-    { label: 'Judul', key: 'title', sortable: true },
-    { label: 'Jenis', key: 'type', sortable: true },
-    { label: 'Acara', key: 'event_name', sortable: true },
-    { label: 'Tahun', key: 'year', sortable: true },
-    { label: 'Peringkat', key: 'rank', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin-awards.ikon') },
+    { label: t('admin-awards.judul'), key: 'title', sortable: true },
+    { label: t('ui.jenis'), key: 'type', sortable: true },
+    { label: t('admin-awards.acara'), key: 'event_name', sortable: true },
+    { label: t('admin-awards.tahun'), key: 'year', sortable: true },
+    { label: t('admin-awards.peringkat'), key: 'rank', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada penghargaan"
-  emptyText="Tambahkan penghargaan pertama Anda."
+  emptyTitle={t('admin-awards.belum_ada_penghargaan')}
+  emptyText={t('admin-awards.tambahkan_penghargaan_pertama_anda')}
 >
   {#snippet row(award)}
     <tr>
@@ -94,7 +95,7 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(award)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(award.id).url}
@@ -108,8 +109,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Penghargaan"
-  subtitle="Catat penghargaan atau sertifikat baru."
+  title={t('admin-awards.tambah_penghargaan')}
+  subtitle={t('admin-awards.catat_penghargaan_atau_sertifikat_baru')}
 >
   {#snippet children()}
     <Form
@@ -120,8 +121,8 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-title">Judul</Field.Label>
-          <Field.Input placeholder="Masukkan judul"
+          <Field.Label for="create-title">{t('admin-awards.judul')}</Field.Label>
+          <Field.Input placeholder={t('admin-awards.masukkan_judul')}
             id="create-title"
             name="title"
             required
@@ -131,7 +132,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-type">Jenis Penghargaan</Field.Label>
+          <Field.Label for="create-type">{t('admin-awards.jenis_penghargaan')}</Field.Label>
           <Select
             id="create-type"
             name="type"
@@ -143,8 +144,8 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-event_name">Nama Acara</Field.Label>
-          <Field.Input placeholder="Masukkan nama acara"
+          <Field.Label for="create-event_name">{t('admin-awards.nama_acara')}</Field.Label>
+          <Field.Input placeholder={t('admin-awards.masukkan_nama_acara')}
             id="create-event_name"
             name="event_name"
             required
@@ -156,7 +157,7 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-year">Tahun</Field.Label>
+              <Field.Label for="create-year">{t('admin-awards.tahun')}</Field.Label>
               <Field.Input placeholder="0"
                 id="create-year"
                 name="year"
@@ -169,7 +170,7 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-rank">Peringkat</Field.Label>
+              <Field.Label for="create-rank">{t('admin-awards.peringkat')}</Field.Label>
               <Field.Input placeholder="0"
                 id="create-rank"
                 name="rank"
@@ -182,7 +183,7 @@
         </div>
 
         <Field.Group>
-          <Field.Label for="create-awarded_at">Tanggal Diberikan</Field.Label>
+          <Field.Label for="create-awarded_at">{t('admin-awards.tanggal_diberikan')}</Field.Label>
           <DatePicker
             id="create-awarded_at"
             name="awarded_at"
@@ -197,10 +198,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -210,7 +211,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Penghargaan"
+  title={t('admin-awards.ubah_penghargaan')}
   subtitle={editingAward?.title ?? ''}
 >
   {#snippet children()}
@@ -224,8 +225,8 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-title">Judul</Field.Label>
-            <Field.Input placeholder="Masukkan judul"
+            <Field.Label for="edit-title">{t('admin-awards.judul')}</Field.Label>
+            <Field.Input placeholder={t('admin-awards.masukkan_judul')}
               id="edit-title"
               name="title"
               required
@@ -236,7 +237,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-type">Jenis Penghargaan</Field.Label>
+            <Field.Label for="edit-type">{t('admin-awards.jenis_penghargaan')}</Field.Label>
             <Select
               id="edit-type"
               name="type"
@@ -249,8 +250,8 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-event_name">Nama Acara</Field.Label>
-            <Field.Input placeholder="Masukkan nama acara"
+            <Field.Label for="edit-event_name">{t('admin-awards.nama_acara')}</Field.Label>
+            <Field.Input placeholder={t('admin-awards.masukkan_nama_acara')}
               id="edit-event_name"
               name="event_name"
               required
@@ -263,7 +264,7 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-year">Tahun</Field.Label>
+                <Field.Label for="edit-year">{t('admin-awards.tahun')}</Field.Label>
                 <Field.Input placeholder="0"
                   id="edit-year"
                   name="year"
@@ -277,7 +278,7 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-rank">Peringkat</Field.Label>
+                <Field.Label for="edit-rank">{t('admin-awards.peringkat')}</Field.Label>
                 <Field.Input placeholder="0"
                   id="edit-rank"
                   name="rank"
@@ -291,7 +292,7 @@
           </div>
 
           <Field.Group>
-            <Field.Label for="edit-awarded_at">Tanggal Diberikan</Field.Label>
+            <Field.Label for="edit-awarded_at">{t('admin-awards.tanggal_diberikan')}</Field.Label>
             <DatePicker
               id="edit-awarded_at"
               name="awarded_at"
@@ -307,10 +308,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

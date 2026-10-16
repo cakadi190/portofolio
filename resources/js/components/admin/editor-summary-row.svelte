@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import X from '@lucide/svelte/icons/x';
   import { onMount, tick, type Snippet } from 'svelte';
 
@@ -16,7 +17,7 @@
     label,
     value,
     title = label,
-    placeholder = 'Atur',
+    placeholder = t('admin.atur'),
     invalid = false,
     width = '20rem',
     children,
@@ -152,7 +153,7 @@
       <button
         type="button"
         class="gb-pop-close"
-        aria-label="Tutup"
+        aria-label={t('admin.tutup')}
         onclick={() => hide(true)}
       >
         <X size={16} aria-hidden="true" />

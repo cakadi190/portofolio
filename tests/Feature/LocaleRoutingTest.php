@@ -119,3 +119,14 @@ it('lists every enabled language in the pages sitemap', function () {
         ->toContain('<loc>'.$base.'/en/career'.'</loc>')
         ->toContain('<xhtml:link rel="alternate" hreflang="en" href="'.$base.'/en/career'.'"/>');
 });
+
+it('maps routes to the language groups their page needs', function (?string $route, array $groups) {
+    expect(AppLocale::groupsFor($route))->toBe($groups);
+})->with([
+    'public' => ['blog.show', ['blog']],
+    'admin page' => ['admin.posts.index', ['admin', 'admin-posts']],
+    'dashboard' => ['dashboard', ['admin', 'dashboard']],
+    'settings' => ['profile.edit', ['admin', 'profile']],
+    'auth' => ['two-factor.login', ['auth']],
+    'none' => [null, []],
+]);

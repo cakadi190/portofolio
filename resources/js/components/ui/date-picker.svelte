@@ -1,19 +1,20 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { DatePicker } from '@svelte-plugins/datepicker';
 
   const monthLabels = [
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
+    t('ui.januari'),
+    t('ui.februari'),
+    t('ui.maret'),
+    t('ui.april'),
+    t('ui.mei'),
+    t('ui.juni'),
+    t('ui.juli'),
+    t('ui.agustus'),
+    t('ui.september'),
+    t('ui.oktober'),
+    t('ui.november'),
+    t('ui.desember'),
   ];
 
   /**
@@ -28,7 +29,7 @@
     value = null,
     withTime = false,
     invalid = false,
-    placeholder = 'Pilih tanggal…',
+    placeholder = t('ui.pilih_tanggal'),
     inline = false,
     display = $bindable(''),
     current = $bindable(''),
@@ -118,7 +119,7 @@
     showTimePicker={withTime}
     enableFutureDates
     startOfWeek={1}
-    dowLabels={['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
+    dowLabels={[t('ui.min'), t('ui.sen'), t('ui.sel'), t('ui.rab'), t('ui.kam'), t('ui.jum'), t('ui.sab')]}
     {monthLabels}
     includeFont={false}
     onDateChange={() => {
@@ -142,7 +143,7 @@
         <button
           type="button"
           class="btn btn-outline-secondary"
-          aria-label="Hapus tanggal"
+          aria-label={t('ui.hapus_tanggal')}
           onclick={clear}
         >
           &times;

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import Paperclip from '@lucide/svelte/icons/paperclip';
   import Send from '@lucide/svelte/icons/send';
@@ -48,7 +49,7 @@
 >
   {#snippet children({ errors, processing })}
     <Field.Group>
-      <Field.Label for="reply-subject">Subjek (opsional)</Field.Label>
+      <Field.Label for="reply-subject">{t('admin.subjek_opsional')}</Field.Label>
       <Field.Input
         id="reply-subject"
         name="subject"
@@ -60,18 +61,18 @@
     </Field.Group>
 
     <Field.Group>
-      <Field.Label>Isi Balasan</Field.Label>
+      <Field.Label>{t('admin.isi_balasan')}</Field.Label>
       <RichTextEditor
         name="body"
         minimal
-        placeholder="Tulis balasan untuk pengirim…"
+        placeholder={t('admin.tulis_balasan_untuk_pengirim')}
         invalid={!!errors.body}
       />
       <Field.Feedback message={errors.body} />
     </Field.Group>
 
     <Field.Group>
-      <Field.Label>Lampiran (opsional)</Field.Label>
+      <Field.Label>{t('admin.lampiran_opsional')}</Field.Label>
       {#each attachments as media (media.path)}
         <input type="hidden" name="attachments[]" value={media.path} />
       {/each}
@@ -104,10 +105,10 @@
           disabled={attachments.length >= 5}
           onclick={() => (pickerOpen = true)}
         >
-          <Paperclip size={16} /> Pilih dari Pustaka Media
+          <Paperclip size={16} /> {t('admin.pilih_dari_pustaka_media')}
         </button>
         <small class="d-block opacity-75 mt-1"
-          >Maksimal 5 berkas (gambar atau PDF).</small
+          >{t('admin.maksimal_5_berkas_gambar_atau_pdf')}</small
         >
       </div>
       <Field.Feedback message={errors.attachments ?? errors['attachments.0']} />
@@ -115,14 +116,14 @@
 
     <div class="d-flex justify-content-end gap-2">
       <button type="button" class="btn btn-outline-secondary" onclick={onCancel}
-        >Batal</button
+        >{t('admin.batal')}</button
       >
       <button
         type="submit"
         class="btn btn-primary d-inline-flex align-items-center gap-2"
         disabled={processing}
       >
-        <Send size={16} /> Kirim Balasan
+        <Send size={16} /> {t('admin.kirim_balasan')}
       </button>
     </div>
   {/snippet}
@@ -132,6 +133,6 @@
   bind:open={pickerOpen}
   accept="all"
   multiple
-  title="Pilih Lampiran"
+  title={t('admin.pilih_lampiran')}
   onSelect={attach}
 />

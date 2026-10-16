@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import ClockIcon from '@lucide/svelte/icons/clock';
   import { portal } from '@/lib/dom';
   import AdminCalendar from './admin-calendar.svelte';
@@ -41,7 +42,7 @@
   class="nav-link nav-clock"
   data-bs-toggle="modal"
   data-bs-target="#adminClockModal"
-  aria-label="Buka kalender kegiatan"
+  aria-label={t('admin.buka_kalender_kegiatan')}
 >
   <ClockIcon size={16} aria-hidden="true" />
   <span>{now}</span>
@@ -61,12 +62,12 @@
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="adminClockModalLabel">Kalender Kegiatan</h5>
+        <h5 class="modal-title" id="adminClockModalLabel">{t('admin.kalender_kegiatan')}</h5>
         <button
           type="button"
           class="btn-close"
           data-bs-dismiss="modal"
-          aria-label="Tutup"
+          aria-label={t('admin.tutup')}
         ></button>
       </div>
       <div class="modal-body">
@@ -74,7 +75,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-          >Tutup</button
+          >{t('admin.tutup')}</button
         >
       </div>
     </div>

@@ -1,0 +1,24 @@
+<?php
+
+return [
+    'kelola_acara_tempat_anda_menjadi_pembicara' => 'Manage the events where you speak, mentor, or train.',
+    'belum_ada_acara' => 'No events yet',
+    'tambahkan_acara_pertama_anda' => 'Add your first event.',
+    'judul_acara' => 'Event Title',
+    'masukkan_judul_acara' => 'Enter the event title',
+    'penyelenggara' => 'Organizer',
+    'masukkan_penyelenggara' => 'Enter the organizer',
+    'format' => 'Format',
+    'lokasi_platform' => 'Location / Platform',
+    'mulai_wib' => 'Start (WIB)',
+    'selesai_wib' => 'End (WIB)',
+    'tautan_pendaftaran' => 'Registration Link',
+    'ringkasan_acara_dan_materi_yang_dibawakan' => 'A summary of the event and the material presented',
+    'poster' => 'Poster',
+    'tambah_acara' => 'Add Event',
+    'catat_acara_baru' => 'Record a new event.',
+    'ubah_acara' => 'Edit Event',
+    'pembicara_mentoring' => 'Speaking & Mentoring',
+    'disembunyikan' => 'Hidden',
+    'mis_zoom_youtube_atau_gd_baru' => 'E.g. Zoom & YouTube or Gd. Baru UPI Serang',
+];

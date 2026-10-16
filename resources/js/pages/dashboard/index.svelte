@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link, page } from '@inertiajs/svelte';
   import Activity from '@lucide/svelte/icons/activity';
   import Eye from '@lucide/svelte/icons/eye';
@@ -91,17 +92,17 @@
   let { summary }: { summary: Summary } = $props();
 
   const countLabels: Record<string, string> = {
-    portfolios: 'Portofolio',
-    services: 'Layanan',
-    technologies: 'Teknologi',
-    awards: 'Penghargaan',
-    certifications: 'Sertifikasi',
-    educations: 'Pendidikan',
-    careers: 'Karier',
-    organizations: 'Organisasi',
-    coffee_places: 'Kedai Kopi',
-    speaking_engagements: 'Pembicara & Mentoring',
-    media: 'Berkas Media',
+    portfolios: t('admin.portofolio'),
+    services: t('admin.layanan'),
+    technologies: t('admin.teknologi'),
+    awards: t('admin-awards.penghargaan'),
+    certifications: t('admin-certifications.sertifikasi'),
+    educations: t('dashboard.pendidikan'),
+    careers: t('dashboard.karier'),
+    organizations: t('dashboard.organisasi'),
+    coffee_places: t('admin-coffee-places.kedai_kopi'),
+    speaking_engagements: t('admin-speaking-engagements.pembicara_mentoring'),
+    media: t('dashboard.berkas_media'),
   };
 
   const blog = $derived(summary.blog);
@@ -109,21 +110,21 @@
   const system = $derived(summary.system);
 
   const stats = $derived([
-    { label: 'Artikel terbit', value: blog.posts_published, hint: `${blog.posts_draft} draf, ${blog.posts_scheduled} terjadwal`, icon: FileText, tone: 'primary', href: postsIndex().url, alert: false },
-    { label: 'Komentar menunggu', value: blog.comments_pending, hint: `${blog.comments_total} total`, icon: MessageSquare, tone: 'warning', href: commentsIndex().url, alert: blog.comments_pending > 0 },
+    { label: t('admin.artikel_terbit'), value: blog.posts_published, hint: `${blog.posts_draft} draf, ${blog.posts_scheduled} terjadwal`, icon: FileText, tone: 'primary', href: postsIndex().url, alert: false },
+    { label: t('dashboard.komentar_menunggu'), value: blog.comments_pending, hint: `${blog.comments_total} total`, icon: MessageSquare, tone: 'warning', href: commentsIndex().url, alert: blog.comments_pending > 0 },
     ...(site
       ? [
-          { label: 'Pesan belum dibaca', value: site.inbox.unread, hint: `${site.inbox.total} total`, icon: Mail, tone: 'danger', href: contactMessagesIndex().url, alert: site.inbox.unread > 0 },
-          { label: 'Ulasan menunggu', value: site.ratings_pending, hint: 'Ulasan portofolio', icon: Star, tone: 'info', href: ratingsIndex().url, alert: site.ratings_pending > 0 },
-          { label: 'Pengguna', value: site.users.total, hint: `${site.users.admin} admin · ${site.users.redaktur} redaktur`, icon: Users, tone: 'success', href: undefined, alert: false },
+          { label: t('dashboard.pesan_belum_dibaca'), value: site.inbox.unread, hint: `${site.inbox.total} total`, icon: Mail, tone: 'danger', href: contactMessagesIndex().url, alert: site.inbox.unread > 0 },
+          { label: t('dashboard.ulasan_menunggu'), value: site.ratings_pending, hint: t('dashboard.ulasan_portofolio'), icon: Star, tone: 'info', href: ratingsIndex().url, alert: site.ratings_pending > 0 },
+          { label: t('admin.pengguna'), value: site.users.total, hint: `${site.users.admin} admin · ${site.users.redaktur} redaktur`, icon: Users, tone: 'success', href: undefined, alert: false },
         ]
-      : [{ label: 'Tag', value: blog.tags_total, hint: 'Tag artikel', icon: FileText, tone: 'info', href: undefined, alert: false }]),
+      : [{ label: t('admin.tag'), value: blog.tags_total, hint: t('dashboard.tag_artikel'), icon: FileText, tone: 'info', href: undefined, alert: false }]),
   ]);
 
   const userName = $derived((page.props as { auth?: { user?: { name?: string } } }).auth?.user?.name?.split(' ')[0] ?? '');
   const greeting = $derived.by(() => {
     const hour = new Date().getHours();
-    return hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
+    return hour < 11 ? t('dashboard.selamat_pagi') : hour < 15 ? t('dashboard.selamat_siang') : hour < 18 ? t('dashboard.selamat_sore') : t('dashboard.selamat_malam');
   });
 
   const attention = $derived(
@@ -150,17 +151,17 @@
   const systemRows = $derived(
     system
       ? [
-          ['Lingkungan', system.environment],
-          ['Mode debug', system.debug ? 'Aktif' : 'Nonaktif'],
+          [t('dashboard.lingkungan'), system.environment],
+          [t('dashboard.mode_debug'), system.debug ? t('dashboard.aktif') : t('dashboard.nonaktif')],
           ['PHP', system.php_version],
           ['Laravel', system.laravel_version],
-          ['Zona waktu', system.timezone],
+          [t('dashboard.zona_waktu'), system.timezone],
           ['Database', `${system.database_driver}${system.database_size !== null ? ` (${formatBytes(system.database_size)})` : ''}`],
           ['Cache', system.cache_driver],
-          ['Antrean', `${system.queue_driver}${system.jobs_pending !== null ? ` · ${system.jobs_pending} menunggu` : ''}`],
-          ['Antrean gagal', system.jobs_failed === null ? '-' : String(system.jobs_failed)],
-          ['Sesi', system.session_driver],
-          ['Surel', system.mail_mailer],
+          [t('dashboard.antrean'), `${system.queue_driver}${system.jobs_pending !== null ? ` · ${system.jobs_pending} menunggu` : ''}`],
+          [t('dashboard.antrean_gagal'), system.jobs_failed === null ? '-' : String(system.jobs_failed)],
+          [t('dashboard.sesi'), system.session_driver],
+          [t('dashboard.surel'), system.mail_mailer],
         ]
       : [],
   );
@@ -169,7 +170,7 @@
     new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value.replace(' ', 'T')));
 </script>
 
-<AppHead title="Dasbor" />
+<AppHead title={t('dashboard.dasbor')} />
 
 <section class="dash-hero mb-4">
   <div>
@@ -190,9 +191,9 @@
     {/if}
   </div>
   <div class="d-flex flex-wrap gap-2 align-self-start">
-    <Link href={postsCreate().url} class="btn btn-light btn-sm d-inline-flex align-items-center gap-1"><Plus size={16} /> Artikel baru</Link>
+    <Link href={postsCreate().url} class="btn btn-light btn-sm d-inline-flex align-items-center gap-1"><Plus size={16} /> {t('dashboard.artikel_baru')}</Link>
     {#if site}
-      <Link href={visitorAnalyticsIndex().url} class="btn btn-outline-light btn-sm d-inline-flex align-items-center gap-1"><Activity size={16} /> Analitik</Link>
+      <Link href={visitorAnalyticsIndex().url} class="btn btn-outline-light btn-sm d-inline-flex align-items-center gap-1"><Activity size={16} /> {t('dashboard.analitik')}</Link>
     {/if}
   </div>
 </section>
@@ -216,14 +217,14 @@
 
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <strong>Aktivitas blog 6 bulan terakhir</strong>
+    <strong>{t('dashboard.aktivitas_blog_6_bulan_terakhir')}</strong>
     <span class="small text-body-secondary d-flex gap-3">
-      <span><span class="dash-dot dash-dot-posts"></span> Artikel</span>
-      <span><span class="dash-dot dash-dot-comments"></span> Komentar</span>
+      <span><span class="dash-dot dash-dot-posts"></span> {t('dashboard.artikel')}</span>
+      <span><span class="dash-dot dash-dot-comments"></span> {t('dashboard.komentar')}</span>
     </span>
   </div>
   <div class="card-body">
-    <div class="dash-bars" role="img" aria-label="Grafik aktivitas blog bulanan">
+    <div class="dash-bars" role="img" aria-label={t('dashboard.grafik_aktivitas_blog_bulanan')}>
       {#each blog.monthly as entry (entry.month)}
         <div class="dash-bar-col" title="{monthLabel(entry.month)}: {entry.posts} artikel, {entry.comments} komentar">
           <div class="dash-pair">
@@ -242,8 +243,8 @@
     <div class="col-lg-8">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <strong class="d-inline-flex align-items-center gap-2"><Eye size={16} /> Tayangan 14 hari terakhir</strong>
-          <Link href={visitorAnalyticsIndex().url} class="small">Detail</Link>
+          <strong class="d-inline-flex align-items-center gap-2"><Eye size={16} /> {t('dashboard.tayangan_14_hari_terakhir')}</strong>
+          <Link href={visitorAnalyticsIndex().url} class="small">{t('dashboard.detail')}</Link>
         </div>
         <div class="card-body">
           <div class="d-flex align-items-baseline gap-3 mb-3">
@@ -256,7 +257,7 @@
               </span>
             {/if}
           </div>
-          <div class="dash-bars" role="img" aria-label="Grafik tayangan harian">
+          <div class="dash-bars" role="img" aria-label={t('dashboard.grafik_tayangan_harian')}>
             {#each traffic.series as point (point.day)}
               <div class="dash-bar-col" title="{shortDay(point.day)}: {point.views} tayangan">
                 <div class="dash-bar" style="height: {Math.max(4, (point.views / maxViews) * 100)}%"></div>
@@ -269,7 +270,7 @@
     </div>
     <div class="col-lg-4">
       <div class="card h-100">
-        <div class="card-header"><strong>Halaman terpopuler</strong></div>
+        <div class="card-header"><strong>{t('dashboard.halaman_terpopuler')}</strong></div>
         <ul class="list-group list-group-flush">
           {#each traffic.top_pages as top (top.path)}
             <li class="list-group-item d-flex justify-content-between gap-2">
@@ -277,7 +278,7 @@
               <span class="badge text-bg-light border">{top.views}</span>
             </li>
           {:else}
-            <li class="list-group-item text-body-secondary">Belum ada data kunjungan.</li>
+            <li class="list-group-item text-body-secondary">{t('dashboard.belum_ada_data_kunjungan')}</li>
           {/each}
         </ul>
       </div>
@@ -289,20 +290,20 @@
   <div class="col-lg-{site ? 6 : 12}">
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>Artikel terbaru</strong>
-        <Link href={postsIndex().url} class="small">Lihat semua</Link>
+        <strong>{t('dashboard.artikel_terbaru')}</strong>
+        <Link href={postsIndex().url} class="small">{t('dashboard.lihat_semua')}</Link>
       </div>
       <ul class="list-group list-group-flush">
         {#each blog.recent_posts as post (post.id)}
           <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
             <div>
               <div class="fw-semibold">{post.title}</div>
-              <div class="small text-body-secondary">{post.author ?? 'Tanpa penulis'} · {formatDate(post.date)}</div>
+              <div class="small text-body-secondary">{post.author ?? t('dashboard.tanpa_penulis')} · {formatDate(post.date)}</div>
             </div>
-            <span class="badge {post.is_published ? 'text-bg-success' : 'text-bg-secondary'}">{post.is_published ? 'Terbit' : 'Draf'}</span>
+            <span class="badge {post.is_published ? 'text-bg-success' : 'text-bg-secondary'}">{post.is_published ? t('admin-certifications.terbit') : t('admin.draf')}</span>
           </li>
         {:else}
-          <li class="list-group-item text-body-secondary">Belum ada artikel.</li>
+          <li class="list-group-item text-body-secondary">{t('dashboard.belum_ada_artikel')}</li>
         {/each}
       </ul>
     </div>
@@ -312,8 +313,8 @@
     <div class="col-lg-6">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <strong>Pesan masuk terbaru</strong>
-          <Link href={contactMessagesIndex().url} class="small">Lihat semua</Link>
+          <strong>{t('dashboard.pesan_masuk_terbaru')}</strong>
+          <Link href={contactMessagesIndex().url} class="small">{t('dashboard.lihat_semua')}</Link>
         </div>
         <ul class="list-group list-group-flush">
           {#each site.inbox.latest as message (message.id)}
@@ -322,10 +323,10 @@
                 <div class:fw-bold={!message.is_read}>{message.name}</div>
                 <div class="small text-body-secondary">{message.reason} · {formatDate(message.date)}</div>
               </div>
-              {#if !message.is_read}<span class="badge text-bg-danger">Baru</span>{/if}
+              {#if !message.is_read}<span class="badge text-bg-danger">{t('dashboard.baru')}</span>{/if}
             </li>
           {:else}
-            <li class="list-group-item text-body-secondary">Belum ada pesan.</li>
+            <li class="list-group-item text-body-secondary">{t('dashboard.belum_ada_pesan')}</li>
           {/each}
         </ul>
       </div>
@@ -337,7 +338,7 @@
   <div class="row g-3 mb-4">
     <div class="col-lg-7">
       <div class="card h-100">
-        <div class="card-header"><strong>Seluruh data</strong></div>
+        <div class="card-header"><strong>{t('dashboard.seluruh_data')}</strong></div>
         <div class="card-body">
           <div class="row row-cols-2 row-cols-md-3 g-3">
             {#each Object.entries(site.counts) as [key, value] (key)}
@@ -348,7 +349,7 @@
             {/each}
             <div class="col">
               <div class="fs-4 fw-bold">{formatBytes(site.media_size)}</div>
-              <div class="small text-body-secondary">Ukuran pustaka media</div>
+              <div class="small text-body-secondary">{t('dashboard.ukuran_pustaka_media')}</div>
             </div>
           </div>
         </div>
@@ -358,8 +359,8 @@
     <div class="col-lg-5">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <strong>Kegiatan mendatang</strong>
-          <Link href={speakingIndex().url} class="small">Lihat semua</Link>
+          <strong>{t('dashboard.kegiatan_mendatang')}</strong>
+          <Link href={speakingIndex().url} class="small">{t('dashboard.lihat_semua')}</Link>
         </div>
         <ul class="list-group list-group-flush">
           {#each site.upcoming_speaking as engagement (engagement.id)}
@@ -368,7 +369,7 @@
               <div class="small text-body-secondary">{speakingDate(engagement.starts_at)} · {engagement.organizer}</div>
             </li>
           {:else}
-            <li class="list-group-item text-body-secondary">Belum ada kegiatan mendatang.</li>
+            <li class="list-group-item text-body-secondary">{t('dashboard.belum_ada_kegiatan_mendatang')}</li>
           {/each}
         </ul>
       </div>
@@ -378,7 +379,7 @@
 
 {#if system}
   <div class="card mb-4">
-    <div class="card-header"><strong>Sistem</strong></div>
+    <div class="card-header"><strong>{t('dashboard.sistem')}</strong></div>
     <div class="card-body">
       <dl class="row row-cols-1 row-cols-md-3 g-3 mb-0">
         {#each systemRows as [label, value] (label)}

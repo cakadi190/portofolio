@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'tambahkan_nama_portofolio' => 'Tambahkan nama portofolio',
+    'nama_portofolio' => 'Nama portofolio',
+    'visibilitas' => 'Visibilitas',
+    'portofolio_privat' => 'Portofolio privat',
+    'tautan' => 'Tautan',
+    'otomatis_dari_nama' => 'Otomatis dari nama',
+    'tautan_demo' => 'Tautan Demo',
+    'kode_sumber' => 'Kode Sumber',
+    'deskripsi_singkat' => 'Deskripsi singkat',
+    'deskripsi_singkat_yang_tampil_di_daftar' => 'Deskripsi singkat yang tampil di daftar portofolio',
+    'karier_terkait' => 'Karier Terkait',
+    'kelola_daftar_portofolio_anda' => 'Kelola daftar portofolio Anda.',
+    'belum_ada_portofolio' => 'Belum ada portofolio',
+    'tambahkan_portofolio_pertama_anda' => 'Tambahkan portofolio pertama Anda.',
+    'ubah_portofolio' => 'Ubah Portofolio',
+    'tambah_portofolio_baru' => 'Tambah Portofolio Baru',
+    'hapus_portofolio' => 'Hapus portofolio',
+    'hapus_portofolio_ini' => 'Hapus portofolio ini?',
+    'portofolio_beserta_galerinya_dihapus_permanen_da' => 'Portofolio beserta galerinya dihapus permanen dan tidak dapat dikembalikan.',
+    'tambah_portofolio' => 'Tambah Portofolio',
+    'sampul' => 'Sampul',
+    'privat' => 'Privat',
+];

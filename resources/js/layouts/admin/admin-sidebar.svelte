@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import SimpleBar from 'simplebar';
   import { Link } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
@@ -120,7 +121,7 @@
   class="sidebar"
   id="appSidebar"
   tabindex="-1"
-  aria-label="Sidebar admin"
+  aria-label={t('admin.sidebar_admin')}
   class:sidebar--collapsed={sidebar.isDesktop && sidebar.collapsed}
   class:sidebar--mobile-open={!sidebar.isDesktop && sidebar.mobileOpen}
 >
@@ -144,7 +145,7 @@
       <button
         type="button"
         class="sidebar-toggler"
-        aria-label="Buka/tutup sidebar"
+        aria-label={t('admin.buka_tutup_sidebar')}
         aria-controls="appSidebar"
         aria-expanded={!sidebar.collapsed}
         onclick={() => sidebar.toggle()}
@@ -159,8 +160,8 @@
         <input
           type="search"
           class="form-control sidebar-search-input"
-          placeholder="Cari menu… (/)"
-          aria-label="Cari menu"
+          placeholder={t('admin.cari_menu')}
+          aria-label={t('admin.cari_menu_2')}
           autocomplete="off"
           bind:this={searchInput}
           bind:value={sidebar.searchQuery}
@@ -170,7 +171,7 @@
 
     <div class="sidebar-body">
       <div class="sidebar-scroll" use:simplebar>
-        <nav class="sidebar-nav" aria-label="Navigasi utama">
+        <nav class="sidebar-nav" aria-label={t('admin.navigasi_utama')}>
           <AdminSidebarMenu entries={menu} />
         </nav>
       </div>
@@ -197,7 +198,7 @@
           <LogoutAction
             href={logoutHref}
             class="btn btn-outline-light btn-square logout-actions"
-            aria-label="Keluar dari akun"
+            aria-label={t('admin.keluar_dari_akun')}
           >
             <LogOut size={16} />
           </LogoutAction>

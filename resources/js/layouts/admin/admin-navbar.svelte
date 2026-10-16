@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { page } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
   import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
@@ -14,7 +15,7 @@
   const user = $derived(page.props.auth.user);
 </script>
 
-<nav class="navbar navbar-expand border-bottom" aria-label="Navigasi atas">
+<nav class="navbar navbar-expand border-bottom" aria-label={t('admin.navigasi_atas')}>
   <ul class="navbar-start">
     <li
       class="nav-item sidebar-toggling"
@@ -23,7 +24,7 @@
       <button
         type="button"
         class="sidebar-toggler me-2"
-        aria-label="Buka/tutup sidebar"
+        aria-label={t('admin.buka_tutup_sidebar')}
         aria-controls="appSidebar"
         aria-expanded={!sidebar.collapsed}
         onclick={() => sidebar.toggle()}

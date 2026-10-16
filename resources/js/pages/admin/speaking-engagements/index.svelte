@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -61,11 +62,11 @@
   }
 </script>
 
-<AppHead title="Pembicara & Mentoring" />
+<AppHead title={t('admin-speaking-engagements.pembicara_mentoring')} />
 
 <AdminPageHeader
-  title="Pembicara & Mentoring"
-  subtitle="Kelola acara tempat Anda menjadi pembicara, mentor, atau pelatih."
+  title={t('admin-speaking-engagements.pembicara_mentoring')}
+  subtitle={t('admin-speaking-engagements.kelola_acara_tempat_anda_menjadi_pembicara')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -75,15 +76,15 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Poster' },
-    { label: 'Acara', key: 'title', sortable: true },
-    { label: 'Peran', key: 'role', sortable: true },
-    { label: 'Tanggal', key: 'starts_at', sortable: true },
-    { label: 'Status', key: 'is_published', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin-speaking-engagements.poster') },
+    { label: t('admin-awards.acara'), key: 'title', sortable: true },
+    { label: t('admin.peran'), key: 'role', sortable: true },
+    { label: t('admin-posts.tanggal'), key: 'starts_at', sortable: true },
+    { label: t('admin.status'), key: 'is_published', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada acara"
-  emptyText="Tambahkan acara pertama Anda."
+  emptyTitle={t('admin-speaking-engagements.belum_ada_acara')}
+  emptyText={t('admin-speaking-engagements.tambahkan_acara_pertama_anda')}
 >
   {#snippet row(engagement)}
     <tr>
@@ -110,7 +111,7 @@
         <span
           class={`badge ${engagement.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}
         >
-          {engagement.is_published ? 'Tampil' : 'Disembunyikan'}
+          {engagement.is_published ? t('admin-portfolio-ratings.tampil') : t('admin-speaking-engagements.disembunyikan')}
         </span>
       </td>
       <td class="text-end">
@@ -120,7 +121,7 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(engagement)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(engagement.id).url}
@@ -138,9 +139,9 @@
   item: SpeakingEngagement | null,
 )}
   <Field.Group>
-    <Field.Label for={`${prefix}-title`}>Judul Acara</Field.Label>
+    <Field.Label for={`${prefix}-title`}>{t('admin-speaking-engagements.judul_acara')}</Field.Label>
     <Field.Input
-      placeholder="Masukkan judul acara"
+      placeholder={t('admin-speaking-engagements.masukkan_judul_acara')}
       id={`${prefix}-title`}
       name="title"
       required
@@ -151,9 +152,9 @@
   </Field.Group>
 
   <Field.Group>
-    <Field.Label for={`${prefix}-organizer`}>Penyelenggara</Field.Label>
+    <Field.Label for={`${prefix}-organizer`}>{t('admin-speaking-engagements.penyelenggara')}</Field.Label>
     <Field.Input
-      placeholder="Masukkan penyelenggara"
+      placeholder={t('admin-speaking-engagements.masukkan_penyelenggara')}
       id={`${prefix}-organizer`}
       name="organizer"
       required
@@ -166,7 +167,7 @@
   <div class="row g-3">
     <div class="col-sm-6">
       <Field.Group>
-        <Field.Label for={`${prefix}-role`}>Peran</Field.Label>
+        <Field.Label for={`${prefix}-role`}>{t('admin.peran')}</Field.Label>
         <Select
           id={`${prefix}-role`}
           name="role"
@@ -180,7 +181,7 @@
     </div>
     <div class="col-sm-6">
       <Field.Group>
-        <Field.Label for={`${prefix}-format`}>Format</Field.Label>
+        <Field.Label for={`${prefix}-format`}>{t('admin-speaking-engagements.format')}</Field.Label>
         <Select
           id={`${prefix}-format`}
           name="format"
@@ -195,9 +196,9 @@
   </div>
 
   <Field.Group>
-    <Field.Label for={`${prefix}-location`}>Lokasi / Platform</Field.Label>
+    <Field.Label for={`${prefix}-location`}>{t('admin-speaking-engagements.lokasi_platform')}</Field.Label>
     <Field.Input
-      placeholder="Mis. Zoom & YouTube atau Gd. Baru UPI Serang"
+      placeholder={t('admin-speaking-engagements.mis_zoom_youtube_atau_gd_baru')}
       id={`${prefix}-location`}
       name="location"
       value={item?.location}
@@ -209,7 +210,7 @@
   <div class="row g-3">
     <div class="col-sm-6">
       <Field.Group>
-        <Field.Label for={`${prefix}-starts_at`}>Mulai (WIB)</Field.Label>
+        <Field.Label for={`${prefix}-starts_at`}>{t('admin-speaking-engagements.mulai_wib')}</Field.Label>
         <DatePicker
           id={`${prefix}-starts_at`}
           name="starts_at"
@@ -222,7 +223,7 @@
     </div>
     <div class="col-sm-6">
       <Field.Group>
-        <Field.Label for={`${prefix}-ends_at`}>Selesai (WIB)</Field.Label>
+        <Field.Label for={`${prefix}-ends_at`}>{t('admin-speaking-engagements.selesai_wib')}</Field.Label>
         <DatePicker
           id={`${prefix}-ends_at`}
           name="ends_at"
@@ -236,7 +237,7 @@
   </div>
 
   <Field.Group>
-    <Field.Label for={`${prefix}-registration_url`}>Tautan Pendaftaran</Field.Label>
+    <Field.Label for={`${prefix}-registration_url`}>{t('admin-speaking-engagements.tautan_pendaftaran')}</Field.Label>
     <Field.Input
       placeholder="https://contoh.com"
       id={`${prefix}-registration_url`}
@@ -249,9 +250,9 @@
   </Field.Group>
 
   <Field.Group>
-    <Field.Label for={`${prefix}-description`}>Deskripsi</Field.Label>
+    <Field.Label for={`${prefix}-description`}>{t('admin.deskripsi')}</Field.Label>
     <textarea
-      placeholder="Ringkasan acara dan materi yang dibawakan"
+      placeholder={t('admin-speaking-engagements.ringkasan_acara_dan_materi_yang_dibawakan')}
       id={`${prefix}-description`}
       name="description"
       class="form-control"
@@ -262,7 +263,7 @@
   </Field.Group>
 
   <Field.Group>
-    <Field.Label for={`${prefix}-poster`}>Poster</Field.Label>
+    <Field.Label for={`${prefix}-poster`}>{t('admin-speaking-engagements.poster')}</Field.Label>
     <MediaField
       name="poster"
       accept="image"
@@ -279,14 +280,14 @@
     value="1"
     checked={item?.is_published ?? true}
   >
-    Tampilkan di halaman publik
+    {t('admin.tampilkan_di_halaman_publik')}
   </Field.Input.Check>
 {/snippet}
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Acara"
-  subtitle="Catat acara baru."
+  title={t('admin-speaking-engagements.tambah_acara')}
+  subtitle={t('admin-speaking-engagements.catat_acara_baru')}
   size="lg"
 >
   {#snippet children()}
@@ -305,10 +306,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -318,7 +319,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Acara"
+  title={t('admin-speaking-engagements.ubah_acara')}
   subtitle={editingEngagement?.title ?? ''}
   size="lg"
 >
@@ -339,10 +340,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

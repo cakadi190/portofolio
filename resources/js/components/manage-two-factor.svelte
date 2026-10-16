@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import Eye from '@lucide/svelte/icons/eye';
   import EyeOff from '@lucide/svelte/icons/eye-off';
@@ -57,16 +58,14 @@
 {#if canManageTwoFactor}
   <div class="card mb-4">
     <div class="card-body">
-      <h2 class="h5 mb-1">Autentikasi dua faktor</h2>
+      <h2 class="h5 mb-1">{t('security.autentikasi_dua_faktor')}</h2>
       <p class="text-muted small mb-3">
-        Kelola pengaturan autentikasi dua faktor untuk akun Anda.
+        {t('security.kelola_pengaturan_autentikasi_dua_faktor_untuk')}
       </p>
 
       {#if !twoFactorEnabled}
         <p class="small mb-3">
-          Saat autentikasi dua faktor diaktifkan, Anda akan diminta memasukkan
-          PIN aman saat masuk. PIN ini dapat diambil dari aplikasi TOTP di
-          ponsel Anda.
+          {t('security.saat_autentikasi_dua_faktor_diaktifkan_anda')}
         </p>
 
         {#if !showSetup}
@@ -77,7 +76,7 @@
                 class="btn btn-primary"
                 disabled={processing}
               >
-                Aktifkan 2FA
+                {t('security.aktifkan_2fa')}
               </button>
             {/snippet}
           </Form>
@@ -95,7 +94,7 @@
                   {:else}
                     <img
                       src={qrCodeDataUrl}
-                      alt="Kode QR autentikasi dua faktor"
+                      alt={t('security.kode_qr_autentikasi_dua_faktor')}
                       class="w-100 h-100"
                     />
                   {/if}
@@ -103,8 +102,7 @@
 
                 <div class="flex-grow-1">
                   <p class="small text-muted mb-1">
-                    Pindai kode QR dengan aplikasi autentikator, atau masukkan
-                    kunci berikut secara manual:
+                    {t('security.pindai_kode_qr_dengan_aplikasi_autentikator')}
                   </p>
                   <code class="d-block bg-body-secondary p-2 rounded mb-3">
                     {twoFactorAuth.state.manualSetupKey ?? '...'}
@@ -120,7 +118,7 @@
                       {#snippet children({ errors, processing })}
                         <input type="hidden" name="code" value={code} />
                         <Field.Group>
-                          <Field.Label for="code">Kode verifikasi</Field.Label>
+                          <Field.Label for="code">{t('security.kode_verifikasi')}</Field.Label>
                           <Field.Input
                             id="code"
                             bind:value={code}
@@ -140,7 +138,7 @@
                           class="btn btn-primary mt-2"
                           disabled={processing || code.length < 6}
                         >
-                          Konfirmasi
+                          {t('security.konfirmasi')}
                         </button>
                       {/snippet}
                     </Form>
@@ -152,8 +150,7 @@
         {/if}
       {:else}
         <p class="small mb-3">
-          Anda akan diminta memasukkan PIN acak yang aman saat masuk, yang
-          dapat diambil dari aplikasi TOTP di ponsel Anda.
+          {t('security.anda_akan_diminta_memasukkan_pin_acak')}
         </p>
 
         <Form {...disable.form()}>
@@ -163,7 +160,7 @@
               class="btn btn-outline-danger mb-3"
               disabled={processing}
             >
-              Nonaktifkan 2FA
+              {t('security.nonaktifkan_2fa')}
             </button>
           {/snippet}
         </Form>
@@ -180,7 +177,7 @@
               {:else}
                 <Eye size={16} />
               {/if}
-              {showRecoveryCodes ? 'Sembunyikan' : 'Lihat'} kode pemulihan
+              {showRecoveryCodes ? t('admin.sembunyikan') : t('admin.lihat')} kode pemulihan
             </button>
 
             {#if showRecoveryCodes && twoFactorAuth.state.recoveryCodesList.length}
@@ -196,7 +193,7 @@
                     disabled={processing}
                   >
                     <RefreshCw size={16} />
-                    Buat ulang kode
+                    {t('security.buat_ulang_kode')}
                   </button>
                 {/snippet}
               </Form>
@@ -214,8 +211,8 @@
               {/if}
             </div>
             <p class="text-muted small mt-2 mb-0">
-              Setiap kode pemulihan hanya dapat digunakan sekali. Klik
-              <strong>Buat ulang kode</strong> jika Anda memerlukan kode baru.
+              {t('security.setiap_kode_pemulihan_hanya_dapat_digunakan')}
+              <strong>{t('security.buat_ulang_kode')}</strong> {t('security.jika_anda_memerlukan_kode_baru')}
             </p>
           {/if}
         </div>

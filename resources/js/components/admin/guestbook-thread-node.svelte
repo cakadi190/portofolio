@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import Pencil from '@lucide/svelte/icons/pencil';
@@ -32,7 +33,7 @@
   } = $props();
 
   const author = $derived(
-    entry.user?.name ?? entry.guest_name ?? 'Pengguna terhapus',
+    entry.user?.name ?? entry.guest_name ?? t('admin-blog-comments.pengguna_terhapus'),
   );
   const isReplying = $derived(replyingTo === entry.id);
   let collapsed = $state(false);
@@ -76,20 +77,20 @@
           onclick={() => onReply(isReplying ? null : entry.id)}
         >
           <Reply size={14} aria-hidden="true" />
-          {isReplying ? 'Batal' : 'Balas'}
+          {isReplying ? t('admin.batal') : t('admin-contact-messages.balas')}
         </button>
         <button
           type="button"
           class="thread-action"
           onclick={() => onEdit(entry)}
         >
-          <Pencil size={14} aria-hidden="true" /> Ubah
+          <Pencil size={14} aria-hidden="true" /> {t('admin.ubah')}
         </button>
         <AdminDeleteButton
           class="thread-action is-danger"
           href={destroy(entry.id).url}
           label={`Hapus pesan #${entry.id}?`}
-          description="Balasan pesan ini tidak ikut dihapus, melainkan naik satu tingkat."
+          description={t('admin.balasan_pesan_ini_tidak_ikut_dihapus')}
         />
       </div>
 
@@ -115,7 +116,7 @@
               <button
                 type="submit"
                 class="btn btn-sm btn-primary"
-                disabled={processing}>Kirim Balasan</button
+                disabled={processing}>{t('admin.kirim_balasan')}</button
               >
             </div>
           {/snippet}
@@ -136,7 +137,7 @@
         aria-hidden="true"
         style={collapsed ? 'transform: rotate(-90deg)' : ''}
       />
-      {collapsed ? 'Tampilkan' : 'Sembunyikan'}
+      {collapsed ? t('admin.tampilkan') : t('admin.sembunyikan')}
       {entry.replies.length} balasan
     </button>
   {/if}

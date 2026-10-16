@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import Plus from '@lucide/svelte/icons/plus';
   import Trash from '@lucide/svelte/icons/trash';
@@ -93,7 +94,7 @@
   let updates = $state((clarification?.updates ?? []).map(withKey));
 
   const heading = $derived(
-    clarification ? 'Ubah Klarifikasi' : 'Tulis Klarifikasi Baru',
+    clarification ? t('admin-clarifications.ubah_klarifikasi') : t('admin-clarifications.tulis_klarifikasi_baru'),
   );
 
   let deleting = $state(false);
@@ -128,25 +129,25 @@
       <EditorTitle
         name={name('title')}
         bind:value={translatable.values.title[translatable.locale]}
-        placeholder="Judul klarifikasi"
-        ariaLabel="Judul klarifikasi"
+        placeholder={t('admin-clarifications.judul_klarifikasi')}
+        ariaLabel={t('admin-clarifications.judul_klarifikasi')}
         required={translatable.isDefault}
         error={error('title', errors)}
       />
       <TranslationHiddenInputs {translatable} fields={FIELDS} />
 
       <div class="card mb-4">
-        <div class="card-header fw-semibold">Klaim yang beredar</div>
+        <div class="card-header fw-semibold">{t('admin-clarifications.klaim_yang_beredar')}</div>
         <div class="card-body d-flex flex-column gap-3">
           <div>
             <textarea
               name={name('claim')}
-              aria-label="Klaim yang beredar"
+              aria-label={t('admin-clarifications.klaim_yang_beredar')}
               class="form-control"
               class:is-invalid={!!error('claim', errors)}
               rows="3"
               maxlength="1000"
-              placeholder="Tulis klaim persis seperti yang beredar"
+              placeholder={t('admin-clarifications.tulis_klaim_persis_seperti_yang_beredar')}
               bind:value={translatable.values.claim[translatable.locale]}></textarea>
             <Field.Feedback message={error('claim', errors)} />
           </div>
@@ -154,11 +155,11 @@
             <input
               name={name('claim_origin')}
               type="text"
-              aria-label="Asal klaim"
+              aria-label={t('admin-clarifications.asal_klaim')}
               class="form-control"
               class:is-invalid={!!error('claim_origin', errors)}
               maxlength="255"
-              placeholder="Asal klaim, mis. platform dan tanggal (tanpa menyebut akun pribadi)"
+              placeholder={t('admin-clarifications.asal_klaim_mis_platform_dan_tanggal')}
               bind:value={translatable.values.claim_origin[translatable.locale]}
             />
             <Field.Feedback message={error('claim_origin', errors)} />
@@ -172,11 +173,11 @@
 
       <div class="d-flex flex-column gap-4 mt-4">
         <div class="card">
-          <div class="card-header fw-semibold">Permintaan maaf</div>
+          <div class="card-header fw-semibold">{t('admin-clarifications.permintaan_maaf')}</div>
           <div class="card-body">
             <textarea
               name={name('apology')}
-              aria-label="Permintaan maaf"
+              aria-label={t('admin-clarifications.permintaan_maaf')}
               class="form-control"
               class:is-invalid={!!error('apology', errors)}
               rows="4"
@@ -191,13 +192,13 @@
           <div
             class="card-header fw-semibold d-flex justify-content-between align-items-center"
           >
-            <span>Bukti dan sumber</span>
+            <span>{t('admin-clarifications.bukti_dan_sumber')}</span>
             <button
               type="button"
               class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
               onclick={() => sources.push(withKey({ title: '', url: '' }))}
             >
-              <Plus size={14} /> Tambah
+              <Plus size={14} /> {t('admin-clarifications.tambah')}
             </button>
           </div>
           <div class="card-body d-flex flex-column gap-3">
@@ -210,7 +211,7 @@
                     aria-label={`Judul sumber ${i + 1}`}
                     class="form-control"
                     class:is-invalid={!!errors[`sources.${i}.title`]}
-                    placeholder="Judul sumber"
+                    placeholder={t('admin-clarifications.judul_sumber')}
                     bind:value={source.title}
                   />
                   <Field.Feedback message={errors[`sources.${i}.title`]} />
@@ -240,7 +241,7 @@
               </div>
             {:else}
               <p class="text-muted small mb-0">
-                Belum ada sumber. Minimal satu sumber wajib saat menerbitkan.
+                {t('admin-clarifications.belum_ada_sumber_minimal_satu_sumber')}
               </p>
             {/each}
             <Field.Feedback message={errors.sources} />
@@ -251,7 +252,7 @@
           <div
             class="card-header fw-semibold d-flex justify-content-between align-items-center"
           >
-            <span>Riwayat pembaruan</span>
+            <span>{t('admin-clarifications.riwayat_pembaruan')}</span>
             <button
               type="button"
               class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
@@ -263,7 +264,7 @@
                   }),
                 )}
             >
-              <Plus size={14} /> Tambah
+              <Plus size={14} /> {t('admin-clarifications.tambah')}
             </button>
           </div>
           <div class="card-body d-flex flex-column gap-3">
@@ -288,7 +289,7 @@
                     class:is-invalid={!!errors[`updates.${i}.note`]}
                     rows="2"
                     maxlength="2000"
-                    placeholder="Apa yang diperbarui atau dikoreksi"
+                    placeholder={t('admin-clarifications.apa_yang_diperbarui_atau_dikoreksi')}
                     bind:value={correction.note}></textarea>
                   <Field.Feedback message={errors[`updates.${i}.note`]} />
                 </div>
@@ -305,8 +306,7 @@
               </div>
             {:else}
               <p class="text-muted small mb-0">
-                Catat setiap koreksi atau tambahan agar perubahan tidak
-                dilakukan diam-diam.
+                {t('admin-clarifications.catat_setiap_koreksi_atau_tambahan_agar')}
               </p>
             {/each}
           </div>
@@ -326,11 +326,11 @@
         setMode={editor.setMode}
         onStatus={setStatus}
         danger={{
-          label: 'Hapus klarifikasi',
-          title: 'Hapus klarifikasi ini?',
+          label: t('admin-clarifications.hapus_klarifikasi'),
+          title: t('admin-clarifications.hapus_klarifikasi_ini'),
           description:
-            'Klarifikasi dihapus permanen. Bila hanya ingin menyembunyikannya, gunakan penarikan.',
-          confirmLabel: 'Hapus',
+            t('admin-clarifications.klarifikasi_dihapus_permanen_bila_hanya_ingin'),
+          confirmLabel: t('security.hapus'),
           processing: deleting,
           run: deleteClarification,
         }}
@@ -338,21 +338,21 @@
     {/snippet}
 
     {#snippet clarificationSettings()}
-      <EditorPanel title="Ringkasan">
+      <EditorPanel title={t('admin.ringkasan')}>
         <div class="gb-sum">
           <EditorSummaryRow
-            label="Status"
+            label={t('admin.status')}
             title="Status &amp; visibilitas"
-            value={isPublished ? 'Telah terbit' : 'Draf'}
+            value={isPublished ? t('admin.telah_terbit') : t('admin.draf')}
           >
             <EditorStatusField {isPublished} onStatus={setStatus} />
           </EditorSummaryRow>
           <EditorSummaryRow
-            label="Terbitkan"
-            title="Tanggal terbit"
+            label={t('admin.terbitkan')}
+            title={t('admin.tanggal_terbit')}
             width="23rem"
             value={publishedDisplay}
-            placeholder="Segera"
+            placeholder={t('admin.segera')}
             invalid={!!errors.published_at}
           >
             <DatePicker
@@ -367,10 +367,10 @@
             <Field.Feedback message={errors.published_at} />
           </EditorSummaryRow>
           <EditorSummaryRow
-            label="Slug"
-            title="Permalink"
+            label={t('admin.slug')}
+            title={t('admin.permalink')}
             value={slug}
-            placeholder="Otomatis"
+            placeholder={t('admin.otomatis')}
             invalid={!!errors.slug}
           >
             <input
@@ -379,8 +379,8 @@
               type="text"
               class="form-control form-control-sm"
               class:is-invalid={!!errors.slug}
-              placeholder="Otomatis dari judul"
-              aria-label="Permalink"
+              placeholder={t('admin.otomatis_dari_judul')}
+              aria-label={t('admin.permalink')}
               bind:value={slug}
             />
             <Field.Feedback message={errors.slug} />
@@ -389,9 +389,9 @@
                 href={preview(clarification.id).url}
                 target="_blank"
                 rel="noopener"
-                title="Pratinjau (termasuk draf)"
+                title={t('admin-clarifications.pratinjau_termasuk_draf')}
               >
-                Pratinjau
+                {t('admin-clarifications.pratinjau')}
               </a>
             {/if}
             {#if clarification?.is_published}
@@ -401,14 +401,14 @@
                 rel="noopener"
                 class="d-inline-flex align-items-center gap-1"
               >
-                Lihat klarifikasi <ExternalLink size={14} />
+                {t('admin-clarifications.lihat_klarifikasi')} <ExternalLink size={14} />
               </a>
             {/if}
           </EditorSummaryRow>
         </div>
       </EditorPanel>
 
-      <EditorPanel title="Vonis">
+      <EditorPanel title={t('admin-clarifications.vonis')}>
         <Select
           id="clarification-verdict"
           name="verdict"
@@ -420,20 +420,20 @@
         <Field.Feedback message={errors.verdict} />
       </EditorPanel>
 
-      <EditorPanel title="Kutipan">
+      <EditorPanel title={t('admin.kutipan')}>
         <textarea
           name={name('summary')}
-          aria-label="Ringkasan klarifikasi"
+          aria-label={t('admin-clarifications.ringkasan_klarifikasi')}
           class="form-control form-control-sm"
           class:is-invalid={!!error('summary', errors)}
           rows="4"
           maxlength="255"
-          placeholder="Ringkasan singkat untuk daftar dan hasil pencarian"
+          placeholder={t('admin-clarifications.ringkasan_singkat_untuk_daftar_dan_hasil')}
           bind:value={translatable.values.summary[translatable.locale]}></textarea>
         <Field.Feedback message={error('summary', errors)} />
       </EditorPanel>
 
-      <EditorPanel title="Gambar Sampul">
+      <EditorPanel title={t('admin.gambar_sampul')}>
         <MediaField
           name="cover_image"
           value={clarification?.cover_image ?? null}
@@ -442,7 +442,7 @@
         <Field.Feedback message={errors.cover_image} />
       </EditorPanel>
 
-      <EditorPanel title="Penarikan" open={isWithdrawn}>
+      <EditorPanel title={t('admin-clarifications.penarikan')} open={isWithdrawn}>
         <input
           type="hidden"
           name="is_withdrawn"
@@ -456,7 +456,7 @@
             bind:checked={isWithdrawn}
           />
           <label for="clarification-withdrawn" class="form-check-label"
-            >Tarik klarifikasi ini</label
+            >{t('admin-clarifications.tarik_klarifikasi_ini')}</label
           >
         </div>
         <textarea
@@ -464,7 +464,7 @@
           class="form-control form-control-sm"
           class:is-invalid={!!error('withdrawal_note', errors)}
           rows="3"
-          placeholder="Alasan penarikan (opsional, tampil publik)"
+          placeholder={t('admin-clarifications.alasan_penarikan_opsional_tampil_publik')}
           bind:value={translatable.values.withdrawal_note[translatable.locale]}></textarea>
         <Field.Feedback message={error('withdrawal_note', errors)} />
       </EditorPanel>
@@ -484,7 +484,7 @@
         ? show(clarification.slug).url
         : null}
       documentTitle={title}
-      rootLabel="Klarifikasi"
+      rootLabel={t('admin-clarifications.klarifikasi')}
       header={clarificationHeader}
       settings={clarificationSettings}
       actions={clarificationActions}

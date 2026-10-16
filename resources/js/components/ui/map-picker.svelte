@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import 'leaflet/dist/leaflet.css';
   import type * as Leaflet from 'leaflet';
   import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -150,12 +151,12 @@
       class="border rounded"
       style="height:16rem;z-index:0;"
       role="application"
-      aria-label="Peta pemilih lokasi"
+      aria-label={t('ui.peta_pemilih_lokasi')}
     ></div>
     <div class="d-flex justify-content-between align-items-center mt-1">
-      <small class="text-muted">Klik peta atau seret penanda untuk mengatur lokasi.</small>
+      <small class="text-muted">{t('ui.klik_peta_atau_seret_penanda_untuk')}</small>
       <button type="button" class="btn btn-sm btn-outline-secondary" onclick={useCurrentLocation}>
-        Lokasi saya
+        {t('ui.lokasi_saya')}
       </button>
     </div>
   </div>
@@ -163,7 +164,7 @@
   <div class="row g-3">
     <div class="col-sm-6">
       <Field.Group>
-        <Field.Label for={`${idPrefix}-latitude`}>Latitude</Field.Label>
+        <Field.Label for={`${idPrefix}-latitude`}>{t('ui.latitude')}</Field.Label>
         <Field.Input
           id={`${idPrefix}-latitude`}
           name="latitude"
@@ -179,7 +180,7 @@
     </div>
     <div class="col-sm-6">
       <Field.Group>
-        <Field.Label for={`${idPrefix}-longitude`}>Longitude</Field.Label>
+        <Field.Label for={`${idPrefix}-longitude`}>{t('ui.longitude')}</Field.Label>
         <Field.Input
           id={`${idPrefix}-longitude`}
           name="longitude"

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import TranslationBar from '@/components/admin/translation-bar.svelte';
   import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
   import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
@@ -38,12 +39,12 @@
   const translatable = createTranslatable(profile.translations ?? {}, { bio: 'html' });
 </script>
 
-<AppHead title="Profil Saya" />
+<AppHead title={t('profile.profil_saya')} />
 
 <div id="profile-settings-page">
   <AdminPageHeader
-    title="Profil Saya"
-    subtitle="Perbarui informasi akun dan foto profil Anda."
+    title={t('profile.profil_saya')}
+    subtitle={t('profile.perbarui_informasi_akun_dan_foto_profil')}
   />
 
   <SettingsLayout>
@@ -61,7 +62,7 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="profile-avatar">Foto Profil</Field.Label>
+            <Field.Label for="profile-avatar">{t('profile.foto_profil')}</Field.Label>
             <MediaField
               name="avatar"
               value={profile.avatar}
@@ -71,8 +72,8 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="profile-name">Nama</Field.Label>
-            <Field.Input placeholder="Masukkan nama"
+            <Field.Label for="profile-name">{t('profile.nama')}</Field.Label>
+            <Field.Input placeholder={t('profile.masukkan_nama')}
               id="profile-name"
               name="name"
               required
@@ -84,7 +85,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="profile-username">Username</Field.Label>
+            <Field.Label for="profile-username">{t('profile.username')}</Field.Label>
             <div class="input-group">
               <span class="input-group-text">@</span>
               <Field.Input
@@ -107,7 +108,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="profile-email">Email</Field.Label>
+            <Field.Label for="profile-email">{t('profile.email')}</Field.Label>
             <Field.Input placeholder="nama@contoh.com"
               id="profile-email"
               name="email"
@@ -120,7 +121,7 @@
             <Field.Feedback message={errors.email} />
             {#if mustVerifyEmail}
               <p class="text-muted small mb-0">
-                Mengubah email akan mengharuskan verifikasi ulang.
+                {t('profile.mengubah_email_akan_mengharuskan_verifikasi_ulan')}
               </p>
             {/if}
           </Field.Group>
@@ -128,8 +129,8 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="profile-phone">Telepon</Field.Label>
-                <Field.Input placeholder="08xxxxxxxxxx"
+                <Field.Label for="profile-phone">{t('profile.telepon')}</Field.Label>
+                <Field.Input placeholder={t('profile.08xxxxxxxxxx')}
                   id="profile-phone"
                   name="phone"
                   autocomplete="tel"
@@ -141,7 +142,7 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="profile-gender">Jenis Kelamin</Field.Label>
+                <Field.Label for="profile-gender">{t('profile.jenis_kelamin')}</Field.Label>
                 <Select
                   id="profile-gender"
                   name="gender"
@@ -156,7 +157,7 @@
           </div>
 
           <Field.Group>
-            <Field.Label for="profile-bio">Deskripsi</Field.Label>
+            <Field.Label for="profile-bio">{t('profile.deskripsi')}</Field.Label>
             <TranslationBar {translatable} picker />
             <TranslationHiddenInputs {translatable} fields={['bio']} />
             <RichTextEditor
@@ -165,12 +166,12 @@
               value={translatable.values.bio[translatable.locale]}
               contentKey={translatable.contentKey}
               onchange={(html) => (translatable.values.bio[translatable.locale] = html)}
-              placeholder="Ceritakan singkat tentang Anda..."
+              placeholder={t('profile.ceritakan_singkat_tentang_anda')}
               invalid={!!errors[fieldName('bio', translatable.locale)]}
             />
             <Field.Feedback message={errors[fieldName('bio', translatable.locale)]} />
             <p class="text-muted small mb-0">
-              Tampil di halaman profil penulis publik.
+              {t('profile.tampil_di_halaman_profil_penulis_publik')}
             </p>
           </Field.Group>
 
@@ -181,7 +182,7 @@
               disabled={processing}
               data-test="update-profile-button"
             >
-              Simpan
+              {t('profile.simpan')}
             </button>
           </div>
         {/snippet}

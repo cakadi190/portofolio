@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import FileText from '@lucide/svelte/icons/file-text';
   import ImagePlus from '@lucide/svelte/icons/image-plus';
   import X from '@lucide/svelte/icons/x';
@@ -50,7 +51,7 @@
     {#if url}
       <div class="media-field-preview">
         {#if isImage}
-          <img src={url} alt="Pratinjau" />
+          <img src={url} alt={t('ui.pratinjau')} />
         {:else}
           <span class="d-flex flex-column align-items-center gap-2 py-2">
             <FileText size={32} />
@@ -62,7 +63,7 @@
             type="button"
             class="media-field-remove"
             onclick={() => (path = null)}
-            aria-label="Lepas media"
+            aria-label={t('ui.lepas_media')}
           >
             <X size={14} />
           </button>
@@ -71,7 +72,7 @@
     {:else}
       <div class="d-flex flex-column align-items-center gap-2 text-muted small">
         <ImagePlus size={28} />
-        Belum ada media dipilih
+        {t('ui.belum_ada_media_dipilih')}
       </div>
     {/if}
 
@@ -80,7 +81,7 @@
       class="btn btn-sm btn-outline-primary mt-2"
       onclick={() => (pickerOpen = true)}
     >
-      {url ? 'Ganti Media' : 'Pilih Media'}
+      {url ? t('ui.ganti_media') : t('ui.pilih_media')}
     </button>
   </div>
 </div>

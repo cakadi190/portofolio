@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import Circle from '@lucide/svelte/icons/circle';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
@@ -264,7 +265,7 @@
 
   {#if level === 1 && sidebar.searching && visibleEntries.length === 0}
     <li class="sidebar-search-empty" role="status">
-      Tidak ada menu yang cocok.
+      {t('admin.tidak_ada_menu_yang_cocok')}
     </li>
   {/if}
 </ul>

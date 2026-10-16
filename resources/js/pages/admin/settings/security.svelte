@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -27,12 +28,12 @@
   } = $props();
 </script>
 
-<AppHead title="Keamanan Akun" />
+<AppHead title={t('security.keamanan_akun')} />
 
 <div id="security-settings-page">
   <AdminPageHeader
-    title="Keamanan Akun"
-    subtitle="Kelola kata sandi, autentikasi dua faktor, dan passkey Anda."
+    title={t('security.keamanan_akun')}
+    subtitle={t('security.kelola_kata_sandi_autentikasi_dua_faktor')}
   />
 
   <SettingsLayout>
@@ -42,10 +43,9 @@
 
       <div class="card mb-4">
         <div class="card-body">
-          <h2 class="h5 mb-1">Perbarui kata sandi</h2>
+          <h2 class="h5 mb-1">{t('security.perbarui_kata_sandi')}</h2>
           <p class="text-muted small mb-3">
-            Pastikan akun Anda menggunakan kata sandi yang panjang dan acak
-            agar tetap aman.
+            {t('security.pastikan_akun_anda_menggunakan_kata_sandi')}
           </p>
 
           <Form
@@ -58,7 +58,7 @@
               <div class="d-flex flex-column gap-3">
                 <Field.Group>
                   <Field.Label for="current_password">
-                    Kata sandi saat ini
+                    {t('security.kata_sandi_saat_ini')}
                   </Field.Label>
                   <Field.Input.Password placeholder="••••••••"
                     id="current_password"
@@ -70,7 +70,7 @@
                 </Field.Group>
 
                 <Field.Group>
-                  <Field.Label for="password">Kata sandi baru</Field.Label>
+                  <Field.Label for="password">{t('security.kata_sandi_baru')}</Field.Label>
                   <Field.Input.Password placeholder="••••••••"
                     confirmed="password_confirmation"
                     id="password"
@@ -89,7 +89,7 @@
                     disabled={processing}
                     data-test="update-password-button"
                   >
-                    Simpan
+                    {t('security.simpan')}
                   </button>
                 </div>
               </div>

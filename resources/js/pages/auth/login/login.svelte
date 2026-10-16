@@ -1,11 +1,6 @@
-<script module lang="ts">
-  export const layout = {
-    title: 'Masuk ke akun Anda',
-    description: 'Masukkan email dan kata sandi Anda di bawah untuk masuk',
-  };
-</script>
-
 <script lang="ts">
+  import { setLayoutProps } from '@inertiajs/svelte';
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import LoginForm from './form.svelte';
   import PasskeyLogin from '@/components/passkey-login.svelte';
@@ -28,17 +23,22 @@
     label: string;
     active: boolean;
   }[] = $state([
-    { name: 'passkey', label: 'Passkey', active: true },
-    { name: 'password', label: 'Akun Email', active: false },
+    { name: 'passkey', label: t('security.passkey'), active: true },
+    { name: 'password', label: t('auth.akun_email'), active: false },
   ]);
 
   function selectTab(name: 'passkey' | 'password') {
     loginTabs = loginTabs.map((tab) => ({ ...tab, active: tab.name === name }));
   }
+
+  setLayoutProps({
+    title: t('auth.masuk_ke_akun_anda'),
+    description: t('auth.masukkan_email_dan_kata_sandi_anda'),
+  });
 </script>
 
 <div id="login-inner-wrapper" class="gap-3 d-flex flex-column">
-  <AppHead title="Masuk" />
+  <AppHead title={t('auth.masuk')} />
 
   {#if status}
     <div class="mb-4 text-center small fw-medium text-success">
@@ -76,11 +76,11 @@
     <LoginForm {canResetPassword} />
   {/if}
 
-  <Separator>Atau</Separator>
+  <Separator>{t('auth.atau')}</Separator>
 
   <div class="text-center small text-muted">
-    Belum punya akun?
-    <TextLink href={register()}>Daftar</TextLink>
+    {t('auth.belum_punya_akun')}
+    <TextLink href={register()}>{t('auth.daftar')}</TextLink>
   </div>
 </div>
 

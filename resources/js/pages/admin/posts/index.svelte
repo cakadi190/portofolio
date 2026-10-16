@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link, router } from '@inertiajs/svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -35,19 +36,19 @@
   } = $props();
 </script>
 
-<AppHead title="Artikel Blog" />
+<AppHead title={t('admin-posts.artikel_blog')} />
 
 <AdminPageHeader
-  title="Artikel Blog"
-  subtitle="Kelola artikel blog Anda."
+  title={t('admin-posts.artikel_blog')}
+  subtitle={t('admin-posts.kelola_artikel_blog_anda')}
   createHref={create().url}
-  createLabel="Tulis Artikel"
+  createLabel={t('admin-posts.tulis_artikel')}
 />
 
 <ul class="nav nav-pills mb-3 gap-2">
   <li class="nav-item">
     <Link href={index().url} class={`nav-link ${trashed ? '' : 'active'}`}
-      >Semua</Link
+      >{t('admin-posts.semua')}</Link
     >
   </li>
   <li class="nav-item">
@@ -65,15 +66,15 @@
   {filters}
   url={trashed ? index({ query: { trashed: 1 } }).url : index().url}
   columns={[
-    { label: 'Judul', key: 'title', sortable: true },
-    { label: 'Status', key: 'is_published', sortable: true },
-    { label: 'Tanggal', key: 'published_at', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('ui.judul'), key: 'title', sortable: true },
+    { label: t('admin.status'), key: 'is_published', sortable: true },
+    { label: t('admin-posts.tanggal'), key: 'published_at', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle={trashed ? 'Sampah kosong' : 'Belum ada artikel'}
+  emptyTitle={trashed ? t('admin-posts.sampah_kosong') : t('admin-posts.belum_ada_artikel')}
   emptyText={trashed
-    ? 'Artikel yang dipindahkan ke sampah muncul di sini.'
-    : 'Tulis artikel pertama Anda.'}
+    ? t('admin-posts.artikel_yang_dipindahkan_ke_sampah_muncul')
+    : t('admin-posts.tulis_artikel_pertama_anda')}
 >
   {#snippet row(post)}
     {@const scheduled =
@@ -90,7 +91,7 @@
         <span
           class={`badge ${scheduled ? 'text-bg-info' : post.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}
         >
-          {scheduled ? 'Terjadwal' : post.is_published ? 'Terbit' : 'Draf'}
+          {scheduled ? t('admin.terjadwal') : post.is_published ? t('admin-certifications.terbit') : t('admin.draf')}
         </span>
       </td>
       <td class="text-secondary">
@@ -110,25 +111,25 @@
                   restore(post.id).url,
                   {},
                   { preserveScroll: true },
-                )}>Pulihkan</button
+                )}>{t('admin-posts.pulihkan')}</button
             >
             <AdminDeleteButton
               href={destroy(post.id).url}
               label={`Hapus permanen artikel "${post.title}"?`}
-              buttonLabel="Hapus permanen"
-              confirmLabel="Hapus permanen"
+              buttonLabel={t('admin-posts.hapus_permanen')}
+              confirmLabel={t('admin-posts.hapus_permanen')}
             />
           {:else}
             <Link
               href={edit(post.id).url}
-              class="btn btn-sm btn-outline-secondary">Ubah</Link
+              class="btn btn-sm btn-outline-secondary">{t('admin.ubah')}</Link
             >
             <AdminDeleteButton
               href={destroy(post.id).url}
               label={`Pindahkan artikel "${post.title}" ke sampah?`}
-              description="Artikel tidak lagi tampil di situs dan bisa dipulihkan dari tab Sampah."
-              buttonLabel="Sampah"
-              confirmLabel="Pindahkan"
+              description={t('admin-posts.artikel_tidak_lagi_tampil_di_situs')}
+              buttonLabel={t('admin-posts.sampah')}
+              confirmLabel={t('admin-posts.pindahkan')}
             />
           {/if}
         </div>

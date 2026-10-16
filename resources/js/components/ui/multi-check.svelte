@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   /**
    * Checkbox-list multi-select for pivot relations, posted as `name[]`.
    * The search box only hides rows (never unmounts them), so checked items
@@ -52,8 +53,8 @@
   <input
     type="search"
     class="form-control form-control-sm mb-2"
-    placeholder={onCreate ? 'Cari atau tambah…' : 'Cari…'}
-    aria-label="Cari opsi"
+    placeholder={onCreate ? t('ui.cari_atau_tambah') : t('ui.cari')}
+    aria-label={t('ui.cari_opsi')}
     bind:value={query}
     onkeydown={(event) => {
       if (event.key !== 'Enter') return;
@@ -79,12 +80,12 @@
   {#if options.length === 0}
     <p class="text-muted small mb-0">
       {onCreate
-        ? 'Belum ada data. Ketik nama untuk menambahkan.'
-        : 'Belum ada data.'}
+        ? t('ui.belum_ada_data_ketik_nama_untuk')
+        : t('admin-visitor-analytics.belum_ada_data')}
     </p>
   {:else}
     {#if !hasMatch}
-      <p class="text-muted small mb-0">Tidak ada hasil.</p>
+      <p class="text-muted small mb-0">{t('ui.tidak_ada_hasil')}</p>
     {/if}
     {#each options as option (option.value)}
       <div

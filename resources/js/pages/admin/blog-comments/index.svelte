@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Select from '@/components/ui/select.svelte';
   import { Link, router } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -67,11 +68,11 @@
       .trim();
 </script>
 
-<AppHead title="Komentar Blog" />
+<AppHead title={t('admin-blog-comments.komentar_blog')} />
 
 <AdminPageHeader
-  title="Komentar Blog"
-  subtitle="Moderasi komentar dan balasan pada artikel blog."
+  title={t('admin-blog-comments.komentar_blog')}
+  subtitle={t('admin-blog-comments.moderasi_komentar_dan_balasan_pada_artikel')}
 />
 
 <DataTable
@@ -80,21 +81,21 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Komentar' },
-    { label: 'Artikel' },
-    { label: 'Penulis' },
-    { label: 'Status', key: 'status', sortable: true },
-    { label: 'Dikirim', key: 'created_at', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('dashboard.komentar') },
+    { label: t('admin-posts.artikel') },
+    { label: t('admin.penulis') },
+    { label: t('admin.status'), key: 'status', sortable: true },
+    { label: t('admin-blog-comments.dikirim'), key: 'created_at', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada komentar"
-  emptyText="Komentar dari pembaca akan muncul di sini."
+  emptyTitle={t('admin-blog-comments.belum_ada_komentar')}
+  emptyText={t('admin-blog-comments.komentar_dari_pembaca_akan_muncul_di')}
 >
   {#snippet toolbar()}
     <Select
       inline
-      ariaLabel="Filter status"
-      placeholder="Semua status"
+      ariaLabel={t('admin.filter_status')}
+      placeholder={t('admin.semua_status')}
       items={statuses}
       value={filters.status || null}
       onchange={filterStatus}
@@ -124,7 +125,7 @@
             >{comment.guest_email} · tamu</small
           >
         {:else}
-          <em class="opacity-75">Pengguna terhapus</em>
+          <em class="opacity-75">{t('admin-blog-comments.pengguna_terhapus')}</em>
         {/if}
       </td>
       <td>
@@ -142,17 +143,17 @@
         <div class="d-inline-flex gap-2">
           <Link
             href={show(comment.id).url}
-            class="btn btn-sm btn-outline-primary">Lihat</Link
+            class="btn btn-sm btn-outline-primary">{t('admin.lihat')}</Link
           >
           <button
             type="button"
             class="btn btn-sm btn-outline-secondary"
-            onclick={() => openEdit(comment)}>Ubah</button
+            onclick={() => openEdit(comment)}>{t('admin.ubah')}</button
           >
           <AdminDeleteButton
             href={destroy(comment.id).url}
             label={`Hapus komentar #${comment.id}?`}
-            description="Balasan komentar ini tidak ikut dihapus, melainkan naik satu tingkat."
+            description={t('admin-blog-comments.balasan_komentar_ini_tidak_ikut_dihapus')}
           />
         </div>
       </td>

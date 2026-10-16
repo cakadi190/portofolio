@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import { Form, Link } from '@inertiajs/svelte';
@@ -32,7 +33,7 @@
   const field = (key: string): string => fieldName(key, translatable.locale);
 </script>
 
-<AppHead title="Ubah Layanan" />
+<AppHead title={t('admin-services.ubah_layanan')} />
 
 <Form {...update.form(service.id)} novalidate class="post-editor">
   {#snippet children({ errors, processing })}
@@ -42,9 +43,9 @@
         class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2"
       >
         <ArrowLeft size={14} />
-        Semua Layanan
+        {t('admin-services.semua_layanan')}
       </Link>
-      <h1 class="h5 mb-0">Ubah Layanan</h1>
+      <h1 class="h5 mb-0">{t('admin-services.ubah_layanan')}</h1>
     </div>
 
     <div class="row g-4">
@@ -59,7 +60,7 @@
             type="text"
             class="form-control form-control-lg fw-semibold"
             class:is-invalid={!!errors[field('name')]}
-            placeholder="Nama layanan"
+            placeholder={t('admin-services.nama_layanan')}
             bind:value={translatable.values.name[translatable.locale]}
             required={translatable.isDefault}
           />
@@ -67,7 +68,7 @@
         </div>
 
         <div class="d-flex align-items-center gap-2 small">
-          <label for="service-slug" class="text-muted text-nowrap">Permalink:</label>
+          <label for="service-slug" class="text-muted text-nowrap">{t('admin-services.permalink')}</label>
           <input
             id="service-slug"
             name="slug"
@@ -82,7 +83,7 @@
             target="_blank"
             rel="noopener"
             class="text-nowrap"
-            title="Lihat layanan"
+            title={t('admin-services.lihat_layanan')}
           >
             <ExternalLink size={14} />
           </a>
@@ -103,16 +104,16 @@
 
       <aside class="col-lg-3 d-flex flex-column gap-3">
         <div class="card">
-          <div class="card-header fw-semibold">Simpan</div>
+          <div class="card-header fw-semibold">{t('admin.simpan')}</div>
           <div class="card-body">
             <button type="submit" class="btn btn-primary w-100" disabled={processing}>
-              Perbarui
+              {t('admin-services.perbarui')}
             </button>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header fw-semibold">Gambar</div>
+          <div class="card-header fw-semibold">{t('admin.gambar')}</div>
           <div class="card-body">
             <MediaField name="image" value={service.image} invalid={!!errors.image} />
             <Field.Feedback message={errors.image} />
@@ -120,12 +121,12 @@
         </div>
 
         <div class="card">
-          <div class="card-header fw-semibold">Warna</div>
+          <div class="card-header fw-semibold">{t('admin-services.warna')}</div>
           <div class="card-body">
             <input
               name="color"
               type="color"
-              aria-label="Warna layanan"
+              aria-label={t('admin-services.warna_layanan')}
               class="form-control form-control-color"
               class:is-invalid={!!errors.color}
               value={service.color ?? '#0ea5e9'}

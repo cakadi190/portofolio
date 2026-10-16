@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -46,7 +47,7 @@
   let editingUser = $state<UserRow | null>(null);
 
   const roleHint =
-    'Admin: akses penuh. Redaktur: hanya mengelola blog. Pengguna: akun biasa tanpa akses panel admin.';
+    t('admin-users.admin_akses_penuh_redaktur_hanya_mengelola');
 
   function roleLabel(value: string): string {
     return accountTypes.find((type) => type.value === value)?.label ?? value;
@@ -58,11 +59,11 @@
   }
 </script>
 
-<AppHead title="Pengguna" />
+<AppHead title={t('admin.pengguna')} />
 
 <AdminPageHeader
-  title="Pengguna"
-  subtitle="Kelola akun pengguna dan admin."
+  title={t('admin.pengguna')}
+  subtitle={t('admin-users.kelola_akun_pengguna_dan_admin')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -72,15 +73,15 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Avatar' },
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Email', key: 'email', sortable: true },
-    { label: 'Peran', key: 'account_type', sortable: true },
-    { label: 'Telepon', key: 'phone', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin-users.avatar') },
+    { label: t('admin.nama'), key: 'name', sortable: true },
+    { label: t('admin-users.email'), key: 'email', sortable: true },
+    { label: t('admin.peran'), key: 'account_type', sortable: true },
+    { label: t('admin-users.telepon'), key: 'phone', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada pengguna"
-  emptyText="Tambahkan pengguna pertama Anda."
+  emptyTitle={t('admin-users.belum_ada_pengguna')}
+  emptyText={t('admin-users.tambahkan_pengguna_pertama_anda')}
 >
   {#snippet row(user)}
     <tr>
@@ -116,7 +117,7 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(user)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(user.id).url}
@@ -130,8 +131,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Pengguna"
-  subtitle="Buat akun pengguna atau admin baru."
+  title={t('admin-users.tambah_pengguna')}
+  subtitle={t('admin-users.buat_akun_pengguna_atau_admin_baru')}
 >
   {#snippet children()}
     <Form
@@ -142,8 +143,8 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input placeholder="Masukkan nama"
+          <Field.Label for="create-name">{t('admin.nama')}</Field.Label>
+          <Field.Input placeholder={t('admin.masukkan_nama')}
             id="create-name"
             name="name"
             required
@@ -153,7 +154,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-email">Email</Field.Label>
+          <Field.Label for="create-email">{t('admin-users.email')}</Field.Label>
           <Field.Input placeholder="nama@contoh.com"
             id="create-email"
             name="email"
@@ -165,7 +166,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-password">Kata Sandi</Field.Label>
+          <Field.Label for="create-password">{t('admin-users.kata_sandi')}</Field.Label>
           <Field.Input placeholder="••••••••"
             id="create-password"
             name="password"
@@ -177,7 +178,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-account_type">Peran</Field.Label>
+          <Field.Label for="create-account_type">{t('admin.peran')}</Field.Label>
           <Select
             id="create-account_type"
             name="account_type"
@@ -192,8 +193,8 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-phone">Telepon</Field.Label>
-              <Field.Input placeholder="08xxxxxxxxxx"
+              <Field.Label for="create-phone">{t('admin-users.telepon')}</Field.Label>
+              <Field.Input placeholder={t('admin-users.08xxxxxxxxxx')}
                 id="create-phone"
                 name="phone"
                 invalid={!!errors.phone}
@@ -203,7 +204,7 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-gender">Jenis Kelamin</Field.Label>
+              <Field.Label for="create-gender">{t('admin-users.jenis_kelamin')}</Field.Label>
               <Select
                 id="create-gender"
                 name="gender"
@@ -217,7 +218,7 @@
         </div>
 
         <Field.Group>
-          <Field.Label for="create-avatar">Foto Profil</Field.Label>
+          <Field.Label for="create-avatar">{t('admin-users.foto_profil')}</Field.Label>
           <MediaField name="avatar" invalid={!!errors.avatar} />
           <Field.Feedback message={errors.avatar} />
         </Field.Group>
@@ -228,10 +229,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -241,7 +242,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Pengguna"
+  title={t('admin-users.ubah_pengguna')}
   subtitle={editingUser?.name ?? ''}
 >
   {#snippet children()}
@@ -255,8 +256,8 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input placeholder="Masukkan nama"
+            <Field.Label for="edit-name">{t('admin.nama')}</Field.Label>
+            <Field.Input placeholder={t('admin.masukkan_nama')}
               id="edit-name"
               name="name"
               required
@@ -267,7 +268,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-email">Email</Field.Label>
+            <Field.Label for="edit-email">{t('admin-users.email')}</Field.Label>
             <Field.Input placeholder="nama@contoh.com"
               id="edit-email"
               name="email"
@@ -280,19 +281,19 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-password">Kata Sandi Baru</Field.Label>
+            <Field.Label for="edit-password">{t('admin-users.kata_sandi_baru')}</Field.Label>
             <Field.Input
               id="edit-password"
               name="password"
               type="password"
-              placeholder="Kosongkan jika tidak diubah"
+              placeholder={t('admin-users.kosongkan_jika_tidak_diubah')}
               invalid={!!errors.password}
             />
             <Field.Feedback message={errors.password} />
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-account_type">Peran</Field.Label>
+            <Field.Label for="edit-account_type">{t('admin.peran')}</Field.Label>
             <Select
               id="edit-account_type"
               name="account_type"
@@ -308,8 +309,8 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-phone">Telepon</Field.Label>
-                <Field.Input placeholder="08xxxxxxxxxx"
+                <Field.Label for="edit-phone">{t('admin-users.telepon')}</Field.Label>
+                <Field.Input placeholder={t('admin-users.08xxxxxxxxxx')}
                   id="edit-phone"
                   name="phone"
                   value={current.phone}
@@ -320,7 +321,7 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-gender">Jenis Kelamin</Field.Label>
+                <Field.Label for="edit-gender">{t('admin-users.jenis_kelamin')}</Field.Label>
                 <Select
                   id="edit-gender"
                   name="gender"
@@ -335,7 +336,7 @@
           </div>
 
           <Field.Group>
-            <Field.Label for="edit-avatar">Foto Profil</Field.Label>
+            <Field.Label for="edit-avatar">{t('admin-users.foto_profil')}</Field.Label>
             <MediaField
               name="avatar"
               value={current.avatar}
@@ -350,10 +351,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

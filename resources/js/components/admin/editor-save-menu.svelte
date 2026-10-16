@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { overlayIn, overlayOut } from '@/lib/overlay-motion';
   import Code from '@lucide/svelte/icons/code';
   import PenLine from '@lucide/svelte/icons/pen-line';
@@ -51,13 +52,13 @@
   const primaryLabel = $derived(
     draftable
       ? isPublished
-        ? 'Perbarui'
+        ? t('admin-services.perbarui')
         : scheduled
-          ? 'Jadwalkan'
-          : 'Terbitkan'
+          ? t('admin.jadwalkan')
+          : t('admin.terbitkan')
       : exists
-        ? 'Perbarui'
-        : 'Simpan',
+        ? t('admin-services.perbarui')
+        : t('admin.simpan'),
   );
 
   /** Ctrl/Cmd+S saves keeping the current status; Ctrl/Cmd+Shift+S publishes a draft. */
@@ -115,7 +116,7 @@
     class="btn btn-sm btn-primary"
     disabled={processing}
     title={draftable && !isPublished
-      ? `${scheduled ? 'Jadwalkan' : 'Terbitkan'} (Ctrl+Shift+S)`
+      ? `${scheduled ? t('admin.jadwalkan') : t('admin.terbitkan')} (Ctrl+Shift+S)`
       : 'Simpan (Ctrl+S)'}
     onclick={() => onStatus?.(true)}
   >
@@ -124,7 +125,7 @@
   <button
     type="button"
     class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
-    aria-label="Pilihan simpan"
+    aria-label={t('admin.pilihan_simpan')}
     aria-haspopup="menu"
     aria-expanded={open}
     data-save-menu
@@ -169,7 +170,7 @@
             }}
           >
             <Undo2 size={16} aria-hidden="true" />
-            {isPublished ? 'Kembalikan ke Draf' : 'Simpan Draf'}
+            {isPublished ? t('admin.kembalikan_ke_draf') : t('admin.simpan_draf')}
           </button>
         </li>
       {/if}

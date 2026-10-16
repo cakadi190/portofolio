@@ -164,18 +164,48 @@ class AppLocale
     }
 
     /**
-     * UI strings shared with the frontend: `lang/{locale}/common.php` plus the group named
-     * after the route's first name segment (`blog.show` → `lang/{locale}/blog.php`, keys
-     * prefixed `blog.`), so a page only ships the text it can show.
+     * Language groups (files in `lang/{locale}`) a route's page needs, beyond `common`.
+     *
+     * - `blog.show` → `blog`
+     * - `admin.posts.index` → `admin` (shared admin text) and `admin-posts`
+     * - the dashboard and account settings → `admin` plus their own group
+     * - login, registration, password and two-factor routes → `auth`
+     *
+     * @return list<string>
+     */
+    public static function groupsFor(?string $routeName): array
+    {
+        if ($routeName === null || $routeName === '') {
+            return [];
+        }
+
+        $segments = explode('.', $routeName);
+        $first = $segments[0];
+
+        return match (true) {
+            $first === 'admin' => isset($segments[1]) ? ['admin', "admin-{$segments[1]}"] : ['admin'],
+            in_array($first, ['dashboard', 'profile', 'security', 'user-password', 'settings'], true) => ['admin', in_array($first, ['profile', 'security'], true) ? $first : 'dashboard'],
+            in_array($first, ['login', 'register', 'password', 'verification', 'two-factor', 'passkey'], true) => ['auth'],
+            default => [$first],
+        };
+    }
+
+    /**
+     * UI strings shared with the frontend: `lang/{locale}/common.php` (keys as written) plus
+     * the groups {@see self::groupsFor()} names for the route, each with its keys prefixed by
+     * the group name, so a page only ships the text it can show.
      *
      * @return array<string, string>
      */
     public static function translations(?string $routeName = null): array
     {
         $strings = Arr::dot(self::group('common'));
-        $group = $routeName === null ? '' : explode('.', $routeName)[0];
 
-        if ($group !== '' && $group !== 'common') {
+        foreach (self::groupsFor($routeName) as $group) {
+            if ($group === 'common') {
+                continue;
+            }
+
             foreach (Arr::dot(self::group($group)) as $key => $line) {
                 $strings["{$group}.{$key}"] = $line;
             }

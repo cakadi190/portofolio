@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -51,11 +52,11 @@
   }
 </script>
 
-<AppHead title="Ulasan Portofolio" />
+<AppHead title={t('admin-portfolio-ratings.ulasan_portofolio')} />
 
 <AdminPageHeader
-  title="Ulasan Portofolio"
-  subtitle="Kelola ulasan yang masuk untuk portofolio Anda."
+  title={t('admin-portfolio-ratings.ulasan_portofolio')}
+  subtitle={t('admin-portfolio-ratings.kelola_ulasan_yang_masuk_untuk_portofolio')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -65,15 +66,15 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Portofolio' },
-    { label: 'Pengulas' },
-    { label: 'Status' },
-    { label: 'Rating', key: 'rating', sortable: true },
-    { label: 'Judul' },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin.portofolio') },
+    { label: t('admin-portfolio-ratings.pengulas') },
+    { label: t('admin.status') },
+    { label: t('admin-portfolio-ratings.rating'), key: 'rating', sortable: true },
+    { label: t('ui.judul') },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada ulasan"
-  emptyText="Ulasan portofolio akan muncul di sini."
+  emptyTitle={t('admin-portfolio-ratings.belum_ada_ulasan')}
+  emptyText={t('admin-portfolio-ratings.ulasan_portofolio_akan_muncul_di_sini')}
 >
   {#snippet row(rating)}
     <tr>
@@ -89,7 +90,7 @@
           class:text-bg-success={rating.is_approved}
           class:text-bg-warning={!rating.is_approved}
         >
-          {rating.is_approved ? 'Tampil' : 'Menunggu'}
+          {rating.is_approved ? t('admin-portfolio-ratings.tampil') : t('admin-portfolio-ratings.menunggu')}
         </span>
       </td>
       <td>{rating.rating} / 5</td>
@@ -101,7 +102,7 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(rating)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(rating.id).url}
@@ -115,8 +116,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Ulasan Portofolio"
-  subtitle="Catat ulasan baru."
+  title={t('admin-portfolio-ratings.tambah_ulasan_portofolio')}
+  subtitle={t('admin-portfolio-ratings.catat_ulasan_baru')}
 >
   {#snippet children()}
     <Form
@@ -127,7 +128,7 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-portfolio_id">Portofolio</Field.Label>
+          <Field.Label for="create-portfolio_id">{t('admin.portofolio')}</Field.Label>
           <Select
             id="create-portfolio_id"
             name="portfolio_id"
@@ -142,7 +143,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-reviewer_name">Nama Pengulas</Field.Label>
+          <Field.Label for="create-reviewer_name">{t('admin-portfolio-ratings.nama_pengulas')}</Field.Label>
           <Field.Input
             id="create-reviewer_name"
             name="reviewer_name"
@@ -153,7 +154,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-reviewer_email">Email Pengulas</Field.Label>
+          <Field.Label for="create-reviewer_email">{t('admin-portfolio-ratings.email_pengulas')}</Field.Label>
           <Field.Input
             id="create-reviewer_email"
             name="reviewer_email"
@@ -166,7 +167,7 @@
 
         <Field.Group>
           <Field.Label for="create-reviewer_company"
-            >Perusahaan / Jabatan</Field.Label
+            >{t('admin-portfolio-ratings.perusahaan_jabatan')}</Field.Label
           >
           <Field.Input
             id="create-reviewer_company"
@@ -177,7 +178,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-title">Judul Ulasan</Field.Label>
+          <Field.Label for="create-title">{t('admin-portfolio-ratings.judul_ulasan')}</Field.Label>
           <Field.Input
             id="create-title"
             name="title"
@@ -188,7 +189,7 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label for="create-rating">Rating</Field.Label>
+          <Field.Label for="create-rating">{t('admin-portfolio-ratings.rating')}</Field.Label>
           <Select
             id="create-rating"
             name="rating"
@@ -204,14 +205,14 @@
         </Field.Group>
 
         <Field.Group>
-          <Field.Label>Isi Ulasan</Field.Label>
+          <Field.Label>{t('admin-portfolio-ratings.isi_ulasan')}</Field.Label>
           <RichTextEditor name="comment" minimal invalid={!!errors.comment} />
           <Field.Feedback message={errors.comment} />
         </Field.Group>
 
         <input type="hidden" name="is_approved" value="0" />
         <Field.Input.Check id="create-is_approved" name="is_approved" value="1"
-          >Tampilkan di halaman publik</Field.Input.Check
+          >{t('admin.tampilkan_di_halaman_publik')}</Field.Input.Check
         >
 
         <div class="d-flex justify-content-end gap-2">
@@ -220,10 +221,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -233,7 +234,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Ulasan Portofolio"
+  title={t('admin-portfolio-ratings.ubah_ulasan_portofolio')}
   subtitle={editingRating?.portfolio.name ?? ''}
 >
   {#snippet children()}
@@ -247,7 +248,7 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-portfolio_id">Portofolio</Field.Label>
+            <Field.Label for="edit-portfolio_id">{t('admin.portofolio')}</Field.Label>
             <Select
               id="edit-portfolio_id"
               name="portfolio_id"
@@ -263,7 +264,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-reviewer_name">Nama Pengulas</Field.Label>
+            <Field.Label for="edit-reviewer_name">{t('admin-portfolio-ratings.nama_pengulas')}</Field.Label>
             <Field.Input
               id="edit-reviewer_name"
               name="reviewer_name"
@@ -275,7 +276,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-reviewer_email">Email Pengulas</Field.Label>
+            <Field.Label for="edit-reviewer_email">{t('admin-portfolio-ratings.email_pengulas')}</Field.Label>
             <Field.Input
               id="edit-reviewer_email"
               name="reviewer_email"
@@ -289,7 +290,7 @@
 
           <Field.Group>
             <Field.Label for="edit-reviewer_company"
-              >Perusahaan / Jabatan</Field.Label
+              >{t('admin-portfolio-ratings.perusahaan_jabatan')}</Field.Label
             >
             <Field.Input
               id="edit-reviewer_company"
@@ -301,7 +302,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-title">Judul Ulasan</Field.Label>
+            <Field.Label for="edit-title">{t('admin-portfolio-ratings.judul_ulasan')}</Field.Label>
             <Field.Input
               id="edit-title"
               name="title"
@@ -313,7 +314,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-rating">Rating</Field.Label>
+            <Field.Label for="edit-rating">{t('admin-portfolio-ratings.rating')}</Field.Label>
             <Select
               id="edit-rating"
               name="rating"
@@ -330,7 +331,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label>Isi Ulasan</Field.Label>
+            <Field.Label>{t('admin-portfolio-ratings.isi_ulasan')}</Field.Label>
             <RichTextEditor
               name="comment"
               minimal
@@ -346,7 +347,7 @@
             name="is_approved"
             value="1"
             checked={current.is_approved}
-            >Tampilkan di halaman publik</Field.Input.Check
+            >{t('admin.tampilkan_di_halaman_publik')}</Field.Input.Check
           >
 
           <div class="d-flex justify-content-end gap-2">
@@ -355,10 +356,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

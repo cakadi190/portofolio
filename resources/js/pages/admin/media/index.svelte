@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Select from '@/components/ui/select.svelte';
   import Copy from '@lucide/svelte/icons/copy';
   import File from '@lucide/svelte/icons/file';
@@ -143,7 +144,7 @@
       router.reload({ only: ['media'], reset: ['media'] });
     } catch (exception) {
       error =
-        exception instanceof Error ? exception.message : 'Unggahan gagal.';
+        exception instanceof Error ? exception.message : t('ui.unggahan_gagal');
     } finally {
       uploading = false;
 
@@ -164,22 +165,22 @@
         new URL(item.url ?? '', window.location.origin).href,
       );
     } catch {
-      toast.error('Tautan gagal disalin.');
+      toast.error(t('admin-media.tautan_gagal_disalin'));
 
       return;
     }
 
-    toast.success('Tautan berhasil disalin.');
+    toast.success(t('admin-media.tautan_berhasil_disalin'));
     copiedId = item.id;
     setTimeout(() => (copiedId = null), 1500);
   }
 </script>
 
-<AppHead title="Pustaka Media" />
+<AppHead title={t('admin-media.pustaka_media')} />
 
 <AdminPageHeader
-  title="Pustaka Media"
-  subtitle="Kelola semua gambar dan dokumen yang diunggah, dipakai ulang di seluruh formulir dan editor."
+  title={t('admin-media.pustaka_media')}
+  subtitle={t('admin-media.kelola_semua_gambar_dan_dokumen_yang')}
 />
 
 <div
@@ -205,10 +206,10 @@
       onclick={() => fileInput?.click()}
     >
       <Upload size={16} />
-      {uploading ? 'Mengunggah…' : 'Unggah Berkas'}
+      {uploading ? t('ui.mengunggah') : t('ui.unggah_berkas')}
     </button>
     <span class="text-muted small"
-      >Atau seret berkas ke sini (JPG, PNG, WebP, GIF, PDF. maks. 10 MB).</span
+      >{t('admin-media.atau_seret_berkas_ke_sini_jpg')}</span
     >
     <input
       bind:this={fileInput}
@@ -228,9 +229,9 @@
 <div class="d-flex flex-wrap gap-2 mb-3">
   <input
     type="search"
-    aria-label="Cari media"
+    aria-label={t('admin-media.cari_media')}
     class="form-control w-auto flex-grow-1"
-    placeholder="Cari nama atau teks alternatif…"
+    placeholder={t('admin-media.cari_nama_atau_teks_alternatif')}
     bind:value={search}
     oninput={applyFilters}
   />
@@ -238,11 +239,11 @@
     inline
     required
     searchable={false}
-    ariaLabel="Filter jenis media"
+    ariaLabel={t('admin-media.filter_jenis_media')}
     items={[
-      { value: 'all', label: 'Semua jenis' },
-      { value: 'image', label: 'Gambar' },
-      { value: 'document', label: 'Dokumen' },
+      { value: 'all', label: t('admin-media.semua_jenis') },
+      { value: 'image', label: t('admin.gambar') },
+      { value: 'document', label: t('ui.dokumen') },
     ]}
     value={type}
     onchange={(next) => {
@@ -250,12 +251,12 @@
       applyFilters();
     }}
   />
-  <div class="btn-group" role="group" aria-label="Tampilan">
+  <div class="btn-group" role="group" aria-label={t('admin-media.tampilan')}>
     <button
       type="button"
       class="btn btn-square btn-outline-secondary"
       class:active={view === 'grid'}
-      aria-label="Tampilan kartu"
+      aria-label={t('admin-media.tampilan_kartu')}
       aria-pressed={view === 'grid'}
       onclick={() => setView('grid')}
     >
@@ -265,7 +266,7 @@
       type="button"
       class="btn btn-square btn-outline-secondary"
       class:active={view === 'list'}
-      aria-label="Tampilan tabel"
+      aria-label={t('admin-media.tampilan_tabel')}
       aria-pressed={view === 'list'}
       onclick={() => setView('list')}
     >
@@ -276,8 +277,8 @@
 
 {#if media.data.length === 0}
   <div class="text-center text-muted py-5">
-    <p class="fw-semibold mb-1">Belum ada media</p>
-    <p class="mb-0">Unggah berkas pertama Anda.</p>
+    <p class="fw-semibold mb-1">{t('admin-media.belum_ada_media')}</p>
+    <p class="mb-0">{t('admin-media.unggah_berkas_pertama_anda')}</p>
   </div>
 {:else}
   <InfiniteFeed data="media">
@@ -290,7 +291,7 @@
             <button
               type="button"
               class="media-thumb"
-              title="Ubah detail"
+              title={t('admin-media.ubah_detail')}
               onclick={() => openEdit(item)}
             >
               {#if item.is_image}
@@ -306,12 +307,12 @@
             <span class="media-type-badge"
               ><Icon size={12} />{fileLabel(item)}</span
             >
-            <div class="media-toolbar" role="toolbar" aria-label="Aksi media">
+            <div class="media-toolbar" role="toolbar" aria-label={t('admin-media.aksi_media')}>
               <button
                 type="button"
                 class="btn btn-square btn-sm btn-light"
-                title="Ubah"
-                aria-label="Ubah"
+                title={t('admin.ubah')}
+                aria-label={t('admin.ubah')}
                 onclick={() => openEdit(item)}
               >
                 <Pencil size={14} />
@@ -319,8 +320,8 @@
               <button
                 type="button"
                 class="btn btn-square btn-sm btn-light"
-                title={copiedId === item.id ? 'Tersalin' : 'Salin URL'}
-                aria-label="Salin URL"
+                title={copiedId === item.id ? t('ui.tersalin') : t('admin-media.salin_url')}
+                aria-label={t('admin-media.salin_url')}
                 onclick={() => void copyUrl(item)}
               >
                 <Copy size={14} />
@@ -328,8 +329,8 @@
               <button
                 type="button"
                 class="btn btn-square btn-sm btn-danger"
-                title="Hapus"
-                aria-label="Hapus"
+                title={t('admin-media.hapus')}
+                aria-label={t('admin-media.hapus')}
                 onclick={() => confirmDelete(item)}
               >
                 <Trash2 size={14} />
@@ -355,12 +356,12 @@
         <table class="table table-hover align-middle mb-0">
           <thead>
             <tr>
-              <th style="width:4.5rem">Berkas</th>
-              <th>Nama</th>
-              <th>Jenis</th>
-              <th>Ukuran</th>
-              <th>Diunggah</th>
-              <th class="text-end">Aksi</th>
+              <th style="width:4.5rem">{t('admin-media.berkas')}</th>
+              <th>{t('admin.nama')}</th>
+              <th>{t('admin-media.jenis')}</th>
+              <th>{t('admin-media.ukuran')}</th>
+              <th>{t('admin-media.diunggah')}</th>
+              <th class="text-end">{t('admin-media.aksi')}</th>
             </tr>
           </thead>
           <tbody>
@@ -398,24 +399,24 @@
                     <button
                       type="button"
                       class="btn btn-square btn-outline-secondary"
-                      title="Ubah"
-                      aria-label="Ubah"
+                      title={t('admin.ubah')}
+                      aria-label={t('admin.ubah')}
                       onclick={() => openEdit(item)}
                       ><Pencil size={14} /></button
                     >
                     <button
                       type="button"
                       class="btn btn-square btn-outline-secondary"
-                      title="Salin URL"
-                      aria-label="Salin URL"
+                      title={t('admin-media.salin_url')}
+                      aria-label={t('admin-media.salin_url')}
                       onclick={() => void copyUrl(item)}
                       ><Copy size={14} /></button
                     >
                     <button
                       type="button"
                       class="btn btn-square btn-outline-danger"
-                      title="Hapus"
-                      aria-label="Hapus"
+                      title={t('admin-media.hapus')}
+                      aria-label={t('admin-media.hapus')}
                       onclick={() => confirmDelete(item)}
                       ><Trash2 size={14} /></button
                     >
@@ -434,15 +435,15 @@
 <ModalConfirmation
   bind:open={deleteOpen}
   title={`Hapus media "${deleting?.name ?? ''}"?`}
-  description="Media yang masih dipakai tidak dapat dihapus."
+  description={t('admin-media.media_yang_masih_dipakai_tidak_dapat')}
   processing={deleteProcessing}
-  confirmLabel="Hapus"
+  confirmLabel={t('admin-media.hapus')}
   actions={{ confirm: performDelete }}
 />
 
 <FormModal
   bind:open={editOpen}
-  title="Detail Media"
+  title={t('admin-media.detail_media')}
   subtitle={editing?.path ?? ''}
 >
   {#snippet children()}
@@ -463,9 +464,9 @@
           {/if}
 
           <Field.Group>
-            <Field.Label for="edit-name">Nama</Field.Label>
+            <Field.Label for="edit-name">{t('admin.nama')}</Field.Label>
             <Field.Input
-              placeholder="Masukkan nama"
+              placeholder={t('admin.masukkan_nama')}
               id="edit-name"
               name="name"
               required
@@ -476,9 +477,9 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-alt">Teks Alternatif</Field.Label>
+            <Field.Label for="edit-alt">{t('admin-media.teks_alternatif')}</Field.Label>
             <Field.Input
-              placeholder="Masukkan teks alternatif"
+              placeholder={t('admin-media.masukkan_teks_alternatif')}
               id="edit-alt"
               name="alt"
               value={editing?.alt}
@@ -493,10 +494,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

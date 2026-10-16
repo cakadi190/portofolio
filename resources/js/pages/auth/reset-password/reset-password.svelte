@@ -1,11 +1,6 @@
-<script module lang="ts">
-  export const layout = {
-    title: 'Atur ulang kata sandi',
-    description: 'Silakan masukkan kata sandi baru Anda di bawah ini',
-  };
-</script>
-
 <script lang="ts">
+  import { setLayoutProps } from '@inertiajs/svelte';
+  import { t } from '@/lib/i18n';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -22,9 +17,14 @@
     user: App.Models.User;
     passwordRules: string;
   } = $props();
+
+  setLayoutProps({
+    title: t('auth.atur_ulang_kata_sandi'),
+    description: t('auth.silakan_masukkan_kata_sandi_baru_anda'),
+  });
 </script>
 
-<AppHead title="Atur ulang kata sandi" />
+<AppHead title={t('auth.atur_ulang_kata_sandi')} />
 
 <Form
   {...update.form()}
@@ -35,7 +35,7 @@
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-3">
       <Field.Group class="d-none">
-        <Field.Label for="email">Email</Field.Label>
+        <Field.Label for="email">{t('auth.email')}</Field.Label>
         <Field.Input
           id="email"
           type="email"
@@ -50,13 +50,13 @@
       </Field.Group>
 
       <Field.Group>
-        <Field.Label for="password">Kata sandi</Field.Label>
+        <Field.Label for="password">{t('auth.kata_sandi')}</Field.Label>
         <Field.Input.Password
           id="password"
           name="password"
           autocomplete="new-password"
           class="mt-1 d-block w-100"
-          placeholder="Kata sandi"
+          placeholder={t('auth.kata_sandi')}
           passwordrules={passwordRules}
           invalid={!!errors.password}
         />
@@ -65,14 +65,14 @@
 
       <Field.Group>
         <Field.Label for="password_confirmation"
-          >Konfirmasi kata sandi</Field.Label
+          >{t('auth.konfirmasi_kata_sandi')}</Field.Label
         >
         <Field.Input.Password
           id="password_confirmation"
           name="password_confirmation"
           autocomplete="new-password"
           class="mt-1 d-block w-100"
-          placeholder="Konfirmasi kata sandi"
+          placeholder={t('auth.konfirmasi_kata_sandi')}
           passwordrules={passwordRules}
           invalid={!!errors.password_confirmation}
         />
@@ -86,7 +86,7 @@
           disabled={processing}
           data-test="reset-password-button"
         >
-          Atur ulang kata sandi
+          {t('auth.atur_ulang_kata_sandi')}
         </button>
       </CaptchaSubmitRow>
     </div>

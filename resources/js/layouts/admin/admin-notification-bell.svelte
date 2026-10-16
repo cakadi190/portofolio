@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Bell from '@lucide/svelte/icons/bell';
   import BellOff from '@lucide/svelte/icons/bell-off';
   import { onMount } from 'svelte';
@@ -21,7 +22,7 @@
   data-bs-toggle="offcanvas"
   data-bs-target="#adminNotificationOffcanvas"
   aria-controls="adminNotificationOffcanvas"
-  aria-label="Notifikasi"
+  aria-label={t('admin.notifikasi')}
 >
   <Bell size={16} aria-hidden="true" />
 
@@ -30,7 +31,7 @@
       class="position-absolute badge rounded-pill bg-danger notification-badge end-0 top-0"
     >
       {count}
-      <span class="visually-hidden">notifikasi belum dibaca</span>
+      <span class="visually-hidden">{t('admin.notifikasi_belum_dibaca')}</span>
     </span>
   {/if}
 </button>
@@ -45,13 +46,13 @@
 >
   <div class="offcanvas-header border-bottom">
     <h5 class="offcanvas-title" id="adminNotificationOffcanvasLabel">
-      Notifikasi
+      {t('admin.notifikasi')}
     </h5>
     <button
       type="button"
       class="btn-close"
       data-bs-dismiss="offcanvas"
-      aria-label="Tutup"
+      aria-label={t('admin.tutup')}
     ></button>
   </div>
   <div class="offcanvas-body p-0">
@@ -59,7 +60,7 @@
       class="d-flex flex-column align-items-center justify-content-center text-body-secondary h-100 gap-2 p-4 text-center"
     >
       <BellOff size={32} aria-hidden="true" />
-      <span>Belum ada notifikasi.</span>
+      <span>{t('admin.belum_ada_notifikasi')}</span>
     </div>
   </div>
 </div>

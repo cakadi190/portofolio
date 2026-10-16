@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'kedai_kopi' => 'Kedai Kopi',
+    'kelola_daftar_tempat_ngopi_rekomendasi' => 'Kelola daftar tempat ngopi rekomendasi.',
+    'belum_ada_kedai_kopi' => 'Belum ada kedai kopi',
+    'tambahkan_kedai_kopi_pertama_anda' => 'Tambahkan kedai kopi pertama Anda.',
+    'tambah_kedai_kopi' => 'Tambah Kedai Kopi',
+    'catat_tempat_ngopi_baru' => 'Catat tempat ngopi baru.',
+    'alamat' => 'Alamat',
+    'masukkan_alamat' => 'Masukkan alamat',
+    'tautan_peta' => 'Tautan Peta',
+    'penyedia_wifi' => 'Penyedia WiFi',
+    'masukkan_penyedia_wifi' => 'Masukkan penyedia WiFi',
+    'kecepatan_wifi' => 'Kecepatan WiFi',
+    'tingkat_harga' => 'Tingkat Harga',
+    'biaya_parkir' => 'Biaya Parkir',
+    'wilayah' => 'Wilayah',
+    'masukkan_wilayah' => 'Masukkan wilayah',
+    'fasilitas' => 'Fasilitas',
+    'rekomendasikan_tempat_ini' => 'Rekomendasikan tempat ini',
+    'ubah_kedai_kopi' => 'Ubah Kedai Kopi',
+    'nama_alamat' => 'Nama & Alamat',
+    'rekomendasi' => 'Rekomendasi',
+];
