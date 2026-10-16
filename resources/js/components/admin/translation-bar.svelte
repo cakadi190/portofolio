@@ -1,5 +1,6 @@
 <script lang="ts">
   import Languages from '@lucide/svelte/icons/languages';
+  import { onMount } from 'svelte';
   import { localeOptions, t } from '@/lib/i18n';
   import type { createTranslatable } from '@/lib/translatable.svelte';
 
@@ -10,12 +11,36 @@
    */
   let { translatable }: { translatable: ReturnType<typeof createTranslatable> } = $props();
 
+  let bar = $state<HTMLDivElement>();
+  let sentinel = $state<HTMLDivElement>();
+  let stuck = $state(false);
+
+  /** Detects the sticky state (set by the editor) so the bar can turn into a floating pill. */
+  onMount(() => {
+    if (!bar || !sentinel || typeof IntersectionObserver === 'undefined') return;
+
+    const style = getComputedStyle(bar);
+
+    if (style.position !== 'sticky') return;
+
+    const top = Math.round(parseFloat(style.top) || 0);
+    const observer = new IntersectionObserver(
+      ([entry]) => (stuck = !entry.isIntersecting && entry.boundingClientRect.top < top),
+      { rootMargin: `-${top}px 0px 0px 0px`, threshold: 0 },
+    );
+
+    observer.observe(sentinel);
+
+    return () => observer.disconnect();
+  });
+
   const flags = $derived(
     Object.fromEntries(localeOptions().map((option) => [option.code, option.flag])),
   );
 </script>
 
-<div class="tr-bar">
+<div class="tr-sentinel" bind:this={sentinel} aria-hidden="true"></div>
+<div class="tr-bar" class:is-stuck={stuck} bind:this={bar}>
   <span class="tr-label">
     <Languages size={18} aria-hidden="true" />
     <span class="tr-label-text">{t('content.language.label')}</span>
@@ -50,6 +75,27 @@
     width: 100%;
     margin-bottom: 1rem;
     border-bottom: 1px solid var(--neo-border-color);
+  }
+
+  .tr-sentinel {
+    height: 1px;
+    margin-bottom: -1px;
+    pointer-events: none;
+  }
+
+  /* Pinned under the top bar: a floating pill so content scrolling behind it stays readable. */
+  .tr-bar.is-stuck {
+    padding-inline: 1rem;
+    border: 1px solid var(--neo-border-color);
+    border-radius: 999px;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+    transition:
+      box-shadow 0.15s ease,
+      border-radius 0.15s ease;
+  }
+
+  .tr-bar.is-stuck .tr-tab {
+    margin-bottom: 0;
   }
 
   .tr-label {
@@ -108,6 +154,10 @@
       flex-direction: column;
       align-items: stretch;
       gap: 0;
+    }
+
+    .tr-bar.is-stuck {
+      border-radius: 1rem;
     }
 
     .tr-label {
