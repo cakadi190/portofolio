@@ -3368,7 +3368,7 @@
     transition: width 0.2s ease;
     width: min(100%, 44rem);
     margin: 0 auto;
-    padding: 4rem 1rem 8rem;
+    padding: 1.5rem 1rem 8rem;
   }
   /* Language tabs stay pinned 1rem below the top bar while the document scrolls. */
   .rte-shell .rte-doc :global(.tr-bar) {

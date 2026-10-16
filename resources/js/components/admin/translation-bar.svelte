@@ -74,7 +74,15 @@
     gap: 0.75rem;
     width: 100%;
     margin-bottom: 1rem;
-    border-bottom: 1px solid var(--neo-border-color);
+    border: 1px solid transparent;
+    border-bottom-color: var(--neo-border-color);
+    border-radius: 0;
+    transition:
+      padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.3s ease,
+      border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.3s ease,
+      background-color 0.3s ease;
   }
 
   .tr-sentinel {
@@ -86,16 +94,21 @@
   /* Pinned under the top bar: a floating pill so content scrolling behind it stays readable. */
   .tr-bar.is-stuck {
     padding-inline: 1rem;
-    border: 1px solid var(--neo-border-color);
+    border-color: var(--neo-border-color);
     border-radius: 999px;
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
-    transition:
-      box-shadow 0.15s ease,
-      border-radius 0.15s ease;
   }
 
   .tr-bar.is-stuck .tr-tab {
     margin-bottom: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tr-bar,
+    .tr-tab,
+    .tr-tab :global(.fi) {
+      transition: none;
+    }
   }
 
   .tr-label {
@@ -129,6 +142,19 @@
     color: inherit;
     font-size: 1rem;
     opacity: 0.7;
+    transition:
+      opacity 0.2s ease,
+      border-color 0.25s ease,
+      background-color 0.2s ease;
+  }
+
+  .tr-tab :global(.fi) {
+    transition: transform 0.2s ease;
+  }
+
+  .tr-tab:hover :global(.fi),
+  .tr-tab.on :global(.fi) {
+    transform: scale(1.08);
   }
 
   .tr-tab:hover,
