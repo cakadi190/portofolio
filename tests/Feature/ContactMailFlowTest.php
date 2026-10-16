@@ -6,6 +6,7 @@ use App\Mail\ContactMessageReceived;
 use App\Models\ContactMessage;
 use App\Models\Media;
 use App\Models\User;
+use App\Services\EmailHtml;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Mailer\SentMessage;
@@ -129,4 +130,50 @@ test('only admins can reply to messages', function () {
     $this->post(route('admin.contact-messages.reply', $message), ['body' => '<p>Halo</p>'])->assertRedirect(route('login'));
     $this->actingAs(User::factory()->redaktur()->create())
         ->post(route('admin.contact-messages.reply', $message), ['body' => '<p>Halo</p>'])->assertForbidden();
+});
+
+test('email paragraphs are spaced except the last one of a block', function () {
+    $html = EmailHtml::format('<p>Satu</p><p>Dua</p><p style="text-align: center">Tiga</p><ul><li>a</li></ul>');
+
+    expect($html)->toContain('<p style="margin:0 0 16px">Satu</p>')
+        ->toContain('<p style="margin:0 0 16px">Dua</p>')
+        ->toContain('<p style="margin:0 0 16px; text-align: center">Tiga</p>')
+        ->toContain('<ul style="margin:0">')
+        ->and(EmailHtml::format('<script>x</script>'))->toBe('');
+});
+
+test('quoted messages are rounded without a side border and every email uses Signika', function () {
+    $this->post(route('contact.store'), [
+        'name' => 'Budi', 'email' => 'budi@example.com', 'reason' => 'general', 'message' => '<p>Halo</p><p>Dunia</p>',
+    ]);
+
+    foreach (Mail::mailer('array')->getSymfonyTransport()->messages() as $mail) {
+        $html = $mail->getOriginalMessage()->getHtmlBody();
+
+        expect($html)->toContain('border-radius:12px')
+            ->not->toContain('border-left:3px solid #22c55e')
+            ->toContain('family=Signika')
+            ->toContain("font-family:'Signika'")
+            ->not->toContain('<p style="margin:0 0 16px">Dunia</p>')
+            ->toContain('<p style="margin:0">Dunia</p>');
+    }
+});
+
+test('a reply asks the reader to open the attachment only when files are attached', function () {
+    $message = ContactMessage::factory()->create();
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->post(route('admin.contact-messages.reply', $message), ['body' => '<p>Halo</p>'])->assertRedirect();
+    $plain = lastSentMail()->getOriginalMessage();
+    expect($plain->getHtmlBody())->not->toContain('membuka berkas lampiran')
+        ->and($plain->getTextBody())->not->toContain('membuka berkas lampiran');
+
+    Storage::fake('public');
+    Storage::disk('public')->put('media/brosur.pdf', 'pdf-bytes');
+    $media = Media::factory()->pdf()->create(['path' => 'media/brosur.pdf', 'name' => 'Brosur.pdf']);
+
+    $this->actingAs($admin)->post(route('admin.contact-messages.reply', $message), ['body' => '<p>Halo</p>', 'attachments' => [$media->path]])->assertRedirect();
+    $withFile = lastSentMail()->getOriginalMessage();
+    expect($withFile->getHtmlBody())->toContain('Mohon berkenan membuka berkas lampiran yang kami kirimkan')
+        ->and($withFile->getTextBody())->toContain('membuka berkas lampiran yang kami kirimkan');
 });

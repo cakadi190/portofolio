@@ -12,8 +12,8 @@
         <tr><td class="row-label">Dikirim</td><td class="row-value">{{ $contactMessage->created_at?->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y, H:i') }} WIB</td></tr>
     </table>
     <p style="margin-bottom:8px;color:#5f6f86;font-size:13px;">Isi pesan:</p>
-    <div class="quote" style="padding:12px 16px;margin:0 0 22px;">
-        {!! \App\Services\HtmlSanitizer::clean($contactMessage->message) !!}
+    <div class="quote" style="background:#f3f5f8;border-radius:12px;padding:14px 18px;margin:0 0 22px;">
+        {!! \App\Services\EmailHtml::format($contactMessage->message) !!}
     </div>
     @include('mail.partials.button', ['url' => route('admin.contact-messages.index'), 'label' => 'Buka Kotak Masuk'])
 @endsection

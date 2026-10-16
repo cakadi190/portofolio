@@ -8,8 +8,8 @@
     <p>Halo, <strong>{{ $contactMessage->name }}</strong>.</p>
     <p>Terima kasih sudah menghubungi {{ config('app.name') }}. Pesan Anda dengan keperluan <strong>{{ $contactMessage->reason->label() }}</strong> sudah kami terima dan akan segera diproses. Balasan akan dikirim ke alamat email ini.</p>
     <p style="margin-bottom:8px;color:#5f6f86;font-size:13px;">Salinan pesan Anda:</p>
-    <div class="quote" style="padding:12px 16px;margin:0 0 8px;">
-        {!! \App\Services\HtmlSanitizer::clean($contactMessage->message) !!}
+    <div class="quote" style="background:#f3f5f8;border-radius:12px;padding:14px 18px;margin:0 0 8px;">
+        {!! \App\Services\EmailHtml::format($contactMessage->message) !!}
     </div>
 @endsection
 
