@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { toast } from '@/lib/toast';
 
 type Action = { label: string; icon: string; run: () => void };
@@ -64,7 +65,7 @@ async function copy(text: string, message: string): Promise<void> {
     await navigator.clipboard.writeText(text);
     toast.success(message);
   } catch {
-    toast.error('Tidak dapat menyalin ke papan klip.');
+    toast.error(t('figure.copy_failed'));
   }
 }
 
@@ -133,40 +134,40 @@ function buildPopover(
 
   popover.append(head);
 
-  const attribution = [credit && `Foto oleh ${credit}`, title, source]
+  const attribution = [credit && t('figure.credit', { credit }), title, source]
     .filter(Boolean)
     .join(' — ');
   const actions: Action[] = [
     ...(source
       ? [
           {
-            label: 'Buka sumber asli',
+            label: t('figure.open_source'),
             icon: ICONS.external,
             run: () => window.open(source, '_blank', 'noopener,noreferrer'),
           },
           {
-            label: 'Salin tautan sumber',
+            label: t('figure.copy_source'),
             icon: ICONS.link,
-            run: () => void copy(source, 'Tautan sumber disalin.'),
+            run: () => void copy(source, t('figure.source_copied')),
           },
         ]
       : []),
     {
-      label: 'Salin URL gambar',
+      label: t('figure.copy_url'),
       icon: ICONS.image,
-      run: () => void copy(absoluteUrl(src), 'URL gambar disalin.'),
+      run: () => void copy(absoluteUrl(src), t('figure.url_copied')),
     },
     ...(attribution
       ? [
           {
-            label: 'Salin atribusi',
+            label: t('figure.copy_attribution'),
             icon: ICONS.quote,
-            run: () => void copy(attribution, 'Atribusi disalin.'),
+            run: () => void copy(attribution, t('figure.attribution_copied')),
           },
         ]
       : []),
     {
-      label: 'Lihat ukuran penuh',
+      label: t('figure.view_full'),
       icon: ICONS.expand,
       run: () => void openLightbox(src, alt),
     },

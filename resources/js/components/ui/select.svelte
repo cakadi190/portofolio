@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import SvelteSelect from 'svelte-select';
 
   type Value = string | number;
@@ -25,7 +26,7 @@
     required = false,
     invalid = false,
     searchable = true,
-    placeholder = 'Pilih…',
+    placeholder,
     ariaLabel,
     size = 'md',
     inline = false,
@@ -72,7 +73,7 @@
     {name}
     {items}
     {searchable}
-    {placeholder}
+    placeholder={placeholder ?? t('select.placeholder')}
     {disabled}
     bind:value={selected}
     valueMode="id"

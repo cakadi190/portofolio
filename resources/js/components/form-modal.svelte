@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { untrack, type Snippet } from 'svelte';
   import { portal } from '@/lib/dom';
 
@@ -89,7 +90,7 @@
           <h5 class="modal-title" id={labelId}>{title}</h5>
           {#if subtitle}<p class="text-muted mb-0 small">{subtitle}</p>{/if}
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label={t('action.close')}
         ></button>
       </div>
       <div class="modal-body">
