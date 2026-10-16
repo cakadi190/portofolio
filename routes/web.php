@@ -16,6 +16,7 @@ use App\Http\Controllers\DisclaimerController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\GuestbookController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LegacyRedirectController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PdfTrustController;
 use App\Http\Controllers\PortfolioController;
@@ -76,7 +77,7 @@ Route::prefix('notes')->name('notes.')->group(function () {
 });
 
 Route::get('statistic', [StatisticController::class, 'index'])->name('statistic.index');
-Route::permanentRedirect('statistics', '/statistic');
+Route::any('statistics', LegacyRedirectController::class)->defaults('destination', '/statistic');
 
 Route::get('guestbook', [GuestbookController::class, 'index'])->name('guestbook.index');
 Route::post('guestbook', [GuestbookController::class, 'store'])
@@ -112,21 +113,21 @@ Route::prefix('resources')->name('resources.')->group(function () {
 });
 
 // Legacy Indonesian URLs, permanently redirected so indexed links keep working.
-Route::permanentRedirect('certification/{slug}', '/certifications/{slug}');
-Route::permanentRedirect('certificates/{slug}', '/certifications/{slug}');
-Route::permanentRedirect('karir', '/career');
-Route::permanentRedirect('pendidikan', '/education');
-Route::permanentRedirect('penghargaan', '/awards');
-Route::permanentRedirect('kontak', '/contact');
-Route::permanentRedirect('layanan', '/services');
-Route::permanentRedirect('layanan/{slug}', '/services/{slug}');
-Route::permanentRedirect('portofolio', '/portfolio');
-Route::permanentRedirect('portofolio/{slug}', '/portfolio/{slug}');
-Route::permanentRedirect('tentang/saya', '/about');
-Route::permanentRedirect('about/me', '/about');
-Route::permanentRedirect('tentang/situs', '/about/site');
-Route::permanentRedirect('tentang/skill', '/about/skills');
-Route::permanentRedirect('sumber-daya/tempat-ngopi', '/resources/coffee-shops');
+Route::any('certification/{slug}', LegacyRedirectController::class)->defaults('destination', '/certifications/{slug}');
+Route::any('certificates/{slug}', LegacyRedirectController::class)->defaults('destination', '/certifications/{slug}');
+Route::any('karir', LegacyRedirectController::class)->defaults('destination', '/career');
+Route::any('pendidikan', LegacyRedirectController::class)->defaults('destination', '/education');
+Route::any('penghargaan', LegacyRedirectController::class)->defaults('destination', '/awards');
+Route::any('kontak', LegacyRedirectController::class)->defaults('destination', '/contact');
+Route::any('layanan', LegacyRedirectController::class)->defaults('destination', '/services');
+Route::any('layanan/{slug}', LegacyRedirectController::class)->defaults('destination', '/services/{slug}');
+Route::any('portofolio', LegacyRedirectController::class)->defaults('destination', '/portfolio');
+Route::any('portofolio/{slug}', LegacyRedirectController::class)->defaults('destination', '/portfolio/{slug}');
+Route::any('tentang/saya', LegacyRedirectController::class)->defaults('destination', '/about');
+Route::any('about/me', LegacyRedirectController::class)->defaults('destination', '/about');
+Route::any('tentang/situs', LegacyRedirectController::class)->defaults('destination', '/about/site');
+Route::any('tentang/skill', LegacyRedirectController::class)->defaults('destination', '/about/skills');
+Route::any('sumber-daya/tempat-ngopi', LegacyRedirectController::class)->defaults('destination', '/resources/coffee-shops');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('admin', DashboardController::class)->name('dashboard');

@@ -23,3 +23,19 @@ it('lists only English URLs in the pages sitemap', function () {
 
     expect($xml)->toContain('/career')->not->toContain('/karir')->not->toContain('/portofolio');
 });
+
+it('keeps the query string when redirecting a legacy URL', function () {
+    $this->get('/sumber-daya/tempat-ngopi?region=Ngawi&search=kopi')
+        ->assertStatus(301)
+        ->assertRedirect('/resources/coffee-shops?region=Ngawi&search=kopi');
+
+    $this->get('/layanan/web-development?utm_source=mail')
+        ->assertStatus(301)
+        ->assertRedirect('/services/web-development?utm_source=mail');
+});
+
+it('redirects without a dangling question mark or an unsafe parameter', function () {
+    expect($this->get('/karir')->headers->get('Location'))->not->toContain('?');
+
+    $this->get('/portofolio/a b')->assertStatus(301)->assertRedirect('/portfolio/a%20b');
+});

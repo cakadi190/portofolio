@@ -49,12 +49,12 @@ Melengkapi `02` (fungsional). Status: ✅ sudah ada di kode, 🟡 sebagian, ⬜ 
 
 ### SEO & aksesibilitas
 
-| ID     | Kebutuhan                                                                                               | Status                          |
-| ------ | ------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| NFR-A1 | Meta title/description, canonical, Open Graph, Twitter Card, JSON-LD dirender server-side.              | ✅                              |
-| NFR-A2 | Sitemap index + sub-sitemap dan `robots.txt`; URL lama dialihkan 301.                                   | ✅                              |
-| NFR-A3 | Kontras dan mode terang/gelap; tabel admin menjadi kartu berlabel di layar < 768 px.                    | ✅                              |
-| NFR-A4 | Target WCAG 2.1 AA: label form, `alt` gambar dari Pustaka Media, navigasi keyboard pada modal/lightbox. | 🟡 audit manual belum dilakukan |
+| ID     | Kebutuhan                                                                                                                            | Status                          |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| NFR-A1 | Meta title/description, canonical, Open Graph, Twitter Card, JSON-LD dirender server-side.                                           | ✅                              |
+| NFR-A2 | Sitemap index + sub-sitemap dan `robots.txt`; URL lama dialihkan 301 dengan query string dipertahankan (`LegacyRedirectController`). | ✅                              |
+| NFR-A3 | Kontras dan mode terang/gelap; tabel admin menjadi kartu berlabel di layar < 768 px.                                                 | ✅                              |
+| NFR-A4 | Target WCAG 2.1 AA: label form, `alt` gambar dari Pustaka Media, navigasi keyboard pada modal/lightbox.                              | 🟡 audit manual belum dilakukan |
 
 ### Keandalan & operasional
 
