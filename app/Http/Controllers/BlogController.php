@@ -63,6 +63,7 @@ class BlogController extends Controller
         $coverImage = $cover['src'];
 
         $seo->set([
+            'locales' => $post->translatedLocales(),
             ...($isPreview ? ['robots' => 'noindex,nofollow'] : []),
             'title' => $post->title,
             'author' => $post->author?->name,

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasContentTranslations;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,11 +14,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Translatable\Attributes\Translatable;
 
+#[Translatable(['title', 'excerpt', 'content'])]
 class Post extends Model
 {
     /** @use HasFactory<PostFactory> */
-    use AutoGenerateSlug, HasFactory, RecordsActivity, SoftDeletes;
+    use AutoGenerateSlug, HasContentTranslations, HasFactory, RecordsActivity, SoftDeletes;
 
     protected string $slugSource = 'title';
 

@@ -55,15 +55,18 @@ class AppLocale
      * `hreflang` alternates (including `x-default`) for an unprefixed absolute URL; empty when
      * the page exists in one indexable language only.
      *
+     * @param  list<string>|null  $locales  languages the page exists in; null means all indexable ones
      * @return array<string, string>
      */
-    public static function hreflangs(string $url): array
+    public static function hreflangs(string $url, ?array $locales = null): array
     {
-        if (count(self::indexable()) < 2 || ! self::isLocalizable(parse_url($url, PHP_URL_PATH) ?: '/')) {
+        $locales = array_values(array_intersect(self::indexable(), $locales ?? self::indexable()));
+
+        if (count($locales) < 2 || ! self::isLocalizable(parse_url($url, PHP_URL_PATH) ?: '/')) {
             return [];
         }
 
-        $alternates = collect(self::indexable())
+        $alternates = collect($locales)
             ->mapWithKeys(fn (string $locale): array => [$locale => self::localize($url, $locale)])
             ->all();
 

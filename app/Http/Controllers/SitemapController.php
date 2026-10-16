@@ -86,6 +86,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.7',
                 'images' => $this->images([[$post->cover_image, $post->title]]),
+                'locales' => $post->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);

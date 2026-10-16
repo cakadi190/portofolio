@@ -5,7 +5,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
 @foreach ($urls as $url)
 @php
-    $hreflangs = \App\Support\AppLocale::hreflangs($url['loc']);
+    $hreflangs = \App\Support\AppLocale::hreflangs($url['loc'], $url['locales'] ?? null);
     $locs = $hreflangs === [] ? [$url['loc']] : collect($hreflangs)->except('x-default')->values()->all();
 @endphp
 @foreach ($locs as $loc)

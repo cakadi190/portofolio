@@ -9,7 +9,7 @@ trait AutoGenerateSlug
     public static function bootAutoGenerateSlug(): void
     {
         static::creating(function (self $model): void {
-            $source = $model->{$model->slugSourceColumn()};
+            $source = $model->slugSource();
 
             if (filled($source) && blank($model->{$model->slugColumn()})) {
                 $model->{$model->slugColumn()} = $model->generateUniqueSlug($source);
@@ -24,8 +24,19 @@ trait AutoGenerateSlug
             }
 
             $model->{$column} = $model->getOriginal($column)
-                ?: $model->generateUniqueSlug((string) $model->{$model->slugSourceColumn()});
+                ?: $model->generateUniqueSlug($model->slugSource());
         });
+    }
+
+    /**
+     * The text the slug is built from; models with translated content override
+     * {@see HasContentTranslations::slugSourceValue()} to use the default language.
+     */
+    protected function slugSource(): string
+    {
+        $column = $this->slugSourceColumn();
+
+        return method_exists($this, 'slugSourceValue') ? $this->slugSourceValue($column) : (string) $this->{$column};
     }
 
     protected function slugSourceColumn(): string

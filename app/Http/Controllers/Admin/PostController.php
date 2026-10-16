@@ -50,7 +50,10 @@ class PostController extends Controller
     public function edit(Post $post): Response
     {
         return Inertia::render('admin/posts/form', [
-            'post' => $post->load(['tags:id', 'categories:id']),
+            'post' => [
+                ...$post->load(['tags:id', 'categories:id'])->toArray(),
+                'translations' => $post->translationPayload(),
+            ],
             'previewUrl' => $post->isLive() ? null : $post->previewUrl(),
             ...$this->options(),
         ]);
@@ -58,7 +61,7 @@ class PostController extends Controller
 
     public function store(PostRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except(['tags', 'categories']);
+        $data = $request->translatedData();
         $data['user_id'] ??= $request->user()->id;
 
         $post = Post::query()->create($this->withPublicationDate($data));
@@ -71,9 +74,9 @@ class PostController extends Controller
 
     public function update(PostRequest $request, Post $post): RedirectResponse
     {
-        $data = $request->safe()->except(['tags', 'categories']);
+        $data = $request->translatedData();
 
-        $post->update($this->withPublicationDate($data, $post));
+        $post->updateReplacingTranslations($this->withPublicationDate($data, $post));
         $this->syncRelations($post, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil diperbarui.']);

@@ -28,6 +28,7 @@ use Illuminate\Support\Str;
  *     modified_time?: string|null,
  *     section?: string|null,
  *     robots?: string,
+ *     locales?: list<string>,
  *     breadcrumbs?: list<array{name: string, url: string}>,
  *     tags?: list<string>,
  *     json_ld?: list<array<string, mixed>>,
@@ -123,7 +124,9 @@ class SeoService
         $locale = AppLocale::urlLocale();
         $plainUrl = $this->request->url();
         $canonical = AppLocale::localize($plainUrl, $locale);
-        $localeIndexable = in_array($locale, AppLocale::indexable(), true);
+        $available = $this->overrides['locales'] ?? null;
+        $localeIndexable = in_array($locale, AppLocale::indexable(), true)
+            && ($available === null || in_array($locale, $available, true));
         $type = $this->overrides['type'] ?? 'website';
 
         return [
@@ -135,7 +138,7 @@ class SeoService
                 $isIndexable => 'index,follow,max-image-preview:large,max-snippet:-1',
                 default => 'noindex,nofollow',
             },
-            'hreflangs' => $isIndexable && $localeIndexable ? AppLocale::hreflangs($plainUrl) : [],
+            'hreflangs' => $isIndexable && $localeIndexable ? AppLocale::hreflangs($plainUrl, $available) : [],
             'siteName' => $siteName,
             'locale' => AppLocale::regionalCode($locale),
             'type' => $type,

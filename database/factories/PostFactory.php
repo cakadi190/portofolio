@@ -25,4 +25,16 @@ class PostFactory extends Factory
             'published_at' => now(),
         ];
     }
+
+    /**
+     * The post also exists in English (the Indonesian text stays as generated).
+     */
+    public function withEnglish(string $title = 'English title', ?string $indonesianTitle = null): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'title' => ['id' => $indonesianTitle ?? $attributes['title'], 'en' => $title],
+            'excerpt' => ['id' => $attributes['excerpt'], 'en' => 'English excerpt'],
+            'content' => ['id' => $attributes['content'], 'en' => '<p>English body</p>'],
+        ]);
+    }
 }

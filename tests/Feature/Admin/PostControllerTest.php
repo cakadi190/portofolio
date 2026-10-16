@@ -27,7 +27,7 @@ test('a post is created and the editor stays on its edit page', function () {
         'tags' => [$tag->id],
     ]);
 
-    $post = Post::query()->where('title', 'Halo Dunia')->firstOrFail();
+    $post = Post::query()->where('title->id', 'Halo Dunia')->firstOrFail();
 
     $response->assertRedirect(route('admin.posts.edit', $post));
     expect($post->is_published)->toBeFalse()
@@ -139,7 +139,7 @@ test('a new post defaults to the signed in user as its author', function () {
 
     $this->actingAs($user)->post(route('admin.posts.store'), ['title' => 'Tulisanku', 'content' => '<p>Isi</p>']);
 
-    expect(Post::query()->where('title', 'Tulisanku')->firstOrFail()->user_id)->toBe($user->id);
+    expect(Post::query()->where('title->id', 'Tulisanku')->firstOrFail()->user_id)->toBe($user->id);
 });
 
 test('the author can be changed from the post list', function () {
@@ -183,7 +183,7 @@ test('tags and categories can be created on the fly from the editor and reused o
         'categories' => [$category['id']],
     ])->assertRedirect();
 
-    expect(Post::query()->where('title', 'Dengan taksonomi baru')->first()->tags->pluck('id')->all())->toBe([$tag['id']]);
+    expect(Post::query()->where('title->id', 'Dengan taksonomi baru')->first()->tags->pluck('id')->all())->toBe([$tag['id']]);
     $this->actingAs($admin)->postJson(route('admin.tags.quick'), ['name' => ''])->assertUnprocessable();
 });
 
@@ -195,7 +195,7 @@ test('publishing without a date goes live now', function () {
         'published_at' => '',
     ]);
 
-    $post = Post::query()->where('title', 'Langsung Tayang')->firstOrFail();
+    $post = Post::query()->where('title->id', 'Langsung Tayang')->firstOrFail();
 
     expect($post->isLive())->toBeTrue()->and($post->published_at)->not->toBeNull();
 });
@@ -208,7 +208,7 @@ test('a future publication date schedules the post', function () {
         'published_at' => now()->addDays(2)->format('Y-m-d\TH:i'),
     ]);
 
-    $post = Post::query()->where('title', 'Tayang Nanti')->firstOrFail();
+    $post = Post::query()->where('title->id', 'Tayang Nanti')->firstOrFail();
 
     expect($post->isScheduled())->toBeTrue()
         ->and($post->isLive())->toBeFalse()
@@ -239,7 +239,7 @@ test('saving a draft keeps its categories and tags', function () {
         'categories' => [$category->id],
     ]);
 
-    $post = Post::query()->where('title', 'Draf Berelasi')->firstOrFail();
+    $post = Post::query()->where('title->id', 'Draf Berelasi')->firstOrFail();
 
     expect($post->tags->pluck('id')->all())->toBe([$tag->id])
         ->and($post->categories->pluck('id')->all())->toBe([$category->id]);
