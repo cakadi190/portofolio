@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { flushSync, onMount, tick } from 'svelte';
   import ArrowLeft from '@lucide/svelte/icons/arrow-left';
   import Check from '@lucide/svelte/icons/check';
@@ -38,7 +39,7 @@
     url,
     title,
     subtitle = '',
-    downloadName = 'CV.pdf',
+    downloadName = t('ui.cv_pdf'),
     profiles = [],
     activeProfile = '',
     onprofile,
@@ -64,7 +65,7 @@
   let tab = $state<Tab>('info');
   let zoom = $state(1);
   let zoomMode = $state<ZoomMode>('fit-width');
-  const MODE_LABELS: Record<ZoomMode, string> = { 'fit-width': 'Sesuai lebar', 'fit-page': 'Sesuai halaman', custom: 'Kustom' };
+  const MODE_LABELS: Record<ZoomMode, string> = { 'fit-width': t('ui.sesuai_lebar'), 'fit-page': t('ui.sesuai_halaman'), custom: t('ui.kustom') };
   let current = $state(1);
   let query = $state('');
   let copied = $state(false);
@@ -97,14 +98,14 @@
   const total = $derived(pages.length);
   const hasSignatures = $derived((signatures?.length ?? 0) > 0);
   const tabs = $derived<[Tab, string][]>([
-    ['info', 'Informasi'],
-    ['outline', 'Struktur'],
-    ['search', 'Pencarian'],
-    ['pages', 'Halaman'],
-    ...(hasSignatures ? ([['verify', 'Verifikasi']] as [Tab, string][]) : []),
+    ['info', t('certifications.informasi')],
+    ['outline', t('ui.struktur')],
+    ['search', t('ui.pencarian')],
+    ['pages', t('ui.halaman')],
+    ...(hasSignatures ? ([['verify', t('ui.verifikasi')]] as [Tab, string][]) : []),
   ]);
   let isDark = $state(typeof document !== 'undefined' && document.documentElement.getAttribute('data-bs-theme') === 'dark');
-  const infoRows = $derived([...info, ...(total > 0 ? [{ label: 'Jumlah halaman', value: String(total) }] : [])]);
+  const infoRows = $derived([...info, ...(total > 0 ? [{ label: t('ui.jumlah_halaman'), value: String(total) }] : [])]);
   let tabStrip = $state<HTMLElement | null>(null);
   let tabsCanLeft = $state(false);
   let tabsCanRight = $state(false);
@@ -830,7 +831,7 @@
       const list: PageLink[] = [];
 
       for (const note of notes) {
-        if (note.subtype !== 'Link' || !note.rect) {
+        if (note.subtype !== t('ui.link') || !note.rect) {
           continue;
         }
 
@@ -995,10 +996,10 @@
 
 <div class="rv" class:rv-fitted={fitted} data-zoom-mode={zoomMode}>
   <header class="rv-bar">
-    <button type="button" class="rv-back" onclick={onclose} aria-label="Kembali" data-tip="Kembali">
-      <ArrowLeft size={18} /><span class="rv-label">Kembali</span>
+    <button type="button" class="rv-back" onclick={onclose} aria-label={t('ui.kembali')} data-tip="Kembali">
+      <ArrowLeft size={18} /><span class="rv-label">{t('ui.kembali')}</span>
     </button>
-    <button type="button" class="rv-icon rv-menu" onclick={() => (sidebar = !sidebar)} aria-label="Tampilkan atau sembunyikan panel" aria-expanded={sidebar} data-tip="Panel samping"><List size={20} /></button>
+    <button type="button" class="rv-icon rv-menu" onclick={() => (sidebar = !sidebar)} aria-label={t('ui.tampilkan_atau_sembunyikan_panel')} aria-expanded={sidebar} data-tip="Panel samping"><List size={20} /></button>
 
     <div class="rv-title">
       <strong>{title}</strong>
@@ -1006,7 +1007,7 @@
     </div>
 
     {#if profiles.length > 1}
-      <nav class="rv-profiles" aria-label="Pilih jenis CV">
+      <nav class="rv-profiles" aria-label={t('ui.pilih_jenis_cv')}>
         {#each profiles as item (item.key)}
           <button type="button" class:on={item.key === activeProfile} aria-current={item.key === activeProfile ? 'page' : undefined} title={item.description} onclick={() => onprofile?.(item.key)}>{item.label}</button>
         {/each}
@@ -1016,39 +1017,39 @@
     <div class="rv-controls">
 
       <div class="rv-group">
-        <button type="button" class="rv-icon" onclick={() => goTo(current - 1)} disabled={current <= 1} aria-label="Halaman sebelumnya"><ChevronLeft size={18} /></button>
-        <span class="rv-page"><span class="rv-label">Hal. </span>{current} / {total || '-'}</span>
-        <button type="button" class="rv-icon" onclick={() => goTo(current + 1)} disabled={current >= total} aria-label="Halaman berikutnya" data-tip="Halaman berikutnya"><ChevronRight size={18} /></button>
+        <button type="button" class="rv-icon" onclick={() => goTo(current - 1)} disabled={current <= 1} aria-label={t('ui.halaman_sebelumnya')}><ChevronLeft size={18} /></button>
+        <span class="rv-page"><span class="rv-label">{t('ui.hal')} </span>{current} / {total || '-'}</span>
+        <button type="button" class="rv-icon" onclick={() => goTo(current + 1)} disabled={current >= total} aria-label={t('ui.halaman_berikutnya')} data-tip="Halaman berikutnya"><ChevronRight size={18} /></button>
       </div>
 
       <div class="rv-group">
-        <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label="Perkecil" data-tip="Perkecil" data-zoom-out><Minus size={14} /></button>
+        <button type="button" class="rv-icon" onclick={() => stepZoom(-1)} aria-label={t('ui.perkecil')} data-tip="Perkecil" data-zoom-out><Minus size={14} /></button>
         <span class="rv-page" data-zoom-value aria-live="polite" data-tip={MODE_LABELS[zoomMode]}>{Math.round(zoom * 100)}%</span>
-        <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label="Perbesar" data-tip="Perbesar" data-zoom-in><Plus size={14} /></button>
+        <button type="button" class="rv-icon" onclick={() => stepZoom(1)} aria-label={t('ui.perbesar')} data-tip="Perbesar" data-zoom-in><Plus size={14} /></button>
         <div class="dropdown dropup">
-          <button type="button" class="rv-icon" data-bs-toggle="dropdown" data-bs-offset="0,12" aria-expanded="false" aria-label="Opsi zoom" data-tip="Opsi zoom"><MoreVertical size={16} /></button>
+          <button type="button" class="rv-icon" data-bs-toggle="dropdown" data-bs-offset="0,12" aria-expanded="false" aria-label={t('ui.opsi_zoom')} data-tip="Opsi zoom"><MoreVertical size={16} /></button>
           <ul class="dropdown-menu dropdown-menu-end rv-zoommenu">
-            <li><button type="button" class="dropdown-item" class:active={zoomMode === 'fit-width'} onclick={() => applyFit('fit-width')}><MoveHorizontal size={16} /> Sesuai lebar</button></li>
-            <li><button type="button" class="dropdown-item" class:active={zoomMode === 'fit-page'} onclick={() => applyFit('fit-page')}><Maximize size={15} /> Sesuai halaman</button></li>
+            <li><button type="button" class="dropdown-item" class:active={zoomMode === 'fit-width'} onclick={() => applyFit('fit-width')}><MoveHorizontal size={16} /> {t('ui.sesuai_lebar')}</button></li>
+            <li><button type="button" class="dropdown-item" class:active={zoomMode === 'fit-page'} onclick={() => applyFit('fit-page')}><Maximize size={15} /> {t('ui.sesuai_halaman')}</button></li>
           </ul>
         </div>
       </div>
     </div>
 
     <div class="rv-actions">
-      <a class="rv-download" href={url} download={downloadName} aria-label="Unduh PDF" data-tip="Unduh PDF"><Download size={16} /><span class="rv-label">Unduh PDF</span></a>
-      <button type="button" class="rv-copy" onclick={() => (isDark = toggleDocumentTheme() === 'dark')} aria-label={`Ubah ke mode ${isDark ? 'terang' : 'gelap'}`} data-tip="Ubah tema">{#if isDark}<Sun size={16} />{:else}<Moon size={16} />{/if}</button>
-      <button type="button" class="rv-copy" class:done={copied} onclick={copyLink} aria-label="Salin tautan" data-tip={copied ? 'Tautan tersalin!' : 'Salin tautan'}>{#if copied}<Check size={16} />{:else}<LinkIcon size={16} />{/if}</button>
+      <a class="rv-download" href={url} download={downloadName} aria-label={t('ui.unduh_pdf')} data-tip="Unduh PDF"><Download size={16} /><span class="rv-label">{t('ui.unduh_pdf')}</span></a>
+      <button type="button" class="rv-copy" onclick={() => (isDark = toggleDocumentTheme() === 'dark')} aria-label={isDark ? t('theme.to_light') : t('theme.to_dark')} data-tip={t('theme.title')}>{#if isDark}<Sun size={16} />{:else}<Moon size={16} />{/if}</button>
+      <button type="button" class="rv-copy" class:done={copied} onclick={copyLink} aria-label={t('ui.salin_tautan')} data-tip={copied ? t('ui.tautan_tersalin') : t('ui.salin_tautan')}>{#if copied}<Check size={16} />{:else}<LinkIcon size={16} />{/if}</button>
     </div>
   </header>
 
-  <button type="button" class="rv-backdrop" class:open={sidebar} onclick={() => (sidebar = false)} aria-label="Tutup panel" tabindex={sidebar ? 0 : -1}></button>
+  <button type="button" class="rv-backdrop" class:open={sidebar} onclick={() => (sidebar = false)} aria-label={t('ui.tutup_panel')} tabindex={sidebar ? 0 : -1}></button>
 
   <div class="rv-body">
     <aside class="rv-side" class:open={sidebar} aria-hidden={!sidebar}>
       <div class="rv-tabbar">
         {#if tabsCanLeft}
-          <button type="button" class="rv-tabarrow" onclick={() => scrollTabs(-1)} aria-label="Geser tab ke kiri"><ChevronLeft size={16} /></button>
+          <button type="button" class="rv-tabarrow" onclick={() => scrollTabs(-1)} aria-label={t('ui.geser_tab_ke_kiri')}><ChevronLeft size={16} /></button>
         {/if}
         <div class="rv-tabs" role="tablist" bind:this={tabStrip} use:watchTabScroll>
           {#each tabs as [key, label] (key)}
@@ -1056,14 +1057,14 @@
           {/each}
         </div>
         {#if tabsCanRight}
-          <button type="button" class="rv-tabarrow" onclick={() => scrollTabs(1)} aria-label="Geser tab ke kanan"><ChevronRight size={16} /></button>
+          <button type="button" class="rv-tabarrow" onclick={() => scrollTabs(1)} aria-label={t('ui.geser_tab_ke_kanan')}><ChevronRight size={16} /></button>
         {/if}
       </div>
 
       {#if tab === 'search'}
         <form class="rv-search" onsubmit={(event) => { event.preventDefault(); stepHit(1); }}>
           <Search size={14} />
-          <input bind:this={searchInput} type="search" name="rv-search" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Cari dalam dokumen" bind:value={query} aria-label="Cari dalam dokumen" onkeydown={(event) => { if (event.key === 'Enter' && event.shiftKey) { event.preventDefault(); stepHit(-1); } }} />
+          <input bind:this={searchInput} type="search" name="rv-search" autocomplete="off" autocorrect="off" spellcheck="false" placeholder={t('ui.cari_dalam_dokumen')} bind:value={query} aria-label={t('ui.cari_dalam_dokumen')} onkeydown={(event) => { if (event.key === 'Enter' && event.shiftKey) { event.preventDefault(); stepHit(-1); } }} />
           {#if searched}<span class="rv-count">{searching ? '…' : hits.length === 0 ? '0' : `${activeHit + 1}/${hits.length}`}</span>{/if}
         </form>
       {/if}
@@ -1073,7 +1074,7 @@
           {#each outline as item, index (index)}
             <button type="button" class="rv-item" style:padding-left="{0.75 + item.depth}rem" onclick={() => goTo(item.page)}>{item.title}</button>
           {:else}
-            <p class="rv-muted">Daftar isi tidak tersedia pada berkas ini.</p>
+            <p class="rv-muted">{t('ui.daftar_isi_tidak_tersedia_pada_berkas')}</p>
           {/each}
         {:else if tab === 'search'}
           {#each hits as hit, index (index)}
@@ -1081,14 +1082,14 @@
               <span class="rv-badge">Hal. {hit.page}</span> …{hit.snippet}…
             </button>
           {:else}
-            <p class="rv-muted">{searching ? 'Mencari…' : searched ? 'Tidak ada hasil yang cocok.' : 'Mulai mengetik untuk mencari.'}</p>
+            <p class="rv-muted">{searching ? t('ui.mencari') : searched ? t('ui.tidak_ada_hasil_yang_cocok') : t('ui.mulai_mengetik_untuk_mencari')}</p>
           {/each}
         {:else if tab === 'info'}
           <ul class="rv-info">
             {#each infoRows as row, index (index)}
               <li><span>{row.label}</span>{#if row.href}<a href={row.href} target="_blank" rel="noopener noreferrer">{row.value}</a>{:else}<strong>{row.value}</strong>{/if}</li>
             {:else}
-              <li class="rv-muted">Belum ada informasi.</li>
+              <li class="rv-muted">{t('ui.belum_ada_informasi')}</li>
             {/each}
           </ul>
         {:else if tab === 'verify'}
@@ -1108,9 +1109,9 @@
 
     <main class="rv-main" bind:this={scroller} onscroll={updateCurrent} use:wheelZoom use:pinchZoomAction>
       {#if status === 'loading'}
-        <p class="rv-state">Memuat dokumen…</p>
+        <p class="rv-state">{t('ui.memuat_dokumen')}</p>
       {:else if status === 'error'}
-        <p class="rv-state">Dokumen gagal dimuat. <a href={url}>Buka langsung</a></p>
+        <p class="rv-state">{t('ui.dokumen_gagal_dimuat')} <a href={url}>{t('ui.buka_langsung')}</a></p>
       {:else}
         {#each pages as page, index (index)}
           {@const size = page.getViewport({ scale: zoom })}

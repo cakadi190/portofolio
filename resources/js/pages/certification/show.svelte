@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localizeHref } from '@/lib/i18n';
+  import { localizeHref, t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import ResumeViewer from '@/components/resume/resume-viewer.svelte';
   import { router } from '@inertiajs/svelte';
@@ -29,7 +29,7 @@
 {#key pdfUrl}
   <ResumeViewer
     url={pdfUrl}
-    title="Sertifikasi"
+    title={t('certifications.sertifikasi')}
     subtitle={title}
     {downloadName}
     {info}

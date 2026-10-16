@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
 
@@ -33,7 +34,7 @@
     <div class="col-lg-4">
       <div class="card rounded-4">
         <div class="card-body">
-          <h2 class="h5 mb-3">Informasi</h2>
+          <h2 class="h5 mb-3">{t('certifications.informasi')}</h2>
           <dl class="mb-0">
             {#each info as row (row.label)}
               <dt class="small opacity-75">{row.label}</dt>

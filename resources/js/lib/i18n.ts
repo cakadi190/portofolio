@@ -31,6 +31,7 @@ const LOCALIZED_SEGMENTS = new Set([
   'portfolio',
   'resources',
   'resume',
+  'resume.pdf',
   'services',
   'speaking',
   'statistic',

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { intlLocale } from '@/lib/i18n';
+  import { intlLocale, t } from '@/lib/i18n';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import CircleMinus from '@lucide/svelte/icons/circle-minus';
@@ -15,18 +15,18 @@
   const SOURCES: { key: TrustSource; label: string; hint: string }[] = [
     {
       key: 'komdigi',
-      label: 'Root CA Komdigi',
-      hint: 'Penyelenggara sertifikasi elektronik Indonesia',
+      label: t('ui.root_ca_komdigi'),
+      hint: t('ui.penyelenggara_sertifikasi_elektronik_indonesia'),
     },
     {
       key: 'international',
-      label: 'Root CA internasional',
+      label: t('ui.root_ca_internasional'),
       hint: 'DigiCert, Sectigo, USERTrust, Comodo',
     },
     {
       key: 'aatl',
-      label: 'Adobe AATL',
-      hint: 'Adobe Approved Trust List untuk tanda tangan dokumen',
+      label: t('ui.adobe_aatl'),
+      hint: t('ui.adobe_approved_trust_list_untuk_tanda'),
     },
   ];
 
@@ -48,32 +48,32 @@
 
   function verdict(signature: PdfSignature): Verdict {
     if (signature.integrity === 'modified') {
-      return { tone: 'bad', label: 'Dokumen berubah setelah ditandatangani' };
+      return { tone: 'bad', label: t('ui.dokumen_berubah_setelah_ditandatangani') };
     }
 
     if (!signature.trust.linksValid) {
-      return { tone: 'bad', label: 'Rantai sertifikat tidak sah' };
+      return { tone: 'bad', label: t('ui.rantai_sertifikat_tidak_sah') };
     }
 
     if (!signature.trust.source) {
-      return { tone: 'warn', label: 'Penerbit tidak ada di daftar akar tepercaya' };
+      return { tone: 'warn', label: t('ui.penerbit_tidak_ada_di_daftar_akar') };
     }
 
     if (signature.trust.expired) {
-      return { tone: 'warn', label: 'Sertifikat di luar masa berlaku saat ditandatangani' };
+      return { tone: 'warn', label: t('ui.sertifikat_di_luar_masa_berlaku_saat') };
     }
 
     return signature.integrity === 'valid'
-      ? { tone: 'ok', label: 'Tanda tangan terverifikasi' }
-      : { tone: 'warn', label: 'Integritas dokumen tidak dapat diperiksa' };
+      ? { tone: 'ok', label: t('ui.tanda_tangan_terverifikasi') }
+      : { tone: 'warn', label: t('ui.integritas_dokumen_tidak_dapat_diperiksa') };
   }
 </script>
 
 <div class="rvv">
   {#if checking || signatures === null}
-    <p class="rvv-muted">Memeriksa tanda tangan elektronik…</p>
+    <p class="rvv-muted">{t('ui.memeriksa_tanda_tangan_elektronik')}</p>
   {:else if signatures.length === 0}
-    <p class="rvv-muted">Dokumen ini belum memuat tanda tangan elektronik (TTE), jadi tidak ada yang diverifikasi.</p>
+    <p class="rvv-muted">{t('ui.dokumen_ini_belum_memuat_tanda_tangan')}</p>
   {:else}
     {#each signatures as signature, index (index)}
       {@const result = verdict(signature)}
@@ -86,21 +86,21 @@
           </div>
         </header>
 
-        <ul class="rvv-sources" aria-label="Sumber akar tepercaya">
+        <ul class="rvv-sources" aria-label={t('ui.sumber_akar_tepercaya')}>
           {#each SOURCES as source (source.key)}
             {@const matched = signature.trust.source === source.key}
             <li class:matched>
               {#if matched}<CircleCheck size={16} />{:else}<CircleMinus size={16} />{/if}
               <span>
                 <b>{source.label}</b>
-                <small>{matched ? `Rantai berujung di ${signature.trust.anchor}` : source.hint}</small>
+                <small>{matched ? t('ui.rantai_berujung', { anchor: signature.trust.anchor }) : source.hint}</small>
               </span>
             </li>
           {/each}
         </ul>
 
         {#if signature.komdigiRoot && signature.trust.source !== 'komdigi'}
-          <p class="rvv-note">Nama penerbit menyebut Root CA Indonesia, tetapi sertifikat akarnya tidak cocok dengan yang terpasang di sini, jadi belum dianggap tepercaya.</p>
+          <p class="rvv-note">{t('ui.nama_penerbit_menyebut_root_ca_indonesia')}</p>
         {/if}
 
         {#if signature.trust.outOfRange}
@@ -111,23 +111,23 @@
         {/if}
 
         <dl>
-          <dt>Berlaku (penandatangan)</dt>
+          <dt>{t('ui.berlaku_penandatangan')}</dt>
           <dd>{range(signature.signer)}</dd>
-          <dt>Integritas</dt>
-          <dd>{signature.integrity === 'valid' ? 'Isi dokumen tidak berubah' : signature.integrity === 'modified' ? 'Isi dokumen berubah' : 'Tidak dapat diperiksa'}</dd>
+          <dt>{t('ui.integritas')}</dt>
+          <dd>{signature.integrity === 'valid' ? t('ui.isi_dokumen_tidak_berubah') : signature.integrity === 'modified' ? t('ui.isi_dokumen_berubah') : t('ui.tidak_dapat_diperiksa')}</dd>
           {#if !signature.coversWholeDocument}
-            <dt>Catatan</dt>
-            <dd>Ada perubahan atau tanda tangan setelah yang ini</dd>
+            <dt>{t('ui.catatan')}</dt>
+            <dd>{t('ui.ada_perubahan_atau_tanda_tangan_setelah')}</dd>
           {/if}
           {#if signature.signedAt}
-            <dt>Ditandatangani</dt>
+            <dt>{t('ui.ditandatangani')}</dt>
             <dd>{dateFormat.format(signature.signedAt)}</dd>
           {/if}
           {#if signature.reason}
-            <dt>Alasan</dt>
+            <dt>{t('ui.alasan')}</dt>
             <dd>{signature.reason}</dd>
           {/if}
-          <dt>Rantai penerbit</dt>
+          <dt>{t('ui.rantai_penerbit')}</dt>
           <dd>
             <ol>
               {#each [...signature.chain].reverse() as certificate (certificate.serialNumber + certificate.subject)}
@@ -138,7 +138,7 @@
         </dl>
       </section>
     {/each}
-    <p class="rvv-muted">Pemeriksaan berjalan di browser Anda. Status pencabutan sertifikat (CRL/OCSP) belum diperiksa, jadi ini bukan pengganti validator resmi.</p>
+    <p class="rvv-muted">{t('ui.pemeriksaan_berjalan_di_browser_anda_status')}</p>
   {/if}
 </div>
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ResumeProfile;
 use App\Models\Award;
 use App\Models\Career;
 use App\Models\Clarification;
@@ -11,6 +12,7 @@ use App\Models\PostCategory;
 use App\Models\Service;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\ResumeService;
 use App\Support\AppLocale;
 
 it('shows the English text of a translated post under /en and Indonesian elsewhere', function () {
@@ -241,4 +243,28 @@ it('saves English short texts from the admin forms', function () {
     ])->assertSessionHasNoErrors();
 
     expect(Award::query()->firstOrFail()->translationPayload()['title'])->toBe(['id' => 'Juara 1', 'en' => '1st Place']);
+});
+
+it('builds the CV in the active language', function () {
+    Career::query()->create(['position' => 'Pengembang', 'company' => 'PT X', 'location' => 'Ngawi', 'start_date' => '2020-01-01']);
+
+    app()->setLocale('en');
+    $english = collect(app(ResumeService::class)->build(ResumeProfile::Technical)['sections']);
+
+    app()->setLocale('id');
+    $indonesian = collect(app(ResumeService::class)->build(ResumeProfile::Technical)['sections']);
+
+    expect($english->firstWhere('key', 'summary')['title'])->toBe('Professional Summary')
+        ->and($english->firstWhere('key', 'career')['title'])->toBe('Work Experience')
+        ->and($english->firstWhere('key', 'career')['entries'][0]['period'])->toBe('Jan 2020 – Present')
+        ->and($indonesian->firstWhere('key', 'summary')['title'])->toBe('Ringkasan Profesional')
+        ->and($indonesian->firstWhere('key', 'career')['entries'][0]['period'])->toBe('Jan 2020 – Sekarang');
+});
+
+it('serves the English CV viewer and its prefixed PDF', function () {
+    $this->get('/en/resume')->assertOk()->assertInertia(fn ($page) => $page->where('locale', 'en'));
+
+    request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
+
+    $this->get('/en/resume.pdf')->assertOk()->assertHeader('Content-Type', 'application/pdf');
 });
