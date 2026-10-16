@@ -102,7 +102,7 @@
 
         @if (request()->routeIs('home'))
             {{-- LCP element of the home page: responsive photo, fetched at high priority. --}}
-            <link rel="preload" as="image" href="{{ Vite::asset('resources/images/hero/fotoku-640.webp') }}" imagesrcset="{{ Vite::asset('resources/images/hero/fotoku-480.webp') }} 480w, {{ Vite::asset('resources/images/hero/fotoku-640.webp') }} 640w, {{ Vite::asset('resources/images/hero/fotoku-800.webp') }} 800w" imagesizes="(min-width: 768px) 40vw, 90vw" fetchpriority="high">
+            <link rel="preload" as="image" href="{{ \App\Support\HeroPhoto::fallbackUrl() }}" imagesrcset="{{ \App\Support\HeroPhoto::srcset() }}" imagesizes="{{ \App\Support\HeroPhoto::SIZES }}" fetchpriority="high">
         @endif
         <link rel="dns-prefetch" href="https://api.iconify.design">
         <link rel="dns-prefetch" href="https://api.simplesvg.com">

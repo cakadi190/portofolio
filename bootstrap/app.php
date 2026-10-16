@@ -4,6 +4,7 @@ use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EnrichSentryScope;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\MinifyHtmlResponse;
+use App\Http\Middleware\PreloadHomeHeroPhoto;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackVisitor;
 use App\Http\Middleware\VerifyTurnstile;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             VerifyTurnstile::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            PreloadHomeHeroPhoto::class,
             MinifyHtmlResponse::class,
             TrackVisitor::class,
         ]);

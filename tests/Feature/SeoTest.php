@@ -270,3 +270,20 @@ test('the speaking page lists published engagements as events', function () {
         ->and($data['Event']['startDate'])->toBe($engagement->starts_at->toAtomString())
         ->and($data['Event']['eventAttendanceMode'])->toStartWith('https://schema.org/');
 });
+
+test('the homepage announces its LCP photo in an early Link header, other pages and Inertia visits do not', function () {
+    $header = collect($this->get(route('home'))->assertOk()->headers->all('link'))->first(fn (string $link): bool => str_contains($link, 'as=image'));
+
+    expect($header)->toContain('rel=preload')
+        ->toContain('fetchpriority=high')
+        ->toContain('480w, ')
+        ->toContain('720w');
+
+    app()->forgetScopedInstances();
+    $about = collect($this->get(route('about.me'))->headers->all('link'))->filter(fn (string $link): bool => str_contains($link, 'as=image'));
+    expect($about)->toBeEmpty();
+
+    app()->forgetScopedInstances();
+    $inertia = collect($this->get(route('home'), ['X-Inertia' => 'true', 'X-Inertia-Version' => 'x'])->headers->all('link'))->filter(fn (string $link): bool => str_contains($link, 'as=image'));
+    expect($inertia)->toBeEmpty();
+});

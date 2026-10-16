@@ -4,6 +4,7 @@
 
   import fotoku480 from '../../../images/hero/fotoku-480.webp?no-inline';
   import fotoku640 from '../../../images/hero/fotoku-640.webp?no-inline';
+  import fotoku720 from '../../../images/hero/fotoku-720.webp?no-inline';
   import fotoku800 from '../../../images/hero/fotoku-800.webp?no-inline';
 
   type TechStackItem = { icon?: string; name?: string; separator?: true };
@@ -110,7 +111,7 @@
         <!-- LCP element. -->
         <img
           src={fotoku800}
-          srcset="{fotoku480} 480w, {fotoku640} 640w, {fotoku800} 800w"
+          srcset="{fotoku480} 480w, {fotoku640} 640w, {fotoku720} 720w, {fotoku800} 800w"
           sizes="(min-width: 768px) 40vw, 90vw"
           width="800"
           height="800"
