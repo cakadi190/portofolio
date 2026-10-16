@@ -61,7 +61,7 @@ class PostController extends Controller
 
     public function store(PostRequest $request): RedirectResponse
     {
-        $data = $request->translatedData();
+        $data = $request->safe()->except(['tags', 'categories']);
         $data['user_id'] ??= $request->user()->id;
 
         $post = Post::query()->create($this->withPublicationDate($data));
@@ -74,9 +74,9 @@ class PostController extends Controller
 
     public function update(PostRequest $request, Post $post): RedirectResponse
     {
-        $data = $request->translatedData();
+        $data = $request->safe()->except(['tags', 'categories']);
 
-        $post->updateReplacingTranslations($this->withPublicationDate($data, $post));
+        $post->update($this->withPublicationDate($data, $post));
         $this->syncRelations($post, $request);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil diperbarui.']);

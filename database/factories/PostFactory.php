@@ -27,14 +27,14 @@ class PostFactory extends Factory
     }
 
     /**
-     * The post also exists in English (the Indonesian text stays as generated).
+     * The text also exists in English.
      */
-    public function withEnglish(string $title = 'English title', ?string $indonesianTitle = null): static
+    public function withEnglish(string $title = 'English title'): static
     {
-        return $this->state(fn (array $attributes): array => [
-            'title' => ['id' => $indonesianTitle ?? $attributes['title'], 'en' => $title],
-            'excerpt' => ['id' => $attributes['excerpt'], 'en' => 'English excerpt'],
-            'content' => ['id' => $attributes['content'], 'en' => '<p>English body</p>'],
+        return $this->state(fn (): array => [
+            'title_en' => $title,
+            'excerpt_en' => 'English excerpt',
+            'content_en' => '<p>English body</p>',
         ]);
     }
 }

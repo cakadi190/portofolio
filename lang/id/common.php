@@ -174,4 +174,7 @@ return [
     'translate.overwrite' => 'Bagian terjemahan yang sudah terisi akan diganti. Lanjutkan?',
     'translate.failed' => 'Terjemahan otomatis gagal.',
     'translate.review_note' => 'Hasil terjemahan otomatis hanyalah draf; selalu periksa sebelum diterbitkan.',
+    'content.language.id' => 'Konten Bahasa Indonesia',
+    'content.language.en' => 'Konten Bahasa Inggris',
+    'content.language.label' => 'Bahasa konten',
 ];

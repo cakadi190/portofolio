@@ -43,15 +43,13 @@ function renderForm(translations = post.translations) {
 const field = (selector: string) =>
   document.querySelector<HTMLInputElement>(selector);
 
-describe('PostForm language tabs', () => {
+describe('PostForm language dropdown', () => {
   it('edits Indonesian first and still submits English from hidden inputs', () => {
     renderForm();
 
-    expect(document.querySelector('textarea[name="title[id]"]')).not.toBeNull();
-    expect(field('input[type="hidden"][name="title[en]"]')?.value).toBe(
-      'Title',
-    );
-    expect(field('input[type="hidden"][name="content[en]"]')?.value).toBe(
+    expect(document.querySelector('textarea[name="title"]')).not.toBeNull();
+    expect(field('input[type="hidden"][name="title_en"]')?.value).toBe('Title');
+    expect(field('input[type="hidden"][name="content_en"]')?.value).toBe(
       '<p>Body</p>',
     );
     expect(
@@ -59,44 +57,63 @@ describe('PostForm language tabs', () => {
     ).toBeNull();
   });
 
-  it('switches the visible fields to English and keeps Indonesian submitted', async () => {
+  it('offers both content languages next to the preview button', async () => {
     renderForm();
 
-    await fireEvent.click(screen.getByRole('tab', { name: /EN/ }));
+    await fireEvent.click(
+      screen.getByRole('button', {
+        name: /Bahasa konten: Konten Bahasa Indonesia/,
+      }),
+    );
+
+    expect(screen.getByText('Konten Bahasa Indonesia')).toBeTruthy();
+    expect(screen.getByText('Konten Bahasa Inggris')).toBeTruthy();
+  });
+
+  it('switches the fields to English and keeps Indonesian submitted', async () => {
+    renderForm();
+
+    await fireEvent.click(
+      screen.getByRole('button', { name: /Bahasa konten/ }),
+    );
+    await fireEvent.click(screen.getByText('Konten Bahasa Inggris'));
 
     const title = document.querySelector<HTMLTextAreaElement>(
-      'textarea[name="title[en]"]',
+      'textarea[name="title_en"]',
     );
 
     expect(title?.value).toBe('Title');
     expect(title?.required).toBe(false);
-    expect(field('input[type="hidden"][name="title[id]"]')?.value).toBe(
-      'Judul',
-    );
+    expect(field('input[type="hidden"][name="title"]')?.value).toBe('Judul');
     expect(
-      document.querySelector('textarea[name="excerpt[en]"]'),
+      document.querySelector('textarea[name="excerpt_en"]'),
     ).not.toBeNull();
     expect(
       screen.getByRole('button', {
         name: /Terjemahkan otomatis dari Bahasa Indonesia/,
       }),
     ).toBeTruthy();
+    expect(
+      screen.getByRole('button', {
+        name: /Bahasa konten: Konten Bahasa Inggris/,
+      }),
+    ).toBeTruthy();
   });
 
-  it('marks a language that has no text yet', () => {
+  it('flags an English version that has no text yet', async () => {
     renderForm({
       title: { id: 'Judul', en: '' },
       excerpt: { id: '', en: '' },
       content: { id: '<p>Isi</p>', en: '' },
     });
 
-    const dot = '[title="Belum diterjemahkan"]';
+    await fireEvent.click(
+      screen.getByRole('button', { name: /Bahasa konten/ }),
+    );
+    await fireEvent.click(screen.getByText('Konten Bahasa Inggris'));
 
     expect(
-      screen.getByRole('tab', { name: /ID/ }).querySelector(dot),
-    ).toBeNull();
-    expect(
-      screen.getByRole('tab', { name: /EN/ }).querySelector(dot),
-    ).not.toBeNull();
+      screen.getByRole('img', { name: 'Belum diterjemahkan' }),
+    ).toBeTruthy();
   });
 });

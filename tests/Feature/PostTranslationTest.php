@@ -1,13 +1,12 @@
 <?php
 
+use App\Models\Note;
 use App\Models\Post;
 use App\Models\User;
 use App\Support\AppLocale;
-use App\Support\TranslationMigration;
-use Illuminate\Support\Facades\DB;
 
 it('shows the English text of a translated post under /en and Indonesian elsewhere', function () {
-    $post = Post::factory()->withEnglish('Hello World', 'Halo Dunia')->create();
+    $post = Post::factory()->withEnglish('Hello World')->create(['title' => 'Halo Dunia']);
     $indonesianUrl = "/blog/{$post->slug}";
 
     $this->get("/en/blog/{$post->slug}")
@@ -30,6 +29,13 @@ it('falls back to Indonesian for a post without an English translation', functio
     $this->get("/en/blog/{$post->slug}")
         ->assertOk()
         ->assertInertia(fn ($page) => $page->where('post.title', 'Hanya Indonesia'));
+});
+
+it('falls back per field when only some English fields are filled', function () {
+    $post = Post::factory()->create(['title' => 'Judul', 'excerpt' => 'Ringkas', 'title_en' => 'Title']);
+
+    $this->get("/en/blog/{$post->slug}")
+        ->assertInertia(fn ($page) => $page->where('post.title', 'Title')->where('post.excerpt', 'Ringkas'));
 });
 
 it('keeps untranslated posts out of the English index and gives translated ones hreflang', function () {
@@ -58,41 +64,51 @@ it('lists the English URL of a post in the sitemap only when it is translated', 
         ->and($xml)->toContain("/blog/{$untranslated->slug}</loc>");
 });
 
-it('saves both languages from the admin form and drops a cleared translation', function () {
+it('saves both languages from the admin form and clears the English text', function () {
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)->post(route('admin.posts.store'), [
-        'title' => ['id' => 'Judul', 'en' => 'Title'],
-        'excerpt' => ['id' => 'Ringkas', 'en' => ''],
-        'content' => ['id' => '<p>Isi</p>', 'en' => '<p>Body</p>'],
+        'title' => 'Judul',
+        'title_en' => 'Title',
+        'excerpt' => 'Ringkas',
+        'excerpt_en' => '',
+        'content' => '<p>Isi</p>',
+        'content_en' => '<p>Body</p>',
     ])->assertSessionHasNoErrors();
 
     $post = Post::query()->firstOrFail();
 
-    expect($post->getTranslations('title'))->toBe(['id' => 'Judul', 'en' => 'Title'])
-        ->and($post->getTranslations('excerpt'))->toBe(['id' => 'Ringkas'])
-        ->and($post->slug)->toBe('judul');
+    expect($post->translationPayload())->toBe([
+        'title' => ['id' => 'Judul', 'en' => 'Title'],
+        'excerpt' => ['id' => 'Ringkas', 'en' => ''],
+        'content' => ['id' => '<p>Isi</p>', 'en' => '<p>Body</p>'],
+    ])->and($post->slug)->toBe('judul');
 
     $this->actingAs($admin)->put(route('admin.posts.update', $post), [
-        'title' => ['id' => 'Judul', 'en' => ''],
-        'content' => ['id' => '<p>Isi</p>', 'en' => ''],
+        'title' => 'Judul',
+        'title_en' => '',
+        'content' => '<p>Isi</p>',
+        'content_en' => '',
     ])->assertSessionHasNoErrors();
 
-    expect($post->fresh()->getTranslations('title'))->toBe(['id' => 'Judul'])
-        ->and($post->fresh()->isTranslatedTo('en'))->toBeFalse();
+    expect($post->fresh()->isTranslatedTo('en'))->toBeFalse()
+        ->and($post->fresh()->translatedLocales())->toBe(['id']);
 });
 
-it('requires the Indonesian title and content', function () {
+it('builds the slug from the Indonesian title even when the English one is saved first', function () {
+    $post = Post::query()->create(['title' => 'Judul Utama', 'title_en' => 'Main Title', 'content' => '<p>x</p>']);
+
+    expect($post->slug)->toBe('judul-utama');
+});
+
+it('requires the Indonesian title and content but not the English ones', function () {
     $this->actingAs(User::factory()->admin()->create())
-        ->post(route('admin.posts.store'), [
-            'title' => ['id' => '', 'en' => 'Only English'],
-            'content' => ['id' => '', 'en' => '<p>Body</p>'],
-        ])
-        ->assertSessionHasErrors(['title.id', 'content.id']);
+        ->post(route('admin.posts.store'), ['title' => '', 'content' => '', 'title_en' => 'Only English'])
+        ->assertSessionHasErrors(['title', 'content']);
 });
 
-it('hands the editor every language of the post', function () {
-    $post = Post::factory()->withEnglish('Hello', 'Halo')->create();
+it('hands the editor the raw text of every language', function () {
+    $post = Post::factory()->withEnglish('Hello')->create(['title' => 'Halo']);
 
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.posts.edit', $post))
@@ -101,20 +117,12 @@ it('hands the editor every language of the post', function () {
             ->where('post.title', 'Halo'));
 });
 
-it('wraps existing plain values into the default language once', function () {
-    DB::table('posts')->insert([
-        ['title' => 'Plain', 'slug' => 'plain', 'excerpt' => null, 'content' => '<p>x</p>', 'created_at' => now(), 'updated_at' => now()],
-        ['title' => '{"id":"Done","en":"Selesai"}', 'slug' => 'done', 'excerpt' => '123', 'content' => '{"id":"y"}', 'created_at' => now(), 'updated_at' => now()],
-    ]);
+it('translates notes the same way', function () {
+    $note = Note::factory()->withEnglish('Quick note')->create(['title' => 'Catatan cepat']);
 
-    TranslationMigration::wrap('posts', ['title', 'excerpt', 'content']);
-    TranslationMigration::wrap('posts', ['title', 'excerpt', 'content']);
+    $this->get("/en/notes/{$note->slug}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('note.title', 'Quick note')->where('note.content', '<p>English body</p>'));
 
-    $plain = DB::table('posts')->where('slug', 'plain')->first();
-    $done = DB::table('posts')->where('slug', 'done')->first();
-
-    expect($plain->title)->toBe('{"id":"Plain"}')
-        ->and($plain->excerpt)->toBeNull()
-        ->and($done->title)->toBe('{"id":"Done","en":"Selesai"}')
-        ->and($done->excerpt)->toBe('{"id":"123"}');
+    expect($note->translatedLocales())->toBe(['id', 'en']);
 });

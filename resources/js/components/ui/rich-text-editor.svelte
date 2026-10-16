@@ -107,6 +107,9 @@
     value = '',
     contentKey = '',
     onchange,
+    languages = [],
+    language = '',
+    onlanguage,
     placeholder = 'Mulai menulis cerita Anda...',
     invalid = false,
     minimal = false,
@@ -125,6 +128,11 @@
     contentKey?: string;
     /** Called with the document's HTML whenever it changes. */
     onchange?: (html: string) => void;
+    /** Content languages offered by the language dropdown next to the preview button (shell only). */
+    languages?: { code: string; label: string; flag: string }[];
+    /** Code of the language being edited. */
+    language?: string;
+    onlanguage?: (code: string) => void;
     placeholder?: string;
     invalid?: boolean;
     /** Public-safe mode: basic formatting only, no images, links, headings or HTML tab. */
@@ -205,7 +213,7 @@
     open: false,
     x: 0,
     y: 0,
-    kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device',
+    kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device' | 'language',
   });
   let ctxEl = $state<HTMLDivElement>();
   let menuEl = $state<HTMLDivElement>();
@@ -598,7 +606,7 @@
   }
 
   function openToolbarMenu(
-    kind: 'type' | 'align' | 'context' | 'table' | 'device',
+    kind: 'type' | 'align' | 'context' | 'table' | 'device' | 'language',
     event: MouseEvent,
   ): void {
     if (ctx.open && ctx.kind === kind) {
@@ -1219,6 +1227,16 @@
             action: run((c) => c.deleteTable()),
           },
         ],
+      ];
+    }
+
+    if (ctx.kind === 'language') {
+      return [
+        languages.map<ContextItem>((option) => ({
+          label: option.label,
+          on: language === option.code,
+          action: () => onlanguage?.(option.code),
+        })),
       ];
     }
 
@@ -2266,6 +2284,22 @@
       {/if}
 
       {#if shell}
+        {#if languages.length > 0}
+          {@const activeLanguage = languages.find((option) => option.code === language) ?? languages[0]}
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg rte-lang-btn"
+            class:on={ctx.open && ctx.kind === 'language'}
+            title={t('content.language.label')}
+            aria-label={`${t('content.language.label')}: ${activeLanguage.label}`}
+            aria-haspopup="menu"
+            data-rte-trigger
+            onclick={(event) => openToolbarMenu('language', event)}
+            ><span class="fi {activeLanguage.flag} fis" aria-hidden="true"></span
+            ><span class="rte-lang-code">{activeLanguage.code.toUpperCase()}</span
+            ><ChevronDown size={14} aria-hidden="true" /></button
+          >
+        {/if}
         <button
           type="button"
           class="rte-btn rte-btn-lg"
@@ -3341,6 +3375,15 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--neo-secondary-color);
+  }
+  .rte-lang-btn {
+    width: auto;
+    gap: 0.375rem;
+    padding-inline: 0.5rem;
+  }
+  .rte-lang-code {
+    font-size: 0.75rem;
+    font-weight: 700;
   }
   :global(.rte-link-target) {
     border-radius: 0.125rem;

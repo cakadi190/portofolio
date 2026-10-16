@@ -29,8 +29,8 @@ trait AutoGenerateSlug
     }
 
     /**
-     * The text the slug is built from; models with translated content override
-     * {@see HasContentTranslations::slugSourceValue()} to use the default language.
+     * The text the slug is built from; models with an English version override
+     * `slugSourceValue()` so the slug always comes from the Indonesian text.
      */
     protected function slugSource(): string
     {

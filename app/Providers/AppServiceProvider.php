@@ -41,7 +41,6 @@ use Laravel\Fortify\Events\TwoFactorAuthenticationConfirmed;
 use Laravel\Fortify\Events\TwoFactorAuthenticationDisabled;
 use Laravel\Fortify\Events\TwoFactorAuthenticationEnabled;
 use Laravel\Fortify\Events\TwoFactorAuthenticationFailed;
-use Spatie\Translatable\Translatable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -74,7 +73,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-        $this->configureTranslatableContent();
         $this->configureAuthorization();
         $this->configureAuditListeners();
         $this->configureSecurityToasts();
@@ -162,17 +160,6 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Configure default behaviors for production-ready applications.
      */
-    /**
-     * Untranslated content shows in Indonesian, or whatever language has a value.
-     */
-    protected function configureTranslatableContent(): void
-    {
-        $this->app->make(Translatable::class)->fallback(
-            fallbackLocale: AppLocale::DEFAULT,
-            fallbackAny: true,
-        );
-    }
-
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);

@@ -174,4 +174,7 @@ return [
     'translate.overwrite' => 'The parts already translated will be replaced. Continue?',
     'translate.failed' => 'Automatic translation failed.',
     'translate.review_note' => 'Automatic translations are only drafts; always review them before publishing.',
+    'content.language.id' => 'Indonesian Content',
+    'content.language.en' => 'English Content',
+    'content.language.label' => 'Content language',
 ];

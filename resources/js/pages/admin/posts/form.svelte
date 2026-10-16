@@ -8,8 +8,9 @@
   import EditorSummaryRow from '@/components/admin/editor-summary-row.svelte';
   import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
   import EditorTitle from '@/components/admin/editor-title.svelte';
-  import TranslationTabs from '@/components/admin/translation-tabs.svelte';
-  import { createTranslatable } from '@/lib/translatable.svelte';
+  import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
+  import TranslationBar from '@/components/admin/translation-bar.svelte';
+  import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import { Field } from '@/components/ui/field';
   import MediaField from '@/components/media/media-field.svelte';
@@ -61,7 +62,6 @@
     content: 'html',
   });
   const title = $derived(translatable.values.title[translatable.locale] || translatable.values.title.id);
-  const otherLocales = $derived(Object.keys(translatable.values.title).filter((code) => code !== translatable.locale));
   // svelte-ignore state_referenced_locally
   let slug = $state(post?.slug ?? '');
   let publishedDisplay = $state('');
@@ -105,24 +105,19 @@
 >
   {#snippet children({ errors, processing })}
     {#snippet postHeader()}
-      <TranslationTabs {translatable} {errors} />
+      <TranslationBar {translatable} />
       <EditorTitle
-        name={`title[${translatable.locale}]`}
+        name={fieldName('title', translatable.locale)}
         bind:value={translatable.values.title[translatable.locale]}
         ariaLabel="Judul artikel"
         required={translatable.isDefault}
-        error={errors[`title.${translatable.locale}`]}
+        error={errors[fieldName('title', translatable.locale)]}
       />
-      <!-- Languages not on screen still submit their text. -->
-      {#each otherLocales as code (code)}
-        <input type="hidden" name={`title[${code}]`} value={translatable.values.title[code]} />
-        <input type="hidden" name={`excerpt[${code}]`} value={translatable.values.excerpt[code]} />
-        <input type="hidden" name={`content[${code}]`} value={translatable.values.content[code]} />
-      {/each}
+      <TranslationHiddenInputs {translatable} fields={['title', 'excerpt', 'content']} />
     {/snippet}
 
     {#snippet contentFeedback()}
-      <Field.Feedback message={errors[`content.${translatable.locale}`]} />
+      <Field.Feedback message={errors[fieldName('content', translatable.locale)]} />
     {/snippet}
 
     {#snippet postActions(editor: {
@@ -243,15 +238,15 @@
 
       <EditorPanel title="Kutipan">
         <textarea
-          name={`excerpt[${translatable.locale}]`}
+          name={fieldName('excerpt', translatable.locale)}
           aria-label="Ringkasan artikel"
           class="form-control form-control-sm"
-          class:is-invalid={!!errors[`excerpt.${translatable.locale}`]}
+          class:is-invalid={!!errors[fieldName('excerpt', translatable.locale)]}
           rows="4"
           maxlength="255"
           placeholder="Ringkasan singkat yang tampil di daftar artikel"
           bind:value={translatable.values.excerpt[translatable.locale]}></textarea>
-        <Field.Feedback message={errors[`excerpt.${translatable.locale}`]} />
+        <Field.Feedback message={errors[fieldName('excerpt', translatable.locale)]} />
       </EditorPanel>
 
       <EditorPanel title="Kategori">
@@ -275,11 +270,14 @@
 
     <RichTextEditor
       shell
-      name={`content[${translatable.locale}]`}
+      name={fieldName('content', translatable.locale)}
       value={translatable.values.content[translatable.locale]}
       contentKey={translatable.contentKey}
+      languages={translatable.languages}
+      language={translatable.locale}
+      onlanguage={(code) => (translatable.locale = code)}
       onchange={(html) => (translatable.values.content[translatable.locale] = html)}
-      invalid={!!errors[`content.${translatable.locale}`]}
+      invalid={!!errors[fieldName('content', translatable.locale)]}
       viewHref={post?.slug
         ? post.is_published
           ? show(post.slug).url

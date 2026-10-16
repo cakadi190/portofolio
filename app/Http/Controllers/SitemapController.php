@@ -78,7 +78,7 @@ class SitemapController extends Controller
         $urls = Post::query()
             ->published()
             ->latest('published_at')
-            ->get(['id', 'title', 'slug', 'cover_image', 'published_at', 'updated_at'])
+            ->get(['id', 'title', 'title_en', 'slug', 'cover_image', 'published_at', 'updated_at'])
             ->map(fn (Post $post): array => [
                 'title' => $post->title,
                 'loc' => route('blog.show', $post),
@@ -148,7 +148,7 @@ class SitemapController extends Controller
         $urls = Note::query()
             ->published()
             ->latest('published_at')
-            ->get(['id', 'title', 'slug', 'published_at', 'updated_at'])
+            ->get(['id', 'title', 'title_en', 'slug', 'published_at', 'updated_at'])
             ->map(fn (Note $note): array => [
                 'title' => $note->title,
                 'loc' => route('notes.show', $note),
@@ -156,6 +156,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.6',
                 'images' => [],
+                'locales' => $note->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);

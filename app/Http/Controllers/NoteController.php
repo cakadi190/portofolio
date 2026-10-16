@@ -67,6 +67,7 @@ class NoteController extends Controller
         $description = $note->excerpt ?: Str::limit(strip_tags($note->content), 200);
 
         $seo->set([
+            'locales' => $note->translatedLocales(),
             'title' => $note->title,
             'description' => $description,
             'type' => 'article',

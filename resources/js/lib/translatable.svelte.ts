@@ -8,6 +8,11 @@ type Values = Record<string, Record<string, string>>;
 
 const DEFAULT_LOCALE = 'id';
 
+/** Form input name of a field in a language: `title` for Indonesian, `title_en` for English. */
+export function fieldName(field: string, locale: string): string {
+  return locale === DEFAULT_LOCALE ? field : `${field}_${locale}`;
+}
+
 /**
  * State for an admin form whose fields exist in every site language: the language
  * being edited, every field's text per language, and the automatic draft translation.
@@ -59,6 +64,14 @@ export function createTranslatable(
       return `${locale}:${version}`;
     },
     values,
+    /** Languages for the editor's language dropdown, labelled "Indonesian Content" etc. */
+    get languages() {
+      return localeOptions().map((option) => ({
+        code: option.code,
+        flag: option.flag,
+        label: t(`content.language.${option.code}`),
+      }));
+    },
     /** Whether the language has text in its main (first) field. */
     isTranslated: (code: string): boolean => hasText(textOf(fields[0], code)),
 

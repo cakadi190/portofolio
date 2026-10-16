@@ -8,6 +8,9 @@
   import EditorSummaryRow from '@/components/admin/editor-summary-row.svelte';
   import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
   import EditorTitle from '@/components/admin/editor-title.svelte';
+  import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
+  import TranslationBar from '@/components/admin/translation-bar.svelte';
+  import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import { Field } from '@/components/ui/field';
   import Select from '@/components/ui/select.svelte';
@@ -25,6 +28,7 @@
     slug: string;
     excerpt: string | null;
     content: string;
+    translations: Record<'title' | 'excerpt' | 'content', Record<string, string>>;
     user_id: number | null;
     is_published: boolean;
     published_at: string | null;
@@ -40,7 +44,12 @@
   // svelte-ignore state_referenced_locally
   let isPublished = $state(note?.is_published ?? false);
   // svelte-ignore state_referenced_locally
-  let title = $state(note?.title ?? '');
+  const translatable = createTranslatable(note?.translations ?? {}, {
+    title: 'text',
+    excerpt: 'text',
+    content: 'html',
+  });
+  const title = $derived(translatable.values.title[translatable.locale] || translatable.values.title.id);
   // svelte-ignore state_referenced_locally
   let slug = $state(note?.slug ?? '');
   let publishedDisplay = $state('');
@@ -80,16 +89,19 @@
 >
   {#snippet children({ errors, processing })}
     {#snippet noteHeader()}
+      <TranslationBar {translatable} />
       <EditorTitle
-        name="title"
-        bind:value={title}
+        name={fieldName('title', translatable.locale)}
+        bind:value={translatable.values.title[translatable.locale]}
         ariaLabel="Judul catatan"
-        error={errors.title}
+        required={translatable.isDefault}
+        error={errors[fieldName('title', translatable.locale)]}
       />
+      <TranslationHiddenInputs {translatable} fields={['title', 'excerpt', 'content']} />
     {/snippet}
 
     {#snippet contentFeedback()}
-      <Field.Feedback message={errors.content} />
+      <Field.Feedback message={errors[fieldName('content', translatable.locale)]} />
     {/snippet}
 
     {#snippet noteActions(editor: {
@@ -194,15 +206,15 @@
 
       <EditorPanel title="Kutipan">
         <textarea
-          name="excerpt"
+          name={fieldName('excerpt', translatable.locale)}
           aria-label="Ringkasan catatan"
           class="form-control form-control-sm"
-          class:is-invalid={!!errors.excerpt}
+          class:is-invalid={!!errors[fieldName('excerpt', translatable.locale)]}
           rows="4"
           maxlength="255"
           placeholder="Satu kalimat yang tampil di daftar catatan"
-          value={note?.excerpt ?? ''}></textarea>
-        <Field.Feedback message={errors.excerpt} />
+          bind:value={translatable.values.excerpt[translatable.locale]}></textarea>
+        <Field.Feedback message={errors[fieldName('excerpt', translatable.locale)]} />
       </EditorPanel>
 
       <EditorPanel title="Tag">
@@ -217,9 +229,14 @@
 
     <RichTextEditor
       shell
-      name="content"
-      value={note?.content ?? ''}
-      invalid={!!errors.content}
+      name={fieldName('content', translatable.locale)}
+      value={translatable.values.content[translatable.locale]}
+      contentKey={translatable.contentKey}
+      languages={translatable.languages}
+      language={translatable.locale}
+      onlanguage={(code) => (translatable.locale = code)}
+      onchange={(html) => (translatable.values.content[translatable.locale] = html)}
+      invalid={!!errors[fieldName('content', translatable.locale)]}
       viewHref={note?.is_published && note.slug ? show(note.slug).url : null}
       documentTitle={title}
       rootLabel="Catatan"

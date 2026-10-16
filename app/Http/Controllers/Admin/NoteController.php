@@ -44,7 +44,10 @@ class NoteController extends Controller
     public function edit(Note $note): Response
     {
         return Inertia::render('admin/notes/form', [
-            'note' => $note->load('tags:id'),
+            'note' => [
+                ...$note->load('tags:id')->toArray(),
+                'translations' => $note->translationPayload(),
+            ],
             'tags' => $this->tags(),
             'authors' => $this->authors(),
         ]);
