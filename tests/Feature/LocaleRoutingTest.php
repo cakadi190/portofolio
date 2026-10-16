@@ -93,7 +93,7 @@ it('keeps Indonesian pages indexable with a plain canonical', function () {
         ->toContain('<link rel="canonical" href="'.$base.'/contact'.'">')
         ->toContain('content="index,follow')
         ->toContain('content="id_ID"')
-        ->not->toContain('hreflang="en"');
+        ->not->toContain('<link rel="alternate" hreflang="en"');
 });
 
 it('emits hreflang alternates and indexes English once the language is enabled', function () {

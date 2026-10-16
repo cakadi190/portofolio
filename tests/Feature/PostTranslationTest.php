@@ -50,8 +50,8 @@ it('keeps untranslated posts out of the English index and gives translated ones 
     $untranslatedHtml = $this->get("/en/blog/{$untranslated->slug}")->getContent();
     $translatedHtml = $this->get("/en/blog/{$translated->slug}")->getContent();
 
-    expect($untranslatedHtml)->toContain('content="noindex,follow"')->not->toContain('hreflang="en"')
-        ->and($translatedHtml)->toContain('content="index,follow')->toContain('hreflang="en"');
+    expect($untranslatedHtml)->toContain('content="noindex,follow"')->not->toContain('<link rel="alternate" hreflang="en"')
+        ->and($translatedHtml)->toContain('content="index,follow')->toContain('<link rel="alternate" hreflang="en"');
 });
 
 it('lists the English URL of a post in the sitemap only when it is translated', function () {
@@ -167,4 +167,29 @@ it('translates portfolios and services', function () {
 
     expect($portfolio->translatedLocales())->toBe(['id', 'en'])
         ->and($portfolio->slug)->toBe('toko-online');
+});
+
+it('shows the English author biography on /en author pages', function () {
+    $author = User::factory()->admin()->create(['username' => 'cakadi', 'bio' => '<p>Halo</p>', 'bio_en' => '<p>Hello</p>']);
+
+    $this->get('/en/blog/@cakadi')->assertOk()->assertInertia(fn ($page) => $page->where('author.bio', '<p>Hello</p>'));
+
+    request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
+
+    $this->get('/blog/@cakadi')->assertInertia(fn ($page) => $page->where('author.bio', '<p>Halo</p>'));
+
+    expect($author->translatedLocales())->toBe(['id', 'en']);
+});
+
+it('saves the English biography from the profile form', function () {
+    $user = User::factory()->admin()->create();
+
+    $this->actingAs($user)->patch(route('profile.update'), [
+        'name' => $user->name,
+        'email' => $user->email,
+        'bio' => '<p>Halo</p>',
+        'bio_en' => '<p>Hello</p><script>x()</script>',
+    ])->assertSessionHasNoErrors();
+
+    expect($user->fresh()->translationPayload()['bio'])->toBe(['id' => '<p>Halo</p>', 'en' => '<p>Hello</p>']);
 });

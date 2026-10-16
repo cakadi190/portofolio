@@ -6,6 +6,7 @@ use App\Concerns\RecordsActivity;
 use App\Enums\Gender;
 use App\Enums\UserRole;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -29,6 +30,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Gender|null $gender
  * @property string|null $avatar
  * @property string|null $bio
+ * @property string|null $bio_en English version of the biography.
  * @property string|null $locale Interface language of the admin area (`id`/`en`); null follows the default.
  * @property Carbon|null $email_verified_at
  * @property string $password
@@ -39,14 +41,17 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'avatar', 'bio', 'username', 'locale'])]
+#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'avatar', 'bio', 'bio_en', 'username', 'locale'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     protected string $slugColumn = 'username';
 
-    use AutoGenerateSlug, HasFactory, Notifiable, PasskeyAuthenticatable, RecordsActivity, TwoFactorAuthenticatable;
+    /** @var list<string> */
+    protected array $englishAttributes = ['bio'];
+
+    use AutoGenerateSlug, HasEnglishContent, HasFactory, Notifiable, PasskeyAuthenticatable, RecordsActivity, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.

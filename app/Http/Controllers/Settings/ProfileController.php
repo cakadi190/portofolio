@@ -22,7 +22,10 @@ class ProfileController extends Controller
     {
         return Inertia::render('admin/settings/profile', [
             'genders' => Gender::options(),
-            'profile' => $request->user()->only(['name', 'username', 'email', 'phone', 'gender', 'avatar', 'bio']),
+            'profile' => [
+                ...$request->user()->only(['name', 'username', 'email', 'phone', 'gender', 'avatar', 'bio']),
+                'translations' => $request->user()->translationPayload(),
+            ],
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
         ]);

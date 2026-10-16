@@ -1,4 +1,7 @@
 <script lang="ts">
+  import TranslationBar from '@/components/admin/translation-bar.svelte';
+  import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
+  import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -25,10 +28,14 @@
       gender: string | null;
       avatar: string | null;
       bio: string | null;
+      translations: Record<string, Record<string, string>>;
     };
     genders: Option[];
     mustVerifyEmail?: boolean;
   } = $props();
+
+  // svelte-ignore state_referenced_locally
+  const translatable = createTranslatable(profile.translations ?? {}, { bio: 'html' });
 </script>
 
 <AppHead title="Profil Saya" />
@@ -150,14 +157,18 @@
 
           <Field.Group>
             <Field.Label for="profile-bio">Deskripsi</Field.Label>
+            <TranslationBar {translatable} picker />
+            <TranslationHiddenInputs {translatable} fields={['bio']} />
             <RichTextEditor
-              name="bio"
+              name={fieldName('bio', translatable.locale)}
               minimal
-              value={profile.bio ?? ''}
+              value={translatable.values.bio[translatable.locale]}
+              contentKey={translatable.contentKey}
+              onchange={(html) => (translatable.values.bio[translatable.locale] = html)}
               placeholder="Ceritakan singkat tentang Anda..."
-              invalid={!!errors.bio}
+              invalid={!!errors[fieldName('bio', translatable.locale)]}
             />
-            <Field.Feedback message={errors.bio} />
+            <Field.Feedback message={errors[fieldName('bio', translatable.locale)]} />
             <p class="text-muted small mb-0">
               Tampil di halaman profil penulis publik.
             </p>
