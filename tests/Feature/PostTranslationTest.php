@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Clarification;
 use App\Models\Note;
 use App\Models\Post;
 use App\Models\User;
@@ -125,4 +126,27 @@ it('translates notes the same way', function () {
         ->assertInertia(fn ($page) => $page->where('note.title', 'Quick note')->where('note.content', '<p>English body</p>'));
 
     expect($note->translatedLocales())->toBe(['id', 'en']);
+});
+
+it('translates clarifications across all their text fields', function () {
+    $clarification = Clarification::factory()->withEnglish('Not true')->create(['title' => 'Tidak benar']);
+
+    $this->get("/en/clarifications/{$clarification->slug}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('clarification.title', 'Not true')
+            ->where('clarification.claim', 'English claim')
+            ->where('clarification.content', '<p>English body</p>'));
+
+    expect($clarification->translatedLocales())->toBe(['id', 'en']);
+});
+
+it('keeps the Indonesian apology required and the English one optional', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('admin.clarifications.store'), [
+            'title' => 'Judul', 'claim' => 'Klaim', 'verdict' => 'true_with_apology', 'content' => '<p>x</p>',
+            'is_published' => '0', 'apology_en' => 'English apology',
+        ])
+        ->assertSessionHasErrors('apology')
+        ->assertSessionDoesntHaveErrors('apology_en');
 });

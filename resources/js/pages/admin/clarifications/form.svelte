@@ -10,6 +10,9 @@
   import EditorSummaryRow from '@/components/admin/editor-summary-row.svelte';
   import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
   import EditorTitle from '@/components/admin/editor-title.svelte';
+  import TranslationBar from '@/components/admin/translation-bar.svelte';
+  import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
+  import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import { Field } from '@/components/ui/field';
   import MediaField from '@/components/media/media-field.svelte';
@@ -35,6 +38,7 @@
     verdict: string;
     summary: string | null;
     content: string;
+    translations: Record<string, Record<string, string>>;
     apology: string | null;
     cover_image: string | null;
     sources: Source[] | null;
@@ -63,8 +67,21 @@
 
   // svelte-ignore state_referenced_locally
   let isPublished = $state(clarification?.is_published ?? false);
+  const FIELDS = ['title', 'claim', 'claim_origin', 'summary', 'content', 'apology', 'withdrawal_note'];
   // svelte-ignore state_referenced_locally
-  let title = $state(clarification?.title ?? '');
+  const translatable = createTranslatable(clarification?.translations ?? {}, {
+    title: 'text',
+    claim: 'text',
+    claim_origin: 'text',
+    summary: 'text',
+    content: 'html',
+    apology: 'text',
+    withdrawal_note: 'text',
+  });
+  const name = (field: string): string => fieldName(field, translatable.locale);
+  const error = (field: string, errors: Record<string, string>): string | undefined =>
+    errors[name(field)];
+  const title = $derived(translatable.values.title[translatable.locale] || translatable.values.title.id);
   // svelte-ignore state_referenced_locally
   let slug = $state(clarification?.slug ?? '');
   let publishedDisplay = $state('');
@@ -107,63 +124,66 @@
 >
   {#snippet children({ errors, processing })}
     {#snippet clarificationHeader()}
+      <TranslationBar {translatable} />
       <EditorTitle
-        name="title"
-        bind:value={title}
+        name={name('title')}
+        bind:value={translatable.values.title[translatable.locale]}
         placeholder="Judul klarifikasi"
         ariaLabel="Judul klarifikasi"
-        error={errors.title}
+        required={translatable.isDefault}
+        error={error('title', errors)}
       />
+      <TranslationHiddenInputs {translatable} fields={FIELDS} />
 
       <div class="card mb-4">
         <div class="card-header fw-semibold">Klaim yang beredar</div>
         <div class="card-body d-flex flex-column gap-3">
           <div>
             <textarea
-              name="claim"
+              name={name('claim')}
               aria-label="Klaim yang beredar"
               class="form-control"
-              class:is-invalid={!!errors.claim}
+              class:is-invalid={!!error('claim', errors)}
               rows="3"
               maxlength="1000"
               placeholder="Tulis klaim persis seperti yang beredar"
-              value={clarification?.claim ?? ''}></textarea>
-            <Field.Feedback message={errors.claim} />
+              bind:value={translatable.values.claim[translatable.locale]}></textarea>
+            <Field.Feedback message={error('claim', errors)} />
           </div>
           <div>
             <input
-              name="claim_origin"
+              name={name('claim_origin')}
               type="text"
               aria-label="Asal klaim"
               class="form-control"
-              class:is-invalid={!!errors.claim_origin}
+              class:is-invalid={!!error('claim_origin', errors)}
               maxlength="255"
               placeholder="Asal klaim, mis. platform dan tanggal (tanpa menyebut akun pribadi)"
-              value={clarification?.claim_origin ?? ''}
+              bind:value={translatable.values.claim_origin[translatable.locale]}
             />
-            <Field.Feedback message={errors.claim_origin} />
+            <Field.Feedback message={error('claim_origin', errors)} />
           </div>
         </div>
       </div>
     {/snippet}
 
     {#snippet clarificationAfter()}
-      <Field.Feedback message={errors.content} />
+      <Field.Feedback message={error('content', errors)} />
 
       <div class="d-flex flex-column gap-4 mt-4">
         <div class="card">
           <div class="card-header fw-semibold">Permintaan maaf</div>
           <div class="card-body">
             <textarea
-              name="apology"
+              name={name('apology')}
               aria-label="Permintaan maaf"
               class="form-control"
-              class:is-invalid={!!errors.apology}
+              class:is-invalid={!!error('apology', errors)}
               rows="4"
               maxlength="5000"
               placeholder="Wajib bila vonis &quot;Benar, Saya Meminta Maaf&quot;. Kosongkan bila tidak ada."
-              value={clarification?.apology ?? ''}></textarea>
-            <Field.Feedback message={errors.apology} />
+              bind:value={translatable.values.apology[translatable.locale]}></textarea>
+            <Field.Feedback message={error('apology', errors)} />
           </div>
         </div>
 
@@ -402,15 +422,15 @@
 
       <EditorPanel title="Kutipan">
         <textarea
-          name="summary"
+          name={name('summary')}
           aria-label="Ringkasan klarifikasi"
           class="form-control form-control-sm"
-          class:is-invalid={!!errors.summary}
+          class:is-invalid={!!error('summary', errors)}
           rows="4"
           maxlength="255"
           placeholder="Ringkasan singkat untuk daftar dan hasil pencarian"
-          value={clarification?.summary ?? ''}></textarea>
-        <Field.Feedback message={errors.summary} />
+          bind:value={translatable.values.summary[translatable.locale]}></textarea>
+        <Field.Feedback message={error('summary', errors)} />
       </EditorPanel>
 
       <EditorPanel title="Gambar Sampul">
@@ -440,21 +460,26 @@
           >
         </div>
         <textarea
-          name="withdrawal_note"
+          name={name('withdrawal_note')}
           class="form-control form-control-sm"
-          class:is-invalid={!!errors.withdrawal_note}
+          class:is-invalid={!!error('withdrawal_note', errors)}
           rows="3"
           placeholder="Alasan penarikan (opsional, tampil publik)"
-          value={clarification?.withdrawal_note ?? ''}></textarea>
-        <Field.Feedback message={errors.withdrawal_note} />
+          bind:value={translatable.values.withdrawal_note[translatable.locale]}></textarea>
+        <Field.Feedback message={error('withdrawal_note', errors)} />
       </EditorPanel>
     {/snippet}
 
     <RichTextEditor
       shell
-      name="content"
-      value={clarification?.content ?? ''}
-      invalid={!!errors.content}
+      name={name('content')}
+      value={translatable.values.content[translatable.locale]}
+      contentKey={translatable.contentKey}
+      onchange={(html) => (translatable.values.content[translatable.locale] = html)}
+      languages={translatable.languages}
+      language={translatable.locale}
+      onlanguage={(code) => (translatable.locale = code)}
+      invalid={!!error('content', errors)}
       viewHref={clarification?.is_published && clarification.slug
         ? show(clarification.slug).url
         : null}

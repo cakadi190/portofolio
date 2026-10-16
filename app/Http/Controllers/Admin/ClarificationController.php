@@ -49,7 +49,10 @@ class ClarificationController extends Controller
     public function edit(Clarification $clarification): Response
     {
         return Inertia::render('admin/clarifications/form', [
-            'clarification' => $clarification,
+            'clarification' => [
+                ...$clarification->toArray(),
+                'translations' => $clarification->translationPayload(),
+            ],
             'verdicts' => ClarificationVerdict::options(),
         ]);
     }

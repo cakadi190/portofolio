@@ -69,6 +69,7 @@ class ClarificationController extends Controller
         $description = $clarification->summary ?: Str::limit(strip_tags($clarification->content), 200);
 
         $seo->set([
+            'locales' => $clarification->translatedLocales(),
             'title' => $clarification->title,
             'description' => $description,
             'image' => $coverImage,

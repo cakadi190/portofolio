@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Concerns\RecordsActivity;
 use App\Enums\ClarificationVerdict;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\ClarificationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,13 +14,17 @@ use Illuminate\Database\Eloquent\Model;
 class Clarification extends Model
 {
     /** @use HasFactory<ClarificationFactory> */
-    use AutoGenerateSlug, HasFactory, RecordsActivity;
+    use AutoGenerateSlug, HasEnglishContent, HasFactory, RecordsActivity;
 
     protected string $slugSource = 'title';
+
+    /** @var list<string> */
+    protected array $englishAttributes = ['title', 'claim', 'claim_origin', 'summary', 'content', 'apology', 'withdrawal_note'];
 
     protected $fillable = [
         'title', 'slug', 'claim', 'claim_origin', 'verdict', 'summary', 'content',
         'apology', 'cover_image', 'sources', 'updates', 'withdrawn_at', 'withdrawal_note', 'is_published', 'published_at',
+        'title_en', 'claim_en', 'claim_origin_en', 'summary_en', 'content_en', 'apology_en', 'withdrawal_note_en',
     ];
 
     /**

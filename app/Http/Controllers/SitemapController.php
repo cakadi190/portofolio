@@ -127,7 +127,7 @@ class SitemapController extends Controller
         $urls = Clarification::query()
             ->published()
             ->latest('published_at')
-            ->get(['id', 'title', 'slug', 'cover_image', 'published_at', 'updated_at'])
+            ->get(['id', 'title', 'title_en', 'slug', 'cover_image', 'published_at', 'updated_at'])
             ->map(fn (Clarification $clarification): array => [
                 'title' => $clarification->title,
                 'loc' => route('clarifications.show', $clarification),
@@ -135,6 +135,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.6',
                 'images' => $this->images([[$clarification->cover_image, $clarification->title]]),
+                'locales' => $clarification->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);

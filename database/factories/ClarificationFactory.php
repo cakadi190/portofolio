@@ -51,4 +51,17 @@ class ClarificationFactory extends Factory
             'apology' => 'Saya meminta maaf atas kekeliruan tersebut.',
         ]);
     }
+
+    /**
+     * The clarification also exists in English.
+     */
+    public function withEnglish(string $title = 'English title'): static
+    {
+        return $this->state(fn (): array => [
+            'title_en' => $title,
+            'claim_en' => 'English claim',
+            'summary_en' => 'English summary',
+            'content_en' => '<p>English body</p>',
+        ]);
+    }
 }
