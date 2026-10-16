@@ -52,6 +52,10 @@ trait HasEnglishContent
         $attributes = parent::attributesToArray();
         $suffix = $this->contentSuffix();
 
+        if ($this->withTranslations ?? false) {
+            $attributes['translations'] = $this->translationPayload();
+        }
+
         if ($suffix === null) {
             return $attributes;
         }

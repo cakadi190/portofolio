@@ -3,14 +3,21 @@
 namespace App\Models;
 
 use App\Concerns\RecordsActivity;
+use App\Traits\Models\HasEnglishContent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Career extends Model
 {
-    use RecordsActivity;
+    use HasEnglishContent, RecordsActivity;
 
-    protected $fillable = ['position', 'company', 'location', 'start_date', 'end_date'];
+    /** @var list<string> */
+    protected array $englishAttributes = ['position'];
+
+    /** Admin lists carry the raw text of every language, for the edit form. */
+    protected bool $withTranslations = true;
+
+    protected $fillable = ['position', 'company', 'location', 'start_date', 'end_date', 'position_en'];
 
     /**
      * @return array<string, string>

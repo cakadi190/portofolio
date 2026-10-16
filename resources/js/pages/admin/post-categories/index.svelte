@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
   import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -16,6 +17,7 @@
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Category = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     name: string;
     color: string | null;
@@ -104,16 +106,7 @@
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
-        <Field.Group>
-          <Field.Label for="create-name">{t('admin.nama')}</Field.Label>
-          <Field.Input placeholder={t('admin.masukkan_nama')}
-            id="create-name"
-            name="name"
-            required
-            invalid={!!errors.name}
-          />
-          <Field.Feedback message={errors.name} />
-        </Field.Group>
+        <TranslatedField field="name" label={t('admin.nama')} id="create-name" placeholder={t('admin.masukkan_nama')} required {errors} />
 
         <Field.Group>
           <Field.Label for="create-color">{t('admin-post-categories.warna_opsional')}</Field.Label>
@@ -158,17 +151,7 @@
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}
-          <Field.Group>
-            <Field.Label for="edit-name">{t('admin.nama')}</Field.Label>
-            <Field.Input placeholder={t('admin.masukkan_nama')}
-              id="edit-name"
-              name="name"
-              required
-              value={current.name}
-              invalid={!!errors.name}
-            />
-            <Field.Feedback message={errors.name} />
-          </Field.Group>
+          <TranslatedField field="name" label={t('admin.nama')} id="edit-name" placeholder={t('admin.masukkan_nama')} required values={current.translations?.name} {errors} />
 
           <Field.Group>
             <Field.Label for="edit-color">{t('admin-post-categories.warna_opsional')}</Field.Label>

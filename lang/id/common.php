@@ -445,4 +445,5 @@ return [
     'ui.karakter_n_dari' => 'Karakter :n dari :total',
     'ui.judul_level' => 'Judul :level',
     'ui.contoh_rumus' => 'Contoh: E = mc^2 atau \\sqrt{x^2 + y^2}',
+    'translate.field_auto' => 'Terjemahkan dari Indonesia',
 ];

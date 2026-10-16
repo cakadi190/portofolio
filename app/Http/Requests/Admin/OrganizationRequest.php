@@ -17,6 +17,7 @@ class OrganizationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'description_en' => ['nullable', 'string'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'start_date' => ['required', 'date'],

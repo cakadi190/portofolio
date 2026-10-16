@@ -1,10 +1,15 @@
 <?php
 
+use App\Models\Award;
+use App\Models\Career;
 use App\Models\Clarification;
 use App\Models\Note;
+use App\Models\Organization;
 use App\Models\Portfolio;
 use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Service;
+use App\Models\Tag;
 use App\Models\User;
 use App\Support\AppLocale;
 
@@ -192,4 +197,48 @@ it('saves the English biography from the profile form', function () {
     ])->assertSessionHasNoErrors();
 
     expect($user->fresh()->translationPayload()['bio'])->toBe(['id' => '<p>Halo</p>', 'en' => '<p>Hello</p>']);
+});
+
+it('shows English short texts on /en pages and keeps Indonesian elsewhere', function () {
+    Award::query()->create(['event_name' => 'Lomba', 'title' => 'Juara 1', 'title_en' => '1st Place', 'type' => 'competition', 'year' => 2024]);
+    Career::query()->create(['position' => 'Pengembang', 'position_en' => 'Developer', 'company' => 'PT X', 'location' => 'Ngawi', 'start_date' => '2020-01-01']);
+    Organization::query()->create(['name' => 'Himpunan', 'description' => 'Deskripsi', 'description_en' => 'Description', 'start_date' => '2020-01-01']);
+
+    $this->get('/en/awards')->assertInertia(fn ($page) => $page->where('awards.0.title', '1st Place'));
+    $this->get('/en/career')->assertInertia(fn ($page) => $page->where('careers.0.position', 'Developer'));
+    $this->get('/en/education')->assertInertia(fn ($page) => $page->where('organizations.0.description', 'Description'));
+
+    request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
+
+    $this->get('/awards')->assertInertia(fn ($page) => $page->where('awards.0.title', 'Juara 1'));
+});
+
+it('localizes tag and category names on article cards', function () {
+    $post = Post::factory()->withEnglish()->create();
+    $post->tags()->attach(Tag::query()->create(['name' => 'Pemrograman', 'name_en' => 'Programming']));
+    $post->categories()->attach(PostCategory::query()->create(['name' => 'Tutorial', 'name_en' => 'Guides']));
+
+    $this->get("/en/blog/{$post->slug}")->assertInertia(fn ($page) => $page
+        ->where('post.tags.0.name', 'Programming')
+        ->where('post.categories.0.name', 'Guides'));
+});
+
+it('hands admin lists the raw text of every language', function () {
+    Award::query()->create(['event_name' => 'Lomba', 'title' => 'Juara 1', 'title_en' => '1st Place', 'type' => 'competition', 'year' => 2024]);
+
+    $this->actingAs(User::factory()->admin()->create(['locale' => 'en']))
+        ->get(route('admin.awards.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('awards.data.0.title', '1st Place')
+            ->where('awards.data.0.translations.title', ['id' => 'Juara 1', 'en' => '1st Place']));
+});
+
+it('saves English short texts from the admin forms', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->post(route('admin.awards.store'), [
+        'event_name' => 'Lomba', 'title' => 'Juara 1', 'title_en' => '1st Place', 'type' => 'competition', 'year' => 2024,
+    ])->assertSessionHasNoErrors();
+
+    expect(Award::query()->firstOrFail()->translationPayload()['title'])->toBe(['id' => 'Juara 1', 'en' => '1st Place']);
 });

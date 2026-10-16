@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
   import { t } from '@/lib/i18n';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -19,6 +20,7 @@
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Award = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     event_name: string;
     title: string;
@@ -120,16 +122,7 @@
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
-        <Field.Group>
-          <Field.Label for="create-title">{t('admin-awards.judul')}</Field.Label>
-          <Field.Input placeholder={t('admin-awards.masukkan_judul')}
-            id="create-title"
-            name="title"
-            required
-            invalid={!!errors.title}
-          />
-          <Field.Feedback message={errors.title} />
-        </Field.Group>
+        <TranslatedField field="title" label={t('admin-awards.judul')} id="create-title" placeholder={t('admin-awards.masukkan_judul')} required {errors} />
 
         <Field.Group>
           <Field.Label for="create-type">{t('admin-awards.jenis_penghargaan')}</Field.Label>
@@ -224,17 +217,7 @@
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}
-          <Field.Group>
-            <Field.Label for="edit-title">{t('admin-awards.judul')}</Field.Label>
-            <Field.Input placeholder={t('admin-awards.masukkan_judul')}
-              id="edit-title"
-              name="title"
-              required
-              value={current.title}
-              invalid={!!errors.title}
-            />
-            <Field.Feedback message={errors.title} />
-          </Field.Group>
+          <TranslatedField field="title" label={t('admin-awards.judul')} id="edit-title" placeholder={t('admin-awards.masukkan_judul')} required values={current.translations?.title} {errors} />
 
           <Field.Group>
             <Field.Label for="edit-type">{t('admin-awards.jenis_penghargaan')}</Field.Label>

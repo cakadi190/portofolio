@@ -21,6 +21,8 @@ class SpeakingEngagementRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'title_en' => ['nullable', 'string', 'max:255'],
+            'description_en' => ['nullable', 'string', 'max:5000'],
             'title' => ['required', 'string', 'max:255'],
             'organizer' => ['required', 'string', 'max:255'],
             'role' => ['required', new Enum(SpeakingRole::class)],

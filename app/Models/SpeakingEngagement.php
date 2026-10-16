@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Concerns\RecordsActivity;
 use App\Enums\SpeakingFormat;
 use App\Enums\SpeakingRole;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\SpeakingEngagementFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,11 +14,18 @@ use Illuminate\Database\Eloquent\Model;
 class SpeakingEngagement extends Model
 {
     /** @use HasFactory<SpeakingEngagementFactory> */
-    use HasFactory, RecordsActivity;
+    use HasEnglishContent, HasFactory, RecordsActivity;
+
+    /** @var list<string> */
+    protected array $englishAttributes = ['title', 'description'];
+
+    /** Admin lists carry the raw text of every language, for the edit form. */
+    protected bool $withTranslations = true;
 
     protected $fillable = [
         'title', 'organizer', 'role', 'format', 'location', 'starts_at', 'ends_at',
         'registration_url', 'description', 'poster', 'is_published',
+        'title_en', 'description_en',
     ];
 
     /**

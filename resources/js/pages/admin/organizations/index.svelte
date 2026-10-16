@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
   import { t } from '@/lib/i18n';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -18,6 +19,7 @@
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Organization = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     name: string;
     description: string | null;
@@ -113,16 +115,7 @@
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
-        <Field.Group>
-          <Field.Label for="create-description">{t('admin.deskripsi')}</Field.Label>
-          <textarea placeholder={t('admin.masukkan_deskripsi')}
-            id="create-description"
-            name="description"
-            class="form-control"
-            class:is-invalid={!!errors.description}
-            rows="3"></textarea>
-          <Field.Feedback message={errors.description} />
-        </Field.Group>
+        <TranslatedField field="description" label={t('admin.deskripsi')} id="create-description" placeholder={t('admin.masukkan_deskripsi')} multiline rows={3} {errors} />
 
         <div class="row g-3">
           <div class="col-sm-6">
@@ -193,17 +186,7 @@
             <Field.Feedback message={errors.name} />
           </Field.Group>
 
-          <Field.Group>
-            <Field.Label for="edit-description">{t('admin.deskripsi')}</Field.Label>
-            <textarea placeholder={t('admin.masukkan_deskripsi')}
-              id="edit-description"
-              name="description"
-              class="form-control"
-              class:is-invalid={!!errors.description}
-              rows="3">{current.description ?? ''}</textarea
-            >
-            <Field.Feedback message={errors.description} />
-          </Field.Group>
+          <TranslatedField field="description" label={t('admin.deskripsi')} id="edit-description" placeholder={t('admin.masukkan_deskripsi')} multiline rows={3} {errors} />
 
           <div class="row g-3">
             <div class="col-sm-6">

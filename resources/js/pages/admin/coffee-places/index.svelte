@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
   import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -24,6 +25,7 @@
   type Option = { value: string; label: string };
 
   type CoffeePlace = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     name: string;
     address: string;
@@ -179,16 +181,7 @@
           <Field.Feedback message={errors.address} />
         </Field.Group>
 
-        <Field.Group>
-          <Field.Label for="create-description">{t('admin.deskripsi')}</Field.Label>
-          <textarea placeholder={t('admin.masukkan_deskripsi')}
-            id="create-description"
-            name="description"
-            class="form-control"
-            class:is-invalid={!!errors.description}
-            rows="3"></textarea>
-          <Field.Feedback message={errors.description} />
-        </Field.Group>
+        <TranslatedField field="description" label={t('admin.deskripsi')} id="create-description" placeholder={t('admin.masukkan_deskripsi')} multiline rows={3} {errors} />
 
         <Field.Group>
           <Field.Label for="create-image">{t('admin.foto')}</Field.Label>
@@ -383,17 +376,7 @@
             <Field.Feedback message={errors.address} />
           </Field.Group>
 
-          <Field.Group>
-            <Field.Label for="edit-description">{t('admin.deskripsi')}</Field.Label>
-            <textarea placeholder={t('admin.masukkan_deskripsi')}
-              id="edit-description"
-              name="description"
-              class="form-control"
-              class:is-invalid={!!errors.description}
-              rows="3">{current.description ?? ''}</textarea
-            >
-            <Field.Feedback message={errors.description} />
-          </Field.Group>
+          <TranslatedField field="description" label={t('admin.deskripsi')} id="edit-description" placeholder={t('admin.masukkan_deskripsi')} multiline rows={3} {errors} />
 
           <Field.Group>
             <Field.Label for="edit-image">{t('admin.foto')}</Field.Label>

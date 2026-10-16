@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
   import { t } from '@/lib/i18n';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -21,6 +22,7 @@
   type PortfolioOption = { id: number; name: string };
 
   type Career = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     position: string;
     company: string;
@@ -119,16 +121,7 @@
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
-        <Field.Group>
-          <Field.Label for="create-position">{t('admin-careers.posisi')}</Field.Label>
-          <Field.Input placeholder={t('admin-careers.masukkan_posisi')}
-            id="create-position"
-            name="position"
-            required
-            invalid={!!errors.position}
-          />
-          <Field.Feedback message={errors.position} />
-        </Field.Group>
+        <TranslatedField field="position" label={t('admin-careers.posisi')} id="create-position" placeholder={t('admin-careers.masukkan_posisi')} required {errors} />
 
         <Field.Group>
           <Field.Label for="create-company">{t('admin-careers.perusahaan')}</Field.Label>
@@ -218,17 +211,7 @@
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}
-          <Field.Group>
-            <Field.Label for="edit-position">{t('admin-careers.posisi')}</Field.Label>
-            <Field.Input placeholder={t('admin-careers.masukkan_posisi')}
-              id="edit-position"
-              name="position"
-              required
-              value={current.position}
-              invalid={!!errors.position}
-            />
-            <Field.Feedback message={errors.position} />
-          </Field.Group>
+          <TranslatedField field="position" label={t('admin-careers.posisi')} id="edit-position" placeholder={t('admin-careers.masukkan_posisi')} required values={current.translations?.position} {errors} />
 
           <Field.Group>
             <Field.Label for="edit-company">{t('admin-careers.perusahaan')}</Field.Label>

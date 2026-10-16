@@ -19,6 +19,7 @@ class DevCommunityRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'description_en' => ['nullable', 'string', 'max:1000'],
             'name' => ['required', 'string', 'max:255'],
             'platform' => ['required', Rule::enum(CommunityPlatform::class)],
             'description' => ['nullable', 'string', 'max:1000'],

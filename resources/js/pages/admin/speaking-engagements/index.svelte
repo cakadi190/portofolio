@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
   import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -22,6 +23,7 @@
   type Option = { value: string; label: string };
 
   type SpeakingEngagement = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     title: string;
     organizer: string;
@@ -138,18 +140,15 @@
   errors: Record<string, string>,
   item: SpeakingEngagement | null,
 )}
-  <Field.Group>
-    <Field.Label for={`${prefix}-title`}>{t('admin-speaking-engagements.judul_acara')}</Field.Label>
-    <Field.Input
-      placeholder={t('admin-speaking-engagements.masukkan_judul_acara')}
-      id={`${prefix}-title`}
-      name="title"
-      required
-      value={item?.title}
-      invalid={!!errors.title}
-    />
-    <Field.Feedback message={errors.title} />
-  </Field.Group>
+  <TranslatedField
+    field="title"
+    label={t('admin-speaking-engagements.judul_acara')}
+    id={`${prefix}-title`}
+    placeholder={t('admin-speaking-engagements.masukkan_judul_acara')}
+    required
+    values={item?.translations?.title}
+    {errors}
+  />
 
   <Field.Group>
     <Field.Label for={`${prefix}-organizer`}>{t('admin-speaking-engagements.penyelenggara')}</Field.Label>
@@ -249,18 +248,16 @@
     <Field.Feedback message={errors.registration_url} />
   </Field.Group>
 
-  <Field.Group>
-    <Field.Label for={`${prefix}-description`}>{t('admin.deskripsi')}</Field.Label>
-    <textarea
-      placeholder={t('admin-speaking-engagements.ringkasan_acara_dan_materi_yang_dibawakan')}
-      id={`${prefix}-description`}
-      name="description"
-      class="form-control"
-      class:is-invalid={!!errors.description}
-      rows="3"
-      value={item?.description ?? ''}></textarea>
-    <Field.Feedback message={errors.description} />
-  </Field.Group>
+  <TranslatedField
+    field="description"
+    label={t('admin.deskripsi')}
+    id={`${prefix}-description`}
+    placeholder={t('admin-speaking-engagements.ringkasan_acara_dan_materi_yang_dibawakan')}
+    multiline
+    rows={3}
+    values={item?.translations?.description}
+    {errors}
+  />
 
   <Field.Group>
     <Field.Label for={`${prefix}-poster`}>{t('admin-speaking-engagements.poster')}</Field.Label>

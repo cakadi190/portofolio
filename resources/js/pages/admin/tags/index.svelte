@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
   import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -10,7 +11,11 @@
   import { destroy, store, update, index } from '@/wayfinder/routes/admin/tags';
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
-  type Tag = { id: number; name: string };
+  type Tag = {
+    id: number;
+    name: string;
+    translations?: Record<string, Record<string, string>>;
+  };
 
   let { tags, filters }: { filters: TableFilters; tags: InfiniteList<Tag> } =
     $props();
@@ -80,16 +85,7 @@
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
-        <Field.Group>
-          <Field.Label for="create-name">{t('admin.nama')}</Field.Label>
-          <Field.Input placeholder={t('admin.masukkan_nama')}
-            id="create-name"
-            name="name"
-            required
-            invalid={!!errors.name}
-          />
-          <Field.Feedback message={errors.name} />
-        </Field.Group>
+        <TranslatedField field="name" label={t('admin.nama')} id="create-name" placeholder={t('admin.masukkan_nama')} required {errors} />
 
         <div class="d-flex justify-content-end gap-2">
           <button
@@ -123,17 +119,7 @@
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}
-          <Field.Group>
-            <Field.Label for="edit-name">{t('admin.nama')}</Field.Label>
-            <Field.Input placeholder={t('admin.masukkan_nama')}
-              id="edit-name"
-              name="name"
-              required
-              value={current.name}
-              invalid={!!errors.name}
-            />
-            <Field.Feedback message={errors.name} />
-          </Field.Group>
+          <TranslatedField field="name" label={t('admin.nama')} id="edit-name" placeholder={t('admin.masukkan_nama')} required values={current.translations?.name} {errors} />
 
           <div class="d-flex justify-content-end gap-2">
             <button

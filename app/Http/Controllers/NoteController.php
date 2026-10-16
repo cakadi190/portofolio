@@ -30,7 +30,7 @@ class NoteController extends Controller
 
         $notes = Note::query()
             ->published()
-            ->with('tags:id,name')
+            ->with('tags:id,name,name_en')
             ->when($activeTag, fn ($query) => $query->whereHas('tags', fn ($tags) => $tags->where('name', $activeTag)))
             ->latest('published_at')
             ->paginate(20)
@@ -62,7 +62,7 @@ class NoteController extends Controller
     {
         abort_unless($note->is_published, 404);
 
-        $note->load('tags:id,name');
+        $note->load('tags:id,name,name_en');
 
         $description = $note->excerpt ?: Str::limit(strip_tags($note->content), 200);
 

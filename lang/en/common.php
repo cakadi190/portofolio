@@ -445,4 +445,5 @@ return [
     'ui.karakter_n_dari' => 'Character :n of :total',
     'ui.judul_level' => 'Heading :level',
     'ui.contoh_rumus' => 'Example: E = mc^2 or \\sqrt{x^2 + y^2}',
+    'translate.field_auto' => 'Translate from Indonesian',
 ];

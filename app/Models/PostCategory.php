@@ -4,14 +4,21 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEnglishContent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class PostCategory extends Model
 {
-    use AutoGenerateSlug, RecordsActivity;
+    use AutoGenerateSlug, HasEnglishContent, RecordsActivity;
 
-    protected $fillable = ['name', 'slug', 'color'];
+    /** @var list<string> */
+    protected array $englishAttributes = ['name'];
+
+    /** Admin lists carry the raw text of every language, for the edit form. */
+    protected bool $withTranslations = true;
+
+    protected $fillable = ['name', 'slug', 'color', 'name_en'];
 
     /**
      * @return BelongsToMany<Post, $this>
