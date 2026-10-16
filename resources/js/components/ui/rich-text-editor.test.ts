@@ -190,4 +190,32 @@ describe('RichTextEditor', () => {
     );
     expect(screen.getByTestId('stored-en').textContent).toBe('<p>Hello world</p>');
   });
+
+  it('duplicates the block under the caret with Ctrl+Shift+D', async () => {
+    await mountEditor({ value: '<p>Satu</p><p>Dua</p>' });
+    const view = document.querySelector<HTMLElement>('.ProseMirror')!;
+
+    view.focus();
+    await fireEvent.keyDown(view, { key: 'D', ctrlKey: true, shiftKey: true });
+
+    await vi.waitFor(() =>
+      expect(hidden('content')?.value).toBe('<p>Satu</p><p>Satu</p><p>Dua</p>'),
+    );
+  });
+
+  it('offers copy, cut, duplicate and paste-below for the block in the context menu', async () => {
+    await mountEditor({ value: '<p>Satu</p>' });
+    const view = document.querySelector<HTMLElement>('.ProseMirror')!;
+
+    await fireEvent.contextMenu(view);
+
+    for (const label of ['Salin blok', 'Potong blok', 'Gandakan blok', 'Tempel di bawah blok']) {
+      await vi.waitFor(() => expect(screen.getByText(label)).toBeTruthy());
+    }
+
+    await fireEvent.click(screen.getByText('Gandakan blok'));
+    await vi.waitFor(() =>
+      expect(hidden('content')?.value).toBe('<p>Satu</p><p>Satu</p>'),
+    );
+  });
 });

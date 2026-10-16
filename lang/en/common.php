@@ -498,4 +498,11 @@ return [
     'ui.tidak_ada_hasil_yang_cocok' => 'No matching results.',
     'ui.mulai_mengetik_untuk_mencari' => 'Start typing to search.',
     'ui.rantai_berujung' => 'The chain ends at :anchor',
+    'ui.gandakan_blok' => 'Duplicate block',
+    'ui.salin_blok' => 'Copy block',
+    'ui.potong_blok' => 'Cut block',
+    'ui.tempel_di_bawah_blok' => 'Paste below block',
+    'ui.blok_disalin' => 'Block copied to the clipboard.',
+    'ui.blok_dipotong' => 'Block cut to the clipboard.',
+    'ui.izin_papan_klip_ditolak' => 'Clipboard permission denied. Use Ctrl+V to paste.',
 ];

@@ -498,4 +498,11 @@ return [
     'ui.tidak_ada_hasil_yang_cocok' => 'Tidak ada hasil yang cocok.',
     'ui.mulai_mengetik_untuk_mencari' => 'Mulai mengetik untuk mencari.',
     'ui.rantai_berujung' => 'Rantai berujung di :anchor',
+    'ui.gandakan_blok' => 'Gandakan blok',
+    'ui.salin_blok' => 'Salin blok',
+    'ui.potong_blok' => 'Potong blok',
+    'ui.tempel_di_bawah_blok' => 'Tempel di bawah blok',
+    'ui.blok_disalin' => 'Blok disalin ke papan klip.',
+    'ui.blok_dipotong' => 'Blok dipotong ke papan klip.',
+    'ui.izin_papan_klip_ditolak' => 'Izin papan klip ditolak. Gunakan Ctrl+V untuk menempel.',
 ];

@@ -7,6 +7,8 @@
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
   import Check from '@lucide/svelte/icons/check';
+  import Copy from '@lucide/svelte/icons/copy';
+  import CopyPlus from '@lucide/svelte/icons/copy-plus';
   import Monitor from '@lucide/svelte/icons/monitor';
   import Smartphone from '@lucide/svelte/icons/smartphone';
   import Tablet from '@lucide/svelte/icons/tablet';
@@ -1079,6 +1081,78 @@
     }
   }
 
+  /**
+   * Copies the whole top-level block under the caret (like selecting a paragraph in
+   * Word and pressing Ctrl+C). The block is selected for the copy so ProseMirror writes
+   * it to the clipboard as HTML (pasteable into other editors) and the caret is restored.
+   */
+  function copyBlock(): boolean {
+    const range = topBlock();
+
+    if (!editor || !range) return false;
+
+    const { selection } = editor.state;
+
+    editor
+      .chain()
+      .focus()
+      .setNodeSelection(range.pos)
+      .command(() => {
+        document.execCommand('copy');
+
+        return true;
+      })
+      .setTextSelection(selection.empty ? selection.from : { from: selection.from, to: selection.to })
+      .run();
+
+    toast.success(t('ui.blok_disalin'));
+
+    return true;
+  }
+
+  function cutBlock(): void {
+    const range = topBlock();
+
+    if (!editor || !range || !copyBlock()) return;
+
+    deleteBlock(range);
+    toast.success(t('ui.blok_dipotong'));
+  }
+
+  /** Pastes the clipboard (HTML when available, else text) as new block(s) below the current block. */
+  async function pasteBlockBelow(): Promise<void> {
+    if (!editor) return;
+
+    const range = topBlock();
+    const position = range ? range.pos + range.size : editor.state.doc.content.size;
+
+    try {
+      let content = '';
+
+      for (const item of await navigator.clipboard.read()) {
+        if (item.types.includes('text/html')) {
+          content = await (await item.getType('text/html')).text();
+          break;
+        }
+      }
+
+      if (content === '') {
+        const text = (await navigator.clipboard.readText()).trim();
+
+        content = text
+          .split(/\n{2,}/)
+          .map((paragraph) => `<p>${paragraph.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c] as string).replaceAll('\n', '<br>')}</p>`)
+          .join('');
+      }
+
+      if (content === '') return;
+
+      editor.chain().focus().insertContentAt(position, content).run();
+    } catch {
+      toast.error(t('ui.izin_papan_klip_ditolak'));
+    }
+  }
+
   function moveBlock(direction: -1 | 1): void {
     const range = topBlock();
 
@@ -1156,7 +1230,7 @@
     try {
       editor?.view.pasteText(await navigator.clipboard.readText());
     } catch {
-      window.alert('Izin papan klip ditolak. Gunakan Ctrl+V untuk menempel.');
+      toast.error(t('ui.izin_papan_klip_ditolak'));
     }
   }
 
@@ -1302,7 +1376,10 @@
 
     if (!minimal) {
       groups[0].push(
-        { label: t('ui.gandakan'), action: duplicateBlock },
+        { label: t('ui.gandakan_blok'), shortcut: 'Ctrl+Shift+D', action: duplicateBlock },
+        { label: t('ui.salin_blok'), action: copyBlock },
+        { label: t('ui.potong_blok'), action: cutBlock },
+        { label: t('ui.tempel_di_bawah_blok'), action: () => void pasteBlockBelow() },
         { label: t('ui.tambahkan_sebelumnya'), action: () => addParagraph('before') },
         { label: t('ui.tambahkan_setelahnya'), action: () => addParagraph('after') },
       );
@@ -1581,6 +1658,18 @@
           if (!minimal && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
             event.preventDefault();
             setLink();
+
+            return true;
+          }
+
+          if (
+            !minimal &&
+            (event.ctrlKey || event.metaKey) &&
+            event.shiftKey &&
+            event.key.toLowerCase() === 'd'
+          ) {
+            event.preventDefault();
+            duplicateBlock();
 
             return true;
           }
@@ -2541,6 +2630,21 @@
               onclick={() => moveBlock(1)}><ArrowDown size={14} /></button
             >
           </div>
+          <button
+            type="button"
+            class="rte-btn"
+            title={t('ui.salin_blok')}
+            aria-label={t('ui.salin_blok')}
+            onclick={copyBlock}><Copy size={14} /></button
+          >
+          <button
+            type="button"
+            class="rte-btn"
+            title={`${t('ui.gandakan_blok')} (Ctrl+Shift+D)`}
+            aria-label={t('ui.gandakan_blok')}
+            aria-keyshortcuts="Control+Shift+D Meta+Shift+D"
+            onclick={duplicateBlock}><CopyPlus size={14} /></button
+          >
         {/if}
       </div>
       <div class="rte-tb-group">
