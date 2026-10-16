@@ -149,6 +149,38 @@ export const FigureImage = Image.extend({
   },
 });
 
+export const BULLET_STYLES = ['disc', 'circle', 'square', 'dash'] as const;
+
+/**
+ * Marker style of bullet lists (`<ul type="square">`). Stored as the HTML `type`
+ * attribute; the public CSS maps it to `list-style-type`, so nothing else is needed.
+ */
+export const BulletListStyle = Extension.create({
+  name: 'bulletListStyle',
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ['bulletList'],
+        attributes: {
+          type: {
+            default: null,
+            parseHTML: (element) => {
+              const value = element.getAttribute('type');
+
+              return (BULLET_STYLES as readonly string[]).includes(value ?? '')
+                ? value
+                : null;
+            },
+            renderHTML: (attributes) =>
+              attributes.type ? { type: attributes.type } : {},
+          },
+        },
+      },
+    ];
+  },
+});
+
 export const BLOCK_TEXT_MAX_LENGTH = 60;
 
 /** Trims a short heading-like attribute so it fits the sanitizer's limit. */

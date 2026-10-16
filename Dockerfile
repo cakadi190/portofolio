@@ -120,6 +120,11 @@ RUN --mount=type=cache,target=/tmp/composer-cache,sharing=locked \
 # shares every dependency layer through the cache.
 FROM base AS testing
 
+# Paratest workers keep running test after test in one process, and the image tests
+# (WebP encoding) push the 128M default over the edge. Build-time only, so no
+# production consequence.
+RUN printf 'memory_limit = 512M\n' > "$PHP_INI_DIR/conf.d/zz-testing.ini"
+
 COPY --from=vendor-testing /app/vendor ./vendor
 COPY . .
 

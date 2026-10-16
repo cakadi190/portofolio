@@ -81,15 +81,15 @@
 
 ## Rilis & status modul
 
-| Modul                                                             | Status                                       |
-| ----------------------------------------------------------------- | -------------------------------------------- |
-| Profil (karier, pendidikan, organisasi, sertifikasi, penghargaan) | ✅                                           |
-| Portofolio + teknologi, layanan, galeri, ulasan                   | ✅                                           |
-| Blog + kategori, tag, komentar moderasi, penulis                  | ✅                                           |
-| Pembicara & Mentoring                                             | ✅                                           |
-| Klarifikasi (hak jawab)                                           | ✅                                           |
-| Tempat Ngopi + galeri + peta                                      | ✅                                           |
-| Pustaka Media, Pengaturan Sistem, Pesan Masuk                     | ✅                                           |
+| Modul                                                             | Status                                                         |
+| ----------------------------------------------------------------- | -------------------------------------------------------------- |
+| Profil (karier, pendidikan, organisasi, sertifikasi, penghargaan) | ✅                                                             |
+| Portofolio + teknologi, layanan, galeri, ulasan                   | ✅                                                             |
+| Blog + kategori, tag, komentar moderasi, penulis                  | ✅                                                             |
+| Pembicara & Mentoring                                             | ✅                                                             |
+| Klarifikasi (hak jawab)                                           | ✅                                                             |
+| Tempat Ngopi + galeri + peta                                      | ✅                                                             |
+| Pustaka Media, Pengaturan Sistem, Pesan Masuk                     | ✅                                                             |
 | SEO, sitemap, GA4, Turnstile, header keamanan                     | ✅ (CSP diberlakukan di produksi dengan nonce, lihat `06` #10) |
 
 Persyaratan non-fungsional, alur pengguna utama, kriteria penerimaan, risiko, dan glosarium ada di [07-nonfunctional-and-acceptance.md](07-nonfunctional-and-acceptance.md).

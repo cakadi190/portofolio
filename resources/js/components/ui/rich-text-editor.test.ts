@@ -313,4 +313,32 @@ describe('RichTextEditor', () => {
       expect(hidden('content')?.value).toContain('Keterangan');
     });
   });
+
+  describe('ordered list numbering', () => {
+    it('sets the start number of the list under the caret', async () => {
+      await mountEditor({
+        shell: true,
+        value: '<ol><li><p>Satu</p></li><li><p>Dua</p></li></ol>',
+      });
+
+      await fireEvent.click(screen.getByRole('tab', { name: 'Blok' }));
+
+      const start = await screen.findByLabelText('Mulai dari angka');
+      await fireEvent.input(start, { target: { value: '5' } });
+
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toContain('<ol start="5">'),
+      );
+    });
+
+    it('keeps roman numbering on nested lists through the editor HTML', async () => {
+      await mountEditor({
+        value:
+          '<ol type="I"><li><p>Satu</p><ol type="i"><li><p>Satu-a</p></li></ol></li></ol>',
+      });
+
+      expect(hidden('content')?.value).toContain('<ol type="I">');
+      expect(hidden('content')?.value).toContain('<ol type="i">');
+    });
+  });
 });

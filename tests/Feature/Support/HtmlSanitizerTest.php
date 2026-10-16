@@ -111,3 +111,13 @@ test('code block keeps the title-tab and line-number switches but only the value
         ->and(HtmlSanitizer::clean('<pre data-code-lines="yes" data-code-title-hidden="0"><code>x</code></pre>'))
         ->toBe('<pre><code>x</code></pre>');
 });
+
+it('keeps the numbering and marker types of lists but drops unknown values', function () {
+    $html = HtmlSanitizer::clean('<ol type="I" start="3"><li>a<ol type="i"><li>b</li></ol></li></ol><ul type="square"><li>c</li></ul><ol type="javascript"><li>d</li></ol>');
+
+    expect($html)
+        ->toContain('<ol type="I" start="3">')
+        ->toContain('<ol type="i">')
+        ->toContain('<ul type="square">')
+        ->not->toContain('javascript');
+});

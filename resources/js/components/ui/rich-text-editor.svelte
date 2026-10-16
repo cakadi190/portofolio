@@ -62,6 +62,8 @@
   import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
   import {
+    BULLET_STYLES,
+    BulletListStyle,
     ButtonBlock,
     CALLOUT_TYPES,
     Callout,
@@ -570,6 +572,63 @@
           : (blockLabels[kind] ?? kind),
     };
   });
+
+  /** Closest list around the caret (nested lists included), for its numbering / marker settings. */
+  const listInfo = $derived.by(() => {
+    void tick;
+
+    if (minimal || !editor) return null;
+
+    const caret = editor.state.selection.$from;
+
+    for (let depth = caret.depth; depth > 0; depth--) {
+      const node = caret.node(depth);
+
+      if (node.type.name === 'orderedList' || node.type.name === 'bulletList') {
+        return { kind: node.type.name, pos: caret.before(depth), attrs: node.attrs };
+      }
+    }
+
+    return null;
+  });
+
+  const listTypeItems = [
+    { value: '1', label: t('ui.penomoran_angka') },
+    { value: 'a', label: t('ui.penomoran_huruf_kecil') },
+    { value: 'A', label: t('ui.penomoran_huruf_besar') },
+    { value: 'i', label: t('ui.penomoran_romawi_kecil') },
+    { value: 'I', label: t('ui.penomoran_romawi_besar') },
+  ];
+  const bulletStyleLabels: Record<(typeof BULLET_STYLES)[number], string> = {
+    disc: t('ui.penanda_titik'),
+    circle: t('ui.penanda_lingkaran'),
+    square: t('ui.penanda_kotak'),
+    dash: t('ui.penanda_strip'),
+  };
+  const bulletStyleItems = BULLET_STYLES.map((value) => ({
+    value,
+    label: bulletStyleLabels[value],
+  }));
+
+  /** Changes the numbering (`type`, `start`) or marker (`type`) of the list under the caret. */
+  function patchList(patch: { type?: string | null; start?: number }): void {
+    const target = listInfo;
+
+    if (!editor || !target) return;
+
+    editor
+      .chain()
+      .command(({ tr }) => {
+        const node = tr.doc.nodeAt(target.pos);
+
+        if (!node) return false;
+
+        tr.setNodeMarkup(target.pos, undefined, { ...node.attrs, ...patch });
+
+        return true;
+      })
+      .run();
+  }
 
   /** Places the floating block toolbar above the block under the caret. */
   function syncToolbar(): void {
@@ -1705,6 +1764,7 @@
           ? []
           : [
               FigureImage,
+              BulletListStyle,
               LinkCard,
               Callout,
               ButtonBlock,
@@ -2361,6 +2421,62 @@
             </div>
           </div>
         {/if}
+      {/if}
+
+      {#if listInfo?.kind === 'orderedList'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.jenis_penomoran')}</span>
+          <Select
+            inline
+            searchable={false}
+            size="sm"
+            class="rte-select"
+            ariaLabel={t('ui.jenis_penomoran')}
+            items={listTypeItems}
+            value={listInfo.attrs.type || '1'}
+            onchange={(next) => patchList({ type: String(next || '1') })}
+          />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.mulai_dari_angka')}</span>
+          <div class="d-flex gap-2">
+            <input
+              type="number"
+              min="1"
+              max="9999"
+              class="form-control form-control-sm"
+              aria-label={t('ui.mulai_dari_angka')}
+              value={listInfo.attrs.start ?? 1}
+              oninput={(event) => {
+                const value = Math.floor(Number(event.currentTarget.value));
+
+                if (value >= 1 && value <= 9999) patchList({ start: value });
+              }}
+            />
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary text-nowrap"
+              disabled={(listInfo.attrs.start ?? 1) === 1}
+              onclick={() => patchList({ start: 1 })}
+            >
+              {t('ui.setel_ulang_nomor')}
+            </button>
+          </div>
+        </div>
+      {:else if listInfo?.kind === 'bulletList'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.jenis_penanda')}</span>
+          <Select
+            inline
+            searchable={false}
+            size="sm"
+            class="rte-select"
+            ariaLabel={t('ui.jenis_penanda')}
+            items={bulletStyleItems}
+            value={listInfo.attrs.type || 'disc'}
+            onchange={(next) => patchList({ type: next && next !== 'disc' ? String(next) : null })}
+          />
+        </div>
       {/if}
 
       <button

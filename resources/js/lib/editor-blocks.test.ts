@@ -2,6 +2,7 @@ import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { describe, expect, it } from 'vitest';
 import {
+  BulletListStyle,
   ButtonBlock,
   Callout,
   CodeBlockHighlight,
@@ -28,6 +29,7 @@ function editor(content: string) {
     extensions: [
       StarterKit.configure({ codeBlock: false }),
       FigureImage,
+      BulletListStyle,
       LinkCard,
       Callout,
       ButtonBlock,
@@ -326,5 +328,27 @@ describe('code block switches', () => {
     const gutter = instance.view.dom.querySelector('.code-card__gutter');
 
     expect(gutter?.textContent).toBe('1\n2\n3');
+  });
+});
+
+describe('list styles', () => {
+  it('keeps a known bullet marker and drops unknown ones', () => {
+    const instance = editor(
+      '<ul type="square"><li><p>a</p></li></ul><ul type="bogus"><li><p>b</p></li></ul><ul><li><p>c</p></li></ul>',
+    );
+
+    expect(instance.getHTML()).toBe(
+      '<ul type="square"><li><p>a</p></li></ul><ul><li><p>b</p></li></ul><ul><li><p>c</p></li></ul>',
+    );
+  });
+
+  it('keeps numbering type and start on nested ordered lists', () => {
+    const instance = editor(
+      '<ol type="I" start="3"><li><p>a</p><ol type="i"><li><p>b</p></li></ol></li></ol>',
+    );
+
+    expect(instance.getHTML()).toBe(
+      '<ol start="3" type="I"><li><p>a</p><ol type="i"><li><p>b</p></li></ol></li></ol>',
+    );
   });
 });
