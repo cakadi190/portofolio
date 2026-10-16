@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Services\TurnstileService;
+use App\Support\AppLocale;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -50,6 +51,15 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
+     * Keep the language prefix in the URL Inertia reports to the browser (the
+     * request itself was rewritten to the unprefixed route by `ResolveLocalePrefix`).
+     */
+    public function urlResolver(): Closure
+    {
+        return fn (Request $request): string => AppLocale::localize($request->getRequestUri(), AppLocale::urlLocale());
+    }
+
+    /**
      * Define the props that are shared by default.
      *
      * @see https://inertiajs.com/shared-data
@@ -61,6 +71,10 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'locale' => app()->getLocale(),
+            'locales' => AppLocale::options(),
+            'localeAlternates' => AppLocale::alternates($request),
+            'translations' => AppLocale::translations(),
             'turnstileSiteKey' => app(TurnstileService::class)->isEnabled() ? app(TurnstileService::class)->siteKey() : null,
             'auth' => [
                 'user' => $request->user(),

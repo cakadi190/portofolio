@@ -36,8 +36,12 @@
     <meta name="msvalidate.01" content="{{ $seo['bingVerification'] }}">
 @endif
 <link rel="canonical" href="{{ $seo['canonical'] }}">
-<link rel="alternate" hreflang="id" href="{{ $seo['canonical'] }}">
-<link rel="alternate" hreflang="x-default" href="{{ $seo['canonical'] }}">
+@forelse ($seo['hreflangs'] as $hreflang => $href)
+    <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $href }}">
+@empty
+    <link rel="alternate" hreflang="id" href="{{ $seo['canonical'] }}">
+    <link rel="alternate" hreflang="x-default" href="{{ $seo['canonical'] }}">
+@endforelse
 
 <meta property="og:site_name" content="{{ $seo['siteName'] }}">
 <meta property="og:locale" content="{{ $seo['locale'] }}">

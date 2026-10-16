@@ -134,8 +134,9 @@ test('guestbook messages from guests need a valid token', function () {
 test('every public POST route is challenged', function () {
     // Passkey login is a WebAuthn signature and the two-factor challenge only
     // follows a Turnstile-checked login, so neither is a human-facing form. The PDF trust lookup is called by
-    // the viewer on its own (throttled, read-only), not submitted by a person.
-    $exempt = ['passkey.login', 'two-factor.login.store', 'pdf-trust'];
+    // the viewer on its own (throttled, read-only), not submitted by a person. The language switch only sets a
+    // preference cookie (throttled) and stores nothing for guests.
+    $exempt = ['passkey.login', 'two-factor.login.store', 'pdf-trust', 'locale.update'];
 
     $public = collect(Route::getRoutes()->getRoutes())
         ->filter(fn ($route) => in_array('POST', $route->methods(), true) && $route->getName())

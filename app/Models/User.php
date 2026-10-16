@@ -29,6 +29,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Gender|null $gender
  * @property string|null $avatar
  * @property string|null $bio
+ * @property string|null $locale Interface language of the admin area (`id`/`en`); null follows the default.
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -38,7 +39,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'avatar', 'bio', 'username'])]
+#[Fillable(['name', 'email', 'password', 'account_type', 'phone', 'gender', 'avatar', 'bio', 'username', 'locale'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\SystemSettingGroup;
 use App\Models\Technology;
+use App\Support\AppLocale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -104,18 +105,24 @@ class SeoService
         $usesSiteImage = $usesDefaultImage && $defaultImage === config('seo.image');
         $image = url($usesDefaultImage ? $defaultImage : $image);
 
-        $canonical = $this->request->url();
+        $locale = AppLocale::urlLocale();
+        $plainUrl = $this->request->url();
+        $canonical = AppLocale::localize($plainUrl, $locale);
+        $localeIndexable = in_array($locale, AppLocale::indexable(), true);
         $type = $this->overrides['type'] ?? 'website';
 
         return [
             'title' => $title,
             'description' => $description,
             'canonical' => $canonical,
-            'robots' => $this->overrides['robots'] ?? ($isIndexable
-                ? 'index,follow,max-image-preview:large,max-snippet:-1'
-                : 'noindex,nofollow'),
+            'robots' => $this->overrides['robots'] ?? match (true) {
+                ! $localeIndexable => 'noindex,follow',
+                $isIndexable => 'index,follow,max-image-preview:large,max-snippet:-1',
+                default => 'noindex,nofollow',
+            },
+            'hreflangs' => $isIndexable && $localeIndexable ? AppLocale::hreflangs($plainUrl) : [],
             'siteName' => $siteName,
-            'locale' => config('seo.locale'),
+            'locale' => AppLocale::regionalCode($locale),
             'type' => $type,
             'image' => $image,
             'imageAlt' => $this->overrides['image_alt'] ?? $pageTitle ?? config('seo.image_alt'),
@@ -160,7 +167,7 @@ class SeoService
                 'name' => config('app.name'),
                 'url' => url('/'),
                 'description' => $description,
-                'inLanguage' => 'id-ID',
+                'inLanguage' => str_replace('_', '-', AppLocale::regionalCode(AppLocale::urlLocale())),
                 'publisher' => ['@id' => url('/').'#person'],
             ];
             $graph[] = $this->person($image);
