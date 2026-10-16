@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Services\Visitors\VisitorTracker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -127,6 +128,54 @@ class AppLocale
         }
 
         return $origin."/{$locale}".($path === '/' ? '' : $path).($query === null ? '' : "?{$query}");
+    }
+
+    /**
+     * A language to offer a first-time visitor on a plain (Indonesian) public page, taken from
+     * the browser's `Accept-Language` header; without one, a non-Indonesian Cloudflare country
+     * header (`CF-IPCountry`) suggests English. Nothing is suggested to crawlers, to visitors
+     * who already chose a language (cookie), or on pages that already have a prefix. The offer
+     * is a banner, never a redirect, so every URL keeps serving one language to everyone.
+     *
+     * @return array{locale: string, url: string, messages: array{prompt: string, accept: string, dismiss: string}}|null
+     */
+    public static function suggestion(Request $request): ?array
+    {
+        if (! $request->isMethod('GET')
+            || $request->cookies->has(self::COOKIE)
+            || self::urlLocale() !== self::DEFAULT
+            || ! self::isLocalizable($request->getPathInfo())
+            || app(VisitorTracker::class)->isBot($request->userAgent())) {
+            return null;
+        }
+
+        $other = self::prefixed();
+
+        if ($other === []) {
+            return null;
+        }
+
+        if (filled($request->header('Accept-Language'))) {
+            $preferred = $request->getPreferredLanguage(self::available());
+            $suggested = in_array($preferred, $other, true) ? $preferred : null;
+        } else {
+            $country = strtoupper((string) $request->header('CF-IPCountry'));
+            $suggested = ! in_array($country, ['', 'ID', 'XX', 'T1'], true) ? $other[0] : null;
+        }
+
+        if ($suggested === null) {
+            return null;
+        }
+
+        return [
+            'locale' => $suggested,
+            'url' => self::localize($request->getRequestUri(), $suggested),
+            'messages' => [
+                'prompt' => trans('suggestion.prompt', [], $suggested),
+                'accept' => trans('suggestion.accept', [], $suggested),
+                'dismiss' => trans('suggestion.dismiss', [], $suggested),
+            ],
+        ];
     }
 
     /**

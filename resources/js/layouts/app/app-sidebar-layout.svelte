@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import BackToTop from '@/components/back-to-top.svelte';
+  import LanguageSuggestion from '@/components/language-suggestion.svelte';
   import SiteFooter from '@/components/site-footer.svelte';
   import SiteNavbar from '@/components/site-navbar.svelte';
   import type { BreadcrumbItem } from '@/types';
@@ -22,4 +23,5 @@
 
   <SiteFooter />
   <BackToTop />
+  <LanguageSuggestion />
 </div>

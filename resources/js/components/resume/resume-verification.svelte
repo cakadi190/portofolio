@@ -93,7 +93,7 @@
               {#if matched}<CircleCheck size={16} />{:else}<CircleMinus size={16} />{/if}
               <span>
                 <b>{source.label}</b>
-                <small>{matched ? t('ui.rantai_berujung', { anchor: signature.trust.anchor }) : source.hint}</small>
+                <small>{matched ? t('ui.rantai_berujung', { anchor: signature.trust.anchor ?? '' }) : source.hint}</small>
               </span>
             </li>
           {/each}
