@@ -171,7 +171,12 @@ export default defineConfig({
     // The runtime image has no node_modules, so Bun resolves externals from
     // its global cache, where tiptap's peers (@tiptap/extensions) are missing and
     // `@inertiajs/core/server` cannot be found at all, so all of them are bundled.
-    noExternal: [/^@tiptap\//, /^prosemirror-/, /^@inertiajs\//, /^@jridgewell\//],
+    noExternal: [
+      /^@tiptap\//,
+      /^prosemirror-/,
+      /^@inertiajs\//,
+      /^@jridgewell\//,
+    ],
   },
   resolve: {
     alias: {
