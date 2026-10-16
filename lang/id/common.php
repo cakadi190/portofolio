@@ -442,4 +442,7 @@ return [
     'ui.two_factor_recovery' => 'Gagal mengambil kode pemulihan.',
     'ui.upload_done' => ':name berhasil diunggah.',
     'ui.taxonomy_added' => '":name" berhasil ditambahkan.',
+    'ui.karakter_n_dari' => 'Karakter :n dari :total',
+    'ui.judul_level' => 'Judul :level',
+    'ui.contoh_rumus' => 'Contoh: E = mc^2 atau \\sqrt{x^2 + y^2}',
 ];

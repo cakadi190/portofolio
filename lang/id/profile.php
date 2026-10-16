@@ -16,4 +16,5 @@ return [
     'ceritakan_singkat_tentang_anda' => 'Ceritakan singkat tentang Anda...',
     'tampil_di_halaman_profil_penulis_publik' => 'Tampil di halaman profil penulis publik.',
     'simpan' => 'Simpan',
+    'username_hint' => 'Tampil sebagai @username dan menjadi alamat profil penulis: /blog/@:username. 3–30 karakter: huruf kecil, angka, titik, garis bawah, atau strip.',
 ];

@@ -48,4 +48,6 @@ return [
     'silakan_masukkan_kata_sandi_baru_anda' => 'Silakan masukkan kata sandi baru Anda di bawah ini',
     'konfirmasi_akses_ke_akun_anda_dengan' => 'Konfirmasi akses ke akun Anda dengan memasukkan kode autentikasi',
     'silakan_verifikasi_alamat_email_anda_dengan' => 'Silakan verifikasi alamat email Anda dengan mengklik tautan yang telah kami kirimkan',
+    'konfirmasi_kode_pemulihan' => 'Silakan konfirmasi akses ke akun Anda dengan memasukkan salah satu kode pemulihan darurat Anda.',
+    'konfirmasi_kode_aplikasi' => 'Silakan konfirmasi akses ke akun Anda dengan memasukkan kode autentikasi yang disediakan oleh aplikasi autentikator Anda.',
 ];

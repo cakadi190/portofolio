@@ -442,4 +442,7 @@ return [
     'ui.two_factor_recovery' => 'Failed to fetch the recovery codes.',
     'ui.upload_done' => ':name uploaded successfully.',
     'ui.taxonomy_added' => '":name" added successfully.',
+    'ui.karakter_n_dari' => 'Character :n of :total',
+    'ui.judul_level' => 'Heading :level',
+    'ui.contoh_rumus' => 'Example: E = mc^2 or \\sqrt{x^2 + y^2}',
 ];

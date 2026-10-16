@@ -101,9 +101,7 @@
             </div>
             <Field.Feedback message={errors.username} />
             <p class="text-muted small mb-0">
-              Tampil sebagai @username dan menjadi alamat profil penulis:
-              /blog/@{profile.username ?? 'username'}. 3–30 karakter: huruf kecil,
-              angka, titik, garis bawah, atau strip.
+              {t('profile.username_hint', { username: profile.username ?? 'username' })}
             </p>
           </Field.Group>
 

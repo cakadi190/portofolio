@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, intlLocale } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
 
@@ -20,7 +20,7 @@
 
   let { stats }: { stats: Stats } = $props();
 
-  const fmt = (n: number): string => n.toLocaleString('id-ID');
+  const fmt = (n: number): string => n.toLocaleString(intlLocale());
   const tiles = $derived([
     [t('admin-visitor-analytics.tayangan_halaman'), stats.page_views],
     [t('admin-visitor-analytics.tayangan_hari_ini'), stats.page_views_today],

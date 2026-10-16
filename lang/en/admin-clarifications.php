@@ -36,4 +36,6 @@ return [
     'delete_confirm' => 'Delete clarification ":name"?',
     'hapus_sumber' => 'Remove source :n',
     'hapus_pembaruan' => 'Remove update :n',
+    'wajib_bila_vonis' => 'Required when the verdict is "True, and I Apologize". Leave empty if there is none.',
+    'judul_sumber_n' => 'Source title :n',
 ];

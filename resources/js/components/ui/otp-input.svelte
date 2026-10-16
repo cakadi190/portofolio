@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { tick } from 'svelte';
 
   interface Props {
@@ -136,7 +137,7 @@
       class="form-control text-center otp-box"
       class:is-invalid={invalid}
       placeholder="•"
-      aria-label="Karakter {index + 1} dari {length}"
+      aria-label={t('ui.karakter_n_dari', { n: index + 1, total: length })}
       autofocus={autofocus && index === 0}
       onfocus={(event) => event.currentTarget.select()}
       oninput={(event) => handleInput(event, index)}

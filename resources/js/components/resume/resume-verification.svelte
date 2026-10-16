@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { intlLocale } from '@/lib/i18n';
   import BadgeCheck from '@lucide/svelte/icons/badge-check';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import CircleMinus from '@lucide/svelte/icons/circle-minus';
@@ -29,11 +30,11 @@
     },
   ];
 
-  const dateFormat = new Intl.DateTimeFormat('id-ID', {
+  const dateFormat = new Intl.DateTimeFormat(intlLocale(), {
     dateStyle: 'long',
     timeStyle: 'short',
   });
-  const preciseFormat = new Intl.DateTimeFormat('id-ID', {
+  const preciseFormat = new Intl.DateTimeFormat(intlLocale(), {
     dateStyle: 'medium',
     timeStyle: 'medium',
   });

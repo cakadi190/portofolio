@@ -38,4 +38,5 @@ return [
     'berhasil' => 'Berhasil',
     'gagal' => 'Gagal',
     'tamu' => 'Tamu',
+    'n_dari_total' => ':n dari :total',
 ];

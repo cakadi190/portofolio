@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, intlLocale } from '@/lib/i18n';
   import { Link, page } from '@inertiajs/svelte';
   import Activity from '@lucide/svelte/icons/activity';
   import Eye from '@lucide/svelte/icons/eye';
@@ -129,14 +129,14 @@
 
   const attention = $derived(
     [
-      blog.comments_pending > 0 && { text: `${blog.comments_pending} komentar menunggu moderasi`, href: commentsIndex().url },
-      site && site.inbox.unread > 0 && { text: `${site.inbox.unread} pesan belum dibaca`, href: contactMessagesIndex().url },
-      site && site.ratings_pending > 0 && { text: `${site.ratings_pending} ulasan menunggu persetujuan`, href: ratingsIndex().url },
+      blog.comments_pending > 0 && { text: t('dashboard.komentar_menunggu_moderasi', { count: blog.comments_pending }), href: commentsIndex().url },
+      site && site.inbox.unread > 0 && { text: t('dashboard.pesan_belum_dibaca_n', { count: site.inbox.unread }), href: contactMessagesIndex().url },
+      site && site.ratings_pending > 0 && { text: t('dashboard.ulasan_menunggu_persetujuan', { count: site.ratings_pending }), href: ratingsIndex().url },
     ].filter((item): item is { text: string; href: string } => item !== false && item !== null),
   );
 
   const monthlyMax = $derived(Math.max(1, ...blog.monthly.flatMap((entry) => [entry.posts, entry.comments])));
-  const monthLabel = (value: string) => new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(`${value}-01T00:00:00`));
+  const monthLabel = (value: string) => new Intl.DateTimeFormat(intlLocale(), { month: 'short' }).format(new Date(`${value}-01T00:00:00`));
 
   const traffic = $derived(site?.traffic ?? null);
   const maxViews = $derived(Math.max(1, ...(traffic?.series.map((point) => point.views) ?? [0])));
@@ -146,7 +146,7 @@
     }
     return Math.round(((traffic.total - traffic.previous_total) / traffic.previous_total) * 100);
   });
-  const shortDay = (value: string) => new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' }).format(new Date(`${value}T00:00:00`));
+  const shortDay = (value: string) => new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short' }).format(new Date(`${value}T00:00:00`));
 
   const systemRows = $derived(
     system
@@ -167,7 +167,7 @@
   );
 
   const speakingDate = (value: string) =>
-    new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value.replace(' ', 'T')));
+    new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value.replace(' ', 'T')));
 </script>
 
 <AppHead title={t('dashboard.dasbor')} />

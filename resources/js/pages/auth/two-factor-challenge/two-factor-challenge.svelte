@@ -25,11 +25,9 @@
 <div class="d-flex flex-column gap-3">
   <div class="text-center small text-muted">
     {#if useRecoveryCode}
-      Silakan konfirmasi akses ke akun Anda dengan memasukkan salah satu kode
-      pemulihan darurat Anda.
+      {t('auth.konfirmasi_kode_pemulihan')}
     {:else}
-      Silakan konfirmasi akses ke akun Anda dengan memasukkan kode autentikasi
-      yang disediakan oleh aplikasi autentikator Anda.
+      {t('auth.konfirmasi_kode_aplikasi')}
     {/if}
   </div>
 

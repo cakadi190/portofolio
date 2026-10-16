@@ -49,4 +49,7 @@ return [
     'tanpa_penulis' => 'No author',
     'ada_hal_perlu_perhatian' => ':count thing(s) need your attention today.',
     'semua_beres' => 'All clear. Nothing is waiting for your action.',
+    'komentar_menunggu_moderasi' => ':count comment(s) awaiting moderation',
+    'pesan_belum_dibaca_n' => ':count unread message(s)',
+    'ulasan_menunggu_persetujuan' => ':count review(s) awaiting approval',
 ];

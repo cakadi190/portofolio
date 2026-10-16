@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, intlLocale } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import { Link } from '@inertiajs/svelte';
@@ -42,7 +42,7 @@
   <div class="card-body">
     <dl class="row mb-0">
       <dt class="col-sm-3">{t('admin-activity-logs.waktu')}</dt>
-      <dd class="col-sm-9">{activity.created_at ? new Date(activity.created_at).toLocaleString('id-ID') : '—'}</dd>
+      <dd class="col-sm-9">{activity.created_at ? new Date(activity.created_at).toLocaleString(intlLocale()) : '—'}</dd>
       <dt class="col-sm-3">{t('admin-activity-logs.kategori_event')}</dt>
       <dd class="col-sm-9">{activity.log_name} / <code>{activity.event}</code></dd>
       <dt class="col-sm-3">{t('admin-activity-logs.hasil')}</dt>

@@ -1,3 +1,4 @@
+import { intlLocale } from '@/lib/i18n';
 import type { LinkComponentBaseProps } from '@inertiajs/core';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
@@ -30,7 +31,7 @@ export function storageUrl(path: string | null | undefined): string | null {
   return `/storage/${path}`;
 }
 
-const dateFormatter = new Intl.DateTimeFormat('id-ID', {
+const dateFormatter = new Intl.DateTimeFormat(intlLocale(), {
   day: 'numeric',
   month: 'long',
   year: 'numeric',

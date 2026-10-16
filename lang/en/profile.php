@@ -16,4 +16,5 @@ return [
     'ceritakan_singkat_tentang_anda' => 'Tell us briefly about yourself...',
     'tampil_di_halaman_profil_penulis_publik' => 'Shown on the public author profile page.',
     'simpan' => 'Save',
+    'username_hint' => 'Shown as @username and used as the author profile address: /blog/@:username. 3–30 characters: lowercase letters, numbers, dots, underscores, or hyphens.',
 ];

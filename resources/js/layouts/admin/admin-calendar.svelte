@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, intlLocale } from '@/lib/i18n';
   import { toast } from '@/lib/toast';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -22,13 +22,13 @@
   const toKey = (date: Date) =>
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-  const longDate = new Intl.DateTimeFormat('id-ID', {
+  const longDate = new Intl.DateTimeFormat(intlLocale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
-  const monthTitle = new Intl.DateTimeFormat('id-ID', {
+  const monthTitle = new Intl.DateTimeFormat(intlLocale(), {
     month: 'long',
     year: 'numeric',
   });
@@ -123,7 +123,7 @@
     selectedKey = todayKey;
   }
 
-  const shortDate = new Intl.DateTimeFormat('id-ID', {
+  const shortDate = new Intl.DateTimeFormat(intlLocale(), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',

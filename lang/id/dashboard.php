@@ -49,4 +49,7 @@ return [
     'tanpa_penulis' => 'Tanpa penulis',
     'ada_hal_perlu_perhatian' => 'Ada :count hal yang perlu perhatianmu hari ini.',
     'semua_beres' => 'Semua beres. Tidak ada yang menunggu tindakanmu.',
+    'komentar_menunggu_moderasi' => ':count komentar menunggu moderasi',
+    'pesan_belum_dibaca_n' => ':count pesan belum dibaca',
+    'ulasan_menunggu_persetujuan' => ':count ulasan menunggu persetujuan',
 ];

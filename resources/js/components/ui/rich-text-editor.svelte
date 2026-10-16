@@ -565,7 +565,7 @@
       pos: range.pos,
       label:
         kind === 'heading'
-          ? `Judul ${node.attrs.level}`
+          ? t('ui.judul_level', { level: node.attrs.level })
           : (blockLabels[kind] ?? kind),
     };
   });
@@ -2140,7 +2140,7 @@
               patchBlock({ latex: event.currentTarget.value })}></textarea>
         </div>
         <p class="rte-ins-desc">
-          {'Contoh: E = mc^2 atau \\sqrt{x^2 + y^2}'}
+          {t('ui.contoh_rumus')}
         </p>
       {:else if currentBlock.kind === 'references'}
         <p class="rte-ins-desc">

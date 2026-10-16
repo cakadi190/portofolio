@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, intlLocale } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -80,7 +80,7 @@
         <a href={item.invite_url} class="small" target="_blank" rel="noopener noreferrer nofollow">{item.invite_url}</a>
       </td>
       <td>{platformLabel(item.platform)}</td>
-      <td>{item.member_count?.toLocaleString('id-ID') ?? '-'}</td>
+      <td>{item.member_count?.toLocaleString(intlLocale()) ?? '-'}</td>
       <td>{item.is_featured ? t('admin.ya') : t('admin.tidak')}</td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">

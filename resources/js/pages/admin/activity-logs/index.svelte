@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, intlLocale } from '@/lib/i18n';
   import Select from '@/components/ui/select.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -102,7 +102,7 @@
   );
 
   function formatTime(value: string | null): string {
-    return value ? new Date(value).toLocaleString('id-ID') : '—';
+    return value ? new Date(value).toLocaleString(intlLocale()) : '—';
   }
 </script>
 
@@ -241,7 +241,7 @@
   </div>
   </InfiniteFeed>
 
-  <small class="text-muted">{activities.data.length} dari {totalActivities}</small>
+  <small class="text-muted">{t('admin-activity-logs.n_dari_total', { n: activities.data.length, total: totalActivities })}</small>
 {/if}
 
 <style>

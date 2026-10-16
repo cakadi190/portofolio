@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, intlLocale } from '@/lib/i18n';
   import { Link, router } from '@inertiajs/svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -96,7 +96,7 @@
       </td>
       <td class="text-secondary">
         {new Date(post.published_at ?? post.created_at).toLocaleDateString(
-          'id-ID',
+          intlLocale(),
           { day: 'numeric', month: 'short', year: 'numeric' },
         )}
       </td>

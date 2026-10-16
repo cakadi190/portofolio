@@ -48,4 +48,6 @@ return [
     'silakan_masukkan_kata_sandi_baru_anda' => 'Please enter your new password below',
     'konfirmasi_akses_ke_akun_anda_dengan' => 'Confirm access to your account by entering the authentication code',
     'silakan_verifikasi_alamat_email_anda_dengan' => 'Please verify your email address by clicking the link we just sent you',
+    'konfirmasi_kode_pemulihan' => 'Please confirm access to your account by entering one of your emergency recovery codes.',
+    'konfirmasi_kode_aplikasi' => 'Please confirm access to your account by entering the authentication code provided by your authenticator app.',
 ];

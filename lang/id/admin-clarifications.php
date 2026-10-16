@@ -36,4 +36,6 @@ return [
     'delete_confirm' => 'Hapus klarifikasi ":name"?',
     'hapus_sumber' => 'Hapus sumber :n',
     'hapus_pembaruan' => 'Hapus pembaruan :n',
+    'wajib_bila_vonis' => 'Wajib bila vonis "Benar, Saya Meminta Maaf". Kosongkan bila tidak ada.',
+    'judul_sumber_n' => 'Judul sumber :n',
 ];

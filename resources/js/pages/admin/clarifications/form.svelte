@@ -182,7 +182,7 @@
               class:is-invalid={!!error('apology', errors)}
               rows="4"
               maxlength="5000"
-              placeholder="Wajib bila vonis &quot;Benar, Saya Meminta Maaf&quot;. Kosongkan bila tidak ada."
+              placeholder={t('admin-clarifications.wajib_bila_vonis')}
               bind:value={translatable.values.apology[translatable.locale]}></textarea>
             <Field.Feedback message={error('apology', errors)} />
           </div>
@@ -208,7 +208,7 @@
                   <input
                     name={`sources[${i}][title]`}
                     type="text"
-                    aria-label={`Judul sumber ${i + 1}`}
+                    aria-label={t('admin-clarifications.judul_sumber_n', { n: i + 1 })}
                     class="form-control"
                     class:is-invalid={!!errors[`sources.${i}.title`]}
                     placeholder={t('admin-clarifications.judul_sumber')}
