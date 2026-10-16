@@ -1666,6 +1666,9 @@
     return () => {
       window.removeEventListener('scroll', resync, true);
       window.removeEventListener('resize', resync);
+      // Cleared first: microtasks queued by focus/transaction callbacks still run after
+      // the destroy and must see no editor, or Tiptap throws on `view.nodeDOM`.
+      editor = undefined;
       instance.destroy();
     };
   });
