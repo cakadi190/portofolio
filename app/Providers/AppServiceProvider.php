@@ -88,7 +88,7 @@ class AppServiceProvider extends ServiceProvider
             $url = url(route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()], false));
 
             return (new MailMessage)
-                ->subject('Reset Password')
+                ->subject(__('mail.reset.subject'))
                 ->view(['mail.auth.reset-password', 'mail.text.reset-password'], [
                     'name' => $notifiable->name,
                     'url' => $url,
@@ -97,7 +97,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         VerifyEmail::toMailUsing(fn (object $notifiable, string $url): MailMessage => (new MailMessage)
-            ->subject('Verifikasi Alamat Email')
+            ->subject(__('mail.verify.subject'))
             ->view(['mail.auth.verify-email', 'mail.text.verify-email'], [
                 'name' => $notifiable->name,
                 'url' => $url,

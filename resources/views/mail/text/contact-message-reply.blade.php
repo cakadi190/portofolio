@@ -1,12 +1,12 @@
-Halo, {!! $reply->contactMessage->name !!}.
+{!! __('mail.hello_text', ['name' => $reply->contactMessage->name]) !!}
 
 {!! \App\Services\PlainTextConverter::fromHtml($reply->body) !!}
 @if ($attachmentNames !== [])
 
-Bersama email ini kami menyertakan lampiran. Mohon berkenan membuka berkas lampiran yang kami kirimkan untuk informasi selengkapnya.
-Lampiran: {!! implode(', ', $attachmentNames) !!}
+{!! __('mail.reply.attachments') !!}
+{!! __('mail.reply.attachments_label') !!} {!! implode(', ', $attachmentNames) !!}
 @endif
 
 --
-Pesan Anda sebelumnya ({!! $reply->contactMessage->reason->label() !!}):
+{!! __('mail.reply.previous', ['reason' => $reply->contactMessage->reason->label()]) !!}
 {!! \App\Services\PlainTextConverter::fromHtml($reply->contactMessage->message) !!}

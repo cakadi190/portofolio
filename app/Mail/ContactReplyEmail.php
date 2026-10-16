@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\ContactMessageReply;
 use App\Models\Media;
+use App\Support\AppLocale;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
@@ -19,7 +20,10 @@ class ContactReplyEmail extends Mailable
 {
     use SerializesModels;
 
-    public function __construct(public ContactMessageReply $reply, public ?string $replyToAddress = null) {}
+    public function __construct(public ContactMessageReply $reply, public ?string $replyToAddress = null)
+    {
+        $this->locale($reply->contactMessage->locale ?? AppLocale::DEFAULT);
+    }
 
     public function envelope(): Envelope
     {

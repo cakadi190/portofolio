@@ -1,6 +1,6 @@
-Halo, {!! $name !!}.
+{!! __('mail.hello_text', ['name' => $name]) !!}
 
-Kami menerima permintaan untuk mereset password akun Anda. Buka tautan berikut untuk membuat password baru:
+{!! __('mail.reset.intro_text') !!}
 {!! $url !!}
 
-Tautan ini berlaku selama {!! $expires !!} menit. Jika Anda tidak meminta reset password, abaikan email ini dan password Anda tidak akan berubah.
+{!! __('mail.reset.expiry_text', ['minutes' => $expires]) !!}

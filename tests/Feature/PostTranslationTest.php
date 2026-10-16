@@ -1,9 +1,14 @@
 <?php
 
 use App\Enums\ResumeProfile;
+use App\Mail\ContactMessageConfirmation;
+use App\Mail\ContactMessageReceived;
+use App\Mail\ContactReplyEmail;
 use App\Models\Award;
 use App\Models\Career;
 use App\Models\Clarification;
+use App\Models\ContactMessage;
+use App\Models\ContactMessageReply;
 use App\Models\Note;
 use App\Models\Organization;
 use App\Models\Portfolio;
@@ -14,6 +19,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Services\ResumeService;
 use App\Support\AppLocale;
+use Illuminate\Support\Facades\Mail;
 
 it('shows the English text of a translated post under /en and Indonesian elsewhere', function () {
     $post = Post::factory()->withEnglish('Hello World')->create(['title' => 'Halo Dunia']);
@@ -267,4 +273,45 @@ it('serves the English CV viewer and its prefixed PDF', function () {
     request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
 
     $this->get('/en/resume.pdf')->assertOk()->assertHeader('Content-Type', 'application/pdf');
+});
+
+it('emails the visitor in the language they wrote in, and the owner always in Indonesian', function () {
+    Mail::fake();
+
+    $this->post('/en/contact', ['name' => 'Alex', 'email' => 'alex@example.com', 'reason' => 'general', 'message' => '<p>Hello there</p>'])
+        ->assertSessionHasNoErrors();
+
+    $message = ContactMessage::query()->firstOrFail();
+
+    expect($message->locale)->toBe('en');
+
+    Mail::assertSent(ContactMessageConfirmation::class, function ($mail): bool {
+        $mail->assertSeeInHtml('We have received your message');
+        $mail->assertSeeInHtml('Thank you for contacting');
+        $mail->assertSeeInText('A copy of your message:');
+
+        return $mail->hasSubject('We have received your message');
+    });
+
+    Mail::assertSent(ContactMessageReceived::class, function ($mail): bool {
+        $mail->assertSeeInHtml('Pesan baru');
+
+        return true;
+    });
+});
+
+it('keeps Indonesian emails for Indonesian visitors and old messages', function () {
+    $message = ContactMessage::query()->create(['name' => 'Budi', 'email' => 'b@example.com', 'reason' => 'general', 'message' => '<p>Halo</p>']);
+
+    $mail = new ContactMessageConfirmation($message);
+
+    $mail->assertSeeInHtml('Pesan Anda sudah kami terima');
+    expect($mail->hasSubject('Pesan Anda sudah kami terima'))->toBeTrue();
+});
+
+it('sends the reply chrome in the visitor language', function () {
+    $message = ContactMessage::query()->create(['name' => 'Alex', 'email' => 'a@example.com', 'reason' => 'general', 'message' => '<p>Hi</p>', 'locale' => 'en']);
+    $reply = ContactMessageReply::query()->create(['contact_message_id' => $message->id, 'subject' => 'Re: Hi', 'body' => '<p>Answer</p>', 'status' => 'queued']);
+
+    (new ContactReplyEmail($reply->load('contactMessage')))->assertSeeInHtml('Your previous message');
 });
