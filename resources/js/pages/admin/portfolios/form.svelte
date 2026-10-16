@@ -4,6 +4,9 @@
   import EditorPanel from '@/components/admin/editor-panel.svelte';
   import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
   import EditorTitle from '@/components/admin/editor-title.svelte';
+  import TranslationBar from '@/components/admin/translation-bar.svelte';
+  import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
+  import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
   import { Field } from '@/components/ui/field';
   import MediaField from '@/components/media/media-field.svelte';
   import MediaGalleryField from '@/components/media/media-gallery-field.svelte';
@@ -27,6 +30,7 @@
     image: string;
     short_desc: string | null;
     description: string | null;
+    translations: Record<string, Record<string, string>>;
     demo_link: string | null;
     source_code: string | null;
     is_private: boolean;
@@ -49,7 +53,13 @@
   } = $props();
 
   // svelte-ignore state_referenced_locally
-  let name = $state(portfolio?.name ?? '');
+  const translatable = createTranslatable(portfolio?.translations ?? {}, {
+    name: 'text',
+    short_desc: 'text',
+    description: 'html',
+  });
+  const field = (key: string): string => fieldName(key, translatable.locale);
+  const name = $derived(translatable.values.name[translatable.locale] || translatable.values.name.id);
 
   let deleting = $state(false);
 
@@ -78,17 +88,20 @@
 >
   {#snippet children({ errors, processing })}
     {#snippet portfolioHeader()}
+      <TranslationBar {translatable} />
       <EditorTitle
-        name="name"
-        bind:value={name}
+        name={field('name')}
+        bind:value={translatable.values.name[translatable.locale]}
         placeholder="Tambahkan nama portofolio"
         ariaLabel="Nama portofolio"
-        error={errors.name}
+        required={translatable.isDefault}
+        error={errors[field('name')]}
       />
+      <TranslationHiddenInputs {translatable} fields={['name', 'short_desc', 'description']} />
     {/snippet}
 
     {#snippet portfolioAfter()}
-      <Field.Feedback message={errors.description} />
+      <Field.Feedback message={errors[field('description')]} />
 
       <div class="card mt-4">
         <div class="card-header fw-semibold">Galeri</div>
@@ -186,15 +199,15 @@
 
       <EditorPanel title="Ringkasan">
         <textarea
-          name="short_desc"
+          name={field('short_desc')}
           aria-label="Deskripsi singkat"
           class="form-control form-control-sm"
-          class:is-invalid={!!errors.short_desc}
+          class:is-invalid={!!errors[field('short_desc')]}
           rows="4"
           maxlength="255"
           placeholder="Deskripsi singkat yang tampil di daftar portofolio"
-          value={portfolio?.short_desc ?? ''}></textarea>
-        <Field.Feedback message={errors.short_desc} />
+          bind:value={translatable.values.short_desc[translatable.locale]}></textarea>
+        <Field.Feedback message={errors[field('short_desc')]} />
       </EditorPanel>
 
       <EditorPanel title="Layanan">
@@ -228,9 +241,14 @@
 
     <RichTextEditor
       shell
-      name="description"
-      value={portfolio?.description ?? ''}
-      invalid={!!errors.description}
+      name={field('description')}
+      value={translatable.values.description[translatable.locale]}
+      contentKey={translatable.contentKey}
+      onchange={(html) => (translatable.values.description[translatable.locale] = html)}
+      languages={translatable.languages}
+      language={translatable.locale}
+      onlanguage={(code) => (translatable.locale = code)}
+      invalid={!!errors[field('description')]}
       viewHref={portfolio?.slug ? show(portfolio.slug).url : null}
       documentTitle={name}
       rootLabel="Portofolio"

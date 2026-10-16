@@ -10,25 +10,59 @@
    */
   let {
     translatable,
+    picker = false,
   }: {
     translatable: ReturnType<typeof createTranslatable>;
+    /** Show the language dropdown here, for forms without the editor's top bar. */
+    picker?: boolean;
   } = $props();
 
   const defaultLabel = $derived(localeOptions()[0]?.label ?? '');
   const current = $derived(localeOptions().find((option) => option.code === translatable.locale));
 </script>
 
-{#if !translatable.isDefault}
+{#if picker || !translatable.isDefault}
   <div class="tr-bar">
-    <span class="tr-badge">
-      <span class="fi {current?.flag} fis" aria-hidden="true"></span>
-      {t(`content.language.${translatable.locale}`)}
-      {#if !translatable.isTranslated(translatable.locale)}
-        <span class="tr-dot" title={t('translate.missing')} role="img" aria-label={t('translate.missing')}></span>
-      {/if}
-    </span>
+    {#if picker}
+      <div class="dropdown dropdown-uncaret">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-2"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label={`${t('content.language.label')}: ${t(`content.language.${translatable.locale}`)}`}
+        >
+          <span class="fi {current?.flag} fis" aria-hidden="true"></span>
+          <span class="fw-bold">{translatable.locale.toUpperCase()}</span>
+        </button>
+        <ul class="dropdown-menu">
+          {#each translatable.languages as option (option.code)}
+            <li>
+              <button
+                type="button"
+                class="dropdown-item"
+                class:active={translatable.locale === option.code}
+                onclick={() => (translatable.locale = option.code)}
+              >
+                {option.label}
+              </button>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
 
-    {#if canTranslate()}
+    {#if !translatable.isDefault}
+      <span class="tr-badge">
+        <span class="fi {current?.flag} fis" aria-hidden="true"></span>
+        {t(`content.language.${translatable.locale}`)}
+        {#if !translatable.isTranslated(translatable.locale)}
+          <span class="tr-dot" title={t('translate.missing')} role="img" aria-label={t('translate.missing')}></span>
+        {/if}
+      </span>
+    {/if}
+
+    {#if canTranslate() && !translatable.isDefault}
       <button
         type="button"
         class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2"
@@ -43,7 +77,7 @@
     {/if}
   </div>
 
-  {#if canTranslate()}
+  {#if canTranslate() && !translatable.isDefault}
     <p class="tr-note">{t('translate.review_note')}</p>
   {/if}
 {/if}

@@ -52,6 +52,7 @@ class PortfolioController extends Controller
         $image = ImageService::url($portfolio->image);
 
         $seo->set([
+            'locales' => $portfolio->translatedLocales(),
             'title' => $portfolio->name,
             'description' => $portfolio->short_desc ?: $portfolio->name,
             'image' => $image ?? ImageService::url($portfolio->galleries->first()?->image_url),

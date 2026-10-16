@@ -100,7 +100,7 @@ class SitemapController extends Controller
         $urls = Portfolio::query()
             ->with('galleries:id,portfolio_id,image_url,description')
             ->latest()
-            ->get(['id', 'name', 'slug', 'image', 'updated_at'])
+            ->get(['id', 'name', 'name_en', 'slug', 'image', 'updated_at'])
             ->map(fn (Portfolio $portfolio): array => [
                 'title' => $portfolio->name,
                 'loc' => route('portfolios.show', $portfolio),
@@ -114,6 +114,7 @@ class SitemapController extends Controller
                         $gallery->description ?: $portfolio->name,
                     ])->all(),
                 ]),
+                'locales' => $portfolio->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
@@ -170,7 +171,7 @@ class SitemapController extends Controller
     {
         $urls = Service::query()
             ->orderBy('id')
-            ->get(['id', 'name', 'slug', 'image', 'updated_at'])
+            ->get(['id', 'name', 'name_en', 'slug', 'image', 'updated_at'])
             ->map(fn (Service $service): array => [
                 'title' => $service->name,
                 'loc' => route('services.show', $service),
@@ -178,6 +179,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.7',
                 'images' => $this->images([[$service->image, $service->name]]),
+                'locales' => $service->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);

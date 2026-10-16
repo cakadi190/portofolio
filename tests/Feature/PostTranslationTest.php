@@ -2,7 +2,9 @@
 
 use App\Models\Clarification;
 use App\Models\Note;
+use App\Models\Portfolio;
 use App\Models\Post;
+use App\Models\Service;
 use App\Models\User;
 use App\Support\AppLocale;
 
@@ -149,4 +151,20 @@ it('keeps the Indonesian apology required and the English one optional', functio
         ])
         ->assertSessionHasErrors('apology')
         ->assertSessionDoesntHaveErrors('apology_en');
+});
+
+it('translates portfolios and services', function () {
+    $portfolio = Portfolio::factory()->withEnglish('Online Shop')->create(['name' => 'Toko Online']);
+    $service = Service::factory()->withEnglish('Web Development')->create(['name' => 'Pengembangan Web']);
+
+    $this->get("/en/portfolio/{$portfolio->slug}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('portfolio.name', 'Online Shop')->where('portfolio.shortDesc', 'English summary'));
+
+    $this->get("/en/services/{$service->slug}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('service.name', 'Web Development'));
+
+    expect($portfolio->translatedLocales())->toBe(['id', 'en'])
+        ->and($portfolio->slug)->toBe('toko-online');
 });

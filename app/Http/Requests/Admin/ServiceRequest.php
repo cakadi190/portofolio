@@ -24,6 +24,8 @@ class ServiceRequest extends FormRequest
             'color' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'image' => ['nullable', 'string', new MediaPath($this->route('service')?->image)],
             'description' => ['nullable', 'string'],
+            'name_en' => ['nullable', 'string', 'max:255'],
+            'description_en' => ['nullable', 'string'],
         ];
     }
 }
