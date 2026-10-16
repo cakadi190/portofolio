@@ -20,6 +20,18 @@ Hasil reverse engineering; urutan bukan prioritas final.
 | 12  | Belum ada pencadangan terjadwal, pemantauan uptime, halaman kebijakan privasi/cookie, dan audit aksesibilitas/Core Web Vitals (lihat `07`).                                                                                                                                                                                                                                                                                         | Risiko kehilangan data & kepatuhan; kualitas belum terukur.                                    | Cron backup SQLite + media off-site, health check, halaman privasi, audit Lighthouse.                            |
 | 13  | Halaman Penyangkalan, kebijakan komentar, dan alasan kontak Koreksi sudah ada; seluruh usulan `08` bagian 6 sudah dikerjakan; sisa hanya kebijakan manual CLR-04/06/07.                                                                                                                                                                                                                                                             | Perlindungan hukum & kejelasan aturan lemah.                                                   | Patuhi aturan editorial manual.                                                                                  |
 
+## Dwibahasa: yang belum selesai
+
+Situs publik (UI, SEO, galat, validasi, enum) dan konten editor (artikel, catatan, klarifikasi, portofolio, layanan, bio) sudah dwibahasa (`04` "Dwibahasa"). Sisanya:
+
+- **Bahasa Inggris belum diindeks:** `app.indexable_locales` masih `['id']` (halaman `/en` `noindex`, tanpa `hreflang`). Tambahkan `'en'` setelah semua teks yang ingin diindeks diterjemahkan.
+- **Teks pendek di entitas lain** masih satu bahasa: acara pembicara (judul, deskripsi), penghargaan, karier (posisi), organisasi, tempat ngopi, komunitas/channel (deskripsi), nama kategori/tag, keterangan galeri, daftar `sources`/`updates` klarifikasi.
+- **UI admin** (menu, tabel, form, toast) masih Indonesia; hanya pemilih bahasa, enum, validasi, dan komponen bersama yang mengikuti bahasa akun.
+- **CV / Resume:** viewer (bilah alat, panel verifikasi tanda tangan) dan PDF CV (`ResumeService`, bulan Indonesia) belum punya versi Inggris.
+- **Email** (balasan kontak, notifikasi akun) tetap Indonesia karena antrean berjalan tanpa konteks bahasa permintaan.
+- **Deteksi bahasa otomatis** (Accept-Language/IP, banner saran) belum ada.
+- Terjemahan otomatis memerlukan `ANTHROPIC_API_KEY`; tanpa kunci tombolnya tersembunyi.
+
 ## Ide lanjutan
 
 - Folder & tag media, thumbnail multi-ukuran, ganti berkas tanpa mengubah path.
