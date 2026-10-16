@@ -216,9 +216,11 @@ class AppLocale
      * Language groups (files in `lang/{locale}`) a route's page needs, beyond `common`.
      *
      * - `blog.show` → `blog`
-     * - `admin.posts.index` → `admin` (shared admin text) and `admin-posts`
-     * - the dashboard and account settings → `admin` plus their own group
-     * - login, registration, password and two-factor routes → `auth`
+     * - `resume.show` → `resume` and `certifications` (the viewer shares its labels)
+     * - every admin page, the dashboard and account settings → all `admin*` groups plus
+     *   `dashboard`, `profile` and `security`, because admin pages borrow shared labels
+     *   (`admin-media.aksi`, `security.hapus`, ...) from each other's groups
+     * - login, registration, password and two-factor routes → `auth` and `security`
      *
      * @return list<string>
      */
@@ -228,15 +230,30 @@ class AppLocale
             return [];
         }
 
-        $segments = explode('.', $routeName);
-        $first = $segments[0];
+        $first = explode('.', $routeName)[0];
 
         return match (true) {
-            $first === 'admin' => isset($segments[1]) ? ['admin', "admin-{$segments[1]}"] : ['admin'],
-            in_array($first, ['dashboard', 'profile', 'security', 'user-password', 'settings'], true) => ['admin', in_array($first, ['profile', 'security'], true) ? $first : 'dashboard'],
-            in_array($first, ['login', 'register', 'password', 'verification', 'two-factor', 'passkey'], true) => ['auth'],
+            $first === 'admin',
+            in_array($first, ['dashboard', 'profile', 'security', 'user-password', 'settings'], true) => self::adminGroups(),
+            in_array($first, ['login', 'register', 'password', 'verification', 'two-factor', 'passkey'], true) => ['auth', 'security'],
+            $first === 'resume' => ['resume', 'certifications'],
             default => [$first],
         };
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function adminGroups(): array
+    {
+        static $groups = null;
+
+        return $groups ??= collect(glob(lang_path(self::DEFAULT.'/admin*.php')) ?: [])
+            ->map(fn (string $file): string => basename($file, '.php'))
+            ->push('dashboard', 'profile', 'security')
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

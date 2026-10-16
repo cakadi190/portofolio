@@ -120,16 +120,22 @@ it('lists every enabled language in the pages sitemap', function () {
         ->toContain('<xhtml:link rel="alternate" hreflang="en" href="'.$base.'/en/career'.'"/>');
 });
 
-it('maps routes to the language groups their page needs', function (?string $route, array $groups) {
-    expect(AppLocale::groupsFor($route))->toBe($groups);
+it('maps routes to the language groups their page needs', function (?string $route, array $contains, array $excludes) {
+    $groups = AppLocale::groupsFor($route);
+
+    expect($groups)->toContain(...$contains)->not->toContain(...$excludes);
 })->with([
-    'public' => ['blog.show', ['blog']],
-    'admin page' => ['admin.posts.index', ['admin', 'admin-posts']],
-    'dashboard' => ['dashboard', ['admin', 'dashboard']],
-    'settings' => ['profile.edit', ['admin', 'profile']],
-    'auth' => ['two-factor.login', ['auth']],
-    'none' => [null, []],
+    'public' => ['blog.show', ['blog'], ['admin', 'auth']],
+    'resume shares certification labels' => ['resume.show', ['resume', 'certifications'], ['admin']],
+    'admin page borrows shared labels' => ['admin.posts.index', ['admin', 'admin-posts', 'admin-media', 'admin-certifications', 'security'], ['blog', 'auth']],
+    'dashboard' => ['dashboard', ['admin', 'dashboard', 'admin-awards'], ['blog']],
+    'settings' => ['profile.edit', ['admin', 'profile', 'security'], ['blog']],
+    'auth' => ['two-factor.login', ['auth', 'security'], ['admin']],
 ]);
+
+it('maps no route to no language groups', function () {
+    expect(AppLocale::groupsFor(null))->toBe([]);
+});
 
 it('suggests the browser language to first-time visitors without redirecting', function (array $headers, array $cookies, string $uri, ?string $expected) {
     $response = $this->withHeaders($headers)->withUnencryptedCookies($cookies)->get($uri)->assertOk();
