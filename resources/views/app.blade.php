@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script>document.documentElement.classList.add('js');</script>
+        <script nonce="{{ Vite::cspNonce() }}">document.documentElement.classList.add('js');</script>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -29,7 +29,7 @@
             `sidebar--collapsed` presentation applied by admin-sidebar.svelte;
             the media query mirrors DESKTOP_BREAKPOINT.
         --}}
-        <script>
+        <script nonce="{{ Vite::cspNonce() }}">
             try {
                 if (
                     window.matchMedia('(min-width: 992px)').matches &&
@@ -58,7 +58,7 @@
             at runtime — the storage key must match THEME_STORAGE_KEY in
             resources/js/lib/theme.ts.
         --}}
-        <script>
+        <script nonce="{{ Vite::cspNonce() }}">
             try {
                 var storedTheme = window.localStorage.getItem('catatancakadi:theme');
                 var theme = storedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');

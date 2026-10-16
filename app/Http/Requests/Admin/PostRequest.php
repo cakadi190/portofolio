@@ -3,12 +3,20 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\UserRole;
+use App\Http\Requests\Concerns\SanitizesRichText;
 use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class PostRequest extends FormRequest
 {
+    use SanitizesRichText;
+
+    protected function prepareForValidation(): void
+    {
+        $this->sanitizeEditorHtml(['content', 'content_en']);
+    }
+
     public function authorize(): bool
     {
         return true;

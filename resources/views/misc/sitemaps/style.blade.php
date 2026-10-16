@@ -14,6 +14,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:custom="{{ url('/schemas/sitemap-custom/1.0') }}">
   <xsl:output method="html" encoding="UTF-8" indent="yes" />
 
@@ -82,6 +83,7 @@
           .muted { color: var(--muted); }
           .tag { background: #e9ecef; border-radius: 6px; font-size: .75rem; font-weight: 600; padding: 2px 8px; white-space: nowrap; }
           .tag-img { background: #e0f2fe; color: #075985; }
+          .tag-lang { background: #dcfce7; color: #166534; text-transform: uppercase; margin-left: .5rem; }
           .bar { background: #e9ecef; border-radius: 99px; flex: 1; height: 6px; overflow: hidden; }
           .bar span { background: var(--accent); display: block; height: 100%; }
           .prio { align-items: center; display: flex; gap: 8px; min-width: 110px; }
@@ -194,7 +196,24 @@
                 <td class="muted"><xsl:value-of select="position()" /></td>
                 <xsl:if test="$hasTitle"><td><xsl:value-of select="custom:title" /></td></xsl:if>
                 <td class="url">
+                  <xsl:variable name="loc" select="sitemap:loc" />
                   <a href="{sitemap:loc}" target="_blank" rel="noopener"><xsl:value-of select="sitemap:loc" /></a>
+                  <xsl:if test="xhtml:link[@href = $loc]">
+                    <span class="tag tag-lang"><xsl:value-of select="xhtml:link[@href = $loc][1]/@hreflang" /></span>
+                  </xsl:if>
+                  <xsl:if test="xhtml:link[@hreflang != 'x-default']">
+                    <details>
+                      <summary><span class="tag"><xsl:value-of select="count(xhtml:link[@hreflang != 'x-default'])" /> bahasa</span></summary>
+                      <ul>
+                        <xsl:for-each select="xhtml:link">
+                          <li>
+                            <strong><xsl:value-of select="@hreflang" /></strong><xsl:text>: </xsl:text>
+                            <a href="{@href}" target="_blank" rel="noopener"><xsl:value-of select="@href" /></a>
+                          </li>
+                        </xsl:for-each>
+                      </ul>
+                    </details>
+                  </xsl:if>
                   <xsl:if test="image:image">
                     <details>
                       <summary><span class="tag tag-img"><xsl:value-of select="count(image:image)" /> gambar</span></summary>

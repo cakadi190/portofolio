@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\ClarificationVerdict;
+use App\Http\Requests\Concerns\SanitizesRichText;
 use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,8 @@ use Illuminate\Validation\Rules\Enum;
 
 class ClarificationRequest extends FormRequest
 {
+    use SanitizesRichText;
+
     public function authorize(): bool
     {
         return true;
@@ -27,6 +30,8 @@ class ClarificationRequest extends FormRequest
             ->filter(fn (string $field): bool => is_string($this->input($field)))
             ->mapWithKeys(fn (string $field): array => [$field => trim(strip_tags($this->input($field)))])
             ->all());
+
+        $this->sanitizeEditorHtml(['content', 'content_en']);
 
         $this->merge([
             'sources' => $this->filledRows('sources'),

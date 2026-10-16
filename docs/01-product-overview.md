@@ -90,6 +90,6 @@
 | Klarifikasi (hak jawab)                                           | ✅                                           |
 | Tempat Ngopi + galeri + peta                                      | ✅                                           |
 | Pustaka Media, Pengaturan Sistem, Pesan Masuk                     | ✅                                           |
-| SEO, sitemap, GA4, Turnstile, header keamanan                     | ✅ (CSP masih `Report-Only`, lihat `06` #10) |
+| SEO, sitemap, GA4, Turnstile, header keamanan                     | ✅ (CSP diberlakukan di produksi dengan nonce, lihat `06` #10) |
 
 Persyaratan non-fungsional, alur pengguna utama, kriteria penerimaan, risiko, dan glosarium ada di [07-nonfunctional-and-acceptance.md](07-nonfunctional-and-acceptance.md).

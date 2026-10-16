@@ -4,14 +4,16 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Adds baseline browser hardening headers to every web response.
  *
- * The Content-Security-Policy is sent as report-only: the site relies on
- * inline bootstrap data, Google Analytics, Turnstile and the Iconify API, so
- * violations are observed in the browser console before it is enforced.
+ * The Content-Security-Policy is enforced in production (`app.csp_enforce`) and
+ * report-only elsewhere. Inline scripts run only with the per-request nonce (shared
+ * with Vite's tags through `Vite::useCspNonce()`), so injected markup cannot execute
+ * script even if it slips past the HTML sanitizer.
  */
 class SecurityHeaders
 {
@@ -19,7 +21,7 @@ class SecurityHeaders
      * Tesseract.js (OCR in the PDF viewers) compiles WebAssembly and fetches its core and language data from jsDelivr.
      */
     private const CONTENT_SECURITY_POLICY = "default-src 'self'; "
-        ."script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
+        ."script-src 'self' 'nonce-{nonce}' 'wasm-unsafe-eval' https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
         ."style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         ."font-src 'self' data: https://fonts.gstatic.com; "
         ."img-src 'self' data: blob: https:; "
@@ -34,13 +36,19 @@ class SecurityHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $nonce = Vite::useCspNonce();
+
         $response = $next($request);
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
-        $response->headers->set('Content-Security-Policy-Report-Only', $this->policy());
+        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+        $response->headers->set(
+            $this->enforced() ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only',
+            $this->policy($nonce),
+        );
 
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000');
@@ -52,12 +60,13 @@ class SecurityHeaders
     /**
      * The base policy, widened with the Vite dev server origin while it is running so hot reloading stays quiet.
      */
-    private function policy(): string
+    private function policy(string $nonce): string
     {
+        $base = str_replace('{nonce}', $nonce, self::CONTENT_SECURITY_POLICY);
         $hot = public_path('hot');
 
         if (! is_file($hot)) {
-            return self::CONTENT_SECURITY_POLICY;
+            return $base;
         }
 
         $origin = rtrim(trim((string) file_get_contents($hot)), '/');
@@ -66,7 +75,15 @@ class SecurityHeaders
         return (string) preg_replace(
             ['/(script-src|style-src|font-src|img-src) /', '/connect-src /'],
             ['$1 '.$origin.' ', 'connect-src '.$origin.' '.$socket.' '],
-            self::CONTENT_SECURITY_POLICY,
+            $base,
         );
+    }
+
+    /**
+     * Never enforced while the Vite dev server runs: it injects inline scripts of its own.
+     */
+    private function enforced(): bool
+    {
+        return (bool) config('app.csp_enforce') && ! Vite::isRunningHot();
     }
 }

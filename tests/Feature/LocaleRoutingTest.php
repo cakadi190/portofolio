@@ -76,6 +76,8 @@ it('rejects unknown languages', function () {
 });
 
 it('points the canonical of an English page at its own prefixed URL and keeps it out of the index', function () {
+    config(['app.indexable_locales' => ['id']]);
+
     $base = url('/');
     $html = $this->get('/en/contact')->getContent();
 
@@ -86,6 +88,8 @@ it('points the canonical of an English page at its own prefixed URL and keeps it
 });
 
 it('keeps Indonesian pages indexable with a plain canonical', function () {
+    config(['app.indexable_locales' => ['id']]);
+
     $base = url('/');
     $html = $this->get('/contact')->getContent();
 
@@ -163,4 +167,21 @@ it('does not suggest again once a language was chosen or on prefixed pages', fun
 
     $this->withHeaders($headers)->get('/en/contact')
         ->assertInertia(fn ($page) => $page->where('languageSuggestion', null));
+});
+
+it('indexes English by default and lists its URLs with hreflang alternates in the sitemap', function () {
+    expect(config('app.indexable_locales'))->toBe(['id', 'en']);
+
+    $xml = $this->get(route('sitemaps.pages'))->getContent();
+
+    expect($xml)
+        ->toContain('<loc>'.url('/en/career').'</loc>')
+        ->toContain('hreflang="x-default"');
+});
+
+it('shows the language of each sitemap URL in the human readable stylesheet', function () {
+    $xsl = $this->get(route('sitemaps.style'))->getContent();
+
+    expect($xsl)->toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"')
+        ->toContain('xhtml:link');
 });

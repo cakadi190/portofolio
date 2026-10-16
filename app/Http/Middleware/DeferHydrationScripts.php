@@ -58,7 +58,7 @@ class DeferHydrationScripts
         }
 
         $html = str_replace([...$preloads[0], ...$scripts[0]], '', $html);
-        $loader = '<script>'.$this->loader($preloads[0], $scripts[0]).'</script>';
+        $loader = '<script nonce="'.Vite::cspNonce().'">'.$this->loader($preloads[0], $scripts[0]).'</script>';
 
         $response->setContent(
             str_contains($html, '</body>')

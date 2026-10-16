@@ -2,12 +2,20 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\SanitizesRichText;
 use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class PortfolioRequest extends FormRequest
 {
+    use SanitizesRichText;
+
+    protected function prepareForValidation(): void
+    {
+        $this->sanitizeEditorHtml(['description', 'description_en']);
+    }
+
     public function authorize(): bool
     {
         return true;

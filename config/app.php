@@ -102,7 +102,20 @@ return [
     | here once its pages are ready.
     */
 
-    'indexable_locales' => ['id'],
+    'indexable_locales' => array_values(array_filter(array_map('trim', explode(',', (string) env('INDEXABLE_LOCALES', 'id,en'))))),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Content Security Policy enforcement
+    |--------------------------------------------------------------------------
+    |
+    | Enforced in production (inline scripts need the per-request nonce); everywhere
+    | else the policy is report-only. Set CSP_ENFORCE=false to fall back to
+    | report-only if a third-party script turns out to be blocked.
+    |
+    */
+
+    'csp_enforce' => (bool) env('CSP_ENFORCE', env('APP_ENV') === 'production'),
 
     'localized_segments' => [
         'about',

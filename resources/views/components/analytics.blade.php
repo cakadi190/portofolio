@@ -8,7 +8,7 @@
         an Inertia SPA: resources/js/lib/analytics.ts reports a page_view on
         every client-side visit instead.
     --}}
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());

@@ -32,7 +32,7 @@ Melengkapi `02` (fungsional). Status: ✅ sudah ada di kode, 🟡 sebagian, ⬜ 
 | NFR-S4 | Header keamanan (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS); cookie sesi `Secure` di produksi. | ✅            |
 | NFR-S5 | Administrator terakhir tidak dapat dihapus/diturunkan perannya.                                                          | ✅            |
 | NFR-S6 | Pengaturan sensitif (`system_settings.value`) tersimpan terenkripsi; `APP_KEY` dapat dirotasi (`RotateAppKey`).          | ✅            |
-| NFR-S7 | CSP diberlakukan (bukan sekadar `Report-Only`).                                                                          | 🟡 (`06` #10) |
+| NFR-S7 | CSP diberlakukan (bukan sekadar `Report-Only`).                                                                          | ✅ (`06` #10) |
 | NFR-S8 | Batas ukuran unggah di lapisan nginx (`client_max_body_size 12m`) diterapkan di server nyata.                            | 🟡 (`06` #11) |
 | NFR-S9 | Unggahan hanya lewat Pustaka Media (validasi MIME/ukuran), tidak lewat controller.                                       | ✅            |
 
