@@ -55,7 +55,7 @@
   import TextAlign from '@tiptap/extension-text-align';
   import { NodeSelection } from '@tiptap/pm/state';
   import StarterKit from '@tiptap/starter-kit';
-  import { onMount, type Snippet } from 'svelte';
+  import { onMount, untrack, type Snippet } from 'svelte';
   import { useAdminSidebarState } from '@/layouts/admin/sidebar-state.svelte';
   import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
@@ -105,6 +105,8 @@
   let {
     name,
     value = '',
+    contentKey = '',
+    onchange,
     placeholder = 'Mulai menulis cerita Anda...',
     invalid = false,
     minimal = false,
@@ -119,6 +121,10 @@
   }: {
     name: string;
     value?: string | null;
+    /** Changing this key replaces the document with the current `value` (e.g. when switching language). */
+    contentKey?: string;
+    /** Called with the document's HTML whenever it changes. */
+    onchange?: (html: string) => void;
     placeholder?: string;
     invalid?: boolean;
     /** Public-safe mode: basic formatting only, no images, links, headings or HTML tab. */
@@ -161,6 +167,28 @@
   // svelte-ignore state_referenced_locally
   let html = $state(value ?? '');
   let mode = $state<'visual' | 'html'>('visual');
+  // svelte-ignore state_referenced_locally
+  let loadedKey = contentKey;
+
+  $effect(() => {
+    onchange?.(html);
+  });
+
+  $effect(() => {
+    const key = contentKey;
+
+    if (key === loadedKey) {
+      return;
+    }
+
+    loadedKey = key;
+
+    untrack(() => {
+      html = value ?? '';
+      editor?.commands.setContent(html, { emitUpdate: false });
+      words = editor?.storage.characterCount.words() ?? 0;
+    });
+  });
   let uploading = $state(false);
   let words = $state(0);
   // Bumped on every editor transaction so toolbar state re-evaluates.

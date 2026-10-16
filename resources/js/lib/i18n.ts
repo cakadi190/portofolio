@@ -55,6 +55,11 @@ export function tChoice(
   });
 }
 
+/** Whether automatic draft translation is configured on the server (admin pages only). */
+export function canTranslate(): boolean {
+  return (page.props as { canTranslate?: boolean }).canTranslate === true;
+}
+
 /** BCP 47 tag for `Intl` / `toLocale*String` formatting in the active language. */
 export function intlLocale(): string {
   return currentLocale() === 'en' ? 'en-US' : 'id-ID';
