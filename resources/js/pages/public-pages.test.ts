@@ -153,7 +153,7 @@ describe('AppIndex (home)', () => {
 
     expect(document.getElementById('homepage')).not.toBeNull();
     expect(document.title).toMatch(
-      /^.+ • Catatan Seorang Wirausahawan Muda & Software Engineer$/,
+      /^.+ • Fullstack Web Developer & Software Engineer di Ngawi$/,
     );
     expect(screen.getByText(/Belum ada artikel/)).toBeTruthy();
     expect(screen.getByText(/Belum ada portofolio/)).toBeTruthy();
