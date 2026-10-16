@@ -59,7 +59,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(tag.id).url}
-            label={`Hapus tag "${tag.name}"?`}
+            label={t('admin-tags.delete_confirm', { name: tag.name })}
           />
         </div>
       </td>

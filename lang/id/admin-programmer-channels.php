@@ -9,4 +9,5 @@ return [
     'catat_channel_baru' => 'Catat channel baru.',
     'tautan_channel' => 'Tautan Channel',
     'ubah_channel' => 'Ubah Channel',
+    'delete_confirm' => 'Hapus channel ":name"?',
 ];

@@ -9,4 +9,5 @@ return [
     'simpan_perubahan' => 'Simpan Perubahan',
     'integrasi_aktif' => 'Integrasi aktif',
     'integrasi_belum_aktif' => 'Integrasi belum aktif',
+    'tersimpan_placeholder' => '•••••••• (tersimpan, kosongkan untuk mempertahankan)',
 ];

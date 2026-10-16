@@ -232,7 +232,7 @@
                   <button
                     type="button"
                     class="btn btn-outline-danger"
-                    aria-label={`Hapus sumber ${i + 1}`}
+                    aria-label={t('admin-clarifications.hapus_sumber', { n: i + 1 })}
                     onclick={() => sources.splice(i, 1)}
                   >
                     <Trash size={14} />
@@ -297,7 +297,7 @@
                   <button
                     type="button"
                     class="btn btn-outline-danger"
-                    aria-label={`Hapus pembaruan ${i + 1}`}
+                    aria-label={t('admin-clarifications.hapus_pembaruan', { n: i + 1 })}
                     onclick={() => updates.splice(i, 1)}
                   >
                     <Trash size={14} />

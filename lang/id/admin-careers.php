@@ -17,4 +17,5 @@ return [
     'ubah_karier' => 'Ubah Karier',
     'periode' => 'Periode',
     'sekarang' => 'Sekarang',
+    'delete_confirm' => 'Hapus karier ":name"?',
 ];

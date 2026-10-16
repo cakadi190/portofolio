@@ -115,7 +115,7 @@
             >
             <AdminDeleteButton
               href={destroy(post.id).url}
-              label={`Hapus permanen artikel "${post.title}"?`}
+              label={t('admin-posts.delete_confirm', { name: post.title })}
               buttonLabel={t('admin-posts.hapus_permanen')}
               confirmLabel={t('admin-posts.hapus_permanen')}
             />

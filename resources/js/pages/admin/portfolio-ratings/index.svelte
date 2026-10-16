@@ -106,7 +106,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(rating.id).url}
-            label={`Hapus ulasan untuk "${rating.portfolio.name}"?`}
+            label={t('admin-portfolio-ratings.delete_confirm', { name: rating.portfolio.name })}
           />
         </div>
       </td>

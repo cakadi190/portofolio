@@ -87,7 +87,7 @@
             <button
               type="button"
               class="btn btn-sm btn-link text-danger p-0"
-              aria-label={`Hapus lampiran ${media.name}`}
+              aria-label={t('admin.hapus_lampiran', { name: media.name })}
               onclick={() =>
                 (attachments = attachments.filter(
                   (item) => item.path !== media.path,

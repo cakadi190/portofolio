@@ -10,4 +10,5 @@ return [
     'nama_organisasi' => 'Organization Name',
     'masukkan_nama_organisasi' => 'Enter the organization name',
     'ubah_organisasi' => 'Edit Organization',
+    'delete_confirm' => 'Delete organization ":name"?',
 ];

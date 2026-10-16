@@ -22,4 +22,5 @@ return [
     'ubah_kedai_kopi' => 'Ubah Kedai Kopi',
     'nama_alamat' => 'Nama & Alamat',
     'rekomendasi' => 'Rekomendasi',
+    'delete_confirm' => 'Hapus kedai kopi ":name"?',
 ];

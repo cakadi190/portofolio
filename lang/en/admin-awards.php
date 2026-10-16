@@ -18,4 +18,5 @@ return [
     'ubah_penghargaan' => 'Edit Award',
     'ikon' => 'Icon',
     'acara' => 'Event',
+    'delete_confirm' => 'Delete award ":name"?',
 ];

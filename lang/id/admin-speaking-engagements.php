@@ -21,4 +21,5 @@ return [
     'pembicara_mentoring' => 'Pembicara & Mentoring',
     'disembunyikan' => 'Disembunyikan',
     'mis_zoom_youtube_atau_gd_baru' => 'Mis. Zoom & YouTube atau Gd. Baru UPI Serang',
+    'delete_confirm' => 'Hapus acara ":name"?',
 ];

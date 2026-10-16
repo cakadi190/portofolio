@@ -25,4 +25,5 @@ return [
     'artikel_yang_dipindahkan_ke_sampah_muncul' => 'Artikel yang dipindahkan ke sampah muncul di sini.',
     'tulis_artikel_pertama_anda' => 'Tulis artikel pertama Anda.',
     'sampah' => 'Sampah',
+    'delete_confirm' => 'Hapus permanen artikel ":name"?',
 ];

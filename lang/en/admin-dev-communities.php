@@ -13,4 +13,5 @@ return [
     'ubah_komunitas' => 'Edit Community',
     'anggota' => 'Members',
     'unggulan' => 'Featured',
+    'delete_confirm' => 'Delete community ":name"?',
 ];

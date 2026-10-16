@@ -21,4 +21,5 @@ return [
     'pembicara_mentoring' => 'Speaking & Mentoring',
     'disembunyikan' => 'Hidden',
     'mis_zoom_youtube_atau_gd_baru' => 'E.g. Zoom & YouTube or Gd. Baru UPI Serang',
+    'delete_confirm' => 'Delete event ":name"?',
 ];

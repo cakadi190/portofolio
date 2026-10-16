@@ -89,7 +89,7 @@
         <AdminDeleteButton
           class="thread-action is-danger"
           href={destroy(entry.id).url}
-          label={`Hapus pesan #${entry.id}?`}
+          label={t('admin.hapus_pesan_id', { id: entry.id })}
           description={t('admin.balasan_pesan_ini_tidak_ikut_dihapus')}
         />
       </div>
@@ -103,7 +103,7 @@
         >
           {#snippet children({ errors, processing })}
             <Field.Group>
-              <Field.Label>Balasan untuk {author}</Field.Label>
+              <Field.Label>{t('admin.balasan_untuk_nama', { name: author })}</Field.Label>
               <RichTextEditor
                 name="body"
                 minimal

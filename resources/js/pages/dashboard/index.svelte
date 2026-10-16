@@ -177,9 +177,9 @@
     <h1 class="h3 fw-bold mb-1">{greeting}{userName ? `, ${userName}` : ''} 👋</h1>
     <p class="mb-0 opacity-75">
       {#if attention.length}
-        Ada {attention.length} hal yang perlu perhatianmu hari ini.
+        {t('dashboard.ada_hal_perlu_perhatian', { count: attention.length })}
       {:else}
-        Semua beres. Tidak ada yang menunggu tindakanmu.
+        {t('dashboard.semua_beres')}
       {/if}
     </p>
     {#if attention.length}

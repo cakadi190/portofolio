@@ -434,7 +434,7 @@
 
 <ModalConfirmation
   bind:open={deleteOpen}
-  title={`Hapus media "${deleting?.name ?? ''}"?`}
+  title={t('admin-media.hapus_media', { name: deleting?.name ?? '' })}
   description={t('admin-media.media_yang_masih_dipakai_tidak_dapat')}
   processing={deleteProcessing}
   confirmLabel={t('admin-media.hapus')}

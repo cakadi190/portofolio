@@ -87,7 +87,7 @@
             </button>
             <AdminDeleteButton
               href={destroy(gallery.id).url}
-              label={`Hapus foto galeri "${gallery.portfolio.name}"?`}
+              label={t('admin-portfolio-galleries.delete_confirm', { name: gallery.portfolio.name })}
             />
           </div>
         </div>

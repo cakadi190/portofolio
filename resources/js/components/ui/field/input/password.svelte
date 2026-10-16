@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Eye from '@lucide/svelte/icons/eye';
   import EyeOff from '@lucide/svelte/icons/eye-off';
   import Input from './regular.svelte';
@@ -129,7 +130,7 @@
       bind:value={passwordConfirmation}
       id={confirmed}
       name={confirmed}
-      placeholder="Konfirmasi kata sandi Anda."
+      placeholder={t('ui.konfirmasi_kata_sandi_anda')}
     />
 
     {@render toggleButton()}

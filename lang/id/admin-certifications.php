@@ -20,4 +20,5 @@ return [
     'berkas_sertifikat_pdf_atau_gambar' => 'Berkas Sertifikat (PDF atau gambar)',
     'ubah_sertifikasi' => 'Ubah Sertifikasi',
     'terbit' => 'Terbit',
+    'delete_confirm' => 'Hapus sertifikasi ":name"?',
 ];

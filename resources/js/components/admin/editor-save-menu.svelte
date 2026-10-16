@@ -117,7 +117,7 @@
     disabled={processing}
     title={draftable && !isPublished
       ? `${scheduled ? t('admin.jadwalkan') : t('admin.terbitkan')} (Ctrl+Shift+S)`
-      : 'Simpan (Ctrl+S)'}
+      : t('admin.simpan_ctrl_s')}
     onclick={() => onStatus?.(true)}
   >
     {primaryLabel}

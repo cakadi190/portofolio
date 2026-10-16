@@ -8,4 +8,5 @@ return [
     'tambah_galeri_portofolio' => 'Tambah Galeri Portofolio',
     'unggah_foto_galeri_baru' => 'Unggah foto galeri baru.',
     'ubah_galeri_portofolio' => 'Ubah Galeri Portofolio',
+    'delete_confirm' => 'Hapus foto galeri ":name"?',
 ];

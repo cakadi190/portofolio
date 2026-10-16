@@ -17,4 +17,5 @@ return [
     'ubah_karier' => 'Edit Career',
     'periode' => 'Period',
     'sekarang' => 'Present',
+    'delete_confirm' => 'Delete career entry ":name"?',
 ];

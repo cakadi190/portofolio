@@ -17,4 +17,5 @@ return [
     'kosongkan_jika_tidak_diubah' => 'Leave blank to keep it unchanged',
     'admin_akses_penuh_redaktur_hanya_mengelola' => 'Admin: full access. Editor: manages the blog only. User: a regular account without admin panel access.',
     'avatar' => 'Avatar',
+    'delete_confirm' => 'Delete user ":name"?',
 ];

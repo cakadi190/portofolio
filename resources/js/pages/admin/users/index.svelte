@@ -121,7 +121,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(user.id).url}
-            label={`Hapus pengguna "${user.name}"?`}
+            label={t('admin-users.delete_confirm', { name: user.name })}
           />
         </div>
       </td>

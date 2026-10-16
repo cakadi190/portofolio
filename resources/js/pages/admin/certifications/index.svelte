@@ -124,7 +124,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(certification.id).url}
-            label={`Hapus sertifikasi "${certification.title}"?`}
+            label={t('admin-certifications.delete_confirm', { name: certification.title })}
           />
         </div>
       </td>

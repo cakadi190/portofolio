@@ -100,3 +100,17 @@ describe('localized links', () => {
     });
   });
 });
+
+describe('t() placeholders', () => {
+  it('does not let a short placeholder swallow a longer one', () => {
+    page.props = { translations: { range: ':from to :to of :total' } };
+
+    expect(t('range', { from: 1, to: 2, total: 3 })).toBe('1 to 2 of 3');
+  });
+
+  it('leaves unknown placeholders alone', () => {
+    page.props = { translations: { line: 'Hello :name :other' } };
+
+    expect(t('line', { name: 'Cak' })).toBe('Hello Cak :other');
+  });
+});

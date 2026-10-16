@@ -9,4 +9,5 @@ return [
     'pengirim' => 'Sender',
     'keperluan' => 'Reason',
     'dibaca' => 'Read',
+    'delete_confirm' => 'Delete message from ":name"?',
 ];

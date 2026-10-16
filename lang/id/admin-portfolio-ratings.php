@@ -17,4 +17,5 @@ return [
     'pengulas' => 'Pengulas',
     'tampil' => 'Tampil',
     'menunggu' => 'Menunggu',
+    'delete_confirm' => 'Hapus ulasan untuk ":name"?',
 ];

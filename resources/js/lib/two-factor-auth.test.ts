@@ -2,7 +2,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 const get = vi.hoisted(() => vi.fn());
 
-vi.mock('@inertiajs/svelte', () => ({ useHttp: () => ({ get }) }));
+vi.mock('@inertiajs/svelte', async () => ({
+  page: {
+    props: {
+      translations: (await import('@/tests/translations'))
+        .indonesianTranslations,
+    },
+  },
+  useHttp: () => ({ get }),
+}));
 
 import { twoFactorAuthState } from '@/lib/two-factor-auth.svelte';
 

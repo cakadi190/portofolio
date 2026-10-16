@@ -85,7 +85,7 @@
           {/each}
         </div></td
       >
-      <td>{portfolio.is_private ? 'Ya' : 'Tidak'}</td>
+      <td>{portfolio.is_private ? t('admin.ya') : t('admin.tidak')}</td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
           <Link
@@ -96,7 +96,7 @@
           </Link>
           <AdminDeleteButton
             href={destroy(portfolio.id).url}
-            label={`Hapus portofolio "${portfolio.name}"?`}
+            label={t('admin-portfolios.delete_confirm', { name: portfolio.name })}
           />
         </div>
       </td>

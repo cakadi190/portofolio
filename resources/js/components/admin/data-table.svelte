@@ -198,7 +198,7 @@
           type={isFiltered ? 'warning' : 'info'}
           title={isFiltered ? t('admin.tidak_ada_hasil') : emptyTitle}
           text={isFiltered
-            ? `Tidak ada data yang cocok dengan "${filters.search}".`
+            ? t('admin.tidak_ada_data_yang_cocok', { search: filters.search })
             : emptyText}
         />
       </div>
@@ -257,7 +257,7 @@
                   type={isFiltered ? 'warning' : 'info'}
                   title={isFiltered ? t('admin.tidak_ada_hasil') : emptyTitle}
                   text={isFiltered
-                    ? `Tidak ada data yang cocok dengan "${filters.search}".`
+                    ? t('admin.tidak_ada_data_yang_cocok', { search: filters.search })
                     : emptyText}
                 />
               </td>
@@ -292,9 +292,9 @@
   >
     <span class="small text-muted">
       {#if paged && paged.total > 0}
-        Menampilkan {paged.from} sampai {paged.to} dari {paged.total} data
+        {t('admin.menampilkan_dari', { from: paged.from ?? 0, to: paged.to ?? 0, total: paged.total })}
       {:else}
-        Tidak ada data
+        {t('admin.tidak_ada_data')}
       {/if}
     </span>
 

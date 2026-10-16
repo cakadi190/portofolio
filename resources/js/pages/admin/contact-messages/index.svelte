@@ -119,7 +119,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(message.id).url}
-            label={`Hapus pesan dari "${message.name}"?`}
+            label={t('admin-contact-messages.delete_confirm', { name: message.name })}
           />
         </div>
       </td>

@@ -82,7 +82,7 @@
           >
           <AdminDeleteButton
             href={destroy(item.id).url}
-            label={`Hapus klarifikasi "${item.title}"?`}
+            label={t('admin-clarifications.delete_confirm', { name: item.title })}
           />
         </div>
       </td>

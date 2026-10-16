@@ -20,4 +20,5 @@ return [
     'berkas_sertifikat_pdf_atau_gambar' => 'Certificate File (PDF or image)',
     'ubah_sertifikasi' => 'Edit Certification',
     'terbit' => 'Issued',
+    'delete_confirm' => 'Delete certification ":name"?',
 ];

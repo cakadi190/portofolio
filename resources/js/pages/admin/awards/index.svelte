@@ -99,7 +99,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(award.id).url}
-            label={`Hapus penghargaan "${award.title}"?`}
+            label={t('admin-awards.delete_confirm', { name: award.title })}
           />
         </div>
       </td>

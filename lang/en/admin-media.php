@@ -28,4 +28,5 @@ return [
     'tautan_gagal_disalin' => 'The link could not be copied.',
     'tautan_berhasil_disalin' => 'Link copied.',
     'semua_jenis' => 'All types',
+    'hapus_media' => 'Delete media ":name"?',
 ];

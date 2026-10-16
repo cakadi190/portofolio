@@ -74,7 +74,7 @@
           >
           <AdminDeleteButton
             href={destroy(note.id).url}
-            label={`Hapus catatan "${note.title}"?`}
+            label={t('admin-notes.delete_confirm', { name: note.title })}
           />
         </div>
       </td>

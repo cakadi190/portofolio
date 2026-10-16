@@ -7,4 +7,5 @@ return [
     'tambah_teknologi' => 'Add Technology',
     'tambahkan_teknologi_baru_untuk_portofolio' => 'Add a new technology for the portfolio.',
     'ubah_teknologi' => 'Edit Technology',
+    'delete_confirm' => 'Delete technology ":name"?',
 ];

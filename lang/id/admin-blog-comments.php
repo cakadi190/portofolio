@@ -12,4 +12,7 @@ return [
     'komentar_yang_dibalas' => 'Komentar yang dibalas',
     'belum_ada_balasan' => 'Belum ada balasan.',
     'dikirim' => 'Dikirim',
+    'balasan_untuk' => 'Balasan untuk #:id',
+    'komentar_utama' => 'Komentar utama',
+    'hapus_komentar' => 'Hapus komentar #:id?',
 ];

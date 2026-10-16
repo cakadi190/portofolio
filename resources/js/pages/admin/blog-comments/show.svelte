@@ -123,7 +123,7 @@
       >
       <AdminDeleteButton
         href={destroy(blogComment.id).url}
-        label={`Hapus komentar #${blogComment.id}?`}
+        label={t('admin-blog-comments.hapus_komentar', { id: blogComment.id })}
         description={t('admin-blog-comments.balasan_komentar_ini_tidak_ikut_dihapus')}
       />
     </div>

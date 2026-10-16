@@ -259,7 +259,7 @@
             disabled={selected.length === 0}
             onclick={confirmSelection}
           >
-            Tambahkan {selected.length} berkas
+            {t('ui.tambahkan_berkas', { count: selected.length })}
           </button>
         </div>
       {/if}

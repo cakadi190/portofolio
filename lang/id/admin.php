@@ -159,4 +159,13 @@ return [
     'menu_analitik_pengunjung' => 'Analitik Pengunjung',
     'menu_log_aktivitas' => 'Log Aktivitas',
     'menu_pengaturan_sistem' => 'Pengaturan Sistem',
+    'ya' => 'Ya',
+    'tidak' => 'Tidak',
+    'tidak_ada_data_yang_cocok' => 'Tidak ada data yang cocok dengan ":search".',
+    'menampilkan_dari' => 'Menampilkan :from sampai :to dari :total data',
+    'tidak_ada_data' => 'Tidak ada data',
+    'simpan_ctrl_s' => 'Simpan (Ctrl+S)',
+    'hapus_pesan_id' => 'Hapus pesan #:id?',
+    'balasan_untuk_nama' => 'Balasan untuk :name',
+    'hapus_lampiran' => 'Hapus lampiran :name',
 ];

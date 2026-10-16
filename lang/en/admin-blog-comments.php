@@ -12,4 +12,7 @@ return [
     'komentar_yang_dibalas' => 'Comment being replied to',
     'belum_ada_balasan' => 'No replies yet.',
     'dikirim' => 'Sent',
+    'balasan_untuk' => 'Reply to #:id',
+    'komentar_utama' => 'Top-level comment',
+    'hapus_komentar' => 'Delete comment #:id?',
 ];

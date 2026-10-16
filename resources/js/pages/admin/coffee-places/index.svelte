@@ -122,7 +122,7 @@
         <div class="text-muted small">{place.address}</div>
       </td>
       <td>{priceTierLabel(place.price_tier)}</td>
-      <td>{place.is_recommended ? 'Ya' : 'Tidak'}</td>
+      <td>{place.is_recommended ? t('admin.ya') : t('admin.tidak')}</td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
           <button
@@ -134,7 +134,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(place.id).url}
-            label={`Hapus kedai kopi "${place.name}"?`}
+            label={t('admin-coffee-places.delete_confirm', { name: place.name })}
           />
         </div>
       </td>

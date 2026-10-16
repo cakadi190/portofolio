@@ -9,4 +9,5 @@ return [
     'simpan_perubahan' => 'Save Changes',
     'integrasi_aktif' => 'Integration active',
     'integrasi_belum_aktif' => 'Integration not active yet',
+    'tersimpan_placeholder' => '•••••••• (saved, leave empty to keep it)',
 ];

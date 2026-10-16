@@ -8,4 +8,5 @@ return [
     'tambah_galeri_portofolio' => 'Add Portfolio Gallery',
     'unggah_foto_galeri_baru' => 'Upload a new gallery photo.',
     'ubah_galeri_portofolio' => 'Edit Portfolio Gallery',
+    'delete_confirm' => 'Delete gallery photo ":name"?',
 ];

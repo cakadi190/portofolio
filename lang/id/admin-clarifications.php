@@ -33,4 +33,7 @@ return [
     'hapus_klarifikasi_ini' => 'Hapus klarifikasi ini?',
     'klarifikasi_dihapus_permanen_bila_hanya_ingin' => 'Klarifikasi dihapus permanen. Bila hanya ingin menyembunyikannya, gunakan penarikan.',
     'tulis_klarifikasi' => 'Tulis Klarifikasi',
+    'delete_confirm' => 'Hapus klarifikasi ":name"?',
+    'hapus_sumber' => 'Hapus sumber :n',
+    'hapus_pembaruan' => 'Hapus pembaruan :n',
 ];

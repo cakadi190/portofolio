@@ -18,4 +18,5 @@ return [
     'ubah_penghargaan' => 'Ubah Penghargaan',
     'ikon' => 'Ikon',
     'acara' => 'Acara',
+    'delete_confirm' => 'Hapus penghargaan ":name"?',
 ];

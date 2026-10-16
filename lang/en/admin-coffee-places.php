@@ -22,4 +22,5 @@ return [
     'ubah_kedai_kopi' => 'Edit Coffee Shop',
     'nama_alamat' => 'Name & Address',
     'rekomendasi' => 'Recommended',
+    'delete_confirm' => 'Delete coffee shop ":name"?',
 ];

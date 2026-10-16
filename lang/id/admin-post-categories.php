@@ -9,4 +9,5 @@ return [
     'buat_kategori_artikel_baru' => 'Buat kategori artikel baru.',
     'warna_opsional' => 'Warna (opsional)',
     'ubah_kategori_artikel' => 'Ubah Kategori Artikel',
+    'delete_confirm' => 'Hapus kategori ":name"?',
 ];

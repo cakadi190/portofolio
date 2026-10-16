@@ -47,4 +47,6 @@ return [
     'sesi' => 'Sessions',
     'surel' => 'Mail',
     'tanpa_penulis' => 'No author',
+    'ada_hal_perlu_perhatian' => ':count thing(s) need your attention today.',
+    'semua_beres' => 'All clear. Nothing is waiting for your action.',
 ];

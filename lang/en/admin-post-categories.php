@@ -9,4 +9,5 @@ return [
     'buat_kategori_artikel_baru' => 'Create a new article category.',
     'warna_opsional' => 'Color (optional)',
     'ubah_kategori_artikel' => 'Edit Article Category',
+    'delete_confirm' => 'Delete category ":name"?',
 ];

@@ -28,4 +28,5 @@ return [
     'ubah_riwayat_pendidikan' => 'Edit Education',
     'masukkan_label_nilai' => 'Enter the score label',
     'nama_tempat' => 'Name & Place',
+    'delete_confirm' => 'Delete education entry ":name"?',
 ];

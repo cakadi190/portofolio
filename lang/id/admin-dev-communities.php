@@ -13,4 +13,5 @@ return [
     'ubah_komunitas' => 'Ubah Komunitas',
     'anggota' => 'Anggota',
     'unggulan' => 'Unggulan',
+    'delete_confirm' => 'Hapus komunitas ":name"?',
 ];

@@ -7,4 +7,5 @@ return [
     'tambah_tag' => 'Tambah Tag',
     'buat_tag_baru_untuk_artikel_blog' => 'Buat tag baru untuk artikel blog.',
     'ubah_tag' => 'Ubah Tag',
+    'delete_confirm' => 'Hapus tag ":name"?',
 ];

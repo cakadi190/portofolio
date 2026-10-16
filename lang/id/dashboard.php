@@ -47,4 +47,6 @@ return [
     'sesi' => 'Sesi',
     'surel' => 'Surel',
     'tanpa_penulis' => 'Tanpa penulis',
+    'ada_hal_perlu_perhatian' => 'Ada :count hal yang perlu perhatianmu hari ini.',
+    'semua_beres' => 'Semua beres. Tidak ada yang menunggu tindakanmu.',
 ];

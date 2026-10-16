@@ -28,4 +28,5 @@ return [
     'ubah_riwayat_pendidikan' => 'Ubah Riwayat Pendidikan',
     'masukkan_label_nilai' => 'Masukkan label nilai',
     'nama_tempat' => 'Nama & Tempat',
+    'delete_confirm' => 'Hapus riwayat pendidikan ":name"?',
 ];

@@ -97,7 +97,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(career.id).url}
-            label={`Hapus karier "${career.position}"?`}
+            label={t('admin-careers.delete_confirm', { name: career.position })}
           />
         </div>
       </td>

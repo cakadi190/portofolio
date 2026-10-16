@@ -125,7 +125,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(engagement.id).url}
-            label={`Hapus acara "${engagement.title}"?`}
+            label={t('admin-speaking-engagements.delete_confirm', { name: engagement.title })}
           />
         </div>
       </td>

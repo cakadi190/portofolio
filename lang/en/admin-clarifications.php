@@ -33,4 +33,7 @@ return [
     'hapus_klarifikasi_ini' => 'Delete this clarification?',
     'klarifikasi_dihapus_permanen_bila_hanya_ingin' => 'The clarification is deleted permanently. If you only want to hide it, use withdrawal.',
     'tulis_klarifikasi' => 'Write Clarification',
+    'delete_confirm' => 'Delete clarification ":name"?',
+    'hapus_sumber' => 'Remove source :n',
+    'hapus_pembaruan' => 'Remove update :n',
 ];

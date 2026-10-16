@@ -110,7 +110,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(education.id).url}
-            label={`Hapus riwayat pendidikan "${education.name}"?`}
+            label={t('admin-educations.delete_confirm', { name: education.name })}
           />
         </div>
       </td>

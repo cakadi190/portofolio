@@ -17,4 +17,5 @@ return [
     'kosongkan_jika_tidak_diubah' => 'Kosongkan jika tidak diubah',
     'admin_akses_penuh_redaktur_hanya_mengelola' => 'Admin: akses penuh. Redaktur: hanya mengelola blog. Pengguna: akun biasa tanpa akses panel admin.',
     'avatar' => 'Avatar',
+    'delete_confirm' => 'Hapus pengguna ":name"?',
 ];

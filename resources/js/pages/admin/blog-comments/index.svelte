@@ -107,9 +107,9 @@
         <div class="text-truncate">{plain(comment.body)}</div>
         <small class="opacity-75">
           {#if comment.parent}
-            Balasan untuk #{comment.parent.id} ·
+            {t('admin-blog-comments.balasan_untuk', { id: comment.parent.id })} ·
           {:else}
-            Komentar utama ·
+            {t('admin-blog-comments.komentar_utama')} ·
           {/if}
           {comment.replies_count} balasan
         </small>
@@ -152,7 +152,7 @@
           >
           <AdminDeleteButton
             href={destroy(comment.id).url}
-            label={`Hapus komentar #${comment.id}?`}
+            label={t('admin-blog-comments.hapus_komentar', { id: comment.id })}
             description={t('admin-blog-comments.balasan_komentar_ini_tidak_ikut_dihapus')}
           />
         </div>

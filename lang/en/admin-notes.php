@@ -16,4 +16,5 @@ return [
     'hapus_catatan_ini' => 'Delete this note?',
     'catatan_dihapus_permanen_dan_tidak_dapat' => 'The note is deleted permanently and cannot be restored.',
     'tulis_catatan' => 'Write Note',
+    'delete_confirm' => 'Delete note ":name"?',
 ];

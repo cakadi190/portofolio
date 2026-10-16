@@ -28,4 +28,5 @@ return [
     'tautan_gagal_disalin' => 'Tautan gagal disalin.',
     'tautan_berhasil_disalin' => 'Tautan berhasil disalin.',
     'semua_jenis' => 'Semua jenis',
+    'hapus_media' => 'Hapus media ":name"?',
 ];

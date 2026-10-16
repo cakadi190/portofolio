@@ -66,7 +66,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(technology.id).url}
-            label={`Hapus teknologi "${technology.name}"?`}
+            label={t('admin-technologies.delete_confirm', { name: technology.name })}
           />
         </div>
       </td>

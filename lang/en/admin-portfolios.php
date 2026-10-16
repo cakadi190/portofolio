@@ -23,4 +23,5 @@ return [
     'tambah_portofolio' => 'Add Portfolio',
     'sampul' => 'Cover',
     'privat' => 'Private',
+    'delete_confirm' => 'Delete portfolio item ":name"?',
 ];

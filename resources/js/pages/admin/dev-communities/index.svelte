@@ -81,13 +81,13 @@
       </td>
       <td>{platformLabel(item.platform)}</td>
       <td>{item.member_count?.toLocaleString('id-ID') ?? '-'}</td>
-      <td>{item.is_featured ? 'Ya' : 'Tidak'}</td>
+      <td>{item.is_featured ? t('admin.ya') : t('admin.tidak')}</td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
           <button type="button" class="btn btn-sm btn-outline-secondary" onclick={() => openEdit(item)}>{t('admin.ubah')}</button>
           <AdminDeleteButton
             href={destroy(item.id).url}
-            label={`Hapus komunitas "${item.name}"?`}
+            label={t('admin-dev-communities.delete_confirm', { name: item.name })}
           />
         </div>
       </td>

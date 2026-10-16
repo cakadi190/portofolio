@@ -158,7 +158,7 @@
                             name={field.key}
                             type="password"
                             autocomplete="new-password"
-                            placeholder={secretsSet.includes(field.key) ? '•••••••• (tersimpan, kosongkan untuk mempertahankan)' : field.placeholder}
+                            placeholder={secretsSet.includes(field.key) ? t('admin-system-settings.tersimpan_placeholder') : field.placeholder}
                             invalid={!!errors[field.key]}
                           />
                           {#if secretsSet.includes(field.key)}

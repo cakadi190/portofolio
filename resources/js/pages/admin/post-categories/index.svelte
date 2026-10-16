@@ -83,7 +83,7 @@
           </button>
           <AdminDeleteButton
             href={destroy(category.id).url}
-            label={`Hapus kategori "${category.name}"?`}
+            label={t('admin-post-categories.delete_confirm', { name: category.name })}
           />
         </div>
       </td>

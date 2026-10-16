@@ -23,4 +23,5 @@ return [
     'tambah_portofolio' => 'Tambah Portofolio',
     'sampul' => 'Sampul',
     'privat' => 'Privat',
+    'delete_confirm' => 'Hapus portofolio ":name"?',
 ];

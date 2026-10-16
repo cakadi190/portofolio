@@ -9,4 +9,5 @@ return [
     'catat_channel_baru' => 'Record a new channel.',
     'tautan_channel' => 'Channel Link',
     'ubah_channel' => 'Edit Channel',
+    'delete_confirm' => 'Delete channel ":name"?',
 ];

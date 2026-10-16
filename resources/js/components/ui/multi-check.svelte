@@ -72,7 +72,7 @@
     disabled={creating}
     onclick={create}
   >
-    + Tambah “{query.trim()}”
+    {t('ui.tambah_item', { item: query.trim() })}
   </button>
 {/if}
 

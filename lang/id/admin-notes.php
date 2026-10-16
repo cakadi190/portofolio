@@ -16,4 +16,5 @@ return [
     'hapus_catatan_ini' => 'Hapus catatan ini?',
     'catatan_dihapus_permanen_dan_tidak_dapat' => 'Catatan dihapus permanen dan tidak dapat dikembalikan.',
     'tulis_catatan' => 'Tulis Catatan',
+    'delete_confirm' => 'Hapus catatan ":name"?',
 ];

@@ -82,13 +82,12 @@ export function t(
   key: string,
   replacements: Record<string, string | number> = {},
 ): string {
-  let line = props().translations?.[key] ?? key;
+  const line = props().translations?.[key] ?? key;
 
-  for (const [name, value] of Object.entries(replacements)) {
-    line = line.replaceAll(`:${name}`, String(value));
-  }
-
-  return line;
+  // One pass over `:name` tokens, so `:to` never eats the start of `:total`.
+  return line.replace(/:(\w+)/g, (token, name: string) =>
+    name in replacements ? String(replacements[name]) : token,
+  );
 }
 
 /**

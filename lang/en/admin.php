@@ -159,4 +159,13 @@ return [
     'menu_analitik_pengunjung' => 'Visitor Analytics',
     'menu_log_aktivitas' => 'Activity Log',
     'menu_pengaturan_sistem' => 'System Settings',
+    'ya' => 'Yes',
+    'tidak' => 'No',
+    'tidak_ada_data_yang_cocok' => 'No data matches ":search".',
+    'menampilkan_dari' => 'Showing :from to :to of :total entries',
+    'tidak_ada_data' => 'No data',
+    'simpan_ctrl_s' => 'Save (Ctrl+S)',
+    'hapus_pesan_id' => 'Delete message #:id?',
+    'balasan_untuk_nama' => 'Reply to :name',
+    'hapus_lampiran' => 'Remove attachment :name',
 ];

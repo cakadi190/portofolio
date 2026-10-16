@@ -17,4 +17,5 @@ return [
     'pengulas' => 'Reviewer',
     'tampil' => 'Shown',
     'menunggu' => 'Pending',
+    'delete_confirm' => 'Delete review for ":name"?',
 ];
