@@ -92,4 +92,13 @@ return [
     'comments.policy' => 'kebijakan komentar',
     'comments.loading' => 'Memuat komentar…',
     'comments.empty' => 'Belum ada komentar. Jadilah yang pertama.',
+    'code.copy' => 'Salin',
+    'code.copied' => 'Tersalin!',
+    'code.failed' => 'Gagal',
+    'code.copy_code' => 'Salin kode',
+    'code.default_title' => 'Kode',
+    'code.title_placeholder' => 'Judul (mis. app/Models/User.php)',
+    'code.title_label' => 'Judul blok kode',
+    'code.show_title' => 'Tampilkan tab judul',
+    'code.line_numbers' => 'Nomor baris',
 ];

@@ -1,6 +1,4 @@
-const COPY_LABEL = 'Salin';
-const COPIED_LABEL = 'Tersalin!';
-const DEFAULT_TITLE = 'Kode';
+import { t } from '@/lib/i18n';
 
 export const CODE_TITLE_MAX_LENGTH = 60;
 
@@ -52,9 +50,9 @@ export function createCopyButton(getText: () => string): HTMLButtonElement {
 
   button.type = 'button';
   button.className = 'code-card__copy';
-  button.title = 'Salin kode';
-  button.setAttribute('aria-label', 'Salin kode');
-  button.innerHTML = `${COPY_ICON}<span>${COPY_LABEL}</span>`;
+  button.title = t('code.copy_code');
+  button.setAttribute('aria-label', t('code.copy_code'));
+  button.innerHTML = `${COPY_ICON}<span>${t('code.copy')}</span>`;
 
   button.addEventListener('mousedown', (event) => event.preventDefault());
   button.addEventListener('click', async () => {
@@ -63,20 +61,53 @@ export function createCopyButton(getText: () => string): HTMLButtonElement {
     clearTimeout(timer);
     button.classList.toggle('is-copied', copied);
     button.innerHTML = copied
-      ? `${CHECK_ICON}<span>${COPIED_LABEL}</span>`
-      : `${COPY_ICON}<span>Gagal</span>`;
+      ? `${CHECK_ICON}<span>${t('code.copied')}</span>`
+      : `${COPY_ICON}<span>${t('code.failed')}</span>`;
     timer = setTimeout(() => {
       button.classList.remove('is-copied');
-      button.innerHTML = `${COPY_ICON}<span>${COPY_LABEL}</span>`;
+      button.innerHTML = `${COPY_ICON}<span>${t('code.copy')}</span>`;
     }, 1800);
   });
 
   return button;
 }
 
-/** VS Code style header: a tab carrying the title, and the copy button. */
+/** Number of source lines in a code block (a trailing newline does not add one). */
+export function codeLineCount(text: string): number {
+  return text.replace(/\n$/, '').split('\n').length;
+}
+
+/** The "1\n2\n3…" column text shown in the line-number gutter. */
+export function lineNumbersText(text: string): string {
+  return Array.from(
+    { length: codeLineCount(text) },
+    (_, index) => index + 1,
+  ).join('\n');
+}
+
+/** Line-number gutter: sticky inside the scrolling `pre`, excluded from copy and selection. */
+export function createGutter(text: string): HTMLSpanElement {
+  const gutter = document.createElement('span');
+
+  gutter.className = 'code-card__gutter';
+  gutter.contentEditable = 'false';
+  gutter.setAttribute('aria-hidden', 'true');
+  gutter.textContent = lineNumbersText(text);
+
+  return gutter;
+}
+
+/** Plain code of a `pre`, without the gutter. */
+export function codeText(pre: HTMLElement): string {
+  return pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
+}
+
+/**
+ * VS Code style header: a tab carrying the title (omitted for untitled
+ * blocks), and the copy button.
+ */
 export function createCodeHeader(
-  tab: HTMLElement,
+  tab: HTMLElement | null,
   getText: () => string,
 ): HTMLDivElement {
   const header = document.createElement('div');
@@ -85,15 +116,20 @@ export function createCodeHeader(
   header.className = 'code-card__header';
   header.contentEditable = 'false';
   strip.className = 'code-card__tab';
-  strip.append(tab);
+
+  if (tab) {
+    strip.append(tab);
+  }
+
   header.append(strip, createCopyButton(getText));
 
   return header;
 }
 
 /**
- * Wraps every `pre` under `root` in a titled card with a copy button.
- * Idempotent, so it can run again whenever the HTML changes.
+ * Wraps every `pre` under `root` in a card with a copy button, an optional
+ * title tab (`data-code-title-hidden="1"` turns it off) and an optional line-number
+ * gutter (`data-code-lines="1"`). Idempotent, so it can run again whenever the HTML changes.
  */
 export function enhanceCodeCards(root: ParentNode = document): void {
   root.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
@@ -102,15 +138,24 @@ export function enhanceCodeCards(root: ParentNode = document): void {
     }
 
     const card = document.createElement('div');
-    const label = document.createElement('span');
+    const untitled = pre.dataset.codeTitleHidden === '1';
+    let label: HTMLSpanElement | null = null;
 
-    card.className = 'code-card';
-    label.className = 'code-card__title';
-    label.textContent = pre.dataset.codeTitle || DEFAULT_TITLE;
+    card.className = untitled ? 'code-card code-card--untitled' : 'code-card';
+
+    if (!untitled) {
+      label = document.createElement('span');
+      label.className = 'code-card__title';
+      label.textContent = pre.dataset.codeTitle || t('code.default_title');
+    }
+
+    if (pre.dataset.codeLines === '1') {
+      pre.prepend(createGutter(codeText(pre)));
+    }
 
     pre.replaceWith(card);
     card.append(
-      createCodeHeader(label, () => pre.textContent ?? ''),
+      createCodeHeader(label, () => codeText(pre)),
       pre,
     );
   });

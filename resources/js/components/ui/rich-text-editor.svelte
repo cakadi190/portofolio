@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import '../../../css/content.scss';
   import AlignCenter from '@lucide/svelte/icons/align-center';
   import AlignLeft from '@lucide/svelte/icons/align-left';
@@ -419,7 +420,7 @@
       hint: 'Cuplikan kode',
       icon: SquareCode,
       keywords: 'code kode',
-      run: (c) => c.toggleCodeBlock(),
+      run: (c) => c.toggleCodeBlock({ lineNumbers: true }),
     },
     {
       label: 'Garis pemisah',
@@ -1868,11 +1869,36 @@
             placeholder="Judul (mis. User.php)"
             maxlength="60"
             value={blockInfo.attrs.title ?? ''}
+            disabled={!!blockInfo.attrs.titleHidden}
             onchange={(event) =>
               patchBlock({
                 title: normalizeCodeTitle(event.currentTarget.value),
               })}
           />
+        </div>
+        <div class="rte-ins-section">
+          <label class="rte-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={!blockInfo.attrs.titleHidden}
+              onchange={(event) =>
+                patchBlock({ titleHidden: !event.currentTarget.checked })}
+            />
+            <span class="rte-switch-track" aria-hidden="true"></span>
+            <span>{t('code.show_title')}</span>
+          </label>
+          <label class="rte-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={!!blockInfo.attrs.lineNumbers}
+              onchange={(event) =>
+                patchBlock({ lineNumbers: event.currentTarget.checked })}
+            />
+            <span class="rte-switch-track" aria-hidden="true"></span>
+            <span>{t('code.line_numbers')}</span>
+          </label>
         </div>
         <div class="rte-ins-group">
           <span class="rte-ins-label">Tema</span>

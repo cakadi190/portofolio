@@ -728,9 +728,11 @@
   }
 }
 
-// Code block card: VS Code style tab strip with a copy button above the code.
+// Code block card: VS Code style tab strip with a copy button above the code,
+// an optional line-number gutter and an optional title tab (`--untitled`).
 // Used by the editor node view and the public pages (`enhanceCodeCards`).
 .wysiwyg-content-wrapper .code-card {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--neo-border-color);
   border-radius: 0.5rem;
@@ -744,6 +746,7 @@
   .code-card__header {
     display: flex;
     align-items: stretch;
+    background: var(--neo-secondary-bg, var(--neo-tertiary-bg));
     justify-content: space-between;
     gap: 0.5rem;
     min-height: 2.25rem;
@@ -765,6 +768,56 @@
     border-right: 1px solid var(--neo-border-color);
     background: var(--neo-body-bg);
     color: var(--neo-body-color);
+  }
+
+  // Line numbers live inside the scrolling `pre`, pinned to its left edge so they
+  // stay put while long lines scroll; `display: inline-block` keeps them beside the code.
+  pre > .code-card__gutter {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    display: inline-block;
+    box-sizing: content-box;
+    margin: 0 1rem 0 -1.25rem;
+    padding: 0 0.75rem 0 1.25rem;
+    min-width: 2ch;
+    border-right: 1px solid var(--neo-border-color);
+    background: inherit;
+    color: var(--neo-secondary-color);
+    opacity: 0.75;
+    text-align: right;
+    vertical-align: top;
+    white-space: pre;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  pre[data-code-lines='1'] > code {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  // Without a title tab the header collapses to a floating copy button.
+  &.code-card--untitled {
+    .code-card__header {
+      position: absolute;
+      top: 0.375rem;
+      right: 0.375rem;
+      z-index: 2;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .code-card__tab {
+      display: none;
+    }
+
+    .code-card__copy {
+      background: var(--neo-tertiary-bg);
+      opacity: 0.85;
+    }
   }
 
   .code-card__title {

@@ -289,3 +289,42 @@ describe('cleanBlockText', () => {
     expect(cleanBlockText(null)).toBe('');
   });
 });
+
+describe('code block switches', () => {
+  const codeEditor = (content: string) =>
+    new Editor({
+      element: document.createElement('div'),
+      extensions: [StarterKit, CodeBlockHighlight],
+      content,
+    });
+
+  it('round-trips the title-tab and line-number switches', () => {
+    const instance = codeEditor(
+      '<pre data-code-title-hidden="1" data-code-lines="1"><code>a\nb</code></pre>',
+    );
+    const attrs = instance.state.doc.firstChild?.attrs;
+
+    expect(attrs).toMatchObject({ titleHidden: true, lineNumbers: true });
+    expect(instance.getHTML()).toContain('data-code-title-hidden="1"');
+    expect(instance.getHTML()).toContain('data-code-lines="1"');
+  });
+
+  it('keeps existing blocks titled and without numbers', () => {
+    const instance = codeEditor('<pre><code>a</code></pre>');
+
+    expect(instance.state.doc.firstChild?.attrs).toMatchObject({
+      titleHidden: false,
+      lineNumbers: false,
+    });
+    expect(instance.getHTML()).not.toContain('data-code-lines');
+  });
+
+  it('draws a gutter in the editor with one number per line', () => {
+    const instance = codeEditor(
+      '<pre data-code-lines="1"><code>a\nb\nc</code></pre>',
+    );
+    const gutter = instance.view.dom.querySelector('.code-card__gutter');
+
+    expect(gutter?.textContent).toBe('1\n2\n3');
+  });
+});

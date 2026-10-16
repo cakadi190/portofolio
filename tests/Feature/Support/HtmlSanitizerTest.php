@@ -104,3 +104,10 @@ test('an unsafe figure source link is dropped', function () {
     expect(HtmlSanitizer::clean('<figure data-source="javascript:alert(1)"><img src="/a.webp"></figure>'))
         ->not->toContain('data-source');
 });
+
+test('code block keeps the title-tab and line-number switches but only the value 1', function () {
+    expect(HtmlSanitizer::clean('<pre data-code-title-hidden="1" data-code-lines="1"><code>x</code></pre>'))
+        ->toBe('<pre data-code-title-hidden="1" data-code-lines="1"><code>x</code></pre>')
+        ->and(HtmlSanitizer::clean('<pre data-code-lines="yes" data-code-title-hidden="0"><code>x</code></pre>'))
+        ->toBe('<pre><code>x</code></pre>');
+});

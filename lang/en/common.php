@@ -92,4 +92,13 @@ return [
     'comments.policy' => 'comment policy',
     'comments.loading' => 'Loading comments…',
     'comments.empty' => 'No comments yet. Be the first.',
+    'code.copy' => 'Copy',
+    'code.copied' => 'Copied!',
+    'code.failed' => 'Failed',
+    'code.copy_code' => 'Copy code',
+    'code.default_title' => 'Code',
+    'code.title_placeholder' => 'Title (e.g. app/Models/User.php)',
+    'code.title_label' => 'Code block title',
+    'code.show_title' => 'Show title tab',
+    'code.line_numbers' => 'Line numbers',
 ];
