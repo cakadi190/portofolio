@@ -179,7 +179,11 @@
   let loadedKey = contentKey;
 
   $effect(() => {
-    onchange?.(html);
+    const current = html;
+
+    // Untracked: the callback reads the page's active language, and tracking that would
+    // re-run this with the previous language's HTML and overwrite the next one's.
+    untrack(() => onchange?.(current));
   });
 
   $effect(() => {

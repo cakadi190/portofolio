@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+import BilingualHarness from '@/tests/stubs/bilingual-editor-harness.svelte';
 
 vi.mock('@/components/media/media-picker-modal.svelte', async () => ({
   default: (await import('@/tests/stubs/media-picker-stub.svelte')).default,
@@ -168,5 +169,25 @@ describe('RichTextEditor', () => {
     unmount();
 
     expect(document.querySelector('.ProseMirror')).toBeNull();
+  });
+
+  it('keeps each language\'s own text when switching language', async () => {
+    render(BilingualHarness);
+    await vi.waitFor(() =>
+      expect(document.querySelector('.ProseMirror')?.textContent).toBe('Halo dunia'),
+    );
+
+    await fireEvent.click(screen.getByText('to-en'));
+    await vi.waitFor(() =>
+      expect(document.querySelector('.ProseMirror')?.textContent).toBe('Hello world'),
+    );
+    expect(screen.getByTestId('stored-id').textContent).toBe('<p>Halo dunia</p>');
+    expect(screen.getByTestId('stored-en').textContent).toBe('<p>Hello world</p>');
+
+    await fireEvent.click(screen.getByText('to-id'));
+    await vi.waitFor(() =>
+      expect(document.querySelector('.ProseMirror')?.textContent).toBe('Halo dunia'),
+    );
+    expect(screen.getByTestId('stored-en').textContent).toBe('<p>Hello world</p>');
   });
 });
