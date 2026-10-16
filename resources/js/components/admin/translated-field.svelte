@@ -1,13 +1,12 @@
 <script lang="ts">
-  import Languages from '@lucide/svelte/icons/languages';
   import { Field } from '@/components/ui/field';
-  import { canTranslate, localeOptions, t } from '@/lib/i18n';
+  import { localeOptions, t } from '@/lib/i18n';
   import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
 
   /**
    * A short text field that exists in every site language, for the admin modal forms: one
    * input per language (`title`, `title_en`), a small switch to pick which one is on screen,
-   * and a button that drafts the English text from the Indonesian one. Every language is
+   * Every language is
    * always submitted, whichever is visible.
    */
   let {
@@ -46,16 +45,6 @@
     <Field.Label for={id}>{label}</Field.Label>
 
     <div class="d-flex align-items-center gap-1">
-      {#if !translatable.isDefault && canTranslate()}
-        <button
-          type="button"
-          class="btn btn-sm btn-link p-0"
-          title={t('translate.field_auto')}
-          aria-label={t('translate.field_auto')}
-          disabled={translatable.translating}
-          onclick={() => translatable.translateFromDefault()}><Languages size={14} /></button
-        >
-      {/if}
       <div class="btn-group btn-group-sm" role="tablist" aria-label={t('content.language.label')}>
         {#each codes as code (code)}
           <button

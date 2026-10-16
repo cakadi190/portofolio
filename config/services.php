@@ -28,14 +28,6 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    // Automatic draft translation in the admin editors (Claude Messages API).
-    'anthropic' => [
-        'key' => env('ANTHROPIC_API_KEY'),
-        'model' => env('ANTHROPIC_TRANSLATION_MODEL', 'claude-opus-5-5'),
-        'version' => '2023-06-01',
-        'url' => 'https://api.anthropic.com/v1/messages',
-    ],
-
     'google_analytics' => [
         'measurement_id' => env('GOOGLE_ANALYTICS_ID'),
     ],

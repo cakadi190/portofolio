@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\TranslationService;
 use App\Services\TurnstileService;
 use App\Support\AppLocale;
 use Closure;
@@ -74,7 +73,6 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'locale' => app()->getLocale(),
             'locales' => AppLocale::options(),
-            'canTranslate' => $request->user() !== null && app(TranslationService::class)->isConfigured(),
             'localeAlternates' => AppLocale::alternates($request),
             'languageSuggestion' => AppLocale::suggestion($request),
             'translations' => AppLocale::translations($request->route()?->getName()),

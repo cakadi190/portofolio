@@ -10,7 +10,6 @@ function renderField(props: Record<string, unknown> = {}) {
       { code: 'id', label: 'Bahasa Indonesia', flag: 'fi-id' },
       { code: 'en', label: 'English', flag: 'fi-us' },
     ],
-    canTranslate: false,
   };
 
   return render(TranslatedField, {
