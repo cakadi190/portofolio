@@ -987,3 +987,56 @@ export const CodeBlockHighlight = Extension.create({
     ];
   },
 });
+
+/** Transaction meta that sets (or with `null` clears) the highlighted link target range. */
+export const LINK_HIGHLIGHT_META = 'rteLinkHighlight';
+
+/**
+ * Keeps the text being linked visibly selected while the link popover owns the
+ * keyboard focus, so the writer can see what the link will apply to.
+ */
+export const LinkHighlight = Extension.create({
+  name: 'linkHighlight',
+
+  addProseMirrorPlugins() {
+    const key = new PluginKey<{ from: number; to: number } | null>(
+      'linkHighlight',
+    );
+
+    return [
+      new Plugin<{ from: number; to: number } | null>({
+        key,
+        state: {
+          init: () => null,
+          apply: (tr, previous) => {
+            const meta = tr.getMeta(LINK_HIGHLIGHT_META);
+
+            if (meta !== undefined) {
+              return meta;
+            }
+
+            return previous && tr.docChanged
+              ? {
+                  from: tr.mapping.map(previous.from),
+                  to: tr.mapping.map(previous.to),
+                }
+              : previous;
+          },
+        },
+        props: {
+          decorations: (state) => {
+            const range = key.getState(state);
+
+            return range && range.to > range.from
+              ? DecorationSet.create(state.doc, [
+                  Decoration.inline(range.from, range.to, {
+                    class: 'rte-link-target',
+                  }),
+                ])
+              : null;
+          },
+        },
+      }),
+    ];
+  },
+});
