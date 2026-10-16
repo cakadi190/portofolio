@@ -233,9 +233,6 @@
       name={fieldName('content', translatable.locale)}
       value={translatable.values.content[translatable.locale]}
       contentKey={translatable.contentKey}
-      languages={translatable.languages}
-      language={translatable.locale}
-      onlanguage={(code) => (translatable.locale = code)}
       onchange={(html) => (translatable.values.content[translatable.locale] = html)}
       invalid={!!errors[fieldName('content', translatable.locale)]}
       viewHref={note?.is_published && note.slug ? show(note.slug).url : null}

@@ -50,7 +50,7 @@
 
     <div class="row g-4">
       <div class="col-lg-9 d-flex flex-column gap-3">
-        <TranslationBar {translatable} picker />
+        <TranslationBar {translatable} />
         <TranslationHiddenInputs {translatable} fields={['name', 'description']} />
 
         <div>

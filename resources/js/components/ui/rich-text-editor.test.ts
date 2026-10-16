@@ -218,4 +218,99 @@ describe('RichTextEditor', () => {
       expect(hidden('content')?.value).toBe('<p>Satu</p><p>Satu</p>'),
     );
   });
+
+  describe('device preview', () => {
+    function stubDesktop(initial: boolean) {
+      const listeners: Array<() => void> = [];
+      const query = {
+        matches: initial,
+        media: '(min-width: 992px)',
+        addEventListener: (_: string, listener: () => void) => listeners.push(listener),
+        removeEventListener: vi.fn(),
+      };
+
+      window.matchMedia = vi.fn().mockReturnValue(query);
+
+      return (matches: boolean) => {
+        query.matches = matches;
+        listeners.forEach((listener) => listener());
+      };
+    }
+
+    it('is hidden below the desktop breakpoint', async () => {
+      stubDesktop(false);
+      await mountEditor({ shell: true });
+
+      expect(screen.queryByTitle('Pratinjau')).toBeNull();
+    });
+
+    it('returns to full width when the screen shrinks below desktop', async () => {
+      const resize = stubDesktop(true);
+      await mountEditor({ shell: true });
+
+      await fireEvent.click(screen.getByTitle('Pratinjau'));
+      await fireEvent.click(await screen.findByText('Ponsel'));
+      expect(document.querySelector('.rte.is-device-mobile')).not.toBeNull();
+
+      resize(false);
+
+      await vi.waitFor(() =>
+        expect(document.querySelector('.rte.is-device-mobile')).toBeNull(),
+      );
+      expect(screen.queryByTitle('Pratinjau')).toBeNull();
+    });
+  });
+
+  describe('block clipboard', () => {
+    const figure =
+      '<figure class="wp-block-image is-align-center"><img src="/storage/a.jpg" alt="a"><figcaption>Keterangan</figcaption></figure><p>Setelahnya</p>';
+
+    it('copies a captioned image as one whole block when only the caret is in it', async () => {
+      await mountEditor({ value: figure });
+      const view = document.querySelector<HTMLElement>('.ProseMirror')!;
+      const data = new DataTransfer();
+
+      await fireEvent.copy(view, { clipboardData: data });
+
+      const html = data.getData('text/html');
+
+      expect(html).toContain('wp-block-image');
+      expect(html).toContain('<img src="/storage/a.jpg"');
+      expect(html).toContain('Keterangan');
+      expect(html).not.toContain('Setelahnya');
+    });
+
+    it('cuts the whole block with Ctrl+X and leaves the rest', async () => {
+      await mountEditor({ value: figure });
+      const view = document.querySelector<HTMLElement>('.ProseMirror')!;
+      const data = new DataTransfer();
+
+      await fireEvent.cut(view, { clipboardData: data });
+
+      expect(data.getData('text/html')).toContain('wp-block-image');
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toBe('<p>Setelahnya</p>'),
+      );
+    });
+
+    it('pastes a copied block into another editor', async () => {
+      await mountEditor({ value: figure });
+      const data = new DataTransfer();
+
+      await fireEvent.copy(document.querySelector('.ProseMirror')!, {
+        clipboardData: data,
+      });
+      document.body.innerHTML = '';
+
+      await mountEditor({ value: '' });
+      await fireEvent.paste(document.querySelector('.ProseMirror')!, {
+        clipboardData: data,
+      });
+
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toContain('<img src="/storage/a.jpg"'),
+      );
+      expect(hidden('content')?.value).toContain('Keterangan');
+    });
+  });
 });

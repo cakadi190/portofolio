@@ -28,7 +28,6 @@
   import Heading2 from '@lucide/svelte/icons/heading-2';
   import Heading3 from '@lucide/svelte/icons/heading-3';
   import ImageIcon from '@lucide/svelte/icons/image';
-  import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
   import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
@@ -55,6 +54,7 @@
   import CharacterCount from '@tiptap/extension-character-count';
   import Placeholder from '@tiptap/extension-placeholder';
   import TextAlign from '@tiptap/extension-text-align';
+  import { Fragment, Slice } from '@tiptap/pm/model';
   import { NodeSelection } from '@tiptap/pm/state';
   import StarterKit from '@tiptap/starter-kit';
   import { onMount, untrack, type Snippet } from 'svelte';
@@ -109,9 +109,6 @@
     value = '',
     contentKey = '',
     onchange,
-    languages = [],
-    language = '',
-    onlanguage,
     placeholder = t('ui.mulai_menulis_cerita_anda'),
     invalid = false,
     minimal = false,
@@ -130,11 +127,6 @@
     contentKey?: string;
     /** Called with the document's HTML whenever it changes. */
     onchange?: (html: string) => void;
-    /** Content languages offered by the language dropdown next to the preview button (shell only). */
-    languages?: { code: string; label: string; flag: string }[];
-    /** Code of the language being edited. */
-    language?: string;
-    onlanguage?: (code: string) => void;
     placeholder?: string;
     invalid?: boolean;
     /** Public-safe mode: basic formatting only, no images, links, headings or HTML tab. */
@@ -219,7 +211,7 @@
     open: false,
     x: 0,
     y: 0,
-    kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device' | 'language',
+    kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device',
   });
   let ctxEl = $state<HTMLDivElement>();
   let menuEl = $state<HTMLDivElement>();
@@ -230,6 +222,9 @@
 
   /** Width of the writing canvas, to preview the article on other screens. */
   let device = $state<Device>('desktop');
+
+  /** The device preview only exists on desktop screens (same breakpoint as the sidebar's default). */
+  let isDesktop = $state(true);
 
   const deviceOptions = [
     { value: 'desktop', label: t('ui.desktop'), icon: Monitor },
@@ -612,7 +607,7 @@
   }
 
   function openToolbarMenu(
-    kind: 'type' | 'align' | 'context' | 'table' | 'device' | 'language',
+    kind: 'type' | 'align' | 'context' | 'table' | 'device',
     event: MouseEvent,
   ): void {
     if (ctx.open && ctx.kind === kind) {
@@ -1082,41 +1077,137 @@
   }
 
   /**
-   * Copies the whole top-level block under the caret (like selecting a paragraph in
-   * Word and pressing Ctrl+C). The block is selected for the copy so ProseMirror writes
-   * it to the clipboard as HTML (pasteable into other editors) and the caret is restored.
+   * The top-level block under the caret as clipboard data, in ProseMirror's own format
+   * (HTML with `data-pm-slice`), so pasting it into any editor of this app restores the
+   * block exactly and other apps (Word, Docs) receive plain HTML.
    */
-  function copyBlock(): boolean {
+  function blockClipboard(): { html: string; text: string; range: { pos: number; size: number } } | null {
     const range = topBlock();
+    const node = editor && range ? editor.state.doc.nodeAt(range.pos) : null;
 
-    if (!editor || !range) return false;
+    if (!editor || !range || !node) return null;
 
-    const { selection } = editor.state;
+    const { dom, text } = editor.view.serializeForClipboard(
+      new Slice(Fragment.from(node), 0, 0),
+    );
 
-    editor
-      .chain()
-      .focus()
-      .setNodeSelection(range.pos)
-      .command(() => {
-        document.execCommand('copy');
+    return { html: dom.innerHTML, text, range };
+  }
 
-        return true;
-      })
-      .setTextSelection(selection.empty ? selection.from : { from: selection.from, to: selection.to })
-      .run();
+  async function writeClipboard(html: string, text: string): Promise<boolean> {
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([text], { type: 'text/plain' }),
+        }),
+      ]);
+
+      return true;
+    } catch {
+      // Async clipboard API unavailable or denied: fall back to a one-off copy event.
+    }
+
+    let written = false;
+    const fill = (event: ClipboardEvent): void => {
+      event.clipboardData?.setData('text/html', html);
+      event.clipboardData?.setData('text/plain', text);
+      event.preventDefault();
+      written = true;
+    };
+
+    document.addEventListener('copy', fill, { once: true });
+    document.execCommand('copy');
+    document.removeEventListener('copy', fill);
+
+    return written;
+  }
+
+  /**
+   * Copies the whole top-level block under the caret, whatever its type (like selecting
+   * a paragraph in Word and pressing Ctrl+C); Ctrl+V then pastes it anywhere.
+   */
+  async function copyBlock(): Promise<boolean> {
+    const data = blockClipboard();
+
+    if (!data || !(await writeClipboard(data.html, data.text))) {
+      toast.error(t('ui.izin_papan_klip_ditolak'));
+
+      return false;
+    }
 
     toast.success(t('ui.blok_disalin'));
 
     return true;
   }
 
-  function cutBlock(): void {
+  async function cutBlock(): Promise<void> {
+    const data = blockClipboard();
+
+    if (!data || !(await copyBlock())) return;
+
+    deleteBlock(data.range);
+  }
+
+  /** Plain text blocks: selecting part of their text copies just that text, as in any editor. */
+  const TEXT_BLOCKS = new Set(['paragraph', 'heading', 'blockquote', 'bulletList', 'orderedList', 'codeBlock']);
+
+  /**
+   * Whether a copy/cut should take the whole top-level block: nothing is selected (caret
+   * only), or the selection covers all the text of a special block such as an image with
+   * its caption, so a captioned image is always copied as one block (like Gutenberg).
+   */
+  function selectionMeansWholeBlock(): boolean {
+    if (!editor) return false;
+
+    const { selection } = editor.state;
+
+    if (selection.empty) return true;
+
+    if (selection instanceof NodeSelection || selection.$from.depth < 1) return false;
+
     const range = topBlock();
+    const block = range ? editor.state.doc.nodeAt(range.pos) : null;
 
-    if (!editor || !range || !copyBlock()) return;
+    if (!block || TEXT_BLOCKS.has(block.type.name)) return false;
 
-    deleteBlock(range);
-    toast.success(t('ui.blok_dipotong'));
+    const start = selection.$from;
+    const end = selection.$to;
+
+    return (
+      start.parent === end.parent &&
+      start.parent.isTextblock &&
+      start.parentOffset === 0 &&
+      end.parentOffset === end.parent.content.size
+    );
+  }
+
+  /**
+   * Ctrl+C / Ctrl+X with nothing selected copies or cuts the whole block (as a code
+   * editor copies the current line), so every block type can be copied with the caret in
+   * it. A selection, including a selected node, keeps the browser's normal behaviour.
+   */
+  function clipboardEventForBlock(event: ClipboardEvent, cut: boolean): boolean {
+    if (minimal || !editor || !event.clipboardData || !selectionMeansWholeBlock()) {
+      return false;
+    }
+
+    const data = blockClipboard();
+
+    // An empty paragraph has nothing worth replacing the clipboard with.
+    if (!data || (editor.state.doc.nodeAt(data.range.pos)?.type.name === 'paragraph' && data.text === '')) {
+      return false;
+    }
+
+    event.preventDefault();
+    event.clipboardData.setData('text/html', data.html);
+    event.clipboardData.setData('text/plain', data.text);
+
+    if (cut) deleteBlock(data.range);
+
+    toast.success(t(cut ? 'ui.blok_dipotong' : 'ui.blok_disalin'));
+
+    return true;
   }
 
   /** Pastes the clipboard (HTML when available, else text) as new block(s) below the current block. */
@@ -1308,16 +1399,6 @@
       ];
     }
 
-    if (ctx.kind === 'language') {
-      return [
-        languages.map<ContextItem>((option) => ({
-          label: option.label,
-          on: language === option.code,
-          action: () => onlanguage?.(option.code),
-        })),
-      ];
-    }
-
     if (ctx.kind === 'device') {
       return [
         deviceOptions.map<ContextItem>((option) => ({
@@ -1361,14 +1442,14 @@
         {
           label: t('ui.salin'),
           shortcut: 'Ctrl+C',
-          disabled: !hasSelection,
-          action: () => clipboardCommand('copy'),
+          disabled: !hasSelection && minimal,
+          action: () => (hasSelection ? clipboardCommand('copy') : void copyBlock()),
         },
         {
           label: t('ui.potong'),
           shortcut: 'Ctrl+X',
-          disabled: !hasSelection,
-          action: () => clipboardCommand('cut'),
+          disabled: !hasSelection && minimal,
+          action: () => (hasSelection ? clipboardCommand('cut') : void cutBlock()),
         },
         { label: t('ui.tempel'), shortcut: 'Ctrl+V', action: pasteFromClipboard },
       ],
@@ -1377,8 +1458,8 @@
     if (!minimal) {
       groups[0].push(
         { label: t('ui.gandakan_blok'), shortcut: 'Ctrl+Shift+D', action: duplicateBlock },
-        { label: t('ui.salin_blok'), action: copyBlock },
-        { label: t('ui.potong_blok'), action: cutBlock },
+        { label: t('ui.salin_blok'), action: () => void copyBlock() },
+        { label: t('ui.potong_blok'), action: () => void cutBlock() },
         { label: t('ui.tempel_di_bawah_blok'), action: () => void pasteBlockBelow() },
         { label: t('ui.tambahkan_sebelumnya'), action: () => addParagraph('before') },
         { label: t('ui.tambahkan_setelahnya'), action: () => addParagraph('after') },
@@ -1685,6 +1766,8 @@
 
             return false;
           },
+          copy: (_view, event) => clipboardEventForBlock(event, false),
+          cut: (_view, event) => clipboardEventForBlock(event, true),
           contextmenu: (_view, event) => {
             openContext(event);
 
@@ -1749,10 +1832,24 @@
 
     const resync = (): void => syncToolbar();
 
+    const desktopQuery = window.matchMedia('(min-width: 992px)');
+    const syncDesktop = (): void => {
+      isDesktop = desktopQuery.matches;
+
+      // Shrinking below desktop drops the preview straight back to full width.
+      if (!isDesktop) {
+        device = 'desktop';
+        if (ctx.kind === 'device') ctx.open = false;
+      }
+    };
+
+    syncDesktop();
+    desktopQuery.addEventListener('change', syncDesktop);
     window.addEventListener('scroll', resync, true);
     window.addEventListener('resize', resync);
 
     return () => {
+      desktopQuery.removeEventListener('change', syncDesktop);
       window.removeEventListener('scroll', resync, true);
       window.removeEventListener('resize', resync);
       // Cleared first: microtasks queued by focus/transaction callbacks still run after
@@ -2284,8 +2381,8 @@
   class:is-invalid={invalid}
   class:rte-minimal={minimal}
   class:rte-shell={shell}
-  class:is-device-tablet={shell && device === 'tablet'}
-  class:is-device-mobile={shell && device === 'mobile'}
+  class:is-device-tablet={shell && isDesktop && device === 'tablet'}
+  class:is-device-mobile={shell && isDesktop && device === 'mobile'}
 >
   <input type="hidden" {name} value={html} />
 
@@ -2377,22 +2474,7 @@
       {/if}
 
       {#if shell}
-        {#if languages.length > 0}
-          {@const activeLanguage = languages.find((option) => option.code === language) ?? languages[0]}
-          <button
-            type="button"
-            class="rte-btn rte-btn-lg rte-lang-btn"
-            class:on={ctx.open && ctx.kind === 'language'}
-            title={t('content.language.label')}
-            aria-label={`${t('content.language.label')}: ${activeLanguage.label}`}
-            aria-haspopup="menu"
-            data-rte-trigger
-            onclick={(event) => openToolbarMenu('language', event)}
-            ><span class="fi {activeLanguage.flag} fis" aria-hidden="true"></span
-            ><span class="rte-lang-code">{activeLanguage.code.toUpperCase()}</span
-            ><ChevronDown size={14} aria-hidden="true" /></button
-          >
-        {/if}
+        {#if isDesktop}
         <button
           type="button"
           class="rte-btn rte-btn-lg"
@@ -2404,6 +2486,7 @@
           onclick={(event) => openToolbarMenu('device', event)}
           ><DeviceIcon size={18} /></button
         >
+        {/if}
         {@render actions?.({ mode, setMode })}
         <button
           type="button"
@@ -2635,7 +2718,7 @@
             class="rte-btn"
             title={t('ui.salin_blok')}
             aria-label={t('ui.salin_blok')}
-            onclick={copyBlock}><Copy size={14} /></button
+            onclick={() => void copyBlock()}><Copy size={14} /></button
           >
           <button
             type="button"
@@ -3483,15 +3566,6 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--neo-secondary-color);
-  }
-  .rte-lang-btn {
-    width: auto;
-    gap: 0.375rem;
-    padding-inline: 0.5rem;
-  }
-  .rte-lang-code {
-    font-size: 0.75rem;
-    font-weight: 700;
   }
   :global(.rte-link-target) {
     border-radius: 0.125rem;

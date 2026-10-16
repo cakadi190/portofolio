@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { router } from '@inertiajs/svelte';
+  import { Link, router } from '@inertiajs/svelte';
   import { update } from '@/wayfinder/routes/locale';
   import { currentLocale, localeAlternates, localeOptions, t } from '@/lib/i18n';
 
@@ -29,9 +29,8 @@
       {#each options as option (option.code)}
         <li>
           {#if alternates}
-            <a
-              class="dropdown-item"
-              class:active={option.code === current.code}
+            <Link
+              class="dropdown-item {option.code === current.code ? 'active' : ''}"
               href={alternates[option.code]}
               hreflang={option.code}
               data-track="language_change"
@@ -39,7 +38,7 @@
             >
               <i class="fi fis {option.flag}"></i>
               <span>{option.label}</span>
-            </a>
+            </Link>
           {:else}
             <button
               type="button"

@@ -246,9 +246,6 @@
       value={translatable.values.description[translatable.locale]}
       contentKey={translatable.contentKey}
       onchange={(html) => (translatable.values.description[translatable.locale] = html)}
-      languages={translatable.languages}
-      language={translatable.locale}
-      onlanguage={(code) => (translatable.locale = code)}
       invalid={!!errors[field('description')]}
       viewHref={portfolio?.slug ? show(portfolio.slug).url : null}
       documentTitle={name}

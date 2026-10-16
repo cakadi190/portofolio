@@ -156,7 +156,7 @@
 
           <Field.Group>
             <Field.Label for="profile-bio">{t('profile.deskripsi')}</Field.Label>
-            <TranslationBar {translatable} picker />
+            <TranslationBar {translatable} />
             <TranslationHiddenInputs {translatable} fields={['bio']} />
             <RichTextEditor
               name={fieldName('bio', translatable.locale)}

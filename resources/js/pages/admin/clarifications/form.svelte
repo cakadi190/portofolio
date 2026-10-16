@@ -476,9 +476,6 @@
       value={translatable.values.content[translatable.locale]}
       contentKey={translatable.contentKey}
       onchange={(html) => (translatable.values.content[translatable.locale] = html)}
-      languages={translatable.languages}
-      language={translatable.locale}
-      onlanguage={(code) => (translatable.locale = code)}
       invalid={!!error('content', errors)}
       viewHref={clarification?.is_published && clarification.slug
         ? show(clarification.slug).url

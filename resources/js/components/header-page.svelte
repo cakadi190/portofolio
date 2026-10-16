@@ -33,7 +33,7 @@
         {/if}
 
         <h1>{title}</h1>
-        <h2 class="h4 opacity-75 fw-normal lh-base mt-3 mb-0">{subtitle}</h2>
+        <h2 class="h4 opacity-75 fw-normal lh-base mt-3 mb-3">{subtitle}</h2>
 
         {@render children?.()}
       </div>
