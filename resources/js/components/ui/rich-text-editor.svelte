@@ -3370,6 +3370,13 @@
     margin: 0 auto;
     padding: 4rem 1rem 8rem;
   }
+  /* Language tabs stay pinned right under the top bar while the document scrolls. */
+  .rte-shell .rte-doc :global(.tr-bar) {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--neo-body-bg);
+  }
   .rte-shell .rte-body,
   .rte-shell .rte-body :global(.rte-content) {
     min-height: 16rem;
