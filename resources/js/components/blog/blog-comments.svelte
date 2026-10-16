@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localizeForm, localizeHref } from '@/lib/i18n';
+  import { localizeForm, localizeHref, t } from '@/lib/i18n';
   import { Form, InfiniteScroll, page } from '@inertiajs/svelte';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Field } from '@/components/ui/field';
@@ -31,7 +31,7 @@
   class="mt-5 pt-5 border-top"
   aria-labelledby="komentar-title"
 >
-  <h2 id="komentar-title" class="h3 mb-4">Komentar ({total})</h2>
+  <h2 id="komentar-title" class="h3 mb-4">{t('comments.title', { total })}</h2>
 
   {#key formKey}
     <Form
@@ -44,22 +44,22 @@
         {#if isGuest}
           <div class="row g-3">
             <Field.Group class="col-md-6">
-              <Field.Label for="comment-guest-name">Nama</Field.Label>
+              <Field.Label for="comment-guest-name">{t('form.name')}</Field.Label>
               <Field.Input
                 id="comment-guest-name"
                 name="guest_name"
-                placeholder="Mis: Cak Adi"
+                placeholder={t('form.name_placeholder')}
                 invalid={!!errors.guest_name}
               />
               <Field.Feedback message={errors.guest_name} />
             </Field.Group>
             <Field.Group class="col-md-6">
-              <Field.Label for="comment-guest-email">Email</Field.Label>
+              <Field.Label for="comment-guest-email">{t('form.email')}</Field.Label>
               <Field.Input
                 id="comment-guest-email"
                 name="guest_email"
                 type="email"
-                placeholder="nama@email.com"
+                placeholder={t('form.email_placeholder')}
                 invalid={!!errors.guest_email}
               />
               <Field.Feedback message={errors.guest_email} />
@@ -67,24 +67,24 @@
           </div>
         {/if}
         <Field.Group>
-          <Field.Label>Tulis komentar</Field.Label>
+          <Field.Label>{t('comments.write')}</Field.Label>
           <RichTextEditor
             name="body"
             minimal
-            placeholder="Bagikan pendapat Anda..."
+            placeholder={t('comments.placeholder')}
             invalid={!!errors.body}
           />
           <Field.Feedback message={errors.body} />
         </Field.Group>
         <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Kirim Komentar</button
+            
+            >{t('comments.submit')}</button
           >
         </CaptchaSubmitRow>
         <p class="small opacity-75 mb-0">
-          Komentar ditinjau dulu sebelum tampil dan email tidak ditampilkan.
-          Baca
-          <a href={localizeHref('/disclaimer')}>kebijakan komentar</a>.
+          {t('comments.note')}
+          <a href={localizeHref('/disclaimer')}>{t('comments.policy')}</a>.
         </p>
       {/snippet}
     </Form>
@@ -108,11 +108,11 @@
         >
           <span class="spinner-border spinner-border-sm" aria-hidden="true"
           ></span>
-          Memuat komentar…
+          {t('comments.loading')}
         </div>
       {/snippet}
     </InfiniteScroll>
   {:else}
-    <p class="opacity-75">Belum ada komentar. Jadilah yang pertama.</p>
+    <p class="opacity-75">{t('comments.empty')}</p>
   {/if}
 </section>

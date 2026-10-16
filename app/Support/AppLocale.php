@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 /**
  * Single source of truth for the site's languages.
@@ -152,13 +153,32 @@ class AppLocale
     }
 
     /**
-     * UI strings shared with the frontend, from `lang/{locale}/{group}.php`.
+     * UI strings shared with the frontend: `lang/{locale}/common.php` plus the group named
+     * after the route's first name segment (`blog.show` → `lang/{locale}/blog.php`, keys
+     * prefixed `blog.`), so a page only ships the text it can show.
      *
      * @return array<string, string>
      */
-    public static function translations(string $group = 'common'): array
+    public static function translations(?string $routeName = null): array
     {
-        $lines = trans($group);
+        $strings = Arr::dot(self::group('common'));
+        $group = $routeName === null ? '' : explode('.', $routeName)[0];
+
+        if ($group !== '' && $group !== 'common') {
+            foreach (Arr::dot(self::group($group)) as $key => $line) {
+                $strings["{$group}.{$key}"] = $line;
+            }
+        }
+
+        return $strings;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function group(string $name): array
+    {
+        $lines = trans($name);
 
         return is_array($lines) ? $lines : [];
     }

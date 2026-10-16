@@ -74,7 +74,7 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'locales' => AppLocale::options(),
             'localeAlternates' => AppLocale::alternates($request),
-            'translations' => AppLocale::translations(),
+            'translations' => AppLocale::translations($request->route()?->getName()),
             'turnstileSiteKey' => app(TurnstileService::class)->isEnabled() ? app(TurnstileService::class)->siteKey() : null,
             'auth' => [
                 'user' => $request->user(),

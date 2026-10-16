@@ -43,6 +43,23 @@ export function currentLocale(): string {
   return props().locale ?? DEFAULT_LOCALE;
 }
 
+/** Pluralised `t()`: looks up `${key}.one` for a count of 1 and `${key}.other` otherwise. */
+export function tChoice(
+  key: string,
+  count: number,
+  replacements: Record<string, string | number> = {},
+): string {
+  return t(`${key}.${count === 1 ? 'one' : 'other'}`, {
+    count,
+    ...replacements,
+  });
+}
+
+/** BCP 47 tag for `Intl` / `toLocale*String` formatting in the active language. */
+export function intlLocale(): string {
+  return currentLocale() === 'en' ? 'en-US' : 'id-ID';
+}
+
 export function localeOptions(): LocaleOption[] {
   return props().locales ?? [];
 }

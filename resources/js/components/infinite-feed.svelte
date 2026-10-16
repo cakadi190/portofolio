@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { InfiniteScroll } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
 
@@ -8,7 +9,7 @@
    */
   let {
     data,
-    loadingText = 'Memuat lebih banyak…',
+    loadingText,
     children,
   }: {
     /** Name of the `Inertia::scroll()` prop. */
@@ -27,7 +28,7 @@
       role="status"
     >
       <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      {loadingText}
+      {loadingText ?? t('feed.loading')}
     </div>
   {/snippet}
 </InfiniteScroll>

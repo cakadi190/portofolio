@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import type { Engagement } from '@/components/speaking-item.svelte';
   import AppHead from '@/components/app-head.svelte';
   import BlogHomeSection from '@/components/home/blog-home-section.svelte';
@@ -37,7 +38,7 @@
   }: { stats?: Stat[]; portfolios?: Portfolio[]; speakings?: Engagement[]; posts?: Post[] } = $props();
 </script>
 
-<AppHead title={"Fullstack Web Developer & Software Engineer di Ngawi"} brandFirst />
+<AppHead title={t('home.title')} brandFirst />
 
 <div id="homepage">
   <HeaderHome />

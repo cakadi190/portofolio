@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Folder from '@lucide/svelte/icons/folder';
   import Link from '@/components/link.svelte';
 
@@ -59,7 +60,7 @@
       {/if}
 
       {#if author}
-        <div class="small opacity-75">Oleh {author}</div>
+        <div class="small opacity-75">{t('post.by', { author })}</div>
       {/if}
     </div>
   </Link>

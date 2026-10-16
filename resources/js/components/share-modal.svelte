@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Icon from '@iconify/svelte';
   import Check from '@lucide/svelte/icons/check';
   import LinkIcon from '@lucide/svelte/icons/link';
@@ -111,7 +112,7 @@
       copied = true;
       window.setTimeout(() => (copied = false), 2000);
     } catch {
-      window.prompt('Salin tautan ini:', url);
+      window.prompt(t('share.copy_prompt'), url);
     }
   }
 </script>
@@ -129,11 +130,11 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header border-0 pb-0">
-        <h2 class="modal-title h5 mb-0" id={labelId}>Bagikan artikel</h2>
+        <h2 class="modal-title h5 mb-0" id={labelId}>{t('post.share_article')}</h2>
         <button
           type="button"
           class="btn-close"
-          aria-label="Tutup"
+          aria-label={t('action.close')}
           onclick={() => (open = false)}
         ></button>
       </div>
@@ -147,7 +148,7 @@
               target="_blank"
               rel="noopener noreferrer"
               class="share-item"
-              aria-label={`Bagikan lewat ${target.name}`}
+              aria-label={t('share.via', { name: target.name })}
             >
               <span class="share-icon" style={`--share-color: ${target.color}`}>
                 {#if target.icon}
@@ -167,19 +168,19 @@
             class="form-control form-control-sm"
             value={url}
             readonly
-            aria-label="Tautan artikel"
+            aria-label={t('share.link_label')}
             onfocus={(event) => event.currentTarget.select()}
           />
           <button
             type="button"
             class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2"
-            aria-label="Salin tautan"
+            aria-label={t('share.copy_link')}
             onclick={copyLink}
           >
             {#if copied}
-              <Check size={16} /> Tersalin
+              <Check size={16} /> {t('share.copied')}
             {:else}
-              <LinkIcon size={16} /> Salin
+              <LinkIcon size={16} /> {t('share.copy')}
             {/if}
           </button>
         </div>

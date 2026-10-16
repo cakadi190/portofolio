@@ -21,7 +21,6 @@ vi.mock('@/lib/i18n', async (importOriginal) => ({
   currentLocale: () => 'id',
   localeOptions: () => i18n.options,
   localeAlternates: () => null,
-  t: (key: string) => key,
 }));
 
 const post = vi.hoisted(() => vi.fn());
@@ -142,7 +141,7 @@ describe('AdminLanguageSwitcher', () => {
     render(AdminLanguageSwitcher);
 
     expect(
-      screen.getByLabelText('language.choose: Bahasa Indonesia', {
+      screen.getByLabelText('Pilih bahasa: Bahasa Indonesia', {
         selector: 'button',
       }),
     ).toBeTruthy();

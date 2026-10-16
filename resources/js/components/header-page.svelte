@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import type { Snippet } from 'svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import Link from '@/components/link.svelte';
@@ -27,7 +28,7 @@
             class="btn btn-link btn-navigation d-flex align-items-center gap-2"
           >
             <ChevronLeft size={16} />
-            <span>Kembali</span>
+            <span>{t('action.back')}</span>
           </Link>
         {/if}
 

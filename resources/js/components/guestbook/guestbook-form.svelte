@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localizeForm } from '@/lib/i18n';
+  import { localizeForm, t } from '@/lib/i18n';
   import { Form, page } from '@inertiajs/svelte';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Field } from '@/components/ui/field';
@@ -8,9 +8,9 @@
 
   let {
     parentId = null,
-    label = 'Tulis pesan',
-    submitLabel = 'Kirim Pesan',
-    placeholder = 'Halo, saya mampir dari…',
+    label,
+    submitLabel,
+    placeholder,
     onSuccess,
   }: {
     parentId?: number | null;
@@ -46,25 +46,27 @@
         <div class="row g-3">
           <Field.Group class="col-md-6">
             <Field.Label for={`guest-name-${parentId ?? 'root'}`}
-              >Nama</Field.Label
+              
+                >{t('form.name')}</Field.Label
             >
             <Field.Input
               id={`guest-name-${parentId ?? 'root'}`}
               name="guest_name"
-              placeholder="Mis: Cak Adi"
+              placeholder={t('form.name_placeholder')}
               invalid={!!errors.guest_name}
             />
             <Field.Feedback message={errors.guest_name} />
           </Field.Group>
           <Field.Group class="col-md-6">
             <Field.Label for={`guest-email-${parentId ?? 'root'}`}
-              >Email</Field.Label
+              
+                >{t('form.email')}</Field.Label
             >
             <Field.Input
               id={`guest-email-${parentId ?? 'root'}`}
               name="guest_email"
               type="email"
-              placeholder="nama@email.com"
+              placeholder={t('form.email_placeholder')}
               invalid={!!errors.guest_email}
             />
             <Field.Feedback message={errors.guest_email} />
@@ -73,11 +75,11 @@
       {/if}
 
       <Field.Group>
-        <Field.Label>{label}</Field.Label>
+        <Field.Label>{label ?? t('guestbook_form.label')}</Field.Label>
         <RichTextEditor
           name="body"
           minimal
-          {placeholder}
+          placeholder={placeholder ?? t('guestbook_form.placeholder')}
           invalid={!!errors.body || !!errors.parent_id}
         />
         <Field.Feedback message={errors.body ?? errors.parent_id} />
@@ -85,13 +87,14 @@
 
       <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
         <button type="submit" class="btn btn-primary" disabled={processing}
-          >{submitLabel}</button
+          
+          >{submitLabel ?? t('guestbook_form.submit')}</button
         >
       </CaptchaSubmitRow>
 
       {#if isGuest}
         <p class="small opacity-75 mb-0">
-          Email tidak ditampilkan. Pesan tamu tampil setelah ditinjau.
+          {t('guestbook_form.guest_note')}
         </p>
       {/if}
     {/snippet}

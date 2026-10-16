@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Pencil from '@lucide/svelte/icons/pencil';
   import ShareIcon from '@lucide/svelte/icons/share-2';
   import Link from '@/components/link.svelte';
@@ -36,17 +37,17 @@
 
   const publishedLabel = $derived.by(() => {
     if (!publishedAt) {
-      return 'Belum dipublikasikan';
+      return t('post.unpublished');
     }
 
     const date = new Date(publishedAt);
-    const day = date.toLocaleDateString('id-ID', {
+    const day = date.toLocaleDateString(intlLocale(), {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
-    const time = date.toLocaleTimeString('id-ID', {
+    const time = date.toLocaleTimeString(intlLocale(), {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
@@ -92,19 +93,19 @@
     <button
       type="button"
       class="post-meta-share"
-      aria-label="Bagikan artikel"
+      aria-label={t('post.share_article')}
       onclick={openShare}
     >
       <ShareIcon size={16} aria-hidden="true" />
-      <span class="post-meta-share-label">Bagikan</span>
+      <span class="post-meta-share-label">{t('post.share')}</span>
     </button>
 
     {#if editUrl}
       <Link
         href={editUrl}
         class="post-meta-share post-meta-edit"
-        aria-label="Edit artikel"
-        title="Edit artikel"
+        aria-label={t('post.edit')}
+        title={t('post.edit')}
       >
         <Pencil size={16} aria-hidden="true" />
       </Link>

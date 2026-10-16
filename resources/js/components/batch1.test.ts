@@ -28,7 +28,6 @@ vi.mock('@/lib/i18n', async (importOriginal) => ({
   currentLocale: () => 'id',
   localeOptions: () => i18n.options,
   localeAlternates: () => i18n.alternates,
-  t: (key: string) => key,
 }));
 
 const post = vi.hoisted(() => vi.fn());

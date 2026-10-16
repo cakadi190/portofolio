@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
   import Link from '@/components/link.svelte';
+  import { t } from '@/lib/i18n';
 
   import fotoku480 from '../../../images/hero/fotoku-480.webp?no-inline';
   import fotoku640 from '../../../images/hero/fotoku-640.webp?no-inline';
@@ -40,21 +41,20 @@
     <div class="row gy-4">
       <div class="col-md-7 text-center text-lg-start">
         <div class="breaking-news">
-          Website ini mendapatkan penghargaan 🏆
+          {t('home.hero.award_prefix')}
           <a
             href="https://www.instagram.com/p/C6faMQ2yld-/?img_index=2"
             target="_blank"
             rel="noopener"
           >
-            #3 Kompetisi Desain Website Personal CV Maroon Day HIMAFORKA
-            Universitas Teknologi Digital Indonesia<span
-              class="d-none d-xl-none d-xxl-inline-block">&nbsp;(d/h STMIK AKAKOM Yogyakarta)</span
+            {t('home.hero.award_title')}<span class="d-none d-xl-none d-xxl-inline-block"
+              >{@html t('home.hero.award_former')}</span
             >
           </a>
-          tahun 2024.
+          {t('home.hero.award_suffix')}
         </div>
 
-        <p class="h4">Halo rek! 👋 Perkenalkan, Namaku...</p>
+        <p class="h4">{t('home.hero.greeting')}</p>
         <h1 class="main-title justify-content-center justify-content-lg-start">
           <div>
             <span class="text-primary text-decoration-underline">A</span>
@@ -64,30 +64,26 @@
           </div>
           <span>Wibowo, A.Md.Kom.</span>
         </h1>
-        <p class="mb-4 main-desc">
-          Seorang <strong>Software Engineer</strong> dan <strong>Wirausahawan</strong> yang berbasis
-          di Kabupaten Ngawi yang suka sekali dengan desain dan juga hal yang berbau
-          <strong>teknologi</strong>.
-        </p>
+        <p class="mb-4 main-desc">{@html t('home.hero.description')}</p>
 
         <div
           class="d-flex pb-2 gap-2 justify-content-center justify-content-lg-start align-items-center"
         >
           <Link href="/contact" class="btn btn-primary d-flex align-items-center gap-2">
             <Icon icon="fa6-solid:phone" />
-            <span>Hubungi Saya</span>
+            <span>{t('home.hero.contact')}</span>
           </Link>
 
           <Link href="/resume" class="btn btn-outline-primary d-flex align-items-center gap-2">
             <Icon icon="fa6-solid:file-pdf" />
-            <span>Resume</span>
+            <span>{t('home.hero.resume')}</span>
           </Link>
         </div>
 
         <div
           class="d-flex pt-4 flex-column gap-2"
         >
-          <h2 class="h5 text-center text-lg-start"><em>Tech Stack</em> Andalan Saya</h2>
+          <h2 class="h5 text-center text-lg-start">{@html t('home.hero.stack')}</h2>
 
           <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
             {#each techStack as item, index (index)}

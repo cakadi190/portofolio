@@ -71,10 +71,10 @@ class HomeController extends Controller
         $years = $firstCareerStart ? (int) Carbon::parse($firstCareerStart)->diffInYears(now()) : 0;
 
         return [
-            ['value' => $years, 'suffix' => '+', 'label' => 'Tahun berkarya sebagai pengembang dan wirausahawan'],
-            ['value' => Portfolio::query()->where('is_private', false)->count(), 'suffix' => '+', 'label' => 'Proyek publik di portofolio, dari web hingga aplikasi'],
-            ['value' => Award::query()->count(), 'suffix' => '', 'label' => 'Penghargaan dan juara dari berbagai kompetisi'],
-            ['value' => SpeakingEngagement::query()->published()->count(), 'suffix' => '', 'label' => 'Acara pembicara dan mentoring yang saya isi'],
+            ['value' => $years, 'suffix' => '+', 'label' => __('home.stats.years')],
+            ['value' => Portfolio::query()->where('is_private', false)->count(), 'suffix' => '+', 'label' => __('home.stats.projects')],
+            ['value' => Award::query()->count(), 'suffix' => '', 'label' => __('home.stats.awards')],
+            ['value' => SpeakingEngagement::query()->published()->count(), 'suffix' => '', 'label' => __('home.stats.speaking')],
         ];
     }
 
