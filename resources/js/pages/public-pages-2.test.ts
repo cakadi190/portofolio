@@ -222,6 +222,34 @@ describe('CoffeePage', () => {
 
     expect(screen.getAllByText('Kopi Senja').length).toBeGreaterThan(0);
   });
+
+  it('sends region and search filters to the canonical URL, not the redirecting legacy one', async () => {
+    router.get.mockClear();
+    render(CoffeePage, {
+      places: places([place]),
+      regions: ['Ngawi', 'Madiun'],
+      filters: { region: 'Ngawi', search: null },
+    });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Madiun' }));
+
+    expect(router.get).toHaveBeenLastCalledWith(
+      '/resources/coffee-shops',
+      { region: 'Madiun', search: null },
+      expect.objectContaining({ preserveState: true }),
+    );
+
+    await fireEvent.input(screen.getByLabelText('Cari kafe atau lokasi'), {
+      target: { value: 'senja' },
+    });
+    await fireEvent.click(screen.getByRole('button', { name: 'Cari' }));
+
+    expect(router.get).toHaveBeenLastCalledWith(
+      '/resources/coffee-shops',
+      { region: 'Ngawi', search: 'senja' },
+      expect.objectContaining({ preserveState: true }),
+    );
+  });
 });
 
 describe('Dev community and programmer channel pages', () => {

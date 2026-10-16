@@ -15,15 +15,12 @@
   }
 }
 
+// Tech stack: the icons alone, without a surrounding card.
 .techstacks {
-  display: inline-flex !important;
-  gap: 0.5rem;
-  border-radius: 0.5rem !important;
-  background: rgba(var(--neo-body-color-rgb), 0.125);
-  padding: 0.5rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   align-items: center;
-  border: 1px solid rgba(var(--neo-body-color-rgb), 0.125);
-  width: fit-content;
 }
 
 .tag-badge {

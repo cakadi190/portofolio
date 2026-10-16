@@ -47,7 +47,7 @@
 
   function selectRegion(region: string | null): void {
     router.get(
-      '/sumber-daya/tempat-ngopi',
+      '/resources/coffee-shops',
       { region, search: filters.search },
       { preserveState: true, preserveScroll: true },
     );
@@ -57,7 +57,7 @@
     event.preventDefault();
 
     router.get(
-      '/sumber-daya/tempat-ngopi',
+      '/resources/coffee-shops',
       { region: filters.region, search: searchQuery || undefined },
       { preserveState: true, preserveScroll: true },
     );

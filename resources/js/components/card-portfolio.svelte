@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { badgeStyle } from '@/lib/badge';
+  import Folder from '@lucide/svelte/icons/folder';
   import Icon from '@iconify/svelte';
   import { Link } from '@inertiajs/svelte';
   import { techIcon } from '@/lib/tech-icon';
@@ -22,25 +22,26 @@
 
 <div class="wrapper">
   <Link href={`/portfolio/${slug}`} class="card h-100 overflow-hidden rounded-4 card-portfolio">
-    <img
-      loading={eager ? 'eager' : 'lazy'}
-      fetchpriority={eager ? 'high' : undefined}
-      decoding="async"
-      src={image}
-      class="rounded-3 card-img-top"
-      alt={name}
-    />
+    <div class="position-relative">
+      <img
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : undefined}
+        decoding="async"
+        src={image}
+        class="rounded-3 card-img-top"
+        alt={name}
+      />
+      {#if service}
+        <span class="post-taxonomy-tag post-card-category position-absolute">
+          <Folder size={14} aria-hidden="true" />
+          {service.name}
+        </span>
+      {/if}
+    </div>
 
     <div class="card-body p-4">
       <div class="d-flex gap-2 mb-2 justify-content-between">
         <h2 class="card-title h5 mb-0">{name}</h2>
-        {#if service}
-          <div>
-            <span class="badge" style={badgeStyle(service.color)}>
-              {service.name}
-            </span>
-          </div>
-        {/if}
       </div>
       {#if shortDesc}
         <div class="card-text mb-3 opacity-75">{shortDesc}</div>
@@ -56,3 +57,13 @@
     </div>
   </Link>
 </div>
+
+<style>
+  :global(.post-card-category) {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 2;
+    white-space: nowrap;
+    background: var(--neo-body-bg);
+  }
+</style>
