@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Enums\CommunityPlatform;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\DevCommunityFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,9 +21,15 @@ use Illuminate\Database\Eloquent\Model;
 class DevCommunity extends Model
 {
     /** @use HasFactory<DevCommunityFactory> */
-    use HasFactory, RecordsActivity;
+    use HasEnglishContent, HasFactory, RecordsActivity;
 
-    protected $fillable = ['name', 'platform', 'description', 'invite_url', 'member_count', 'is_featured'];
+    /** @var list<string> */
+    protected array $englishAttributes = ['description'];
+
+    /** Admin lists carry the raw text of every language, for the edit form. */
+    protected bool $withTranslations = true;
+
+    protected $fillable = ['name', 'platform', 'description', 'invite_url', 'member_count', 'is_featured', 'description_en'];
 
     /**
      * @return array<string, string>

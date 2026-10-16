@@ -42,7 +42,7 @@ class ServiceController extends Controller
     {
         $service->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Layanan berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.layanan_berhasil_diperbarui')]);
 
         return to_route('admin.services.edit', $service);
     }

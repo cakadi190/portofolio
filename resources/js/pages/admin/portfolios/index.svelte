@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -26,13 +27,13 @@
   } = $props();
 </script>
 
-<AppHead title="Portofolio" />
+<AppHead title={t('admin.portofolio')} />
 
 <AdminPageHeader
-  title="Portofolio"
-  subtitle="Kelola daftar portofolio Anda."
+  title={t('admin.portofolio')}
+  subtitle={t('admin-portfolios.kelola_daftar_portofolio_anda')}
   createHref={create().url}
-  createLabel="Tambah Portofolio"
+  createLabel={t('admin-portfolios.tambah_portofolio')}
 />
 
 <DataTable
@@ -41,15 +42,15 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Sampul' },
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Teknologi' },
-    { label: 'Layanan' },
-    { label: 'Privat', key: 'is_private', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin-portfolios.sampul') },
+    { label: t('admin.nama'), key: 'name', sortable: true },
+    { label: t('admin.teknologi') },
+    { label: t('admin.layanan') },
+    { label: t('admin-portfolios.privat'), key: 'is_private', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada portofolio"
-  emptyText="Tambahkan portofolio pertama Anda."
+  emptyTitle={t('admin-portfolios.belum_ada_portofolio')}
+  emptyText={t('admin-portfolios.tambahkan_portofolio_pertama_anda')}
 >
   {#snippet row(portfolio)}
     <tr>
@@ -84,18 +85,18 @@
           {/each}
         </div></td
       >
-      <td>{portfolio.is_private ? 'Ya' : 'Tidak'}</td>
+      <td>{portfolio.is_private ? t('admin.ya') : t('admin.tidak')}</td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
           <Link
             href={edit(portfolio.id).url}
             class="btn btn-sm btn-outline-secondary"
           >
-            Ubah
+            {t('admin.ubah')}
           </Link>
           <AdminDeleteButton
             href={destroy(portfolio.id).url}
-            label={`Hapus portofolio "${portfolio.name}"?`}
+            label={t('admin-portfolios.delete_confirm', { name: portfolio.name })}
           />
         </div>
       </td>

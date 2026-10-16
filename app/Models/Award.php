@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Enums\AwardType;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\AwardFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,9 +14,15 @@ use Illuminate\Support\Str;
 class Award extends Model
 {
     /** @use HasFactory<AwardFactory> */
-    use HasFactory, RecordsActivity;
+    use HasEnglishContent, HasFactory, RecordsActivity;
 
-    protected $fillable = ['event_name', 'title', 'type', 'year', 'rank', 'awarded_at'];
+    /** @var list<string> */
+    protected array $englishAttributes = ['title'];
+
+    /** Admin lists carry the raw text of every language, for the edit form. */
+    protected bool $withTranslations = true;
+
+    protected $fillable = ['event_name', 'title', 'type', 'year', 'rank', 'awarded_at', 'title_en'];
 
     protected $appends = ['icon'];
 

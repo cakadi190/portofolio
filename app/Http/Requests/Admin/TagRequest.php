@@ -18,6 +18,7 @@ class TagRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name_en' => ['nullable', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255', Rule::unique('tags', 'name')->ignore($this->route('tag'))],
         ];
     }

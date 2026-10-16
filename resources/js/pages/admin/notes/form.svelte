@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import { Form, router } from '@inertiajs/svelte';
   import { flushSync } from 'svelte';
@@ -59,7 +60,7 @@
     authors.find((a) => a.id === authorId)?.name ?? '',
   );
 
-  const heading = $derived(note ? 'Ubah Catatan' : 'Tulis Catatan Baru');
+  const heading = $derived(note ? t('admin-notes.ubah_catatan') : t('admin-notes.tulis_catatan_baru'));
 
   let deleting = $state(false);
 
@@ -93,7 +94,7 @@
       <EditorTitle
         name={fieldName('title', translatable.locale)}
         bind:value={translatable.values.title[translatable.locale]}
-        ariaLabel="Judul catatan"
+        ariaLabel={t('admin-notes.judul_catatan')}
         required={translatable.isDefault}
         error={errors[fieldName('title', translatable.locale)]}
       />
@@ -116,10 +117,10 @@
         setMode={editor.setMode}
         onStatus={setStatus}
         danger={{
-          label: 'Hapus catatan',
-          title: 'Hapus catatan ini?',
-          description: 'Catatan dihapus permanen dan tidak dapat dikembalikan.',
-          confirmLabel: 'Hapus',
+          label: t('admin-notes.hapus_catatan'),
+          title: t('admin-notes.hapus_catatan_ini'),
+          description: t('admin-notes.catatan_dihapus_permanen_dan_tidak_dapat'),
+          confirmLabel: t('security.hapus'),
           processing: deleting,
           run: deleteNote,
         }}
@@ -127,21 +128,21 @@
     {/snippet}
 
     {#snippet noteSettings()}
-      <EditorPanel title="Ringkasan">
+      <EditorPanel title={t('admin.ringkasan')}>
         <div class="gb-sum">
           <EditorSummaryRow
-            label="Status"
+            label={t('admin.status')}
             title="Status &amp; visibilitas"
-            value={isPublished ? 'Telah terbit' : 'Draf'}
+            value={isPublished ? t('admin.telah_terbit') : t('admin.draf')}
           >
             <EditorStatusField {isPublished} onStatus={setStatus} />
           </EditorSummaryRow>
           <EditorSummaryRow
-            label="Terbitkan"
-            title="Tanggal terbit"
+            label={t('admin.terbitkan')}
+            title={t('admin.tanggal_terbit')}
             width="23rem"
             value={publishedDisplay}
-            placeholder="Segera"
+            placeholder={t('admin.segera')}
             invalid={!!errors.published_at}
           >
             <DatePicker
@@ -156,10 +157,10 @@
             <Field.Feedback message={errors.published_at} />
           </EditorSummaryRow>
           <EditorSummaryRow
-            label="Slug"
-            title="Permalink"
+            label={t('admin.slug')}
+            title={t('admin.permalink')}
             value={slug}
-            placeholder="Otomatis"
+            placeholder={t('admin.otomatis')}
             invalid={!!errors.slug}
           >
             <input
@@ -168,8 +169,8 @@
               type="text"
               class="form-control form-control-sm"
               class:is-invalid={!!errors.slug}
-              placeholder="Otomatis dari judul"
-              aria-label="Permalink"
+              placeholder={t('admin.otomatis_dari_judul')}
+              aria-label={t('admin.permalink')}
               bind:value={slug}
             />
             <Field.Feedback message={errors.slug} />
@@ -180,15 +181,15 @@
                 rel="noopener"
                 class="d-inline-flex align-items-center gap-1"
               >
-                Lihat catatan <ExternalLink size={14} />
+                {t('admin-notes.lihat_catatan')} <ExternalLink size={14} />
               </a>
             {/if}
           </EditorSummaryRow>
           <EditorSummaryRow
-            label="Penulis"
-            title="Penulis"
+            label={t('admin.penulis')}
+            title={t('admin.penulis')}
             value={authorName}
-            placeholder="Saya sendiri"
+            placeholder={t('admin.saya_sendiri')}
             invalid={!!errors.user_id}
           >
             <Select
@@ -197,27 +198,27 @@
               items={authors.map((a) => ({ value: a.id, label: a.name }))}
               bind:value={authorId}
               invalid={!!errors.user_id}
-              placeholder="Saya sendiri"
+              placeholder={t('admin.saya_sendiri')}
             />
             <Field.Feedback message={errors.user_id} />
           </EditorSummaryRow>
         </div>
       </EditorPanel>
 
-      <EditorPanel title="Kutipan">
+      <EditorPanel title={t('admin.kutipan')}>
         <textarea
           name={fieldName('excerpt', translatable.locale)}
-          aria-label="Ringkasan catatan"
+          aria-label={t('admin-notes.ringkasan_catatan')}
           class="form-control form-control-sm"
           class:is-invalid={!!errors[fieldName('excerpt', translatable.locale)]}
           rows="4"
           maxlength="255"
-          placeholder="Satu kalimat yang tampil di daftar catatan"
+          placeholder={t('admin-notes.satu_kalimat_yang_tampil_di_daftar')}
           bind:value={translatable.values.excerpt[translatable.locale]}></textarea>
         <Field.Feedback message={errors[fieldName('excerpt', translatable.locale)]} />
       </EditorPanel>
 
-      <EditorPanel title="Tag">
+      <EditorPanel title={t('admin.tag')}>
         <TaxonomySelect
           name="tags"
           items={tags}
@@ -239,7 +240,7 @@
       invalid={!!errors[fieldName('content', translatable.locale)]}
       viewHref={note?.is_published && note.slug ? show(note.slug).url : null}
       documentTitle={title}
-      rootLabel="Catatan"
+      rootLabel={t('admin-notes.catatan')}
       header={noteHeader}
       settings={noteSettings}
       actions={noteActions}

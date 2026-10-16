@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { page } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
   import type { AdminSidebarEntry } from '@/types/admin-sidebar';
@@ -33,7 +34,7 @@
   class:admin-shell--sidebar-collapsed={sidebar.isDesktop && sidebar.collapsed}
 >
   <a class="visually-hidden-focusable" href="#admin-main-content"
-    >Langsung ke konten utama</a
+    >{t('admin.langsung_ke_konten_utama')}</a
   >
 
   <AdminSidebar {menu} {userName} {userEmail} userAvatar={page.props.auth.user?.avatar} />

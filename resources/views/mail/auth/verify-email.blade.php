@@ -1,13 +1,13 @@
 @extends('mail.layout')
 
-@section('title', 'Verifikasi Alamat Email')
-@section('preheader', 'Konfirmasi alamat email akun Anda.')
-@section('heading', 'Verifikasi Alamat Email')
+@section('title', __('mail.verify.subject'))
+@section('preheader', __('mail.verify.preheader'))
+@section('heading', __('mail.verify.subject'))
 
 @section('content')
-    <p>Halo, <strong>{{ $name }}</strong>.</p>
-    <p>Terima kasih sudah mendaftar. Klik tombol di bawah ini untuk memverifikasi alamat email Anda:</p>
-    @include('mail.partials.button', ['url' => $url, 'label' => 'Verifikasi Email'])
-    <p>Tautan ini berlaku selama <strong>{{ $expires }} menit</strong>. Jika Anda tidak membuat akun, abaikan email ini.</p>
+    <p>{!! __('mail.hello', ['name' => e($name)]) !!}</p>
+    <p>{{ __('mail.verify.intro') }}</p>
+    @include('mail.partials.button', ['url' => $url, 'label' => __('mail.verify.button')])
+    <p>{!! __('mail.verify.expiry', ['minutes' => e($expires)]) !!}</p>
     @include('mail.partials.fallback-link', ['url' => $url])
 @endsection

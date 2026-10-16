@@ -1,4 +1,5 @@
 <script lang="ts" generics="T extends { id: number }">
+  import { t } from '@/lib/i18n';
   import EmptyState from '@/components/empty-state.svelte';
   import Select from '@/components/ui/select.svelte';
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
@@ -23,8 +24,8 @@
     url,
     columns = [],
     variant = 'table',
-    emptyTitle = 'Belum ada data',
-    emptyText = 'Data akan muncul di sini.',
+    emptyTitle = t('admin.belum_ada_data'),
+    emptyText = t('admin.data_akan_muncul_di_sini'),
     row,
     scrollKey,
     toolbar,
@@ -147,7 +148,7 @@
   <div class="d-flex align-items-center gap-2 small text-muted">
     {@render toolbar?.()}
     {#if !scrollKey}
-      <label for="table-per-page">Tampilkan</label>
+      <label for="table-per-page">{t('admin.tampilkan')}</label>
       <Select
         inline
         required
@@ -170,8 +171,8 @@
     <input
       type="search"
       class="form-control"
-      placeholder="Cari..."
-      aria-label="Cari"
+      placeholder={t('admin.cari')}
+      aria-label={t('admin.cari_2')}
       bind:value={search}
       oninput={onSearch}
     />
@@ -179,7 +180,7 @@
       <button
         type="button"
         class="btn btn-outline-secondary"
-        aria-label="Hapus pencarian"
+        aria-label={t('admin.hapus_pencarian')}
         onclick={clearSearch}
       >
         <X size={14} />
@@ -195,9 +196,9 @@
         <EmptyState
           wrapped={false}
           type={isFiltered ? 'warning' : 'info'}
-          title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
+          title={isFiltered ? t('admin.tidak_ada_hasil') : emptyTitle}
           text={isFiltered
-            ? `Tidak ada data yang cocok dengan "${filters.search}".`
+            ? t('admin.tidak_ada_data_yang_cocok', { search: filters.search })
             : emptyText}
         />
       </div>
@@ -254,9 +255,9 @@
                 <EmptyState
                   wrapped={false}
                   type={isFiltered ? 'warning' : 'info'}
-                  title={isFiltered ? 'Tidak ada hasil' : emptyTitle}
+                  title={isFiltered ? t('admin.tidak_ada_hasil') : emptyTitle}
                   text={isFiltered
-                    ? `Tidak ada data yang cocok dengan "${filters.search}".`
+                    ? t('admin.tidak_ada_data_yang_cocok', { search: filters.search })
                     : emptyText}
                 />
               </td>
@@ -277,7 +278,7 @@
       >
         <span class="spinner-border spinner-border-sm" aria-hidden="true"
         ></span>
-        Memuat lebih banyak…
+        {t('admin.memuat_lebih_banyak')}
       </div>
     {/snippet}
   </InfiniteScroll>
@@ -291,20 +292,20 @@
   >
     <span class="small text-muted">
       {#if paged && paged.total > 0}
-        Menampilkan {paged.from} sampai {paged.to} dari {paged.total} data
+        {t('admin.menampilkan_dari', { from: paged.from ?? 0, to: paged.to ?? 0, total: paged.total })}
       {:else}
-        Tidak ada data
+        {t('admin.tidak_ada_data')}
       {/if}
     </span>
 
     {#if paged && !scrollKey && paged.last_page > 1}
-      <nav aria-label="Paginasi tabel">
+      <nav aria-label={t('admin.paginasi_tabel')}>
         <ul class="pagination pagination-sm mb-0">
           <li class="page-item" class:disabled={paged.current_page === 1}>
             <button
               type="button"
               class="page-link"
-              aria-label="Sebelumnya"
+              aria-label={t('admin.sebelumnya')}
               disabled={paged.current_page === 1}
               onclick={() => visit({ page: paged.current_page - 1 })}
             >
@@ -333,7 +334,7 @@
             <button
               type="button"
               class="page-link"
-              aria-label="Berikutnya"
+              aria-label={t('admin.berikutnya')}
               disabled={paged.current_page === paged.last_page}
               onclick={() => visit({ page: paged.current_page + 1 })}
             >

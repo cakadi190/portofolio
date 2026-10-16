@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import FormModal from '@/components/form-modal.svelte';
   import { Field } from '@/components/ui/field';
@@ -21,8 +22,8 @@
 
 <FormModal
   bind:open
-  title="Ubah Komentar"
-  subtitle="Sunting isi atau ubah status moderasi."
+  title={t('admin.ubah_komentar')}
+  subtitle={t('admin.sunting_isi_atau_ubah_status_moderasi')}
 >
   {#snippet children()}
     {#if comment}
@@ -34,7 +35,7 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label>Isi Komentar</Field.Label>
+            <Field.Label>{t('admin.isi_komentar')}</Field.Label>
             <RichTextEditor
               name="body"
               minimal
@@ -45,7 +46,7 @@
           </Field.Group>
 
           <Field.Group>
-            <Field.Label for="edit-comment-status">Status</Field.Label>
+            <Field.Label for="edit-comment-status">{t('admin.status')}</Field.Label>
             <Select
               id="edit-comment-status"
               name="status"
@@ -62,10 +63,10 @@
             <button
               type="button"
               class="btn btn-outline-secondary"
-              onclick={() => (open = false)}>Batal</button
+              onclick={() => (open = false)}>{t('admin.batal')}</button
             >
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

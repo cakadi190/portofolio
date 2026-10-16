@@ -25,11 +25,9 @@ Hasil reverse engineering; urutan bukan prioritas final.
 Situs publik (UI, SEO, galat, validasi, enum) dan konten editor (artikel, catatan, klarifikasi, portofolio, layanan, bio) sudah dwibahasa (`04` "Dwibahasa"). Sisanya:
 
 - **Bahasa Inggris belum diindeks:** `app.indexable_locales` masih `['id']` (halaman `/en` `noindex`, tanpa `hreflang`). Tambahkan `'en'` setelah semua teks yang ingin diindeks diterjemahkan.
-- **Teks pendek di entitas lain** masih satu bahasa: acara pembicara (judul, deskripsi), penghargaan, karier (posisi), organisasi, tempat ngopi, komunitas/channel (deskripsi), nama kategori/tag, keterangan galeri, daftar `sources`/`updates` klarifikasi.
-- **UI admin** (menu, tabel, form, toast) masih Indonesia; hanya pemilih bahasa, enum, validasi, dan komponen bersama yang mengikuti bahasa akun.
-- **CV / Resume:** viewer (bilah alat, panel verifikasi tanda tangan) dan PDF CV (`ResumeService`, bulan Indonesia) belum punya versi Inggris.
-- **Email** (balasan kontak, notifikasi akun) tetap Indonesia karena antrean berjalan tanpa konteks bahasa permintaan.
-- **Deteksi bahasa otomatis** (Accept-Language/IP, banner saran) belum ada.
+- **Masih satu bahasa:** keterangan galeri (portofolio, kedai kopi), daftar `sources`/`updates` klarifikasi, serta nama proyek/tempat/institusi (nama diri).
+- **UI admin** sudah dwibahasa (mengikuti `users.locale`/cookie); string baru di admin wajib lewat `t()` dan berkas `lang/{id,en}/admin*.php`. Sisa kecil: teks resume/viewer PDF dan pesan log aktivitas (data audit, tetap Indonesia).
+- **Email dan CV** sudah dwibahasa (`contact_messages.locale` menentukan bahasa konfirmasi/balasan; notifikasi untuk pemilik tetap Indonesia; bahasa email otentikasi mengikuti bahasa permintaan). Jika queue worker ditambahkan, pastikan bahasa dibawa ke job.
 - Terjemahan otomatis memerlukan `ANTHROPIC_API_KEY`; tanpa kunci tombolnya tersembunyi.
 
 ## Ide lanjutan

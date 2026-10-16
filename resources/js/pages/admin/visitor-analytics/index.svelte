@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
 
@@ -19,24 +20,24 @@
 
   let { stats }: { stats: Stats } = $props();
 
-  const fmt = (n: number): string => n.toLocaleString('id-ID');
+  const fmt = (n: number): string => n.toLocaleString(intlLocale());
   const tiles = $derived([
-    ['Tayangan halaman', stats.page_views],
-    ['Tayangan hari ini', stats.page_views_today],
-    ['Tayangan bulan ini', stats.page_views_month],
-    ['Pengunjung unik', stats.unique_visitors],
-    ['Unik hari ini', stats.unique_visitors_today],
-    ['Unik bulan ini', stats.unique_visitors_month],
-    ['Kunjungan (sesi)', stats.visits],
-    ['Pengunjung berulang', stats.repeat_visitors],
-    ['Tayangan bot', stats.bot_page_views],
+    [t('admin-visitor-analytics.tayangan_halaman'), stats.page_views],
+    [t('admin-visitor-analytics.tayangan_hari_ini'), stats.page_views_today],
+    [t('admin-visitor-analytics.tayangan_bulan_ini'), stats.page_views_month],
+    [t('admin-visitor-analytics.pengunjung_unik'), stats.unique_visitors],
+    [t('admin-visitor-analytics.unik_hari_ini'), stats.unique_visitors_today],
+    [t('admin-visitor-analytics.unik_bulan_ini'), stats.unique_visitors_month],
+    [t('admin-visitor-analytics.kunjungan_sesi'), stats.visits],
+    [t('admin-visitor-analytics.pengunjung_berulang'), stats.repeat_visitors],
+    [t('admin-visitor-analytics.tayangan_bot'), stats.bot_page_views],
   ] as [string, number][]);
   const max = $derived(Math.max(1, ...stats.daily.map((d) => Number(d.page_views))));
 </script>
 
-<AppHead title="Analitik Pengunjung" />
+<AppHead title={t('admin-visitor-analytics.analitik_pengunjung')} />
 
-<AdminPageHeader title="Analitik Pengunjung" subtitle="Angka diperbarui maksimal tiap 60 detik. Pengunjung unik = browser (cookie), bukan orang." />
+<AdminPageHeader title={t('admin-visitor-analytics.analitik_pengunjung')} subtitle={t('admin-visitor-analytics.angka_diperbarui_maksimal_tiap_60_detik')} />
 
 <div class="row g-3 mb-4">
   {#each tiles as [label, value] (label)}
@@ -45,8 +46,8 @@
 </div>
 
 <div class="card mb-4">
-  <div class="card-header">Tayangan 30 hari terakhir</div>
-  <div class="card-body d-flex align-items-end gap-1" style="height:160px" role="img" aria-label="Grafik tayangan harian">
+  <div class="card-header">{t('admin-visitor-analytics.tayangan_30_hari_terakhir')}</div>
+  <div class="card-body d-flex align-items-end gap-1" style="height:160px" role="img" aria-label={t('admin-visitor-analytics.grafik_tayangan_harian')}>
     {#each stats.daily as day (day.day)}
       <div class="bg-primary flex-fill" style="height:{(Number(day.page_views) / max) * 100}%" title="{day.day}: {day.page_views}"></div>
     {/each}
@@ -55,16 +56,16 @@
 
 <div class="row g-3">
   <div class="col-md-6">
-    <div class="card"><div class="card-header">Halaman teratas</div>
+    <div class="card"><div class="card-header">{t('admin-visitor-analytics.halaman_teratas')}</div>
       <ul class="list-group list-group-flush">
-        {#each stats.top_pages as page (page.path)}<li class="list-group-item d-flex justify-content-between"><code>{page.path}</code><span>{fmt(Number(page.page_views))}</span></li>{:else}<li class="list-group-item text-muted">Belum ada data.</li>{/each}
+        {#each stats.top_pages as page (page.path)}<li class="list-group-item d-flex justify-content-between"><code>{page.path}</code><span>{fmt(Number(page.page_views))}</span></li>{:else}<li class="list-group-item text-muted">{t('admin-visitor-analytics.belum_ada_data')}</li>{/each}
       </ul>
     </div>
   </div>
   <div class="col-md-6">
-    <div class="card"><div class="card-header">Negara (data IPInfo)</div>
+    <div class="card"><div class="card-header">{t('admin-visitor-analytics.negara_data_ipinfo')}</div>
       <ul class="list-group list-group-flush">
-        {#each stats.top_countries as c (c.country)}<li class="list-group-item d-flex justify-content-between"><span>{c.country}</span><span>{fmt(Number(c.visitors))}</span></li>{:else}<li class="list-group-item text-muted">Belum ada data pengayaan.</li>{/each}
+        {#each stats.top_countries as c (c.country)}<li class="list-group-item d-flex justify-content-between"><span>{c.country}</span><span>{fmt(Number(c.visitors))}</span></li>{:else}<li class="list-group-item text-muted">{t('admin-visitor-analytics.belum_ada_data_pengayaan')}</li>{/each}
       </ul>
     </div>
   </div>

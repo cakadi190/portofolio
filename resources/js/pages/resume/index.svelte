@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localizeHref } from '@/lib/i18n';
+  import { localizeHref, t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import ResumeViewer from '@/components/resume/resume-viewer.svelte';
   import { router } from '@inertiajs/svelte';
@@ -42,15 +42,15 @@
 {#key pdfUrl}
   <ResumeViewer
     url={pdfUrl}
-    title="Curriculum Vitae"
+    title={t('resume.curriculum_vitae')}
     subtitle={title}
     {downloadName}
     {profiles}
     activeProfile={profile}
     info={[
-      { label: 'Profil CV', value: profiles.find((item) => item.key === profile)?.label ?? profile },
-      { label: 'Nama berkas', value: downloadName },
-      { label: 'Format', value: 'PDF (ATS-friendly)' },
+      { label: t('resume.profil_cv'), value: profiles.find((item) => item.key === profile)?.label ?? profile },
+      { label: t('resume.nama_berkas'), value: downloadName },
+      { label: t('resume.format'), value: t('resume.pdf_ats_friendly') },
     ]}
     onprofile={switchProfile}
     onclose={() => router.visit(localizeHref('/'))}

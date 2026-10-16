@@ -34,7 +34,7 @@ class CertificationController extends Controller
 
         Certification::query()->create($data);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sertifikasi berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.sertifikasi_berhasil_ditambahkan')]);
 
         return to_route('admin.certifications.index');
     }
@@ -45,7 +45,7 @@ class CertificationController extends Controller
 
         $certification->update($data);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sertifikasi berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.sertifikasi_berhasil_diperbarui')]);
 
         return to_route('admin.certifications.index');
     }
@@ -54,7 +54,7 @@ class CertificationController extends Controller
     {
         $certification->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sertifikasi berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.sertifikasi_berhasil_dihapus')]);
 
         return to_route('admin.certifications.index');
     }

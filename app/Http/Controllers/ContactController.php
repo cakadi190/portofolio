@@ -74,7 +74,7 @@ class ContactController extends Controller
      */
     public function store(ContactMessageRequest $request): RedirectResponse
     {
-        $contactMessage = ContactMessage::query()->create($request->validated());
+        $contactMessage = ContactMessage::query()->create([...$request->validated(), 'locale' => app()->getLocale()]);
 
         SendContactReceipt::dispatchAfterResponse($contactMessage);
         SendContactAdminNotification::dispatchAfterResponse($contactMessage);

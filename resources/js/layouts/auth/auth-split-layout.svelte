@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppLogoIcon from '@/components/app-logo-icon.svelte';
   import ThemeToggler from '@/components/theme-toggler.svelte';
   import LanguageSwitcher from '@/components/language-switcher.svelte';
@@ -43,7 +44,7 @@
         {@render children?.()}
       </div>
       <div class="panel-footer">
-        Hak Cipta 2026 <Link href="/">Catatan Cak Adi</Link>.
+        {t('auth.hak_cipta_2026')} <Link href="/">{t('auth.catatan_cak_adi')}</Link>.
       </div>
     </div>
   </div>

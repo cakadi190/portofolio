@@ -1,6 +1,6 @@
-Halo, {!! $name !!}.
+{!! __('mail.hello_text', ['name' => $name]) !!}
 
-Terima kasih sudah mendaftar. Buka tautan berikut untuk memverifikasi alamat email Anda:
+{!! __('mail.verify.intro_text') !!}
 {!! $url !!}
 
-Tautan ini berlaku selama {!! $expires !!} menit. Jika Anda tidak membuat akun, abaikan email ini.
+{!! __('mail.verify.expiry_text', ['minutes' => $expires]) !!}

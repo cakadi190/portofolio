@@ -17,6 +17,7 @@ class PostCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name_en' => ['nullable', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'color' => ['nullable', 'string', 'max:32'],
         ];

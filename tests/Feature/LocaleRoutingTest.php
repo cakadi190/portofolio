@@ -119,3 +119,42 @@ it('lists every enabled language in the pages sitemap', function () {
         ->toContain('<loc>'.$base.'/en/career'.'</loc>')
         ->toContain('<xhtml:link rel="alternate" hreflang="en" href="'.$base.'/en/career'.'"/>');
 });
+
+it('maps routes to the language groups their page needs', function (?string $route, array $groups) {
+    expect(AppLocale::groupsFor($route))->toBe($groups);
+})->with([
+    'public' => ['blog.show', ['blog']],
+    'admin page' => ['admin.posts.index', ['admin', 'admin-posts']],
+    'dashboard' => ['dashboard', ['admin', 'dashboard']],
+    'settings' => ['profile.edit', ['admin', 'profile']],
+    'auth' => ['two-factor.login', ['auth']],
+    'none' => [null, []],
+]);
+
+it('suggests the browser language to first-time visitors without redirecting', function (array $headers, array $cookies, string $uri, ?string $expected) {
+    $response = $this->withHeaders($headers)->withUnencryptedCookies($cookies)->get($uri)->assertOk();
+
+    $response->assertInertia(fn ($page) => $expected === null
+        ? $page->where('languageSuggestion', null)
+        : $page->where('languageSuggestion.locale', $expected)->where('languageSuggestion.url', '/en'.($uri === '/' ? '' : $uri))
+            ->where('languageSuggestion.messages.accept', 'View in English'));
+})->with([
+    'english browser' => [['Accept-Language' => 'en-US,en;q=0.9,id;q=0.5', 'User-Agent' => 'Mozilla/5.0 Firefox'], [], '/contact', 'en'],
+    'indonesian browser' => [['Accept-Language' => 'id-ID,id;q=0.9,en;q=0.4', 'User-Agent' => 'Mozilla/5.0 Firefox'], [], '/contact', null],
+    'crawler' => [['Accept-Language' => 'en-US', 'User-Agent' => 'Googlebot/2.1'], [], '/contact', null],
+    'foreign country without a language header' => [['Accept-Language' => '', 'CF-IPCountry' => 'US', 'User-Agent' => 'Mozilla/5.0 Firefox'], [], '/', 'en'],
+    'home country without a language header' => [['Accept-Language' => '', 'CF-IPCountry' => 'ID', 'User-Agent' => 'Mozilla/5.0 Firefox'], [], '/', null],
+    'private pages' => [['Accept-Language' => 'en-US', 'User-Agent' => 'Mozilla/5.0 Firefox'], [], '/login', null],
+]);
+
+it('does not suggest again once a language was chosen or on prefixed pages', function () {
+    $headers = ['Accept-Language' => 'en-US', 'User-Agent' => 'Mozilla/5.0 Firefox'];
+
+    $this->withHeaders($headers)->withCookie(AppLocale::COOKIE, 'id')->get('/contact')
+        ->assertInertia(fn ($page) => $page->where('languageSuggestion', null));
+
+    request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
+
+    $this->withHeaders($headers)->get('/en/contact')
+        ->assertInertia(fn ($page) => $page->where('languageSuggestion', null));
+});

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { router } from '@inertiajs/svelte';
   import LogOut from '@lucide/svelte/icons/log-out';
   import type { Snippet } from 'svelte';
@@ -8,7 +9,7 @@
   let {
     as = 'button',
     href = logout().url,
-    title = 'Apakah Anda Sangat Yakin?',
+    title = t('admin.apakah_anda_sangat_yakin'),
     description = 'Apakah Anda yakin akan keluar? Pastikan semua aksi yang Anda lakukan saat ini sudah tersimpan untuk menghindari kehilangan data setelah aksi ini.',
     children,
     ...rest
@@ -43,7 +44,7 @@
   bind:open
   {title}
   {description}
-  confirmLabel="Keluar"
+  confirmLabel={t('admin.keluar')}
   {processing}
   actions={{ confirm: submit }}
 >

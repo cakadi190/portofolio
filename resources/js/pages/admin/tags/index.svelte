@@ -1,4 +1,6 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -9,7 +11,11 @@
   import { destroy, store, update, index } from '@/wayfinder/routes/admin/tags';
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
-  type Tag = { id: number; name: string };
+  type Tag = {
+    id: number;
+    name: string;
+    translations?: Record<string, Record<string, string>>;
+  };
 
   let { tags, filters }: { filters: TableFilters; tags: InfiniteList<Tag> } =
     $props();
@@ -24,11 +30,11 @@
   }
 </script>
 
-<AppHead title="Tag" />
+<AppHead title={t('admin.tag')} />
 
 <AdminPageHeader
-  title="Tag"
-  subtitle="Kelola tag artikel blog."
+  title={t('admin.tag')}
+  subtitle={t('admin-tags.kelola_tag_artikel_blog')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -38,11 +44,11 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin.nama'), key: 'name', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada tag"
-  emptyText="Tambahkan tag pertama untuk artikel blog Anda."
+  emptyTitle={t('admin-tags.belum_ada_tag')}
+  emptyText={t('admin-tags.tambahkan_tag_pertama_untuk_artikel_blog')}
 >
   {#snippet row(tag)}
     <tr>
@@ -54,11 +60,11 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(tag)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(tag.id).url}
-            label={`Hapus tag "${tag.name}"?`}
+            label={t('admin-tags.delete_confirm', { name: tag.name })}
           />
         </div>
       </td>
@@ -68,8 +74,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Tag"
-  subtitle="Buat tag baru untuk artikel blog."
+  title={t('admin-tags.tambah_tag')}
+  subtitle={t('admin-tags.buat_tag_baru_untuk_artikel_blog')}
 >
   {#snippet children()}
     <Form
@@ -79,16 +85,7 @@
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
-        <Field.Group>
-          <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input placeholder="Masukkan nama"
-            id="create-name"
-            name="name"
-            required
-            invalid={!!errors.name}
-          />
-          <Field.Feedback message={errors.name} />
-        </Field.Group>
+        <TranslatedField field="name" label={t('admin.nama')} id="create-name" placeholder={t('admin.masukkan_nama')} required {errors} />
 
         <div class="d-flex justify-content-end gap-2">
           <button
@@ -96,10 +93,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -109,7 +106,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Tag"
+  title={t('admin-tags.ubah_tag')}
   subtitle={editingTag?.name ?? ''}
 >
   {#snippet children()}
@@ -122,17 +119,7 @@
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}
-          <Field.Group>
-            <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input placeholder="Masukkan nama"
-              id="edit-name"
-              name="name"
-              required
-              value={current.name}
-              invalid={!!errors.name}
-            />
-            <Field.Feedback message={errors.name} />
-          </Field.Group>
+          <TranslatedField field="name" label={t('admin.nama')} id="edit-name" placeholder={t('admin.masukkan_nama')} required values={current.translations?.name} {errors} />
 
           <div class="d-flex justify-content-end gap-2">
             <button
@@ -140,10 +127,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

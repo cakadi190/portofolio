@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -31,11 +32,11 @@
   }
 </script>
 
-<AppHead title="Teknologi" />
+<AppHead title={t('admin.teknologi')} />
 
 <AdminPageHeader
-  title="Teknologi"
-  subtitle="Kelola daftar teknologi yang digunakan pada portofolio."
+  title={t('admin.teknologi')}
+  subtitle={t('admin-technologies.kelola_daftar_teknologi_yang_digunakan_pada')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -45,11 +46,11 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin.nama'), key: 'name', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada teknologi"
-  emptyText="Tambahkan teknologi pertama untuk portofolio Anda."
+  emptyTitle={t('admin-technologies.belum_ada_teknologi')}
+  emptyText={t('admin-technologies.tambahkan_teknologi_pertama_untuk_portofolio_and')}
 >
   {#snippet row(technology)}
     <tr>
@@ -61,11 +62,11 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(technology)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(technology.id).url}
-            label={`Hapus teknologi "${technology.name}"?`}
+            label={t('admin-technologies.delete_confirm', { name: technology.name })}
           />
         </div>
       </td>
@@ -75,8 +76,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Teknologi"
-  subtitle="Tambahkan teknologi baru untuk portofolio."
+  title={t('admin-technologies.tambah_teknologi')}
+  subtitle={t('admin-technologies.tambahkan_teknologi_baru_untuk_portofolio')}
 >
   {#snippet children()}
     <Form
@@ -87,8 +88,8 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input placeholder="Masukkan nama"
+          <Field.Label for="create-name">{t('admin.nama')}</Field.Label>
+          <Field.Input placeholder={t('admin.masukkan_nama')}
             id="create-name"
             name="name"
             required
@@ -103,10 +104,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -116,7 +117,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Teknologi"
+  title={t('admin-technologies.ubah_teknologi')}
   subtitle={editingTechnology?.name ?? ''}
 >
   {#snippet children()}
@@ -130,8 +131,8 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input placeholder="Masukkan nama"
+            <Field.Label for="edit-name">{t('admin.nama')}</Field.Label>
+            <Field.Input placeholder={t('admin.masukkan_nama')}
               id="edit-name"
               name="name"
               required
@@ -147,10 +148,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

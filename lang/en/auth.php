@@ -1,20 +1,53 @@
 <?php
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Authentication Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used during authentication for various
-    | messages that we need to display to the user. You are free to modify
-    | these language lines according to your application's requirements.
-    |
-    */
-
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
-
+    'masuk_dengan_passkey_yang_tertaut_dengan' => 'Sign in with the passkey linked to your account.',
+    'masuk_dengan_passkey' => 'Sign in with a passkey',
+    'hak_cipta_2026' => 'Copyright 2026',
+    'catatan_cak_adi' => 'Catatan Cak Adi',
+    'konfirmasi_kata_sandi' => 'Confirm password',
+    'kata_sandi' => 'Password',
+    'lupa_kata_sandi' => 'Forgot password',
+    'alamat_email' => 'Email address',
+    'kirim_tautan_atur_ulang_kata_sandi' => 'Send password reset link',
+    'atau_kembali_untuk' => 'Or, return to',
+    'lupa_kata_sandi_anda' => 'Forgot your password?',
+    'ingatkan_saya' => 'Remember me',
+    'masuk' => 'Log in',
+    'atau' => 'Or',
+    'belum_punya_akun' => 'Don\'t have an account?',
+    'daftar' => 'Sign up',
+    'nama' => 'Name',
+    'nama_lengkap' => 'Full name',
+    'saya_setuju_dengan' => 'I agree to the',
+    'syarat_dan_ketentuan' => 'Terms and Conditions',
+    'dari_catatan_cak_adi' => 'of Catatan Cak Adi.',
+    'buat_akun' => 'Create account',
+    'sudah_punya_akun' => 'Already have an account?',
+    'atur_ulang_kata_sandi' => 'Reset password',
+    'email' => 'Email',
+    'verifikasi_dua_langkah' => 'Two-step verification',
+    'kode_pemulihan' => 'Recovery code',
+    'masukkan_kode_pemulihan' => 'Enter the recovery code',
+    'kode_autentikasi' => 'Authentication code',
+    'atau_anda_dapat' => 'Or, you can',
+    'verifikasi_email' => 'Verify email',
+    'terima_kasih_telah_mendaftar_sebelum_memulai' => 'Thanks for signing up! Before getting started, please verify your email address by clicking the link we just sent you. If you did not receive the email, we will gladly send you another.',
+    'tautan_verifikasi_baru_telah_dikirim_ke' => 'A new verification link has been sent to the email address you provided during registration.',
+    'kirim_ulang_email_verifikasi' => 'Resend verification email',
+    'keluar' => 'Log out',
+    'ini_adalah_area_yang_aman_silakan' => 'This is a secure area. Please confirm your password before continuing',
+    'masukkan_email_anda_untuk_menerima_tautan' => 'Enter your email to receive a password reset link',
+    'masuk_ke_akun_anda' => 'Log in to your account',
+    'masukkan_email_dan_kata_sandi_anda' => 'Enter your email and password below to log in',
+    'akun_email' => 'Email Account',
+    'masukkan_detail_anda_di_bawah_untuk' => 'Enter your details below to create your account',
+    'silakan_masukkan_kata_sandi_baru_anda' => 'Please enter your new password below',
+    'konfirmasi_akses_ke_akun_anda_dengan' => 'Confirm access to your account by entering the authentication code',
+    'silakan_verifikasi_alamat_email_anda_dengan' => 'Please verify your email address by clicking the link we just sent you',
+    'konfirmasi_kode_pemulihan' => 'Please confirm access to your account by entering one of your emergency recovery codes.',
+    'konfirmasi_kode_aplikasi' => 'Please confirm access to your account by entering the authentication code provided by your authenticator app.',
 ];

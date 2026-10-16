@@ -1,4 +1,6 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
+  import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -15,6 +17,7 @@
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Category = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     name: string;
     color: string | null;
@@ -36,11 +39,11 @@
   }
 </script>
 
-<AppHead title="Kategori Artikel" />
+<AppHead title={t('admin-post-categories.kategori_artikel')} />
 
 <AdminPageHeader
-  title="Kategori Artikel"
-  subtitle="Kelola kategori artikel blog."
+  title={t('admin-post-categories.kategori_artikel')}
+  subtitle={t('admin-post-categories.kelola_kategori_artikel_blog')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -50,13 +53,13 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Warna', key: 'color', sortable: true },
-    { label: 'Artikel', key: 'posts_count', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin.nama'), key: 'name', sortable: true },
+    { label: t('admin-services.warna'), key: 'color', sortable: true },
+    { label: t('admin-posts.artikel'), key: 'posts_count', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada kategori"
-  emptyText="Tambahkan kategori artikel pertama Anda."
+  emptyTitle={t('admin-post-categories.belum_ada_kategori')}
+  emptyText={t('admin-post-categories.tambahkan_kategori_artikel_pertama_anda')}
 >
   {#snippet row(category)}
     <tr>
@@ -78,11 +81,11 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(category)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(category.id).url}
-            label={`Hapus kategori "${category.name}"?`}
+            label={t('admin-post-categories.delete_confirm', { name: category.name })}
           />
         </div>
       </td>
@@ -92,8 +95,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Kategori Artikel"
-  subtitle="Buat kategori artikel baru."
+  title={t('admin-post-categories.tambah_kategori_artikel')}
+  subtitle={t('admin-post-categories.buat_kategori_artikel_baru')}
 >
   {#snippet children()}
     <Form
@@ -103,19 +106,10 @@
       onSuccess={() => (createOpen = false)}
     >
       {#snippet children({ errors, processing })}
-        <Field.Group>
-          <Field.Label for="create-name">Nama</Field.Label>
-          <Field.Input placeholder="Masukkan nama"
-            id="create-name"
-            name="name"
-            required
-            invalid={!!errors.name}
-          />
-          <Field.Feedback message={errors.name} />
-        </Field.Group>
+        <TranslatedField field="name" label={t('admin.nama')} id="create-name" placeholder={t('admin.masukkan_nama')} required {errors} />
 
         <Field.Group>
-          <Field.Label for="create-color">Warna (opsional)</Field.Label>
+          <Field.Label for="create-color">{t('admin-post-categories.warna_opsional')}</Field.Label>
           <Field.Input
             id="create-color"
             name="color"
@@ -131,10 +125,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -144,7 +138,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Kategori Artikel"
+  title={t('admin-post-categories.ubah_kategori_artikel')}
   subtitle={editingCategory?.name ?? ''}
 >
   {#snippet children()}
@@ -157,20 +151,10 @@
         onSuccess={() => (editOpen = false)}
       >
         {#snippet children({ errors, processing })}
-          <Field.Group>
-            <Field.Label for="edit-name">Nama</Field.Label>
-            <Field.Input placeholder="Masukkan nama"
-              id="edit-name"
-              name="name"
-              required
-              value={current.name}
-              invalid={!!errors.name}
-            />
-            <Field.Feedback message={errors.name} />
-          </Field.Group>
+          <TranslatedField field="name" label={t('admin.nama')} id="edit-name" placeholder={t('admin.masukkan_nama')} required values={current.translations?.name} {errors} />
 
           <Field.Group>
-            <Field.Label for="edit-color">Warna (opsional)</Field.Label>
+            <Field.Label for="edit-color">{t('admin-post-categories.warna_opsional')}</Field.Label>
             <Field.Input
               id="edit-color"
               name="color"
@@ -187,10 +171,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

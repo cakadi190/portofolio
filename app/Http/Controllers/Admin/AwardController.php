@@ -34,7 +34,7 @@ class AwardController extends Controller
     {
         Award::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Penghargaan berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.penghargaan_berhasil_ditambahkan')]);
 
         return to_route('admin.awards.index');
     }
@@ -43,7 +43,7 @@ class AwardController extends Controller
     {
         $award->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Penghargaan berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.penghargaan_berhasil_diperbarui')]);
 
         return to_route('admin.awards.index');
     }
@@ -52,7 +52,7 @@ class AwardController extends Controller
     {
         $award->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Penghargaan berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.penghargaan_berhasil_dihapus')]);
 
         return to_route('admin.awards.index');
     }

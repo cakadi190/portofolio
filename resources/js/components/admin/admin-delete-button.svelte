@@ -1,14 +1,15 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import { router } from '@inertiajs/svelte';
   import ModalConfirmation from '@/components/modal-confirmation.svelte';
 
   let {
     href,
-    label = 'Hapus data ini?',
-    description = 'Tindakan ini tidak dapat dibatalkan.',
-    buttonLabel = 'Hapus',
-    confirmLabel = 'Hapus',
+    label = t('admin.hapus_data_ini'),
+    description = t('admin.tindakan_ini_tidak_dapat_dibatalkan'),
+    buttonLabel = t('security.hapus'),
+    confirmLabel = t('security.hapus'),
     class:
       className = 'btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1',
   }: {

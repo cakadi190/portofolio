@@ -35,7 +35,7 @@ class CareerController extends Controller
         $career = Career::query()->create($request->safe()->except('portfolios'));
         $career->portfolios()->sync($request->validated('portfolios', []));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Karier berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.karier_berhasil_ditambahkan')]);
 
         return to_route('admin.careers.index');
     }
@@ -45,7 +45,7 @@ class CareerController extends Controller
         $career->update($request->safe()->except('portfolios'));
         $career->portfolios()->sync($request->validated('portfolios', []));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Karier berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.karier_berhasil_diperbarui')]);
 
         return to_route('admin.careers.index');
     }
@@ -54,7 +54,7 @@ class CareerController extends Controller
     {
         $career->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Karier berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.karier_berhasil_dihapus')]);
 
         return to_route('admin.careers.index');
     }

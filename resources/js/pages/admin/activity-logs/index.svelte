@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Select from '@/components/ui/select.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -101,17 +102,17 @@
   );
 
   function formatTime(value: string | null): string {
-    return value ? new Date(value).toLocaleString('id-ID') : '—';
+    return value ? new Date(value).toLocaleString(intlLocale()) : '—';
   }
 </script>
 
-<AppHead title="Log Aktivitas" />
+<AppHead title={t('admin-activity-logs.log_aktivitas')} />
 
-<AdminPageHeader title="Log Aktivitas" subtitle="Jejak audit tindakan penting pada situs. Hanya admin yang dapat melihat." />
+<AdminPageHeader title={t('admin-activity-logs.log_aktivitas')} subtitle={t('admin-activity-logs.jejak_audit_tindakan_penting_pada_situs')} />
 
 <form class="activity-filter" onsubmit={apply}>
   <div class="activity-filter-bar">
-    <input class="form-control" type="search" placeholder="Cari deskripsi, event, atau ID request" bind:value={form.search} aria-label="Cari" />
+    <input class="form-control" type="search" placeholder={t('admin-activity-logs.cari_deskripsi_event_atau_id_request')} bind:value={form.search} aria-label={t('admin-activity-logs.cari')} />
     <button
       class="btn btn-outline-secondary activity-filter-toggle"
       type="button"
@@ -120,13 +121,13 @@
       onclick={() => (filtersOpen = !filtersOpen)}
     >
       <SlidersHorizontal size={16} aria-hidden="true" />
-      <span class="d-none d-sm-inline">Filter</span>
+      <span class="d-none d-sm-inline">{t('admin-activity-logs.filter')}</span>
       {#if activeFilterCount > 0}
         <span class="badge text-bg-primary">{activeFilterCount}</span>
       {/if}
       <ChevronDown size={16} aria-hidden="true" class="activity-filter-chevron" />
     </button>
-    <button class="btn btn-primary" type="submit">Terapkan</button>
+    <button class="btn btn-primary" type="submit">{t('admin-activity-logs.terapkan')}</button>
   </div>
 
   {#if filtersOpen}
@@ -134,8 +135,8 @@
   <div class="row g-2">
     <div class="col-md-2">
       <Select
-        ariaLabel="Kategori"
-        placeholder="Semua kategori"
+        ariaLabel={t('admin.kategori')}
+        placeholder={t('admin-activity-logs.semua_kategori')}
         items={options.log_names.map((name) => ({ value: name, label: name }))}
         value={form.log_name || null}
         onchange={(next) => (form.log_name = next === null ? '' : String(next))}
@@ -143,8 +144,8 @@
     </div>
     <div class="col-md-2">
       <Select
-        ariaLabel="Event"
-        placeholder="Semua event"
+        ariaLabel={t('admin-activity-logs.event')}
+        placeholder={t('admin-activity-logs.semua_event')}
         items={options.events.map((name) => ({ value: name, label: name }))}
         value={form.event || null}
         onchange={(next) => (form.event = next === null ? '' : String(next))}
@@ -152,17 +153,17 @@
     </div>
     <div class="col-md-2">
       <Select
-        ariaLabel="Hasil"
-        placeholder="Semua hasil"
-        items={[{ value: 'success', label: 'Berhasil' }, { value: 'failure', label: 'Gagal' }]}
+        ariaLabel={t('admin-activity-logs.hasil')}
+        placeholder={t('admin-activity-logs.semua_hasil')}
+        items={[{ value: 'success', label: t('admin-activity-logs.berhasil') }, { value: 'failure', label: t('admin-activity-logs.gagal') }]}
         value={form.outcome || null}
         onchange={(next) => (form.outcome = next === null ? '' : String(next))}
       />
     </div>
     <div class="col-md-2">
       <Select
-        ariaLabel="Pengguna"
-        placeholder="Semua pengguna"
+        ariaLabel={t('admin.pengguna')}
+        placeholder={t('admin-activity-logs.semua_pengguna')}
         items={options.users.map((user) => ({ value: user.id, label: user.name }))}
         value={form.causer_id || null}
         onchange={(next) => (form.causer_id = next === null ? '' : String(next))}
@@ -170,50 +171,50 @@
     </div>
     <div class="col-md-3">
       <Select
-        ariaLabel="Tipe objek"
-        placeholder="Semua objek"
+        ariaLabel={t('admin-activity-logs.tipe_objek')}
+        placeholder={t('admin-activity-logs.semua_objek')}
         items={options.subject_types.map((type) => ({ value: type, label: type.split('\\').pop() ?? type }))}
         value={form.subject_type || null}
         onchange={(next) => (form.subject_type = next === null ? '' : String(next))}
       />
     </div>
     <div class="col-md-2">
-      <input class="form-control" type="number" min="1" placeholder="ID objek" bind:value={form.subject_id} aria-label="ID objek" />
+      <input class="form-control" type="number" min="1" placeholder={t('admin-activity-logs.id_objek')} bind:value={form.subject_id} aria-label={t('admin-activity-logs.id_objek')} />
     </div>
     <div class="col-md-3">
-      <input class="form-control" type="text" placeholder="Alamat IP" bind:value={form.ip_address} aria-label="Alamat IP" />
+      <input class="form-control" type="text" placeholder={t('admin-activity-logs.alamat_ip')} bind:value={form.ip_address} aria-label={t('admin-activity-logs.alamat_ip')} />
     </div>
     <div class="col-md-2">
-      <input class="form-control" type="datetime-local" bind:value={form.from} aria-label="Dari" />
+      <input class="form-control" type="datetime-local" bind:value={form.from} aria-label={t('admin-activity-logs.dari')} />
     </div>
     <div class="col-md-2">
-      <input class="form-control" type="datetime-local" bind:value={form.to} aria-label="Sampai" />
+      <input class="form-control" type="datetime-local" bind:value={form.to} aria-label={t('admin-activity-logs.sampai')} />
     </div>
   </div>
     <div class="d-flex flex-wrap gap-2 mt-3">
-      <button class="btn btn-outline-secondary" type="button" onclick={reset}>Atur ulang</button>
-      <a class="btn btn-outline-secondary ms-auto" href={exportUrl}>Ekspor CSV (maks. 5.000)</a>
+      <button class="btn btn-outline-secondary" type="button" onclick={reset}>{t('admin-activity-logs.atur_ulang')}</button>
+      <a class="btn btn-outline-secondary ms-auto" href={exportUrl}>{t('admin-activity-logs.ekspor_csv_maks_5_000')}</a>
     </div>
   </div>
   {/if}
 </form>
 
 {#if activities.data.length === 0}
-  <EmptyState title="Tidak ada aktivitas" text="Tidak ada catatan yang cocok dengan filter." />
+  <EmptyState title={t('admin-activity-logs.tidak_ada_aktivitas')} text={t('admin-activity-logs.tidak_ada_catatan_yang_cocok_dengan')} />
 {:else}
   <InfiniteFeed data="activities">
   <div class="table-responsive">
     <table class="table table-hover align-middle">
       <thead>
         <tr>
-          <th><button class="btn btn-link p-0" onclick={() => sortBy('created_at')}>Waktu</button></th>
-          <th>Aktor</th>
-          <th><button class="btn btn-link p-0" onclick={() => sortBy('event')}>Event</button></th>
-          <th>Objek</th>
-          <th>Deskripsi</th>
-          <th><button class="btn btn-link p-0" onclick={() => sortBy('log_name')}>Kategori</button></th>
+          <th><button class="btn btn-link p-0" onclick={() => sortBy('created_at')}>{t('admin-activity-logs.waktu')}</button></th>
+          <th>{t('admin-activity-logs.aktor')}</th>
+          <th><button class="btn btn-link p-0" onclick={() => sortBy('event')}>{t('admin-activity-logs.event')}</button></th>
+          <th>{t('admin-activity-logs.objek')}</th>
+          <th>{t('admin.deskripsi')}</th>
+          <th><button class="btn btn-link p-0" onclick={() => sortBy('log_name')}>{t('admin.kategori')}</button></th>
           <th>IP</th>
-          <th>Hasil</th>
+          <th>{t('admin-activity-logs.hasil')}</th>
           <th></th>
         </tr>
       </thead>
@@ -221,7 +222,7 @@
         {#each activities.data as activity (activity.id)}
           <tr>
             <td class="text-nowrap">{formatTime(activity.created_at)}</td>
-            <td>{activity.causer?.name ?? (activity.actor_type === 'guest' ? 'Tamu' : 'Sistem')}</td>
+            <td>{activity.causer?.name ?? (activity.actor_type === 'guest' ? t('admin-activity-logs.tamu') : t('dashboard.sistem'))}</td>
             <td><code>{activity.event ?? '—'}</code></td>
             <td>{activity.subject_type ? `${activity.subject_type} #${activity.subject_id}` : '—'}</td>
             <td>{activity.description}</td>
@@ -229,10 +230,10 @@
             <td>{activity.ip_address ?? '—'}</td>
             <td>
               <span class="badge {activity.outcome === 'failure' ? 'text-bg-danger' : 'text-bg-success'}">
-                {activity.outcome === 'failure' ? 'Gagal' : 'Berhasil'}
+                {activity.outcome === 'failure' ? t('admin-activity-logs.gagal') : t('admin-activity-logs.berhasil')}
               </span>
             </td>
-            <td class="text-end"><Link class="btn btn-sm btn-outline-secondary" href={show(activity.id).url}>Detail</Link></td>
+            <td class="text-end"><Link class="btn btn-sm btn-outline-secondary" href={show(activity.id).url}>{t('admin-activity-logs.detail')}</Link></td>
           </tr>
         {/each}
       </tbody>
@@ -240,7 +241,7 @@
   </div>
   </InfiniteFeed>
 
-  <small class="text-muted">{activities.data.length} dari {totalActivities}</small>
+  <small class="text-muted">{t('admin-activity-logs.n_dari_total', { n: activities.data.length, total: totalActivities })}</small>
 {/if}
 
 <style>

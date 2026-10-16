@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import KeyRound from '@lucide/svelte/icons/key-round';
   import User from '@lucide/svelte/icons/user';
   import { Link } from '@inertiajs/svelte';
@@ -13,12 +14,12 @@
   class={['nav-link', current === 'profile' && 'active']}
 >
   <User size={16} aria-hidden="true" />
-  <span>Profil</span>
+  <span>{t('admin.profil')}</span>
 </Link>
 <Link
   href={editSecurity().url}
   class={['nav-link', current === 'security' && 'active']}
 >
   <KeyRound size={16} aria-hidden="true" />
-  <span>Keamanan</span>
+  <span>{t('admin.keamanan')}</span>
 </Link>

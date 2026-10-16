@@ -75,7 +75,7 @@
                                         </a>
                                     </td>
                                     <td valign="middle" align="right" width="1" style="white-space:nowrap;">
-                                        <a href="{{ $siteUrl }}" class="pill" target="_blank" rel="noopener" aria-label="Kunjungi Situs" style="font-family:'Signika','Helvetica Neue',Helvetica,Arial,sans-serif;display:inline-block;background:#15803d;color:#ffffff;text-decoration:none;font-size:12px;font-weight:600;line-height:16px;padding:10px 16px;border-radius:100px;">
+                                        <a href="{{ $siteUrl }}" class="pill" target="_blank" rel="noopener" aria-label="{{ __('mail.visit_site') }}" style="font-family:'Signika','Helvetica Neue',Helvetica,Arial,sans-serif;display:inline-block;background:#15803d;color:#ffffff;text-decoration:none;font-size:12px;font-weight:600;line-height:16px;padding:10px 16px;border-radius:100px;">
                                             <span class="hide-mobile" style="vertical-align:middle;color:#ffffff;">Kunjungi Situs</span>
                                             <img class="pill-icon" src="{{ $externalIcon }}" alt="" width="14" height="14" style="display:inline-block;vertical-align:middle;width:14px;height:14px;margin-left:6px;">
                                         </a>
@@ -99,10 +99,10 @@
                                 @hasSection('footnote')
                                     <p style="margin:0;">@yield('footnote')</p>
                                 @else
-                                    <p style="margin:0;">Email ini dikirim secara otomatis oleh sistem {{ $siteName }}.</p>
-                                    <p style="margin:6px 0 0;">Harap tidak membalas email ini langsung.</p>
+                                    <p style="margin:0;">{{ __('mail.footer_auto', ['site' => $siteName]) }}</p>
+                                    <p style="margin:6px 0 0;">{{ __('mail.footer_no_reply') }}</p>
                                 @endif
-                                <p style="margin:12px 0 0;">&copy; {{ now()->year }} {{ $siteName }}. Semua hak dilindungi.</p>
+                                <p style="margin:12px 0 0;">{!! __('mail.copyright', ['year' => now()->year, 'site' => e($siteName)]) !!}</p>
                             </div>
                         </td>
                     </tr>

@@ -44,7 +44,7 @@ class UserController extends Controller
 
         User::query()->create($data);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengguna berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pengguna_berhasil_ditambahkan')]);
 
         return to_route('admin.users.index');
     }
@@ -54,7 +54,7 @@ class UserController extends Controller
         $data = $request->validated();
 
         if ($user->isAdmin() && $data['account_type'] !== UserRole::Admin->value && ! $this->hasAnotherAdmin($user)) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => 'Admin terakhir tidak dapat diturunkan perannya.']);
+            Inertia::flash('toast', ['type' => 'error', 'message' => __('flash.admin_terakhir_tidak_dapat_diturunkan_perannya')]);
 
             return back();
         }
@@ -72,7 +72,7 @@ class UserController extends Controller
             $this->audit->record('users', 'role_changed', 'Peran pengguna diubah', $user, ['from' => $previousRole->value, 'to' => $user->account_type->value], causer: $request->user());
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengguna berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pengguna_berhasil_diperbarui')]);
 
         return to_route('admin.users.index');
     }
@@ -80,20 +80,20 @@ class UserController extends Controller
     public function destroy(Request $request, User $user): RedirectResponse
     {
         if ($user->is($request->user())) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => 'Anda tidak dapat menghapus akun Anda sendiri.']);
+            Inertia::flash('toast', ['type' => 'error', 'message' => __('flash.anda_tidak_dapat_menghapus_akun_anda')]);
 
             return back();
         }
 
         if ($user->isAdmin() && ! $this->hasAnotherAdmin($user)) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => 'Admin terakhir tidak dapat dihapus.']);
+            Inertia::flash('toast', ['type' => 'error', 'message' => __('flash.admin_terakhir_tidak_dapat_dihapus')]);
 
             return back();
         }
 
         $user->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengguna berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pengguna_berhasil_dihapus')]);
 
         return to_route('admin.users.index');
     }

@@ -38,7 +38,7 @@ class EducationController extends Controller
 
         Education::query()->create($data);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Riwayat pendidikan berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.riwayat_pendidikan_berhasil_ditambahkan')]);
 
         return to_route('admin.educations.index');
     }
@@ -49,7 +49,7 @@ class EducationController extends Controller
 
         $education->update($data);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Riwayat pendidikan berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.riwayat_pendidikan_berhasil_diperbarui')]);
 
         return to_route('admin.educations.index');
     }
@@ -58,7 +58,7 @@ class EducationController extends Controller
     {
         $education->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Riwayat pendidikan berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.riwayat_pendidikan_berhasil_dihapus')]);
 
         return to_route('admin.educations.index');
     }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import TextLink from '@/components/text-link.svelte';
   import { Field } from '@/components/ui/field';
@@ -22,7 +23,7 @@
   {#snippet children({ errors, processing })}
     <div class="d-flex flex-column gap-3">
       <Field.Group>
-        <Field.Label for="email">Alamat email</Field.Label>
+        <Field.Label for="email">{t('auth.alamat_email')}</Field.Label>
         <Field.Input
           id="email"
           type="email"
@@ -37,10 +38,10 @@
 
       <Field.Group>
         <Field.Row>
-          <Field.Label for="password">Kata sandi</Field.Label>
+          <Field.Label for="password">{t('auth.kata_sandi')}</Field.Label>
           {#if canResetPassword}
             <TextLink href={request()} class="small">
-              Lupa kata sandi Anda?
+              {t('auth.lupa_kata_sandi_anda')}
             </TextLink>
           {/if}
         </Field.Row>
@@ -49,14 +50,14 @@
           name="password"
           required
           autocomplete="current-password"
-          placeholder="Kata sandi"
+          placeholder={t('auth.kata_sandi')}
           invalid={!!errors.password}
         />
         <Field.Feedback message={errors.password} />
       </Field.Group>
 
       <Field.Input.Check id="remember" name="remember">
-        Ingatkan saya
+        {t('auth.ingatkan_saya')}
       </Field.Input.Check>
 
       <CaptchaSubmitRow error={errors['cf-turnstile-response']}>
@@ -66,7 +67,7 @@
           disabled={processing}
           data-test="login-button"
         >
-          Masuk
+          {t('auth.masuk')}
         </button>
       </CaptchaSubmitRow>
     </div>

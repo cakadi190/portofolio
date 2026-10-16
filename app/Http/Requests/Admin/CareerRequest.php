@@ -17,6 +17,7 @@ class CareerRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'position_en' => ['nullable', 'string', 'max:255'],
             'position' => ['required', 'string', 'max:255'],
             'company' => ['required', 'string', 'max:255'],
             'location' => ['required', 'string', 'max:255'],

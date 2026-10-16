@@ -62,7 +62,7 @@ class MediaService
                 report($exception);
 
                 throw ValidationException::withMessages([
-                    'file' => 'Gambar tidak dapat diproses server (kemungkinan resolusi atau profil warnanya terlalu besar). Perkecil resolusinya atau ekspor ulang sebagai JPG/WebP, lalu coba lagi.',
+                    'file' => __('server.image_unprocessable'),
                 ]);
             }
             $mime = 'image/webp';

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Services\Visitors\VisitorTracker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -130,6 +131,54 @@ class AppLocale
     }
 
     /**
+     * A language to offer a first-time visitor on a plain (Indonesian) public page, taken from
+     * the browser's `Accept-Language` header; without one, a non-Indonesian Cloudflare country
+     * header (`CF-IPCountry`) suggests English. Nothing is suggested to crawlers, to visitors
+     * who already chose a language (cookie), or on pages that already have a prefix. The offer
+     * is a banner, never a redirect, so every URL keeps serving one language to everyone.
+     *
+     * @return array{locale: string, url: string, messages: array{prompt: string, accept: string, dismiss: string}}|null
+     */
+    public static function suggestion(Request $request): ?array
+    {
+        if (! $request->isMethod('GET')
+            || $request->cookies->has(self::COOKIE)
+            || self::urlLocale() !== self::DEFAULT
+            || ! self::isLocalizable($request->getPathInfo())
+            || app(VisitorTracker::class)->isBot($request->userAgent())) {
+            return null;
+        }
+
+        $other = self::prefixed();
+
+        if ($other === []) {
+            return null;
+        }
+
+        if (filled($request->header('Accept-Language'))) {
+            $preferred = $request->getPreferredLanguage(self::available());
+            $suggested = in_array($preferred, $other, true) ? $preferred : null;
+        } else {
+            $country = strtoupper((string) $request->header('CF-IPCountry'));
+            $suggested = ! in_array($country, ['', 'ID', 'XX', 'T1'], true) ? $other[0] : null;
+        }
+
+        if ($suggested === null) {
+            return null;
+        }
+
+        return [
+            'locale' => $suggested,
+            'url' => self::localize($request->getRequestUri(), $suggested),
+            'messages' => [
+                'prompt' => trans('suggestion.prompt', [], $suggested),
+                'accept' => trans('suggestion.accept', [], $suggested),
+                'dismiss' => trans('suggestion.dismiss', [], $suggested),
+            ],
+        ];
+    }
+
+    /**
      * The same page in every language, for the language switcher.
      *
      * @return array<string, string>|null null when the current page has a single URL
@@ -164,18 +213,48 @@ class AppLocale
     }
 
     /**
-     * UI strings shared with the frontend: `lang/{locale}/common.php` plus the group named
-     * after the route's first name segment (`blog.show` → `lang/{locale}/blog.php`, keys
-     * prefixed `blog.`), so a page only ships the text it can show.
+     * Language groups (files in `lang/{locale}`) a route's page needs, beyond `common`.
+     *
+     * - `blog.show` → `blog`
+     * - `admin.posts.index` → `admin` (shared admin text) and `admin-posts`
+     * - the dashboard and account settings → `admin` plus their own group
+     * - login, registration, password and two-factor routes → `auth`
+     *
+     * @return list<string>
+     */
+    public static function groupsFor(?string $routeName): array
+    {
+        if ($routeName === null || $routeName === '') {
+            return [];
+        }
+
+        $segments = explode('.', $routeName);
+        $first = $segments[0];
+
+        return match (true) {
+            $first === 'admin' => isset($segments[1]) ? ['admin', "admin-{$segments[1]}"] : ['admin'],
+            in_array($first, ['dashboard', 'profile', 'security', 'user-password', 'settings'], true) => ['admin', in_array($first, ['profile', 'security'], true) ? $first : 'dashboard'],
+            in_array($first, ['login', 'register', 'password', 'verification', 'two-factor', 'passkey'], true) => ['auth'],
+            default => [$first],
+        };
+    }
+
+    /**
+     * UI strings shared with the frontend: `lang/{locale}/common.php` (keys as written) plus
+     * the groups {@see self::groupsFor()} names for the route, each with its keys prefixed by
+     * the group name, so a page only ships the text it can show.
      *
      * @return array<string, string>
      */
     public static function translations(?string $routeName = null): array
     {
         $strings = Arr::dot(self::group('common'));
-        $group = $routeName === null ? '' : explode('.', $routeName)[0];
 
-        if ($group !== '' && $group !== 'common') {
+        foreach (self::groupsFor($routeName) as $group) {
+            if ($group === 'common') {
+                continue;
+            }
+
             foreach (Arr::dot(self::group($group)) as $key => $line) {
                 $strings["{$group}.{$key}"] = $line;
             }

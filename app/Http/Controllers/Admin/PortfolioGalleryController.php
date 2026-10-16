@@ -38,7 +38,7 @@ class PortfolioGalleryController extends Controller
 
         PortfolioGallery::query()->create($data);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Galeri portofolio berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.galeri_portofolio_berhasil_ditambahkan')]);
 
         return to_route('admin.portfolio-galleries.index');
     }
@@ -49,7 +49,7 @@ class PortfolioGalleryController extends Controller
 
         $portfolioGallery->update($data);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Galeri portofolio berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.galeri_portofolio_berhasil_diperbarui')]);
 
         return to_route('admin.portfolio-galleries.index');
     }
@@ -58,7 +58,7 @@ class PortfolioGalleryController extends Controller
     {
         $portfolioGallery->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Galeri portofolio berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.galeri_portofolio_berhasil_dihapus')]);
 
         return to_route('admin.portfolio-galleries.index');
     }

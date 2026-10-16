@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { useHttp } from '@inertiajs/svelte';
 import { toast } from '@/lib/toast';
 import {
@@ -47,8 +48,8 @@ export function twoFactorAuthState(): TwoFactorAuthStateApi {
 
       state.qrCodeSvg = svg;
     } catch {
-      state.errors = [...state.errors, 'Gagal mengambil kode QR'];
-      toast.error('Gagal mengambil kode QR.');
+      state.errors = [...state.errors, t('ui.two_factor_qr_short')];
+      toast.error(t('ui.two_factor_qr'));
       state.qrCodeSvg = null;
     }
   };
@@ -59,8 +60,8 @@ export function twoFactorAuthState(): TwoFactorAuthStateApi {
 
       state.manualSetupKey = key;
     } catch {
-      state.errors = [...state.errors, 'Gagal mengambil kunci setup'];
-      toast.error('Gagal mengambil kunci setup.');
+      state.errors = [...state.errors, t('ui.two_factor_key_short')];
+      toast.error(t('ui.two_factor_key'));
       state.manualSetupKey = null;
     }
   };
@@ -88,8 +89,8 @@ export function twoFactorAuthState(): TwoFactorAuthStateApi {
         recoveryCodes.url(),
       );
     } catch {
-      state.errors = [...state.errors, 'Gagal mengambil kode pemulihan'];
-      toast.error('Gagal mengambil kode pemulihan.');
+      state.errors = [...state.errors, t('ui.two_factor_recovery_short')];
+      toast.error(t('ui.two_factor_recovery'));
       state.recoveryCodesList = [];
     }
   };

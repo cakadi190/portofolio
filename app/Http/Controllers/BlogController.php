@@ -44,7 +44,7 @@ class BlogController extends Controller
 
         return Inertia::render('blog/index', [
             'posts' => Inertia::scroll($posts),
-            'activeCategory' => $categoryId ? PostCategory::query()->find($categoryId, ['id', 'name']) : null,
+            'activeCategory' => $categoryId ? PostCategory::query()->find($categoryId, ['id', 'name', 'name_en']) : null,
         ]);
     }
 

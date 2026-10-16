@@ -66,7 +66,7 @@ class BlogCommentController extends Controller
         $blogComment->status = $request->validated('status');
         $blogComment->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Komentar berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.komentar_berhasil_diperbarui')]);
 
         return back();
     }
@@ -80,7 +80,7 @@ class BlogCommentController extends Controller
 
         $blogComment->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Komentar berhasil dihapus. Balasannya dipertahankan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.komentar_berhasil_dihapus_balasannya_dipertahank')]);
 
         return to_route('admin.blog-comments.index');
     }

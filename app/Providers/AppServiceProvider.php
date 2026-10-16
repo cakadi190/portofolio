@@ -88,7 +88,7 @@ class AppServiceProvider extends ServiceProvider
             $url = url(route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()], false));
 
             return (new MailMessage)
-                ->subject('Reset Password')
+                ->subject(__('mail.reset.subject'))
                 ->view(['mail.auth.reset-password', 'mail.text.reset-password'], [
                     'name' => $notifiable->name,
                     'url' => $url,
@@ -97,7 +97,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         VerifyEmail::toMailUsing(fn (object $notifiable, string $url): MailMessage => (new MailMessage)
-            ->subject('Verifikasi Alamat Email')
+            ->subject(__('mail.verify.subject'))
             ->view(['mail.auth.verify-email', 'mail.text.verify-email'], [
                 'name' => $notifiable->name,
                 'url' => $url,
@@ -111,15 +111,15 @@ class AppServiceProvider extends ServiceProvider
     protected function configureSecurityToasts(): void
     {
         $messages = [
-            TwoFactorAuthenticationEnabled::class => 'Autentikasi dua faktor diaktifkan. Selesaikan dengan memasukkan kode konfirmasi.',
-            TwoFactorAuthenticationConfirmed::class => 'Autentikasi dua faktor berhasil dikonfirmasi.',
-            TwoFactorAuthenticationDisabled::class => 'Autentikasi dua faktor dinonaktifkan.',
-            RecoveryCodesGenerated::class => 'Kode pemulihan baru berhasil dibuat.',
-            PasswordUpdatedViaController::class => 'Kata sandi berhasil diperbarui.',
+            TwoFactorAuthenticationEnabled::class => 'server.two_factor_enabled',
+            TwoFactorAuthenticationConfirmed::class => 'server.two_factor_confirmed',
+            TwoFactorAuthenticationDisabled::class => 'server.two_factor_disabled',
+            RecoveryCodesGenerated::class => 'server.recovery_codes_generated',
+            PasswordUpdatedViaController::class => 'server.password_updated',
         ];
 
         foreach ($messages as $event => $message) {
-            Event::listen($event, fn () => Inertia::flash('toast', ['type' => 'success', 'message' => $message]));
+            Event::listen($event, fn () => Inertia::flash('toast', ['type' => 'success', 'message' => __($message)]));
         }
     }
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -30,13 +31,13 @@
     $props();
 </script>
 
-<AppHead title="Klarifikasi" />
+<AppHead title={t('admin-clarifications.klarifikasi')} />
 
 <AdminPageHeader
-  title="Klarifikasi"
-  subtitle="Kelola klarifikasi dan hak jawab atas klaim yang beredar."
+  title={t('admin-clarifications.klarifikasi')}
+  subtitle={t('admin-clarifications.kelola_klarifikasi_dan_hak_jawab_atas')}
   createHref={create().url}
-  createLabel="Tulis Klarifikasi"
+  createLabel={t('admin-clarifications.tulis_klarifikasi')}
 />
 
 <DataTable
@@ -45,13 +46,13 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Judul', key: 'title', sortable: true },
-    { label: 'Vonis', key: 'verdict', sortable: true },
-    { label: 'Status', key: 'is_published', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('ui.judul'), key: 'title', sortable: true },
+    { label: t('admin-clarifications.vonis'), key: 'verdict', sortable: true },
+    { label: t('admin.status'), key: 'is_published', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada klarifikasi"
-  emptyText="Tulis klarifikasi pertama Anda."
+  emptyTitle={t('admin-clarifications.belum_ada_klarifikasi')}
+  emptyText={t('admin-clarifications.tulis_klarifikasi_pertama_anda')}
 >
   {#snippet row(item)}
     <tr>
@@ -70,18 +71,18 @@
         <span
           class={`badge ${item.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}
         >
-          {item.is_published ? 'Terbit' : 'Draf'}
+          {item.is_published ? t('admin-certifications.terbit') : t('admin.draf')}
         </span>
       </td>
       <td class="text-end">
         <div class="d-inline-flex gap-2">
           <Link
             href={edit(item.id).url}
-            class="btn btn-sm btn-outline-secondary">Ubah</Link
+            class="btn btn-sm btn-outline-secondary">{t('admin.ubah')}</Link
           >
           <AdminDeleteButton
             href={destroy(item.id).url}
-            label={`Hapus klarifikasi "${item.title}"?`}
+            label={t('admin-clarifications.delete_confirm', { name: item.title })}
           />
         </div>
       </td>

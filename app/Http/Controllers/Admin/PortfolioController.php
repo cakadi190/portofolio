@@ -60,7 +60,7 @@ class PortfolioController extends Controller
         $portfolio = Portfolio::query()->create($data);
         $this->syncRelations($portfolio, $request);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Portofolio berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.portofolio_berhasil_ditambahkan')]);
 
         return to_route('admin.portfolios.edit', $portfolio);
     }
@@ -72,7 +72,7 @@ class PortfolioController extends Controller
         $portfolio->update($data);
         $this->syncRelations($portfolio, $request);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Portofolio berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.portofolio_berhasil_diperbarui')]);
 
         return to_route('admin.portfolios.edit', $portfolio);
     }
@@ -81,7 +81,7 @@ class PortfolioController extends Controller
     {
         $portfolio->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Portofolio berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.portofolio_berhasil_dihapus')]);
 
         return to_route('admin.portfolios.index');
     }

@@ -1,12 +1,6 @@
-<script module lang="ts">
-  export const layout = {
-    title: 'Verifikasi dua langkah',
-    description:
-      'Konfirmasi akses ke akun Anda dengan memasukkan kode autentikasi',
-  };
-</script>
-
 <script lang="ts">
+  import { setLayoutProps } from '@inertiajs/svelte';
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import { Field } from '@/components/ui/field';
@@ -18,18 +12,22 @@
   function toggleRecoveryCode() {
     useRecoveryCode = !useRecoveryCode;
   }
+
+  setLayoutProps({
+    title: t('auth.verifikasi_dua_langkah'),
+    description:
+      t('auth.konfirmasi_akses_ke_akun_anda_dengan'),
+  });
 </script>
 
-<AppHead title="Verifikasi dua langkah" />
+<AppHead title={t('auth.verifikasi_dua_langkah')} />
 
 <div class="d-flex flex-column gap-3">
   <div class="text-center small text-muted">
     {#if useRecoveryCode}
-      Silakan konfirmasi akses ke akun Anda dengan memasukkan salah satu kode
-      pemulihan darurat Anda.
+      {t('auth.konfirmasi_kode_pemulihan')}
     {:else}
-      Silakan konfirmasi akses ke akun Anda dengan memasukkan kode autentikasi
-      yang disediakan oleh aplikasi autentikator Anda.
+      {t('auth.konfirmasi_kode_aplikasi')}
     {/if}
   </div>
 
@@ -38,8 +36,8 @@
     {#snippet children({ errors, processing })}
       {#if useRecoveryCode}
         <Field.Group>
-          <Field.Label for="recovery_code">Kode pemulihan</Field.Label>
-          <Field.Input placeholder="Masukkan kode pemulihan"
+          <Field.Label for="recovery_code">{t('auth.kode_pemulihan')}</Field.Label>
+          <Field.Input placeholder={t('auth.masukkan_kode_pemulihan')}
             id="recovery_code"
             type="text"
             name="recovery_code"
@@ -51,7 +49,7 @@
         </Field.Group>
       {:else}
         <Field.Group>
-          <Field.Label for="code">Kode autentikasi</Field.Label>
+          <Field.Label for="code">{t('auth.kode_autentikasi')}</Field.Label>
           <OtpInput name="code" id="code" autofocus invalid={!!errors.code} />
           <Field.Feedback message={errors.code} />
         </Field.Group>
@@ -63,14 +61,14 @@
         disabled={processing}
         data-test="two-factor-login-button"
       >
-        Masuk
+        {t('auth.masuk')}
       </button>
     {/snippet}
   </Form>
   {/key}
 
   <div class="text-center small text-muted">
-    <span>Atau, Anda dapat</span>
+    <span>{t('auth.atau_anda_dapat')}</span>
     <button
       type="button"
       class="btn btn-link p-0 align-baseline small text-body"

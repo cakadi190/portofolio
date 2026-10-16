@@ -14,7 +14,7 @@ class ContactMessage extends Model
     /** @use HasFactory<ContactMessageFactory> */
     use HasFactory, RecordsActivity;
 
-    protected $fillable = ['name', 'email', 'reason', 'message', 'read_at'];
+    protected $fillable = ['name', 'email', 'reason', 'message', 'read_at', 'locale'];
 
     /**
      * @return array<string, string>

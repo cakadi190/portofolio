@@ -1,4 +1,6 @@
 <script lang="ts">
+  import TranslatedField from '@/components/admin/translated-field.svelte';
+  import { t } from '@/lib/i18n';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -17,6 +19,7 @@
   import type { InfiniteList, TableFilters } from '@/types/pagination';
 
   type Organization = {
+    translations?: Record<string, Record<string, string>>;
     id: number;
     name: string;
     description: string | null;
@@ -40,11 +43,11 @@
   }
 </script>
 
-<AppHead title="Pengalaman Organisasi" />
+<AppHead title={t('admin-organizations.pengalaman_organisasi')} />
 
 <AdminPageHeader
-  title="Pengalaman Organisasi"
-  subtitle="Kelola riwayat pengalaman organisasi Anda."
+  title={t('admin-organizations.pengalaman_organisasi')}
+  subtitle={t('admin-organizations.kelola_riwayat_pengalaman_organisasi_anda')}
   onCreate={() => (createOpen = true)}
 />
 
@@ -54,12 +57,12 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Periode', key: 'start_date', sortable: true },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin.nama'), key: 'name', sortable: true },
+    { label: t('admin-careers.periode'), key: 'start_date', sortable: true },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada organisasi"
-  emptyText="Tambahkan pengalaman organisasi pertama Anda."
+  emptyTitle={t('admin-organizations.belum_ada_organisasi')}
+  emptyText={t('admin-organizations.tambahkan_pengalaman_organisasi_pertama_anda')}
 >
   {#snippet row(organization)}
     <tr>
@@ -67,7 +70,7 @@
       <td
         >{formatDate(organization.start_date)} &ndash; {organization.end_date
           ? formatDate(organization.end_date)
-          : 'Sekarang'}</td
+          : t('admin-careers.sekarang')}</td
       >
       <td class="text-end">
         <div class="d-inline-flex gap-2">
@@ -76,11 +79,11 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openEdit(organization)}
           >
-            Ubah
+            {t('admin.ubah')}
           </button>
           <AdminDeleteButton
             href={destroy(organization.id).url}
-            label={`Hapus organisasi "${organization.name}"?`}
+            label={t('admin-organizations.delete_confirm', { name: organization.name })}
           />
         </div>
       </td>
@@ -90,8 +93,8 @@
 
 <FormModal
   bind:open={createOpen}
-  title="Tambah Organisasi"
-  subtitle="Catat pengalaman organisasi baru."
+  title={t('admin-organizations.tambah_organisasi')}
+  subtitle={t('admin-organizations.catat_pengalaman_organisasi_baru')}
 >
   {#snippet children()}
     <Form
@@ -102,8 +105,8 @@
     >
       {#snippet children({ errors, processing })}
         <Field.Group>
-          <Field.Label for="create-name">Nama Organisasi</Field.Label>
-          <Field.Input placeholder="Masukkan nama organisasi"
+          <Field.Label for="create-name">{t('admin-organizations.nama_organisasi')}</Field.Label>
+          <Field.Input placeholder={t('admin-organizations.masukkan_nama_organisasi')}
             id="create-name"
             name="name"
             required
@@ -112,21 +115,12 @@
           <Field.Feedback message={errors.name} />
         </Field.Group>
 
-        <Field.Group>
-          <Field.Label for="create-description">Deskripsi</Field.Label>
-          <textarea placeholder="Masukkan deskripsi"
-            id="create-description"
-            name="description"
-            class="form-control"
-            class:is-invalid={!!errors.description}
-            rows="3"></textarea>
-          <Field.Feedback message={errors.description} />
-        </Field.Group>
+        <TranslatedField field="description" label={t('admin.deskripsi')} id="create-description" placeholder={t('admin.masukkan_deskripsi')} multiline rows={3} {errors} />
 
         <div class="row g-3">
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-start_date">Mulai</Field.Label>
+              <Field.Label for="create-start_date">{t('admin.mulai')}</Field.Label>
               <DatePicker
                 id="create-start_date"
                 name="start_date"
@@ -137,7 +131,7 @@
           </div>
           <div class="col-sm-6">
             <Field.Group>
-              <Field.Label for="create-end_date">Selesai</Field.Label>
+              <Field.Label for="create-end_date">{t('admin.selesai')}</Field.Label>
               <DatePicker
                 id="create-end_date"
                 name="end_date"
@@ -154,10 +148,10 @@
             class="btn btn-outline-secondary"
             onclick={() => (createOpen = false)}
           >
-            Batal
+            {t('admin.batal')}
           </button>
           <button type="submit" class="btn btn-primary" disabled={processing}
-            >Simpan</button
+            >{t('admin.simpan')}</button
           >
         </div>
       {/snippet}
@@ -167,7 +161,7 @@
 
 <FormModal
   bind:open={editOpen}
-  title="Ubah Organisasi"
+  title={t('admin-organizations.ubah_organisasi')}
   subtitle={editingOrganization?.name ?? ''}
 >
   {#snippet children()}
@@ -181,8 +175,8 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="edit-name">Nama Organisasi</Field.Label>
-            <Field.Input placeholder="Masukkan nama organisasi"
+            <Field.Label for="edit-name">{t('admin-organizations.nama_organisasi')}</Field.Label>
+            <Field.Input placeholder={t('admin-organizations.masukkan_nama_organisasi')}
               id="edit-name"
               name="name"
               required
@@ -192,22 +186,12 @@
             <Field.Feedback message={errors.name} />
           </Field.Group>
 
-          <Field.Group>
-            <Field.Label for="edit-description">Deskripsi</Field.Label>
-            <textarea placeholder="Masukkan deskripsi"
-              id="edit-description"
-              name="description"
-              class="form-control"
-              class:is-invalid={!!errors.description}
-              rows="3">{current.description ?? ''}</textarea
-            >
-            <Field.Feedback message={errors.description} />
-          </Field.Group>
+          <TranslatedField field="description" label={t('admin.deskripsi')} id="edit-description" placeholder={t('admin.masukkan_deskripsi')} multiline rows={3} {errors} />
 
           <div class="row g-3">
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-start_date">Mulai</Field.Label>
+                <Field.Label for="edit-start_date">{t('admin.mulai')}</Field.Label>
                 <DatePicker
                   id="edit-start_date"
                   name="start_date"
@@ -219,7 +203,7 @@
             </div>
             <div class="col-sm-6">
               <Field.Group>
-                <Field.Label for="edit-end_date">Selesai</Field.Label>
+                <Field.Label for="edit-end_date">{t('admin.selesai')}</Field.Label>
                 <DatePicker
                   id="edit-end_date"
                   name="end_date"
@@ -237,10 +221,10 @@
               class="btn btn-outline-secondary"
               onclick={() => (editOpen = false)}
             >
-              Batal
+              {t('admin.batal')}
             </button>
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

@@ -56,6 +56,7 @@ export function createTranslatable(
     get isDefault() {
       return locale === DEFAULT_LOCALE;
     },
+    isDefaultCode: (code: string): boolean => code === DEFAULT_LOCALE,
     get translating() {
       return translating;
     },

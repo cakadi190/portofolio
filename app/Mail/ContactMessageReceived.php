@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\ContactMessage;
+use App\Support\AppLocale;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -15,7 +16,11 @@ class ContactMessageReceived extends Mailable
 {
     use SerializesModels;
 
-    public function __construct(public ContactMessage $contactMessage) {}
+    public function __construct(public ContactMessage $contactMessage)
+    {
+        // The site owner reads these notifications in Indonesian whatever language the visitor used.
+        $this->locale(AppLocale::DEFAULT);
+    }
 
     public function envelope(): Envelope
     {

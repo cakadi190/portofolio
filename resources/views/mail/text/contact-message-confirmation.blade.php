@@ -1,8 +1,8 @@
-Halo, {!! $contactMessage->name !!}.
+{!! __('mail.hello_text', ['name' => $contactMessage->name]) !!}
 
-Terima kasih sudah menghubungi {!! config('app.name') !!}. Pesan Anda dengan keperluan "{!! $contactMessage->reason->label() !!}" sudah kami terima dan akan segera diproses. Balasan akan dikirim ke alamat email ini.
+{!! __('mail.confirmation.body_text', ['site' => config('app.name'), 'reason' => $contactMessage->reason->label()]) !!}
 
-Salinan pesan Anda:
+{!! __('mail.confirmation.copy') !!}
 {!! \App\Services\PlainTextConverter::fromHtml($contactMessage->message) !!}
 
 --

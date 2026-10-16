@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Enums\ChannelPlatform;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\ProgrammerChannelFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,9 +20,15 @@ use Illuminate\Database\Eloquent\Model;
 class ProgrammerChannel extends Model
 {
     /** @use HasFactory<ProgrammerChannelFactory> */
-    use HasFactory, RecordsActivity;
+    use HasEnglishContent, HasFactory, RecordsActivity;
 
-    protected $fillable = ['name', 'platform', 'description', 'url', 'is_featured'];
+    /** @var list<string> */
+    protected array $englishAttributes = ['description'];
+
+    /** Admin lists carry the raw text of every language, for the edit form. */
+    protected bool $withTranslations = true;
+
+    protected $fillable = ['name', 'platform', 'description', 'url', 'is_featured', 'description_en'];
 
     /**
      * @return array<string, string>

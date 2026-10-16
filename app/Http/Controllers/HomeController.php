@@ -41,7 +41,7 @@ class HomeController extends Controller
             'speakings' => $this->speakings(),
             'posts' => Post::query()
                 ->published()
-                ->with(['categories:id,name,color', 'tags:id,name', 'author:id,name'])
+                ->with(['categories:id,name,name_en,color', 'tags:id,name,name_en', 'author:id,name'])
                 ->latest('published_at')
                 ->take(3)
                 ->get()

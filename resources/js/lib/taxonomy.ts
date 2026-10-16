@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { toast } from '@/lib/toast';
 
 export type TaxonomyItem = { id: number; name: string };
@@ -31,7 +32,7 @@ export async function createTaxonomy(
     const payload = (await response.json().catch(() => null)) as {
       errors?: Record<string, string[]>;
     } | null;
-    const message = payload?.errors?.name?.[0] ?? 'Gagal menambahkan data.';
+    const message = payload?.errors?.name?.[0] ?? t('ui.taxonomy_failed');
 
     toast.error(message);
 
@@ -40,7 +41,7 @@ export async function createTaxonomy(
 
   const item = (await response.json()) as TaxonomyItem;
 
-  toast.success(`"${item.name}" berhasil ditambahkan.`);
+  toast.success(t('ui.taxonomy_added', { name: item.name }));
 
   return item;
 }

@@ -1,12 +1,25 @@
 <?php
 
+use App\Enums\ResumeProfile;
+use App\Mail\ContactMessageConfirmation;
+use App\Mail\ContactMessageReceived;
+use App\Mail\ContactReplyEmail;
+use App\Models\Award;
+use App\Models\Career;
 use App\Models\Clarification;
+use App\Models\ContactMessage;
+use App\Models\ContactMessageReply;
 use App\Models\Note;
+use App\Models\Organization;
 use App\Models\Portfolio;
 use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Service;
+use App\Models\Tag;
 use App\Models\User;
+use App\Services\ResumeService;
 use App\Support\AppLocale;
+use Illuminate\Support\Facades\Mail;
 
 it('shows the English text of a translated post under /en and Indonesian elsewhere', function () {
     $post = Post::factory()->withEnglish('Hello World')->create(['title' => 'Halo Dunia']);
@@ -192,4 +205,113 @@ it('saves the English biography from the profile form', function () {
     ])->assertSessionHasNoErrors();
 
     expect($user->fresh()->translationPayload()['bio'])->toBe(['id' => '<p>Halo</p>', 'en' => '<p>Hello</p>']);
+});
+
+it('shows English short texts on /en pages and keeps Indonesian elsewhere', function () {
+    Award::query()->create(['event_name' => 'Lomba', 'title' => 'Juara 1', 'title_en' => '1st Place', 'type' => 'competition', 'year' => 2024]);
+    Career::query()->create(['position' => 'Pengembang', 'position_en' => 'Developer', 'company' => 'PT X', 'location' => 'Ngawi', 'start_date' => '2020-01-01']);
+    Organization::query()->create(['name' => 'Himpunan', 'description' => 'Deskripsi', 'description_en' => 'Description', 'start_date' => '2020-01-01']);
+
+    $this->get('/en/awards')->assertInertia(fn ($page) => $page->where('awards.0.title', '1st Place'));
+    $this->get('/en/career')->assertInertia(fn ($page) => $page->where('careers.0.position', 'Developer'));
+    $this->get('/en/education')->assertInertia(fn ($page) => $page->where('organizations.0.description', 'Description'));
+
+    request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
+
+    $this->get('/awards')->assertInertia(fn ($page) => $page->where('awards.0.title', 'Juara 1'));
+});
+
+it('localizes tag and category names on article cards', function () {
+    $post = Post::factory()->withEnglish()->create();
+    $post->tags()->attach(Tag::query()->create(['name' => 'Pemrograman', 'name_en' => 'Programming']));
+    $post->categories()->attach(PostCategory::query()->create(['name' => 'Tutorial', 'name_en' => 'Guides']));
+
+    $this->get("/en/blog/{$post->slug}")->assertInertia(fn ($page) => $page
+        ->where('post.tags.0.name', 'Programming')
+        ->where('post.categories.0.name', 'Guides'));
+});
+
+it('hands admin lists the raw text of every language', function () {
+    Award::query()->create(['event_name' => 'Lomba', 'title' => 'Juara 1', 'title_en' => '1st Place', 'type' => 'competition', 'year' => 2024]);
+
+    $this->actingAs(User::factory()->admin()->create(['locale' => 'en']))
+        ->get(route('admin.awards.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('awards.data.0.title', '1st Place')
+            ->where('awards.data.0.translations.title', ['id' => 'Juara 1', 'en' => '1st Place']));
+});
+
+it('saves English short texts from the admin forms', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->post(route('admin.awards.store'), [
+        'event_name' => 'Lomba', 'title' => 'Juara 1', 'title_en' => '1st Place', 'type' => 'competition', 'year' => 2024,
+    ])->assertSessionHasNoErrors();
+
+    expect(Award::query()->firstOrFail()->translationPayload()['title'])->toBe(['id' => 'Juara 1', 'en' => '1st Place']);
+});
+
+it('builds the CV in the active language', function () {
+    Career::query()->create(['position' => 'Pengembang', 'company' => 'PT X', 'location' => 'Ngawi', 'start_date' => '2020-01-01']);
+
+    app()->setLocale('en');
+    $english = collect(app(ResumeService::class)->build(ResumeProfile::Technical)['sections']);
+
+    app()->setLocale('id');
+    $indonesian = collect(app(ResumeService::class)->build(ResumeProfile::Technical)['sections']);
+
+    expect($english->firstWhere('key', 'summary')['title'])->toBe('Professional Summary')
+        ->and($english->firstWhere('key', 'career')['title'])->toBe('Work Experience')
+        ->and($english->firstWhere('key', 'career')['entries'][0]['period'])->toBe('Jan 2020 – Present')
+        ->and($indonesian->firstWhere('key', 'summary')['title'])->toBe('Ringkasan Profesional')
+        ->and($indonesian->firstWhere('key', 'career')['entries'][0]['period'])->toBe('Jan 2020 – Sekarang');
+});
+
+it('serves the English CV viewer and its prefixed PDF', function () {
+    $this->get('/en/resume')->assertOk()->assertInertia(fn ($page) => $page->where('locale', 'en'));
+
+    request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
+
+    $this->get('/en/resume.pdf')->assertOk()->assertHeader('Content-Type', 'application/pdf');
+});
+
+it('emails the visitor in the language they wrote in, and the owner always in Indonesian', function () {
+    Mail::fake();
+
+    $this->post('/en/contact', ['name' => 'Alex', 'email' => 'alex@example.com', 'reason' => 'general', 'message' => '<p>Hello there</p>'])
+        ->assertSessionHasNoErrors();
+
+    $message = ContactMessage::query()->firstOrFail();
+
+    expect($message->locale)->toBe('en');
+
+    Mail::assertSent(ContactMessageConfirmation::class, function ($mail): bool {
+        $mail->assertSeeInHtml('We have received your message');
+        $mail->assertSeeInHtml('Thank you for contacting');
+        $mail->assertSeeInText('A copy of your message:');
+
+        return $mail->hasSubject('We have received your message');
+    });
+
+    Mail::assertSent(ContactMessageReceived::class, function ($mail): bool {
+        $mail->assertSeeInHtml('Pesan baru');
+
+        return true;
+    });
+});
+
+it('keeps Indonesian emails for Indonesian visitors and old messages', function () {
+    $message = ContactMessage::query()->create(['name' => 'Budi', 'email' => 'b@example.com', 'reason' => 'general', 'message' => '<p>Halo</p>']);
+
+    $mail = new ContactMessageConfirmation($message);
+
+    $mail->assertSeeInHtml('Pesan Anda sudah kami terima');
+    expect($mail->hasSubject('Pesan Anda sudah kami terima'))->toBeTrue();
+});
+
+it('sends the reply chrome in the visitor language', function () {
+    $message = ContactMessage::query()->create(['name' => 'Alex', 'email' => 'a@example.com', 'reason' => 'general', 'message' => '<p>Hi</p>', 'locale' => 'en']);
+    $reply = ContactMessageReply::query()->create(['contact_message_id' => $message->id, 'subject' => 'Re: Hi', 'body' => '<p>Answer</p>', 'status' => 'queued']);
+
+    (new ContactReplyEmail($reply->load('contactMessage')))->assertSeeInHtml('Your previous message');
 });

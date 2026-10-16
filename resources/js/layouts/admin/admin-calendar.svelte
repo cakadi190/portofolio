@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import { toast } from '@/lib/toast';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
@@ -15,19 +16,19 @@
 
   let { active = false }: { active?: boolean } = $props();
 
-  const weekdays = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+  const weekdays = [t('ui.sen'), t('ui.sel'), t('ui.rab'), t('ui.kam'), t('ui.jum'), t('ui.sab'), t('ui.min')];
 
   const pad = (value: number) => String(value).padStart(2, '0');
   const toKey = (date: Date) =>
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-  const longDate = new Intl.DateTimeFormat('id-ID', {
+  const longDate = new Intl.DateTimeFormat(intlLocale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
-  const monthTitle = new Intl.DateTimeFormat('id-ID', {
+  const monthTitle = new Intl.DateTimeFormat(intlLocale(), {
     month: 'long',
     year: 'numeric',
   });
@@ -101,7 +102,7 @@
     } catch {
       events = [];
       failed = true;
-      toast.error('Gagal memuat kalender. Silakan coba lagi.');
+      toast.error(t('admin.gagal_memuat_kalender_silakan_coba_lagi'));
     } finally {
       loading = false;
     }
@@ -122,7 +123,7 @@
     selectedKey = todayKey;
   }
 
-  const shortDate = new Intl.DateTimeFormat('id-ID', {
+  const shortDate = new Intl.DateTimeFormat(intlLocale(), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -147,7 +148,7 @@
       <button
         type="button"
         class="btn btn-sm btn-outline-secondary"
-        aria-label="Bulan sebelumnya"
+        aria-label={t('admin.bulan_sebelumnya')}
         onclick={() => shiftMonth(-1)}
       >
         <ChevronLeft size={16} aria-hidden="true" />
@@ -155,13 +156,13 @@
       <div class="d-flex align-items-center gap-2">
         <strong class="text-capitalize fs-6">{monthTitle.format(viewDate)}</strong>
         <button type="button" class="btn btn-sm btn-outline-primary py-0" onclick={goToToday}>
-          Hari ini
+          {t('admin.hari_ini')}
         </button>
       </div>
       <button
         type="button"
         class="btn btn-sm btn-outline-secondary"
-        aria-label="Bulan berikutnya"
+        aria-label={t('admin.bulan_berikutnya')}
         onclick={() => shiftMonth(1)}
       >
         <ChevronRight size={16} aria-hidden="true" />
@@ -200,20 +201,20 @@
 
     <div class="admin-calendar__legend small text-body-secondary mt-3">
       <span><i class="admin-calendar__dot admin-calendar__dot--speaking"></i> Pembicara &amp; Mentoring</span>
-      <span><i class="admin-calendar__dot admin-calendar__dot--post"></i> Artikel terbit</span>
+      <span><i class="admin-calendar__dot admin-calendar__dot--post"></i> {t('admin.artikel_terbit')}</span>
     </div>
   </div>
 
   <aside class="admin-calendar__side">
     <div class="admin-calendar__today">
-      <span class="small opacity-75">Hari ini</span>
+      <span class="small opacity-75">{t('admin.hari_ini')}</span>
       <strong class="fs-5">{longDate.format(today)}</strong>
     </div>
 
-    <section aria-label="Kegiatan terdekat">
-      <div class="small fw-semibold text-uppercase mb-2">📌 Kegiatan terdekat</div>
+    <section aria-label={t('admin.kegiatan_terdekat')}>
+      <div class="small fw-semibold text-uppercase mb-2">{t('admin.kegiatan_terdekat_2')}</div>
       {#if upcoming.length === 0}
-        <div class="small text-body-secondary">Belum ada kegiatan mendatang.</div>
+        <div class="small text-body-secondary">{t('admin.belum_ada_kegiatan_mendatang')}</div>
       {:else}
         <ul class="list-unstyled mb-0 d-grid gap-2">
           {#each upcoming as event (event.id)}
@@ -233,15 +234,15 @@
       {/if}
     </section>
 
-    <section aria-label="Kegiatan pada tanggal terpilih">
+    <section aria-label={t('admin.kegiatan_pada_tanggal_terpilih')}>
       <div class="small fw-semibold text-uppercase mb-2">{selectedLabel}</div>
 
       {#if loading}
-        <p class="text-body-secondary small mb-0">Memuat kegiatan…</p>
+        <p class="text-body-secondary small mb-0">{t('admin.memuat_kegiatan')}</p>
       {:else if failed}
-        <p class="text-danger small mb-0">Kegiatan gagal dimuat.</p>
+        <p class="text-danger small mb-0">{t('admin.kegiatan_gagal_dimuat')}</p>
       {:else if selectedEvents.length === 0}
-        <p class="text-body-secondary small mb-0">Belum ada kegiatan.</p>
+        <p class="text-body-secondary small mb-0">{t('admin.belum_ada_kegiatan')}</p>
       {:else}
         <ul class="list-unstyled mb-0 d-grid gap-2">
           {#each selectedEvents as event (event.id)}

@@ -4,21 +4,13 @@ namespace App\Enums;
 
 use App\Enums\Concerns\HasEnumOptions;
 use App\Enums\Concerns\HasEnumValues;
+use App\Enums\Concerns\HasLabel;
 
 enum UserRole: string
 {
-    use HasEnumOptions, HasEnumValues;
+    use HasEnumOptions, HasEnumValues, HasLabel;
 
     case Admin = 'admin';
     case Redaktur = 'redaktur';
     case User = 'user';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Admin => 'Admin',
-            self::Redaktur => 'Redaktur',
-            self::User => 'Pengguna',
-        };
-    }
 }

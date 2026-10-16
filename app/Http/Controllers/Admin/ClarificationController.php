@@ -72,7 +72,7 @@ class ClarificationController extends Controller
     {
         $clarification = Clarification::query()->create($this->payload($request));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Klarifikasi berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.klarifikasi_berhasil_ditambahkan')]);
 
         return to_route('admin.clarifications.edit', $clarification);
     }
@@ -81,7 +81,7 @@ class ClarificationController extends Controller
     {
         $clarification->update($this->payload($request));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Klarifikasi berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.klarifikasi_berhasil_diperbarui')]);
 
         return to_route('admin.clarifications.edit', $clarification);
     }
@@ -90,7 +90,7 @@ class ClarificationController extends Controller
     {
         $clarification->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Klarifikasi berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.klarifikasi_berhasil_dihapus')]);
 
         return to_route('admin.clarifications.index');
     }

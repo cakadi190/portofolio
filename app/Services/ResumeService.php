@@ -50,51 +50,51 @@ class ResumeService
      */
     private function sections(ResumeProfile $profile): array
     {
-        $month = fn (?CarbonInterface $date): string => $date ? Carbon::instance($date)->locale('id')->translatedFormat('M Y') : '';
-        $period = fn (?CarbonInterface $start, ?CarbonInterface $end): string => $month($start).' – '.($end ? $month($end) : 'Sekarang');
+        $month = fn (?CarbonInterface $date): string => $date ? Carbon::instance($date)->locale(app()->getLocale())->translatedFormat('M Y') : '';
+        $period = fn (?CarbonInterface $start, ?CarbonInterface $end): string => $month($start).' – '.($end ? $month($end) : __('resume.present'));
         $city = fn (?string $place): ?string => $place ? collect(explode(',', preg_replace('/\s*\d{4,}\s*$/', '', $place)))->map(fn (string $part): string => trim($part))->take(-2)->implode(', ') : null;
 
         $portfolios = Portfolio::query()->where('is_private', false)->with('technologies:id,name')->latest()->get();
         $years = (int) ceil(Carbon::parse('2015-03-17')->diffInYears(now()));
 
         return [
-            'summary' => ['title' => 'Ringkasan Profesional', 'entries' => [['lines' => ["Software Engineer dan Wirausahawan berbasis di Kabupaten Ngawi dengan pengalaman {$years} tahun di bidang teknologi, desain, dan pengembangan perangkat lunak. Aktif sebagai pembicara dan mentor."]]]],
-            'skills' => ['title' => 'Keahlian Teknis', 'entries' => [[
+            'summary' => ['title' => __('resume.summary'), 'entries' => [['lines' => [__('resume.summary_text', ['years' => $years])]]]],
+            'skills' => ['title' => __('resume.skills'), 'entries' => [[
                 'chips' => $portfolios->flatMap(fn (Portfolio $p) => $p->technologies->pluck('name'))->unique()->sort()->values()->all(),
             ]]],
-            'career' => ['title' => 'Pengalaman Kerja', 'entries' => Career::query()->orderByDesc('start_date')->get()->map(fn (Career $c): array => [
+            'career' => ['title' => __('resume.career'), 'entries' => Career::query()->orderByDesc('start_date')->get()->map(fn (Career $c): array => [
                 'head' => $c->position,
                 'org' => $c->company,
                 'period' => $period($c->start_date, $c->end_date),
                 'meta' => $c->location,
             ])->all()],
-            'projects' => ['title' => 'Proyek', 'entries' => $portfolios->take($profile->projectLimit())->map(fn (Portfolio $p): array => [
+            'projects' => ['title' => __('resume.projects'), 'entries' => $portfolios->take($profile->projectLimit())->map(fn (Portfolio $p): array => [
                 'head' => $p->name,
                 'lines' => array_filter([$p->short_desc]),
                 'chips' => $profile->showsProjectTechnologies() ? $p->technologies->pluck('name')->all() : [],
                 'url' => route('portfolios.show', $p),
                 'urlLabel' => preg_replace('#^https?://#', '', route('portfolios.show', $p)),
             ])->values()->all()],
-            'education' => ['title' => 'Pendidikan', 'entries' => Education::query()->orderByDesc('start_date')->get()->map(fn (Education $e): array => [
+            'education' => ['title' => __('resume.education'), 'entries' => Education::query()->orderByDesc('start_date')->get()->map(fn (Education $e): array => [
                 'head' => $e->name,
                 'org' => $e->study_program,
                 'period' => $period($e->start_date, $e->end_date),
                 'meta' => implode(' | ', array_filter([
                     $e->level->label(),
                     $city($e->place),
-                    $e->academic_score_value ? ($e->academic_score_label ?: 'Nilai').': '.($e->academic_score_value + 0).($e->academic_score_scale ? ' / '.($e->academic_score_scale + 0) : '') : null,
+                    $e->academic_score_value ? ($e->academic_score_label ?: __('resume.score')).': '.($e->academic_score_value + 0).($e->academic_score_scale ? ' / '.($e->academic_score_scale + 0) : '') : null,
                 ])),
             ])->all()],
-            'certifications' => ['title' => 'Sertifikasi', 'entries' => Certification::query()->orderByDesc('issued_at')->get()->map(fn (Certification $c): array => [
+            'certifications' => ['title' => __('resume.certifications'), 'entries' => Certification::query()->orderByDesc('issued_at')->get()->map(fn (Certification $c): array => [
                 'lines' => ["{$c->title} – {$c->issuer}".($c->issued_at ? ' ('.$month($c->issued_at).')' : '')], 'bullet' => true,
             ])->all()],
-            'awards' => ['title' => 'Penghargaan', 'entries' => Award::query()->orderByDesc('awarded_at')->orderByDesc('year')->get()->map(fn (Award $a): array => [
-                'lines' => ["{$a->title}".($a->rank && ! preg_match('/place|juara|peringkat|winner/i', $a->title) ? " (Peringkat {$a->rank})" : '')." – {$a->event_name}, {$a->year}"], 'bullet' => true,
+            'awards' => ['title' => __('resume.awards'), 'entries' => Award::query()->orderByDesc('awarded_at')->orderByDesc('year')->get()->map(fn (Award $a): array => [
+                'lines' => ["{$a->title}".($a->rank && ! preg_match('/place|juara|peringkat|winner/i', $a->title) ? ' ('.__('resume.rank', ['rank' => $a->rank]).')' : '')." – {$a->event_name}, {$a->year}"], 'bullet' => true,
             ])->all()],
-            'speaking' => ['title' => 'Pembicara & Mentoring', 'entries' => SpeakingEngagement::query()->published()->orderByDesc('starts_at')->take(10)->get()->map(fn (SpeakingEngagement $s): array => [
+            'speaking' => ['title' => __('resume.speaking'), 'entries' => SpeakingEngagement::query()->published()->orderByDesc('starts_at')->take(10)->get()->map(fn (SpeakingEngagement $s): array => [
                 'lines' => ["{$s->title} ({$s->role->label()}) – {$s->organizer}, {$month($s->starts_at)}"], 'bullet' => true,
             ])->all()],
-            'organizations' => ['title' => 'Organisasi', 'entries' => Organization::query()->orderByDesc('start_date')->get()->map(fn (Organization $o): array => [
+            'organizations' => ['title' => __('resume.organizations'), 'entries' => Organization::query()->orderByDesc('start_date')->get()->map(fn (Organization $o): array => [
                 'head' => $o->name, 'period' => $period($o->start_date, $o->end_date), 'lines' => array_filter([$o->description]),
             ])->all()],
         ];

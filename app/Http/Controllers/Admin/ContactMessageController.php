@@ -56,7 +56,7 @@ class ContactMessageController extends Controller
     {
         $contactMessage->update(['read_at' => $contactMessage->read_at ? null : now()]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => $contactMessage->read_at ? 'Pesan ditandai sudah dibaca.' : 'Pesan ditandai belum dibaca.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $contactMessage->read_at ? __('flash.pesan_ditandai_sudah_dibaca') : __('flash.pesan_ditandai_belum_dibaca')]);
 
         return to_route('admin.contact-messages.index');
     }
@@ -65,7 +65,7 @@ class ContactMessageController extends Controller
     {
         $contactMessage->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Pesan berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pesan_berhasil_dihapus')]);
 
         return to_route('admin.contact-messages.index');
     }
@@ -85,7 +85,7 @@ class ContactMessageController extends Controller
 
         SendContactReply::dispatchAfterResponse($reply);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Balasan masuk antrean dan sedang dikirim.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.balasan_masuk_antrean_dan_sedang_dikirim')]);
 
         return to_route('admin.contact-messages.index');
     }

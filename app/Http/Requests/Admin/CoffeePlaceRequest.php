@@ -22,6 +22,7 @@ class CoffeePlaceRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'description_en' => ['nullable', 'string'],
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],

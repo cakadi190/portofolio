@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import type { Snippet } from 'svelte';
   import { portal } from '@/lib/dom';
@@ -9,7 +10,7 @@
     description,
     actions,
     confirmLabel = 'Ya',
-    denyLabel = 'Batal',
+    denyLabel = t('admin.batal'),
     processing = false,
     icon,
     confirmIcon,

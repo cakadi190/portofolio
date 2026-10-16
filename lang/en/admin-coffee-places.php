@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'kedai_kopi' => 'Coffee Shops',
+    'kelola_daftar_tempat_ngopi_rekomendasi' => 'Manage the list of recommended coffee spots.',
+    'belum_ada_kedai_kopi' => 'No coffee shops yet',
+    'tambahkan_kedai_kopi_pertama_anda' => 'Add your first coffee shop.',
+    'tambah_kedai_kopi' => 'Add Coffee Shop',
+    'catat_tempat_ngopi_baru' => 'Record a new coffee spot.',
+    'alamat' => 'Address',
+    'masukkan_alamat' => 'Enter the address',
+    'tautan_peta' => 'Map Link',
+    'penyedia_wifi' => 'WiFi Provider',
+    'masukkan_penyedia_wifi' => 'Enter the WiFi provider',
+    'kecepatan_wifi' => 'WiFi Speed',
+    'tingkat_harga' => 'Price Tier',
+    'biaya_parkir' => 'Parking Fee',
+    'wilayah' => 'Area',
+    'masukkan_wilayah' => 'Enter the area',
+    'fasilitas' => 'Facilities',
+    'rekomendasikan_tempat_ini' => 'Recommend this place',
+    'ubah_kedai_kopi' => 'Edit Coffee Shop',
+    'nama_alamat' => 'Name & Address',
+    'rekomendasi' => 'Recommended',
+    'delete_confirm' => 'Delete coffee shop ":name"?',
+];

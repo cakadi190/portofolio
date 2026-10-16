@@ -19,6 +19,7 @@ class AwardRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'title_en' => ['nullable', 'string', 'max:255'],
             'event_name' => ['required', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:255'],
             'type' => ['required', new Enum(AwardType::class)],

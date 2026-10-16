@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import FormModal from '@/components/form-modal.svelte';
   import { Field } from '@/components/ui/field';
@@ -22,8 +23,8 @@
 
 <FormModal
   bind:open
-  title="Ubah Pesan"
-  subtitle="Sunting isi atau ubah status moderasi."
+  title={t('admin.ubah_pesan')}
+  subtitle={t('admin.sunting_isi_atau_ubah_status_moderasi')}
 >
   {#snippet children()}
     {#if entry}
@@ -36,19 +37,19 @@
         >
           {#snippet children({ errors, processing })}
             <Field.Group>
-              <Field.Label>Isi Pesan</Field.Label>
+              <Field.Label>{t('admin.isi_pesan')}</Field.Label>
               <RichTextEditor
                 name="body"
                 minimal
                 value={toEditorHtml(entry.body)}
-                placeholder="Tulis isi pesan..."
+                placeholder={t('admin.tulis_isi_pesan')}
                 invalid={!!errors.body}
               />
               <Field.Feedback message={errors.body} />
             </Field.Group>
 
             <Field.Group>
-              <Field.Label for="edit-entry-status">Status</Field.Label>
+              <Field.Label for="edit-entry-status">{t('admin.status')}</Field.Label>
               <Select
                 id="edit-entry-status"
                 name="status"
@@ -65,12 +66,12 @@
               <button
                 type="button"
                 class="btn btn-outline-secondary"
-                onclick={() => (open = false)}>Batal</button
+                onclick={() => (open = false)}>{t('admin.batal')}</button
               >
               <button
                 type="submit"
                 class="btn btn-primary"
-                disabled={processing}>Simpan</button
+                disabled={processing}>{t('admin.simpan')}</button
               >
             </div>
           {/snippet}

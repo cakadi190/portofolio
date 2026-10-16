@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { usePasskeyVerify } from '@laravel/passkeys/svelte';
   import { router } from '@inertiajs/svelte';
   import Fingerprint from '@lucide/svelte/icons/fingerprint';
@@ -10,7 +11,7 @@
 
 <div class="d-flex flex-column gap-2">
   <p class="text-center text-muted mb-0">
-    Masuk dengan passkey yang tertaut dengan akun Anda.
+    {t('auth.masuk_dengan_passkey_yang_tertaut_dengan')}
   </p>
 
   <button
@@ -21,7 +22,7 @@
     data-test="login-passkey-button"
   >
     <Fingerprint size={18} />
-    Masuk dengan passkey
+    {t('auth.masuk_dengan_passkey')}
   </button>
 
   {#if passkeyVerify.error}

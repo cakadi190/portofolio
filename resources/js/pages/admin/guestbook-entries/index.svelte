@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Select from '@/components/ui/select.svelte';
   import { router } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -47,11 +48,11 @@
   }
 </script>
 
-<AppHead title="Buku Tamu" />
+<AppHead title={t('admin-guestbook-entries.buku_tamu')} />
 
 <AdminPageHeader
-  title="Buku Tamu"
-  subtitle="Moderasi pesan dan balas langsung dalam utas percakapan."
+  title={t('admin-guestbook-entries.buku_tamu')}
+  subtitle={t('admin-guestbook-entries.moderasi_pesan_dan_balas_langsung_dalam')}
 />
 
 <DataTable
@@ -60,14 +61,14 @@
   scrollKey="guestbookEntries"
   {filters}
   url={index().url}
-  emptyTitle="Belum ada pesan"
-  emptyText="Pesan dari pengunjung akan muncul di sini."
+  emptyTitle={t('admin.belum_ada_pesan')}
+  emptyText={t('admin.pesan_dari_pengunjung_akan_muncul_di')}
 >
   {#snippet toolbar()}
     <Select
         inline
-        ariaLabel="Filter status"
-        placeholder="Semua status"
+        ariaLabel={t('admin.filter_status')}
+        placeholder={t('admin.semua_status')}
         items={statuses}
         value={filters.status || null}
         onchange={filterStatus}

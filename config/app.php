@@ -119,6 +119,7 @@ return [
         'portfolio',
         'resources',
         'resume',
+        'resume.pdf',
         'services',
         'speaking',
         'statistic',

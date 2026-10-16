@@ -15,8 +15,8 @@ vi.mock('@inertiajs/svelte', async (importOriginal) => {
 
 const tags = {
   data: [
-    { id: 1, name: 'php' },
-    { id: 2, name: 'svelte' },
+    { id: 1, name: 'php', translations: { name: { id: 'php', en: '' } } },
+    { id: 2, name: 'svelte', translations: { name: { id: 'svelte', en: '' } } },
   ],
   current_page: 1,
   last_page: 1,

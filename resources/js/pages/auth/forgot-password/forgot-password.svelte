@@ -1,12 +1,6 @@
-<script module lang="ts">
-  export const layout = {
-    title: 'Lupa kata sandi',
-    description:
-      'Masukkan email Anda untuk menerima tautan atur ulang kata sandi',
-  };
-</script>
-
 <script lang="ts">
+  import { setLayoutProps } from '@inertiajs/svelte';
+  import { t } from '@/lib/i18n';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -20,9 +14,15 @@
   }: {
     status?: string;
   } = $props();
+
+  setLayoutProps({
+    title: t('auth.lupa_kata_sandi'),
+    description:
+      t('auth.masukkan_email_anda_untuk_menerima_tautan'),
+  });
 </script>
 
-<AppHead title="Lupa kata sandi" />
+<AppHead title={t('auth.lupa_kata_sandi')} />
 
 {#if status}
   <div class="mb-4 text-center small fw-medium text-success">
@@ -34,7 +34,7 @@
   <Form {...email.form()} novalidate class="gap-3 d-flex flex-column">
     {#snippet children({ errors, processing })}
       <Field.Group>
-        <Field.Label for="email">Alamat email</Field.Label>
+        <Field.Label for="email">{t('auth.alamat_email')}</Field.Label>
         <Field.Input
           id="email"
           type="email"
@@ -53,14 +53,14 @@
           disabled={processing}
           data-test="email-password-reset-link-button"
         >
-          Kirim tautan atur ulang kata sandi
+          {t('auth.kirim_tautan_atur_ulang_kata_sandi')}
         </button>
       </CaptchaSubmitRow>
     {/snippet}
   </Form>
 
   <div class="text-center small text-muted">
-    <span>Atau, kembali untuk</span>
+    <span>{t('auth.atau_kembali_untuk')}</span>
     <TextLink href={login()}>masuk</TextLink>
   </div>
 </div>

@@ -36,7 +36,7 @@ class SpeakingEngagementController extends Controller
     {
         SpeakingEngagement::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Acara berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.acara_berhasil_ditambahkan')]);
 
         return to_route('admin.speaking-engagements.index');
     }
@@ -45,7 +45,7 @@ class SpeakingEngagementController extends Controller
     {
         $speakingEngagement->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Acara berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.acara_berhasil_diperbarui')]);
 
         return to_route('admin.speaking-engagements.index');
     }
@@ -54,7 +54,7 @@ class SpeakingEngagementController extends Controller
     {
         $speakingEngagement->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Acara berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.acara_berhasil_dihapus')]);
 
         return to_route('admin.speaking-engagements.index');
     }

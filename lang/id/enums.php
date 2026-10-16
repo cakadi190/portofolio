@@ -67,4 +67,13 @@ return [
     'resume_profile.description.executive' => 'Menonjolkan kepemimpinan, kewirausahaan, organisasi, dan pembicara.',
     'resume_profile.headline.technical' => 'Software Engineer',
     'resume_profile.headline.executive' => 'Software Engineer & Wirausahawan',
+    'blog_comment_status.pending' => 'Menunggu',
+    'blog_comment_status.approved' => 'Disetujui',
+    'blog_comment_status.rejected' => 'Ditolak',
+    'contact_reply_status.queued' => 'Dalam antrean',
+    'contact_reply_status.sent' => 'Terkirim',
+    'contact_reply_status.failed' => 'Gagal',
+    'user_role.admin' => 'Admin',
+    'user_role.redaktur' => 'Redaktur',
+    'user_role.user' => 'Pengguna',
 ];

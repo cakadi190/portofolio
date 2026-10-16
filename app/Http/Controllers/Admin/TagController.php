@@ -33,7 +33,7 @@ class TagController extends Controller
     {
         Tag::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Tag berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.tag_berhasil_ditambahkan')]);
 
         return to_route('admin.tags.index');
     }
@@ -53,7 +53,7 @@ class TagController extends Controller
     {
         $tag->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Tag berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.tag_berhasil_diperbarui')]);
 
         return to_route('admin.tags.index');
     }
@@ -62,7 +62,7 @@ class TagController extends Controller
     {
         $tag->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Tag berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.tag_berhasil_dihapus')]);
 
         return to_route('admin.tags.index');
     }

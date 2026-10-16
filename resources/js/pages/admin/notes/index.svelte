@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
@@ -19,13 +20,13 @@
     $props();
 </script>
 
-<AppHead title="Catatan Singkat" />
+<AppHead title={t('admin-notes.catatan_singkat')} />
 
 <AdminPageHeader
-  title="Catatan Singkat"
-  subtitle="Kelola catatan singkat yang tampil di halaman /notes."
+  title={t('admin-notes.catatan_singkat')}
+  subtitle={t('admin-notes.kelola_catatan_singkat_yang_tampil_di')}
   createHref={create().url}
-  createLabel="Tulis Catatan"
+  createLabel={t('admin-notes.tulis_catatan')}
 />
 
 <DataTable
@@ -34,13 +35,13 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Judul', key: 'title', sortable: true },
-    { label: 'Status', key: 'is_published', sortable: true },
-    { label: 'Tag' },
-    { label: 'Aksi', align: 'end' },
+    { label: t('ui.judul'), key: 'title', sortable: true },
+    { label: t('admin.status'), key: 'is_published', sortable: true },
+    { label: t('admin.tag') },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada catatan"
-  emptyText="Tulis catatan pertama Anda."
+  emptyTitle={t('admin-notes.belum_ada_catatan')}
+  emptyText={t('admin-notes.tulis_catatan_pertama_anda')}
 >
   {#snippet row(note)}
     <tr>
@@ -53,7 +54,7 @@
         <span
           class={`badge ${note.is_published ? 'text-bg-success' : 'text-bg-secondary'}`}
         >
-          {note.is_published ? 'Terbit' : 'Draf'}
+          {note.is_published ? t('admin-certifications.terbit') : t('admin.draf')}
         </span>
       </td>
       <td>
@@ -69,11 +70,11 @@
         <div class="d-inline-flex gap-2">
           <Link
             href={edit(note.id).url}
-            class="btn btn-sm btn-outline-secondary">Ubah</Link
+            class="btn btn-sm btn-outline-secondary">{t('admin.ubah')}</Link
           >
           <AdminDeleteButton
             href={destroy(note.id).url}
-            label={`Hapus catatan "${note.title}"?`}
+            label={t('admin-notes.delete_confirm', { name: note.title })}
           />
         </div>
       </td>

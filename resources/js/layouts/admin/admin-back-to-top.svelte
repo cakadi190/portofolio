@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
 
   let {
@@ -35,8 +36,8 @@
   class="back-to-top"
   class:back-to-top--visible={visible}
   hidden={!visible}
-  aria-label="Back to top"
-  title="Back to top"
+  aria-label={t('admin.back_to_top')}
+  title={t('admin.back_to_top')}
   style:--neo-back-to-top-bottom={bottom}
   onclick={scrollToTop}
 >

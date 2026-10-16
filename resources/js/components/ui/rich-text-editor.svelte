@@ -110,12 +110,12 @@
     languages = [],
     language = '',
     onlanguage,
-    placeholder = 'Mulai menulis cerita Anda...',
+    placeholder = t('ui.mulai_menulis_cerita_anda'),
     invalid = false,
     minimal = false,
     shell = false,
     documentTitle = '',
-    rootLabel = 'Dokumen',
+    rootLabel = t('ui.dokumen'),
     viewHref = null,
     header,
     settings,
@@ -226,9 +226,9 @@
   let device = $state<Device>('desktop');
 
   const deviceOptions = [
-    { value: 'desktop', label: 'Desktop', icon: Monitor },
-    { value: 'tablet', label: 'Tablet', icon: Tablet },
-    { value: 'mobile', label: 'Ponsel', icon: Smartphone },
+    { value: 'desktop', label: t('ui.desktop'), icon: Monitor },
+    { value: 'tablet', label: t('ui.tablet'), icon: Tablet },
+    { value: 'mobile', label: t('ui.ponsel'), icon: Smartphone },
   ] as const;
   const DeviceIcon = $derived(
     deviceOptions.find((option) => option.value === device)?.icon ?? Monitor,
@@ -274,48 +274,48 @@
 
   const calloutLabels: Record<string, string> = {
     info: 'Info',
-    success: 'Sukses',
-    warning: 'Peringatan',
-    danger: 'Bahaya',
-    dark: 'Gelap',
+    success: t('ui.sukses'),
+    warning: t('ui.peringatan'),
+    danger: t('ui.bahaya'),
+    dark: t('ui.gelap'),
   };
 
   const blockLabels: Record<string, string> = {
-    paragraph: 'Paragraf',
-    bulletList: 'Daftar poin',
-    orderedList: 'Daftar angka',
-    blockquote: 'Kutipan',
-    codeBlock: 'Blok kode',
+    paragraph: t('ui.paragraf'),
+    bulletList: t('ui.daftar_poin'),
+    orderedList: t('ui.daftar_angka'),
+    blockquote: t('ui.kutipan'),
+    codeBlock: t('ui.blok_kode'),
     callout: 'Callout',
-    image: 'Gambar',
-    buttonBlock: 'Tombol',
-    linkCard: 'Kartu tautan',
-    horizontalRule: 'Garis pemisah',
-    table: 'Tabel',
-    definition: 'Kartu definisi',
-    specSheet: 'Kartu spesifikasi',
-    references: 'Daftar referensi',
-    mathBlock: 'Rumus blok',
-    mathInline: 'Rumus sebaris',
+    image: t('admin.gambar'),
+    buttonBlock: t('ui.tombol'),
+    linkCard: t('ui.kartu_tautan'),
+    horizontalRule: t('ui.garis_pemisah'),
+    table: t('ui.tabel'),
+    definition: t('ui.kartu_definisi'),
+    specSheet: t('ui.kartu_spesifikasi'),
+    references: t('ui.daftar_referensi'),
+    mathBlock: t('ui.rumus_blok'),
+    mathInline: t('ui.rumus_sebaris'),
   };
   const blockDescriptions: Record<string, string> = {
-    paragraph: 'Mulai dengan komponen dasar dari semua cerita.',
-    heading: 'Beri judul pada bagian tulisan Anda.',
-    bulletList: 'Buat daftar poin biasa.',
-    orderedList: 'Buat daftar bernomor.',
-    blockquote: 'Beri penekanan visual pada kutipan.',
-    codeBlock: 'Tampilkan cuplikan kode dengan pewarnaan sintaks.',
-    callout: 'Kotak catatan berwarna untuk info penting.',
-    image: 'Sisipkan gambar dari pustaka media.',
-    buttonBlock: 'Tautan ajakan bertindak berbentuk tombol.',
-    linkCard: 'Pratinjau halaman web lengkap dengan gambar dan judul.',
-    horizontalRule: 'Pisahkan bagian tulisan dengan garis.',
-    table: 'Susun data dalam baris dan kolom.',
-    definition: 'Kartu istilah dengan pelafalan dan artinya.',
-    specSheet: 'Lembar pasangan label dan nilai, mis. spesifikasi.',
-    references: 'Daftar sumber atau rujukan bernomor.',
-    mathBlock: 'Persamaan matematika tampil di tengah (LaTeX).',
-    mathInline: 'Rumus matematika di tengah kalimat (LaTeX).',
+    paragraph: t('ui.mulai_dengan_komponen_dasar_dari_semua'),
+    heading: t('ui.beri_judul_pada_bagian_tulisan_anda'),
+    bulletList: t('ui.buat_daftar_poin_biasa'),
+    orderedList: t('ui.buat_daftar_bernomor'),
+    blockquote: t('ui.beri_penekanan_visual_pada_kutipan'),
+    codeBlock: t('ui.tampilkan_cuplikan_kode_dengan_pewarnaan_sintaks'),
+    callout: t('ui.kotak_catatan_berwarna_untuk_info_penting'),
+    image: t('ui.sisipkan_gambar_dari_pustaka_media'),
+    buttonBlock: t('ui.tautan_ajakan_bertindak_berbentuk_tombol'),
+    linkCard: t('ui.pratinjau_halaman_web_lengkap_dengan_gambar'),
+    horizontalRule: t('ui.pisahkan_bagian_tulisan_dengan_garis'),
+    table: t('ui.susun_data_dalam_baris_dan_kolom'),
+    definition: t('ui.kartu_istilah_dengan_pelafalan_dan_artinya'),
+    specSheet: t('ui.lembar_pasangan_label_dan_nilai_mis'),
+    references: t('ui.daftar_sumber_atau_rujukan_bernomor'),
+    mathBlock: t('ui.persamaan_matematika_tampil_di_tengah_latex'),
+    mathInline: t('ui.rumus_matematika_di_tengah_kalimat_latex'),
   };
   const blockIcons: Record<string, typeof Pilcrow> = {
     paragraph: Pilcrow,
@@ -339,9 +339,9 @@
   const alignKeys = ['left', 'center', 'right'] as const;
   const headingLevels = [1, 2, 3] as const;
   const alignLabels = {
-    left: 'Rata kiri',
-    center: 'Rata tengah',
-    right: 'Rata kanan',
+    left: t('ui.rata_kiri'),
+    center: t('ui.rata_tengah'),
+    right: t('ui.rata_kanan'),
   } as const;
   const alignIcons = {
     left: AlignLeft,
@@ -351,10 +351,10 @@
 
   const imageWidths = [25, 50, 75, 100];
   const headingItems = [
-    { value: '0', label: 'Paragraf' },
-    { value: '1', label: 'Judul 1' },
-    { value: '2', label: 'Judul 2' },
-    { value: '3', label: 'Judul 3' },
+    { value: '0', label: t('ui.paragraf') },
+    { value: '1', label: t('ui.judul_1') },
+    { value: '2', label: t('ui.judul_2') },
+    { value: '3', label: t('ui.judul_3') },
   ];
   const widthItems = imageWidths.map((width) => ({
     value: String(width),
@@ -362,11 +362,11 @@
   }));
   const buttonVariantItems = [
     { value: 'solid', label: 'Solid' },
-    { value: 'outline', label: 'Garis tepi' },
+    { value: 'outline', label: t('ui.garis_tepi') },
   ];
   const languageItems = [
     ...languageNames().map((name) => ({ value: name, label: name })),
-    { value: 'plaintext', label: 'Teks biasa' },
+    { value: 'plaintext', label: t('ui.teks_biasa') },
   ];
   const themeItems = CODE_THEMES.filter((theme) => theme.value !== '').map(
     (theme) => ({
@@ -374,130 +374,130 @@
       label: `Tema: ${theme.label}`,
     }),
   );
-  const defaultThemeLabel = `Tema: ${CODE_THEMES.find((theme) => theme.value === '')?.label ?? 'Otomatis'}`;
+  const defaultThemeLabel = `Tema: ${CODE_THEMES.find((theme) => theme.value === '')?.label ?? t('ui.otomatis')}`;
 
   const blockItems: BlockItem[] = [
     {
-      label: 'Paragraf',
-      hint: 'Teks biasa',
+      label: t('ui.paragraf'),
+      hint: t('ui.teks_biasa'),
       icon: Pilcrow,
       keywords: 'paragraph teks',
       run: (c) => c.setParagraph(),
     },
     {
-      label: 'Judul 1',
-      hint: 'Judul besar',
+      label: t('ui.judul_1'),
+      hint: t('ui.judul_besar'),
       icon: Heading1,
       keywords: 'heading h1',
       run: (c) => c.setHeading({ level: 1 }),
     },
     {
-      label: 'Judul 2',
-      hint: 'Subjudul',
+      label: t('ui.judul_2'),
+      hint: t('ui.subjudul'),
       icon: Heading2,
       keywords: 'heading h2',
       run: (c) => c.setHeading({ level: 2 }),
     },
     {
-      label: 'Judul 3',
-      hint: 'Subjudul kecil',
+      label: t('ui.judul_3'),
+      hint: t('ui.subjudul_kecil'),
       icon: Heading3,
       keywords: 'heading h3',
       run: (c) => c.setHeading({ level: 3 }),
     },
     {
-      label: 'Gambar',
-      hint: 'Dari pustaka media',
+      label: t('admin.gambar'),
+      hint: t('ui.dari_pustaka_media'),
       icon: ImageIcon,
       keywords: 'image foto gambar',
       picker: true,
     },
     {
       label: 'Callout',
-      hint: 'Kotak catatan, judul dan label opsional',
+      hint: t('ui.kotak_catatan_judul_dan_label_opsional'),
       icon: Info,
       keywords: 'callout note catatan info peringatan kotak judul label kategori',
       run: (c) => c.wrapIn('callout', { type: 'info' }),
     },
     {
-      label: 'Kartu tautan',
-      hint: 'Pratinjau halaman web',
+      label: t('ui.kartu_tautan'),
+      hint: t('ui.pratinjau_halaman_web'),
       icon: ExternalLink,
       keywords: 'link card tautan referensi web preview whatsapp',
       action: insertLinkCard,
     },
     {
-      label: 'Tombol',
-      hint: 'Tautan ajakan bertindak',
+      label: t('ui.tombol'),
+      hint: t('ui.tautan_ajakan_bertindak'),
       icon: MousePointerClick,
       keywords: 'button tombol cta link tautan',
       action: insertButton,
     },
     {
-      label: 'Daftar poin',
-      hint: 'Daftar tak berurut',
+      label: t('ui.daftar_poin'),
+      hint: t('ui.daftar_tak_berurut'),
       icon: List,
       keywords: 'bullet list daftar',
       run: (c) => c.toggleBulletList(),
     },
     {
-      label: 'Daftar angka',
-      hint: 'Daftar berurut',
+      label: t('ui.daftar_angka'),
+      hint: t('ui.daftar_berurut'),
       icon: ListOrdered,
       keywords: 'ordered number list daftar',
       run: (c) => c.toggleOrderedList(),
     },
     {
-      label: 'Kutipan',
-      hint: 'Sorot kutipan',
+      label: t('ui.kutipan'),
+      hint: t('ui.sorot_kutipan'),
       icon: Quote,
       keywords: 'quote blockquote',
       run: (c) => c.toggleBlockquote(),
     },
     {
-      label: 'Blok kode',
-      hint: 'Cuplikan kode',
+      label: t('ui.blok_kode'),
+      hint: t('ui.cuplikan_kode'),
       icon: SquareCode,
       keywords: 'code kode',
       run: (c) => c.toggleCodeBlock({ lineNumbers: true } as never),
     },
     {
-      label: 'Garis pemisah',
-      hint: 'Pemisah bagian',
+      label: t('ui.garis_pemisah'),
+      hint: t('ui.pemisah_bagian'),
       icon: Minus,
       keywords: 'divider hr garis',
       run: (c) => c.setHorizontalRule(),
     },
     {
-      label: 'Tabel',
-      hint: 'Baris dan kolom data',
+      label: t('ui.tabel'),
+      hint: t('ui.baris_dan_kolom_data'),
       icon: Table2,
       keywords: 'table tabel baris kolom row column grid',
       run: (c) => c.insertContent({ type: 'tableSetup' }),
     },
     {
-      label: 'Rumus blok',
-      hint: 'Persamaan di tengah (LaTeX)',
+      label: t('ui.rumus_blok'),
+      hint: t('ui.persamaan_di_tengah_latex'),
       icon: Sigma,
       keywords: 'math equation formula latex rumus persamaan matematika',
       action: () => insertAtomAndSelect('mathBlock'),
     },
     {
-      label: 'Rumus sebaris',
-      hint: 'Rumus di tengah kalimat',
+      label: t('ui.rumus_sebaris'),
+      hint: t('ui.rumus_di_tengah_kalimat'),
       icon: Sigma,
       keywords: 'inline math formula latex rumus sebaris',
       action: () => insertAtomAndSelect('mathInline'),
     },
     {
-      label: 'Kartu spesifikasi',
-      hint: 'Pasangan label dan nilai',
+      label: t('ui.kartu_spesifikasi'),
+      hint: t('ui.pasangan_label_dan_nilai'),
       icon: ClipboardList,
       keywords: 'spec specification sheet matrix label value spesifikasi data',
       run: (c) =>
         c.insertContent({
           type: 'specSheet',
-          attrs: { title: 'Spesifikasi' },
+          attrs: { title: t('ui.spesifikasi') },
           content: [1, 2].map(() => ({
             type: 'specRow',
             content: [{ type: 'specLabel' }, { type: 'specValue' }],
@@ -505,15 +505,15 @@
         }),
     },
     {
-      label: 'Kartu definisi',
-      hint: 'Istilah, pelafalan, dan arti',
+      label: t('ui.kartu_definisi'),
+      hint: t('ui.istilah_pelafalan_dan_arti'),
       icon: BookA,
       keywords: 'definition dictionary term kamus istilah arti glossary',
-      run: (c) => c.wrapIn('definition', { term: 'Istilah' }),
+      run: (c) => c.wrapIn('definition', { term: t('ui.istilah') }),
     },
     {
-      label: 'Daftar referensi',
-      hint: 'Sumber bernomor',
+      label: t('ui.daftar_referensi'),
+      hint: t('ui.sumber_bernomor'),
       icon: BookText,
       keywords:
         'references bibliography sources citations referensi sumber pustaka',
@@ -565,7 +565,7 @@
       pos: range.pos,
       label:
         kind === 'heading'
-          ? `Judul ${node.attrs.level}`
+          ? t('ui.judul_level', { level: node.attrs.level })
           : (blockLabels[kind] ?? kind),
     };
   });
@@ -942,14 +942,14 @@
       });
 
       if (!response.ok) {
-        toast.error('Pratinjau tautan tidak dapat diambil. Isi manual saja.');
+        toast.error(t('ui.pratinjau_tautan_tidak_dapat_diambil_isi'));
 
         return;
       }
 
       patchBlock(await response.json());
     } catch {
-      toast.error('Pratinjau tautan tidak dapat diambil.');
+      toast.error(t('ui.pratinjau_tautan_tidak_dapat_diambil'));
     } finally {
       fetchingPreview = false;
     }
@@ -1187,41 +1187,41 @@
       return [
         [
           {
-            label: 'Sisipkan baris di atas',
+            label: t('ui.sisipkan_baris_di_atas'),
             icon: BetweenHorizontalStart,
             action: run((c) => c.addRowBefore()),
           },
           {
-            label: 'Sisipkan baris di bawah',
+            label: t('ui.sisipkan_baris_di_bawah'),
             icon: BetweenHorizontalEnd,
             action: run((c) => c.addRowAfter()),
           },
           {
-            label: 'Hapus baris',
+            label: t('ui.hapus_baris'),
             icon: TableRowsSplit,
             action: run((c) => c.deleteRow()),
           },
         ],
         [
           {
-            label: 'Sisipkan kolom di kiri',
+            label: t('ui.sisipkan_kolom_di_kiri'),
             icon: BetweenVerticalStart,
             action: run((c) => c.addColumnBefore()),
           },
           {
-            label: 'Sisipkan kolom di kanan',
+            label: t('ui.sisipkan_kolom_di_kanan'),
             icon: BetweenVerticalEnd,
             action: run((c) => c.addColumnAfter()),
           },
           {
-            label: 'Hapus kolom',
+            label: t('ui.hapus_kolom'),
             icon: Table2,
             action: run((c) => c.deleteColumn()),
           },
         ],
         [
           {
-            label: 'Hapus tabel',
+            label: t('ui.hapus_tabel'),
             icon: Trash2,
             danger: true,
             action: run((c) => c.deleteTable()),
@@ -1252,7 +1252,7 @@
           ? [
               [
                 {
-                  label: 'Pratinjau di tab baru',
+                  label: t('ui.pratinjau_di_tab_baru'),
                   icon: ExternalLink,
                   action: () => {
                     window.open(viewHref, '_blank', 'noopener,noreferrer');
@@ -1281,50 +1281,50 @@
     const groups: ContextItem[][] = [
       [
         {
-          label: 'Salin',
+          label: t('ui.salin'),
           shortcut: 'Ctrl+C',
           disabled: !hasSelection,
           action: () => clipboardCommand('copy'),
         },
         {
-          label: 'Potong',
+          label: t('ui.potong'),
           shortcut: 'Ctrl+X',
           disabled: !hasSelection,
           action: () => clipboardCommand('cut'),
         },
-        { label: 'Tempel', shortcut: 'Ctrl+V', action: pasteFromClipboard },
+        { label: t('ui.tempel'), shortcut: 'Ctrl+V', action: pasteFromClipboard },
       ],
     ];
 
     if (!minimal) {
       groups[0].push(
-        { label: 'Gandakan', action: duplicateBlock },
-        { label: 'Tambahkan sebelumnya', action: () => addParagraph('before') },
-        { label: 'Tambahkan setelahnya', action: () => addParagraph('after') },
+        { label: t('ui.gandakan'), action: duplicateBlock },
+        { label: t('ui.tambahkan_sebelumnya'), action: () => addParagraph('before') },
+        { label: t('ui.tambahkan_setelahnya'), action: () => addParagraph('after') },
       );
     }
 
     const format: ContextItem[] = [
       {
-        label: 'Tebal',
+        label: t('ui.tebal'),
         shortcut: 'Ctrl+B',
         on: active('bold'),
         action: () => instance.chain().focus().toggleBold().run(),
       },
       {
-        label: 'Miring',
+        label: t('ui.miring'),
         shortcut: 'Ctrl+I',
         on: active('italic'),
         action: () => instance.chain().focus().toggleItalic().run(),
       },
       {
-        label: 'Garis bawah',
+        label: t('ui.garis_bawah'),
         shortcut: 'Ctrl+U',
         on: active('underline'),
         action: () => instance.chain().focus().toggleUnderline().run(),
       },
       {
-        label: 'Coret',
+        label: t('ui.coret'),
         on: active('strike'),
         action: () => instance.chain().focus().toggleStrike().run(),
       },
@@ -1336,12 +1336,12 @@
 
     format.push(
       {
-        label: 'Kode inline',
+        label: t('ui.kode_inline'),
         on: active('code'),
         action: () => instance.chain().focus().toggleCode().run(),
       },
       {
-        label: active('link') ? 'Ubah tautan' : 'Tautan',
+        label: active('link') ? t('ui.ubah_tautan') : t('ui.tautan'),
         on: active('link'),
         action: setLink,
       },
@@ -1349,17 +1349,17 @@
 
     groups.push([
       {
-        label: 'Ubah menjadi...',
+        label: t('ui.ubah_menjadi'),
         action: () =>
           setTimeout(() => Object.assign(ctx, { open: true, kind: 'type' })),
       },
       {
-        label: 'Pindah ke atas',
+        label: t('ui.pindah_ke_atas'),
         disabled: !canMove(-1),
         action: () => moveBlock(-1),
       },
       {
-        label: 'Pindah ke bawah',
+        label: t('ui.pindah_ke_bawah'),
         disabled: !canMove(1),
         action: () => moveBlock(1),
       },
@@ -1373,7 +1373,7 @@
           action: () => patchBlock({ align }),
         })),
         {
-          label: 'Ganti gambar...',
+          label: t('ui.ganti_gambar_2'),
           action: () => openPicker('replace'),
         },
       ]);
@@ -1384,12 +1384,12 @@
 
       groups.push(
         [
-          { label: 'Bahasa: Otomatis', value: '' },
+          { label: t('ui.bahasa_otomatis'), value: '' },
           ...languageNames().map((name) => ({
             label: `Bahasa: ${name}`,
             value: name,
           })),
-          { label: 'Bahasa: Teks biasa', value: 'plaintext' },
+          { label: t('ui.bahasa_teks_biasa'), value: 'plaintext' },
         ].map<ContextItem>(({ label, value }) => ({
           label,
           on: current === value,
@@ -1404,12 +1404,12 @@
     }
 
     groups.push([
-      { label: 'Sunting sebagai HTML', action: () => setMode('html') },
+      { label: t('ui.sunting_sebagai_html'), action: () => setMode('html') },
     ]);
 
     groups.push([
       {
-        label: 'Hapus',
+        label: t('security.hapus'),
         danger: true,
         action: () => deleteBlock(),
       },
@@ -1500,7 +1500,7 @@
       window.alert(
         exception instanceof Error
           ? exception.message
-          : 'Gambar gagal diunggah.',
+          : t('ui.gambar_gagal_diunggah'),
       );
     } finally {
       uploading = false;
@@ -1571,7 +1571,7 @@
           class: 'rte-content wysiwyg-content-wrapper',
           spellcheck: 'true',
           // The contenteditable textbox needs an accessible name.
-          'aria-label': placeholder || 'Editor teks',
+          'aria-label': placeholder || t('ui.editor_teks'),
         },
         handleKeyDown: (_view, event) => {
           if (!minimal && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
@@ -1732,39 +1732,39 @@
 
       {#if blockInfo?.kind === 'image'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Perataan</span>
+          <span class="rte-ins-label">{t('ui.perataan')}</span>
           {@render alignButtons(setAlign)}
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Lebar</span>
+          <span class="rte-ins-label">{t('ui.lebar')}</span>
           <Select
             inline
             searchable={false}
             size="sm"
             class="rte-select"
-            ariaLabel="Lebar gambar"
-            placeholder="Lebar otomatis"
+            ariaLabel={t('ui.lebar_gambar')}
+            placeholder={t('ui.lebar_otomatis')}
             items={widthItems}
             value={blockInfo.attrs.width ? String(blockInfo.attrs.width) : null}
             onchange={(next) => patchBlock({ width: Number(next) || null })}
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Teks alternatif</span>
+          <span class="rte-ins-label">{t('ui.teks_alternatif')}</span>
           <input
             class="form-control form-control-sm"
-            placeholder="Teks alternatif"
-            aria-label="Teks alternatif"
+            placeholder={t('ui.teks_alternatif')}
+            aria-label={t('ui.teks_alternatif')}
             value={blockInfo.attrs.alt ?? ''}
             oninput={(event) => patchBlock({ alt: event.currentTarget.value })}
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Kredit foto</span>
+          <span class="rte-ins-label">{t('ui.kredit_foto')}</span>
           <input
             class="form-control form-control-sm"
-            placeholder="Mis. Workwear Archive"
-            aria-label="Kredit foto"
+            placeholder={t('ui.mis_workwear_archive')}
+            aria-label={t('ui.kredit_foto')}
             maxlength="60"
             value={blockInfo.attrs.credit ?? ''}
             oninput={(event) =>
@@ -1772,34 +1772,33 @@
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Sumber asli</span>
+          <span class="rte-ins-label">{t('ui.sumber_asli')}</span>
           <input
             class="form-control form-control-sm"
             type="url"
             placeholder="https://… (opsional)"
-            aria-label="Tautan sumber asli"
+            aria-label={t('ui.tautan_sumber_asli')}
             value={blockInfo.attrs.source ?? ''}
             oninput={(event) =>
               patchBlock({ source: sourceUrl(event.currentTarget.value) })}
           />
         </div>
         <p class="rte-ins-desc">
-          Ketik keterangan langsung di bawah gambar; tebal, miring, garis
-          bawah, dan tautan bisa dipakai.
+          {t('ui.ketik_keterangan_langsung_di_bawah_gambar')}
         </p>
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary align-self-start"
-          onclick={() => openPicker('replace')}>Ganti gambar</button
+          onclick={() => openPicker('replace')}>{t('ui.ganti_gambar')}</button
         >
       {:else if blockInfo?.kind === 'linkCard'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Alamat halaman</span>
+          <span class="rte-ins-label">{t('ui.alamat_halaman')}</span>
           <input
             class="form-control form-control-sm"
             type="url"
             placeholder="https://contoh.com/artikel"
-            aria-label="Alamat halaman"
+            aria-label={t('ui.alamat_halaman')}
             value={blockInfo.attrs.url ?? ''}
             oninput={(event) =>
               patchBlock({ url: sourceUrl(event.currentTarget.value) })}
@@ -1809,23 +1808,23 @@
             class="btn btn-sm btn-outline-secondary align-self-start"
             disabled={fetchingPreview || !blockInfo.attrs.url}
             onclick={() => loadLinkPreview(String(blockInfo?.attrs.url ?? ''))}
-            >{fetchingPreview ? 'Mengambil…' : 'Ambil pratinjau'}</button
+            >{fetchingPreview ? t('ui.mengambil') : t('ui.ambil_pratinjau')}</button
           >
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Judul</span>
+          <span class="rte-ins-label">{t('ui.judul')}</span>
           <input
             class="form-control form-control-sm"
-            aria-label="Judul kartu tautan"
+            aria-label={t('ui.judul_kartu_tautan')}
             value={blockInfo.attrs.title ?? ''}
             oninput={(event) => patchBlock({ title: event.currentTarget.value })}
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Nama situs</span>
+          <span class="rte-ins-label">{t('ui.nama_situs')}</span>
           <input
             class="form-control form-control-sm"
-            aria-label="Nama situs"
+            aria-label={t('ui.nama_situs')}
             maxlength="60"
             value={blockInfo.attrs.siteName ?? ''}
             oninput={(event) =>
@@ -1833,12 +1832,12 @@
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Gambar (URL)</span>
+          <span class="rte-ins-label">{t('ui.gambar_url')}</span>
           <input
             class="form-control form-control-sm"
             type="url"
             placeholder="https://… (opsional)"
-            aria-label="URL gambar pratinjau"
+            aria-label={t('ui.url_gambar_pratinjau')}
             value={blockInfo.attrs.image ?? ''}
             oninput={(event) =>
               patchBlock({ image: sourceUrl(event.currentTarget.value) })}
@@ -1846,21 +1845,21 @@
         </div>
       {:else if blockInfo?.kind === 'buttonBlock'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Teks tombol</span>
+          <span class="rte-ins-label">{t('ui.teks_tombol')}</span>
           <input
             class="form-control form-control-sm"
-            placeholder="Teks tombol"
-            aria-label="Teks tombol"
+            placeholder={t('ui.teks_tombol')}
+            aria-label={t('ui.teks_tombol')}
             value={blockInfo.attrs.text ?? ''}
             oninput={(event) => patchBlock({ text: event.currentTarget.value })}
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Tautan</span>
+          <span class="rte-ins-label">{t('ui.tautan')}</span>
           <input
             class="form-control form-control-sm"
             placeholder="https://..."
-            aria-label="Alamat tautan tombol"
+            aria-label={t('ui.alamat_tautan_tombol')}
             value={blockInfo.attrs.href ?? ''}
             onchange={(event) => {
               const href = safeHref(event.currentTarget.value);
@@ -1870,44 +1869,44 @@
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Gaya</span>
+          <span class="rte-ins-label">{t('ui.gaya')}</span>
           <Select
             inline
             required
             searchable={false}
             size="sm"
             class="rte-select"
-            ariaLabel="Gaya tombol"
+            ariaLabel={t('ui.gaya_tombol')}
             items={buttonVariantItems}
             value={blockInfo.attrs.variant}
             onchange={(next) => patchBlock({ variant: next })}
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Perataan</span>
+          <span class="rte-ins-label">{t('ui.perataan')}</span>
           {@render alignButtons(setAlign)}
         </div>
       {:else if blockInfo?.kind === 'codeBlock'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Bahasa</span>
+          <span class="rte-ins-label">{t('ui.bahasa')}</span>
           <Select
             inline
             size="sm"
             class="rte-select"
-            ariaLabel="Bahasa pemrograman"
-            placeholder="Otomatis"
+            ariaLabel={t('ui.bahasa_pemrograman')}
+            placeholder={t('ui.otomatis')}
             items={languageItems}
             value={blockInfo.attrs.language || null}
             onchange={(next) => patchBlock({ language: next || null })}
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Judul</span>
+          <span class="rte-ins-label">{t('ui.judul')}</span>
           <input
             type="text"
             class="form-control form-control-sm"
-            aria-label="Judul blok kode"
-            placeholder="Judul (mis. User.php)"
+            aria-label={t('ui.judul_blok_kode')}
+            placeholder={t('ui.judul_mis_user_php')}
             maxlength="60"
             value={blockInfo.attrs.title ?? ''}
             disabled={!!blockInfo.attrs.titleHidden}
@@ -1942,12 +1941,12 @@
           </label>
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Tema</span>
+          <span class="rte-ins-label">{t('ui.tema')}</span>
           <Select
             inline
             size="sm"
             class="rte-select"
-            ariaLabel="Tema kode"
+            ariaLabel={t('ui.tema_kode')}
             placeholder={defaultThemeLabel}
             items={themeItems}
             value={blockInfo.attrs.theme || null}
@@ -1955,7 +1954,7 @@
           />
         </div>
         <div class="rte-code-preview wysiwyg-content-wrapper">
-          <span class="rte-code-preview-label">Pratinjau</span>
+          <span class="rte-code-preview-label">{t('ui.pratinjau')}</span>
           <pre data-code-theme={blockInfo.attrs.theme ?? undefined}><code
               use:codePreview={{
                 source:
@@ -1965,7 +1964,7 @@
         </div>
       {:else if blockInfo?.kind === 'callout'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Jenis</span>
+          <span class="rte-ins-label">{t('ui.jenis')}</span>
           <div class="rte-ins-row">
             {#each CALLOUT_TYPES as type (type)}
               <button
@@ -1979,7 +1978,7 @@
           </div>
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Kepala callout</span>
+          <span class="rte-ins-label">{t('ui.kepala_callout')}</span>
           <div class="rte-ins-row">
             <button
               type="button"
@@ -1988,8 +1987,8 @@
               aria-pressed={blockInfo.attrs.title !== ''}
               onclick={() =>
                 patchBlock({
-                  title: blockInfo?.attrs.title ? '' : 'Judul catatan',
-                })}>Judul</button
+                  title: blockInfo?.attrs.title ? '' : t('admin-notes.judul_catatan'),
+                })}>{t('ui.judul')}</button
             >
             <button
               type="button"
@@ -1998,17 +1997,17 @@
               aria-pressed={blockInfo.attrs.label !== ''}
               onclick={() =>
                 patchBlock({
-                  label: blockInfo?.attrs.label ? '' : 'Kategori',
-                })}>Label kategori</button
+                  label: blockInfo?.attrs.label ? '' : t('admin.kategori'),
+                })}>{t('ui.label_kategori')}</button
             >
           </div>
         </div>
         {#if blockInfo.attrs.title}
           <div class="rte-ins-group">
-            <span class="rte-ins-label">Judul</span>
+            <span class="rte-ins-label">{t('ui.judul')}</span>
             <input
               class="form-control form-control-sm"
-              aria-label="Judul callout"
+              aria-label={t('ui.judul_callout')}
               maxlength="60"
               value={blockInfo.attrs.title}
               oninput={(event) =>
@@ -2020,10 +2019,10 @@
         {/if}
         {#if blockInfo.attrs.label}
           <div class="rte-ins-group">
-            <span class="rte-ins-label">Label kategori</span>
+            <span class="rte-ins-label">{t('ui.label_kategori')}</span>
             <input
               class="form-control form-control-sm"
-              aria-label="Label kategori callout"
+              aria-label={t('ui.label_kategori_callout')}
               maxlength="60"
               value={blockInfo.attrs.label}
               oninput={(event) =>
@@ -2036,16 +2035,16 @@
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary align-self-start"
-          title="Keluarkan isi dari callout"
+          title={t('ui.keluarkan_isi_dari_callout')}
           onclick={() => editor?.chain().focus().lift('callout').run()}
-          >Lepas kotak</button
+          >{t('ui.lepas_kotak')}</button
         >
       {:else if blockInfo?.kind === 'definition'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Istilah</span>
+          <span class="rte-ins-label">{t('ui.istilah')}</span>
           <input
             class="form-control form-control-sm"
-            aria-label="Istilah"
+            aria-label={t('ui.istilah')}
             maxlength="60"
             value={blockInfo.attrs.term ?? ''}
             oninput={(event) =>
@@ -2053,11 +2052,11 @@
           />
         </div>
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Pelafalan</span>
+          <span class="rte-ins-label">{t('ui.pelafalan')}</span>
           <input
             class="form-control form-control-sm"
-            placeholder="Mis. /rɛlm/ (opsional)"
-            aria-label="Pelafalan"
+            placeholder={t('ui.mis_rlm_opsional')}
+            aria-label={t('ui.pelafalan')}
             maxlength="60"
             value={blockInfo.attrs.phonetic ?? ''}
             oninput={(event) =>
@@ -2069,17 +2068,17 @@
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary align-self-start"
-          title="Keluarkan isi dari kartu"
+          title={t('ui.keluarkan_isi_dari_kartu')}
           onclick={() => editor?.chain().focus().lift('definition').run()}
-          >Lepas kartu</button
+          >{t('ui.lepas_kartu')}</button
         >
       {:else if blockInfo?.kind === 'specSheet'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Judul</span>
+          <span class="rte-ins-label">{t('ui.judul')}</span>
           <input
             class="form-control form-control-sm"
-            placeholder="Judul (opsional)"
-            aria-label="Judul kartu spesifikasi"
+            placeholder={t('ui.judul_opsional')}
+            aria-label={t('ui.judul_kartu_spesifikasi')}
             maxlength="60"
             value={blockInfo.attrs.title ?? ''}
             oninput={(event) =>
@@ -2090,19 +2089,19 @@
           <button
             type="button"
             class="btn btn-sm btn-outline-secondary"
-            onclick={addSpecRow}>Tambah baris</button
+            onclick={addSpecRow}>{t('ui.tambah_baris')}</button
           >
           <button
             type="button"
             class="btn btn-sm btn-outline-secondary"
-            onclick={removeSpecRow}>Hapus baris</button
+            onclick={removeSpecRow}>{t('ui.hapus_baris')}</button
           >
         </div>
-        <p class="rte-ins-desc">Tekan Enter di kolom nilai untuk baris baru.</p>
+        <p class="rte-ins-desc">{t('ui.tekan_enter_di_kolom_nilai_untuk')}</p>
       {:else if blockInfo?.kind === 'table'}
         {@const headers = tableHeaders()}
         <div class="rte-ins-section">
-          <span class="rte-ins-title">Pengaturan</span>
+          <span class="rte-ins-title">{t('ui.pengaturan')}</span>
           <label class="rte-switch">
             <input
               type="checkbox"
@@ -2111,7 +2110,7 @@
               onchange={() => editor?.chain().focus().toggleHeaderRow().run()}
             />
             <span class="rte-switch-track" aria-hidden="true"></span>
-            <span>Baris header</span>
+            <span>{t('ui.baris_header')}</span>
           </label>
           <label class="rte-switch">
             <input
@@ -2122,41 +2121,39 @@
                 editor?.chain().focus().toggleHeaderColumn().run()}
             />
             <span class="rte-switch-track" aria-hidden="true"></span>
-            <span>Kolom header</span>
+            <span>{t('ui.kolom_header')}</span>
           </label>
         </div>
         <p class="rte-ins-desc">
-          Gunakan tombol tabel di toolbar blok untuk menyisipkan atau menghapus
-          baris dan kolom.
+          {t('ui.gunakan_tombol_tabel_di_toolbar_blok')}
         </p>
       {:else if blockInfo?.kind === 'mathBlock' || blockInfo?.kind === 'mathInline'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Rumus (LaTeX)</span>
+          <span class="rte-ins-label">{t('ui.rumus_latex')}</span>
           <textarea
             class="form-control form-control-sm font-monospace"
             rows="3"
             placeholder={'\\frac{a}{b}'}
-            aria-label="Rumus LaTeX"
+            aria-label={t('ui.rumus_latex_2')}
             value={blockInfo.attrs.latex ?? ''}
             oninput={(event) =>
               patchBlock({ latex: event.currentTarget.value })}></textarea>
         </div>
         <p class="rte-ins-desc">
-          {'Contoh: E = mc^2 atau \\sqrt{x^2 + y^2}'}
+          {t('ui.contoh_rumus')}
         </p>
       {:else if currentBlock.kind === 'references'}
         <p class="rte-ins-desc">
-          Tekan Enter untuk menambah rujukan. Gunakan tebal, miring, dan tautan
-          untuk topik, judul, dan DOI.
+          {t('ui.tekan_enter_untuk_menambah_rujukan_gunakan')}
         </p>
       {:else if currentBlock.kind === 'paragraph' || currentBlock.kind === 'heading'}
         <div class="rte-ins-group">
-          <span class="rte-ins-label">Perataan teks</span>
+          <span class="rte-ins-label">{t('ui.perataan_teks')}</span>
           {@render alignButtons(setAlign)}
         </div>
         {#if currentBlock.kind === 'heading'}
           <div class="rte-ins-group">
-            <span class="rte-ins-label">Tingkat judul</span>
+            <span class="rte-ins-label">{t('ui.tingkat_judul')}</span>
             <div class="rte-ins-row">
               {#each headingLevels as level (level)}
                 <button
@@ -2178,11 +2175,11 @@
         class="btn btn-sm btn-outline-danger align-self-start"
         onclick={() => deleteBlock()}
       >
-        <Trash size={14} /> Hapus blok
+        <Trash size={14} /> {t('ui.hapus_blok')}
       </button>
     </div>
   {:else}
-    <p class="rte-ins-empty">Pilih sebuah blok untuk mengubah pengaturannya.</p>
+    <p class="rte-ins-empty">{t('ui.pilih_sebuah_blok_untuk_mengubah_pengaturannya')}</p>
   {/if}
 {/snippet}
 
@@ -2201,22 +2198,22 @@
       <button
         type="button"
         class="rte-btn rte-btn-lg"
-        title="Buka/tutup menu admin"
-        aria-label="Buka/tutup menu admin"
+        title={t('ui.buka_tutup_menu_admin')}
+        aria-label={t('ui.buka_tutup_menu_admin')}
         onclick={() => adminSidebar.toggle()}
         ><PanelLeftOpen size={18} /></button
       >
     {/if}
 
     {#if mode === 'visual' && editor}
-      <div class="rte-tools" role="toolbar" aria-label="Alat dokumen">
+      <div class="rte-tools" role="toolbar" aria-label={t('ui.alat_dokumen')}>
         {#if !minimal}
           <button
             type="button"
             class="rte-btn rte-btn-lg rte-inserter-toggle"
             class:on={menu.open && menu.source === 'top'}
-            title="Sisipkan blok"
-            aria-label="Sisipkan blok"
+            title={t('ui.sisipkan_blok')}
+            aria-label={t('ui.sisipkan_blok')}
             aria-expanded={menu.open && menu.source === 'top'}
             data-rte-trigger
             onmousedown={(event) => event.preventDefault()}
@@ -2226,7 +2223,7 @@
         <button
           type="button"
           class="rte-btn rte-btn-lg"
-          title="Urungkan"
+          title={t('ui.urungkan')}
           disabled={!editor.can().undo()}
           onclick={() => editor?.chain().focus().undo().run()}
           ><Undo2 size={18} /></button
@@ -2234,7 +2231,7 @@
         <button
           type="button"
           class="rte-btn rte-btn-lg"
-          title="Ulangi"
+          title={t('ui.ulangi')}
           disabled={!editor.can().redo()}
           onclick={() => editor?.chain().focus().redo().run()}
           ><Redo2 size={18} /></button
@@ -2245,7 +2242,7 @@
     {#if shell}
       <div class="rte-doc-title">
         <span class="rte-doc-text" title={documentTitle}>
-          {documentTitle || 'Tanpa judul'}<span> · {rootLabel}</span>
+          {documentTitle || t('ui.tanpa_judul')}<span> · {rootLabel}</span>
         </span>
         {#if viewHref}
           <a
@@ -2253,8 +2250,8 @@
             target="_blank"
             rel="noopener noreferrer"
             class="rte-view-link"
-            title="Buka pratinjau di tab baru"
-            aria-label="Buka pratinjau di tab baru"
+            title={t('ui.buka_pratinjau_di_tab_baru')}
+            aria-label={t('ui.buka_pratinjau_di_tab_baru')}
             ><ExternalLink size={15} /></a
           >
         {/if}
@@ -2270,7 +2267,7 @@
             aria-selected={mode === 'visual'}
             class="rte-tab"
             class:on={mode === 'visual'}
-            onclick={() => setMode('visual')}>Visual</button
+            onclick={() => setMode('visual')}>{t('ui.visual')}</button
           >
           <button
             type="button"
@@ -2278,7 +2275,7 @@
             aria-selected={mode === 'html'}
             class="rte-tab"
             class:on={mode === 'html'}
-            onclick={() => setMode('html')}>HTML</button
+            onclick={() => setMode('html')}>{t('ui.html')}</button
           >
         </div>
       {/if}
@@ -2304,8 +2301,8 @@
           type="button"
           class="rte-btn rte-btn-lg"
           class:on={device !== 'desktop' || (ctx.open && ctx.kind === 'device')}
-          title="Pratinjau"
-          aria-label="Pratinjau"
+          title={t('ui.pratinjau')}
+          aria-label={t('ui.pratinjau')}
           aria-haspopup="menu"
           data-rte-trigger
           onclick={(event) => openToolbarMenu('device', event)}
@@ -2316,8 +2313,8 @@
           type="button"
           class="rte-btn rte-btn-lg rte-sidebar-toggle"
           class:on={sidebarOpen}
-          title="Pengaturan"
-          aria-label="Pengaturan"
+          title={t('ui.pengaturan')}
+          aria-label={t('ui.pengaturan')}
           aria-pressed={sidebarOpen}
           onclick={() => (sidebarOpen = !sidebarOpen)}
           ><PanelRight size={18} /></button
@@ -2326,7 +2323,7 @@
     </div>
 
     {#if !shell && blockInfo && mode === 'visual'}
-      <div class="rte-blockbar" role="group" aria-label="Pengaturan blok">
+      <div class="rte-blockbar" role="group" aria-label={t('ui.pengaturan_blok')}>
         {@render inspector()}
       </div>
     {/if}
@@ -2355,8 +2352,8 @@
             <Select
               inline
               size="sm"
-              ariaLabel="Ubah bahasa blok kode"
-              placeholder="Otomatis"
+              ariaLabel={t('ui.ubah_bahasa_blok_kode')}
+              placeholder={t('ui.otomatis')}
               items={languageItems}
               value={blockInfo?.attrs.language || null}
               onchange={(next) => setCodeLanguage(next ? String(next) : '')}
@@ -2364,7 +2361,7 @@
             <Select
               inline
               size="sm"
-              ariaLabel="Ubah tema blok kode"
+              ariaLabel={t('ui.ubah_tema_blok_kode')}
               placeholder={defaultThemeLabel}
               items={themeItems}
               value={blockInfo?.attrs.theme || null}
@@ -2381,8 +2378,8 @@
             <button
               type="button"
               class="rte-inserter"
-              title="Sisipkan blok"
-              aria-label="Sisipkan blok"
+              title={t('ui.sisipkan_blok')}
+              aria-label={t('ui.sisipkan_blok')}
               style="top: {inserter.top}px; left: {inserter.left}px"
               onmousedown={(event) => event.preventDefault()}
               onclick={openButtonMenu}><Plus size={16} /></button
@@ -2397,7 +2394,7 @@
               out:overlayOut={{ origin: 'top left' }}
               role="listbox"
               tabindex="-1"
-              aria-label="Sisipkan blok"
+              aria-label={t('ui.sisipkan_blok')}
               style="top: {menu.top}px; left: {menu.left}px"
               bind:this={menuEl}
               onmousedown={(event) => {
@@ -2411,8 +2408,8 @@
                   <!-- svelte-ignore a11y_autofocus -->
                   <input
                     type="search"
-                    placeholder="Cari blok"
-                    aria-label="Cari blok"
+                    placeholder={t('ui.cari_blok')}
+                    aria-label={t('ui.cari_blok')}
                     autofocus
                     bind:value={menu.query}
                     oninput={() => (menu.index = 0)}
@@ -2437,14 +2434,14 @@
                   >
                 </button>
               {:else}
-                <p class="rte-menu-empty">Blok tidak ditemukan</p>
+                <p class="rte-menu-empty">{t('ui.blok_tidak_ditemukan')}</p>
               {/each}
             </div>
           {/if}
         {/if}
 
         {#if mode === 'html'}
-          <HtmlCodeEditor bind:value={html} ariaLabel="Kode HTML" />
+          <HtmlCodeEditor bind:value={html} ariaLabel={t('ui.kode_html')} />
         {/if}
 
         {#if shell}{@render after?.()}{/if}
@@ -2455,7 +2452,7 @@
       <aside
         class="rte-sidebar"
         class:is-open={sidebarOpen}
-        aria-label="Pengaturan"
+        aria-label={t('ui.pengaturan')}
         inert={!sidebarOpen}
       >
         <div class="rte-side-inner">
@@ -2474,13 +2471,13 @@
               aria-selected={sidebarTab === 'block'}
               class="rte-side-tab"
               class:on={sidebarTab === 'block'}
-              onclick={() => (sidebarTab = 'block')}>Blok</button
+              onclick={() => (sidebarTab = 'block')}>{t('ui.blok')}</button
             >
             <button
               type="button"
               class="rte-btn rte-side-close"
-              title="Tutup pengaturan"
-              aria-label="Tutup pengaturan"
+              title={t('ui.tutup_pengaturan')}
+              aria-label={t('ui.tutup_pengaturan')}
               onclick={() => (sidebarOpen = false)}><X size={18} /></button
             >
           </div>
@@ -2503,7 +2500,7 @@
       class="rte-blocktb"
       use:portal
       role="toolbar"
-      aria-label="Pemformatan blok"
+      aria-label={t('ui.pemformatan_blok')}
       tabindex="-1"
       style="top: {blockTb.top}px; left: {blockTb.left}px"
       onmousedown={(event) => event.preventDefault()}
@@ -2515,8 +2512,8 @@
           <button
             type="button"
             class="rte-btn rte-btn-lg"
-            title="Ubah jenis blok"
-            aria-label="Ubah jenis blok"
+            title={t('ui.ubah_jenis_blok')}
+            aria-label={t('ui.ubah_jenis_blok')}
             data-rte-trigger
             onclick={(event) => openToolbarMenu('type', event)}
             ><TypeIcon size={18} /></button
@@ -2525,14 +2522,14 @@
             <button
               type="button"
               class="rte-btn"
-              title="Pindah ke atas"
+              title={t('ui.pindah_ke_atas')}
               disabled={!canMove(-1)}
               onclick={() => moveBlock(-1)}><ArrowUp size={14} /></button
             >
             <button
               type="button"
               class="rte-btn"
-              title="Pindah ke bawah"
+              title={t('ui.pindah_ke_bawah')}
               disabled={!canMove(1)}
               onclick={() => moveBlock(1)}><ArrowDown size={14} /></button
             >
@@ -2550,8 +2547,8 @@
           <button
             type="button"
             class="rte-btn rte-btn-lg"
-            title="Perataan"
-            aria-label="Perataan"
+            title={t('ui.perataan')}
+            aria-label={t('ui.perataan')}
             data-rte-trigger
             onclick={(event) => openToolbarMenu('align', event)}
             ><CurrentAlign size={18} /></button
@@ -2563,7 +2560,7 @@
           type="button"
           class="rte-btn rte-btn-lg"
           class:on={active('bold')}
-          title="Tebal"
+          title={t('ui.tebal')}
           onclick={() => editor?.chain().focus().toggleBold().run()}
           ><Bold size={18} /></button
         >
@@ -2571,7 +2568,7 @@
           type="button"
           class="rte-btn rte-btn-lg"
           class:on={active('italic')}
-          title="Miring"
+          title={t('ui.miring')}
           onclick={() => editor?.chain().focus().toggleItalic().run()}
           ><Italic size={18} /></button
         >
@@ -2580,7 +2577,7 @@
             type="button"
             class="rte-btn rte-btn-lg"
             class:on={active('link')}
-            title="Tautan"
+            title={t('ui.tautan')}
             aria-keyshortcuts="Control+K Meta+K"
             data-rte-link-trigger
             onmousedown={(event) => event.preventDefault()}
@@ -2591,7 +2588,7 @@
             type="button"
             class="rte-btn rte-btn-lg"
             class:on={active('bulletList')}
-            title="Daftar poin"
+            title={t('ui.daftar_poin')}
             onclick={() => editor?.chain().focus().toggleBulletList().run()}
             ><List size={18} /></button
           >
@@ -2599,7 +2596,7 @@
             type="button"
             class="rte-btn rte-btn-lg"
             class:on={active('orderedList')}
-            title="Daftar angka"
+            title={t('ui.daftar_angka')}
             onclick={() => editor?.chain().focus().toggleOrderedList().run()}
             ><ListOrdered size={18} /></button
           >
@@ -2607,7 +2604,7 @@
             type="button"
             class="rte-btn rte-btn-lg"
             class:on={active('blockquote')}
-            title="Kutipan"
+            title={t('ui.kutipan')}
             onclick={() => editor?.chain().focus().toggleBlockquote().run()}
             ><Quote size={18} /></button
           >
@@ -2619,8 +2616,8 @@
             type="button"
             class="rte-btn rte-btn-lg"
             class:on={ctx.open && ctx.kind === 'table'}
-            title="Ubah tabel"
-            aria-label="Ubah tabel"
+            title={t('ui.ubah_tabel')}
+            aria-label={t('ui.ubah_tabel')}
             data-rte-trigger
             onclick={(event) => openToolbarMenu('table', event)}
             ><TableProperties size={18} /></button
@@ -2631,8 +2628,8 @@
         <button
           type="button"
           class="rte-btn rte-btn-lg"
-          title="Opsi lainnya"
-          aria-label="Opsi lainnya"
+          title={t('ui.opsi_lainnya')}
+          aria-label={t('ui.opsi_lainnya')}
           data-rte-trigger
           onclick={(event) => openToolbarMenu('context', event)}
           ><EllipsisVertical size={18} /></button
@@ -2649,7 +2646,7 @@
       out:overlayOut={{ origin: 'top left' }}
       role="menu"
       tabindex="-1"
-      aria-label="Menu konteks editor"
+      aria-label={t('ui.menu_konteks_editor')}
       style="top: {ctx.y}px; left: {ctx.x}px"
       bind:this={ctxEl}
       onmousedown={(event) => event.preventDefault()}
@@ -2683,7 +2680,7 @@
         <span class="rte-crumb-current">{currentBlock.label}</span>{/if}
     </span>
     <span class="rte-footer-end">
-      {#if uploading}<span>Mengunggah gambar...</span>{/if}
+      {#if uploading}<span>{t('ui.mengunggah_gambar')}</span>{/if}
       <span>{words} kata</span>
     </span>
   </div>
@@ -2693,7 +2690,7 @@
   <MediaPickerModal
     bind:open={pickerOpen}
     accept="image"
-    title="Sisipkan Gambar"
+    title={t('ui.sisipkan_gambar')}
     onSelect={pickMedia}
   />
 {/if}

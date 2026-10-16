@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Plus from '@lucide/svelte/icons/plus';
   import { Link } from '@inertiajs/svelte';
 
@@ -6,7 +7,7 @@
     title,
     subtitle,
     createHref,
-    createLabel = 'Tambah',
+    createLabel = t('admin-clarifications.tambah'),
     onCreate,
   }: {
     title: string;

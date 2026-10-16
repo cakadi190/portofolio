@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { toast } from '@/lib/toast';
 import { store } from '@/wayfinder/routes/admin/media';
 import type { MediaItem } from '@/types/media';
@@ -84,17 +85,17 @@ export async function uploadMedia(original: File): Promise<MediaItem> {
     const message =
       payload?.errors?.file?.[0] ??
       (response.status === 413
-        ? 'Berkas terlalu besar untuk server. Perkecil ukurannya (maksimal 10 MB).'
+        ? t('ui.upload_too_large')
         : response.status >= 500
-          ? 'Server gagal memproses unggahan. Coba lagi, atau perkecil resolusi gambar.'
-          : 'Unggahan gagal. Gunakan JPG, PNG, WebP, GIF, atau PDF maksimal 10 MB.');
+          ? t('ui.upload_server')
+          : t('ui.upload_failed'));
 
     toast.error(message);
 
     throw new Error(message);
   }
 
-  toast.success(`${original.name} berhasil diunggah.`);
+  toast.success(t('ui.upload_done', { name: original.name }));
 
   return (await response.json()) as MediaItem;
 }

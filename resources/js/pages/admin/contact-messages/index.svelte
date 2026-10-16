@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import '../../../../css/content.scss';
   import AppHead from '@/components/app-head.svelte';
   import AdminDeleteButton from '@/components/admin/admin-delete-button.svelte';
@@ -67,11 +68,11 @@
   }
 </script>
 
-<AppHead title="Pesan Masuk" />
+<AppHead title={t('admin-contact-messages.pesan_masuk')} />
 
 <AdminPageHeader
-  title="Pesan Masuk"
-  subtitle="Pesan yang dikirim pengunjung lewat formulir di halaman Hubungi Saya. Balas langsung dari sini; balasan dikirim lewat email."
+  title={t('admin-contact-messages.pesan_masuk')}
+  subtitle={t('admin-contact-messages.pesan_yang_dikirim_pengunjung_lewat_formulir')}
 />
 
 <DataTable
@@ -80,14 +81,14 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Pengirim', key: 'name', sortable: true },
-    { label: 'Keperluan' },
-    { label: 'Dikirim', key: 'created_at', sortable: true },
-    { label: 'Status' },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin-contact-messages.pengirim'), key: 'name', sortable: true },
+    { label: t('admin-contact-messages.keperluan') },
+    { label: t('admin-blog-comments.dikirim'), key: 'created_at', sortable: true },
+    { label: t('admin.status') },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada pesan"
-  emptyText="Pesan dari pengunjung akan muncul di sini."
+  emptyTitle={t('admin.belum_ada_pesan')}
+  emptyText={t('admin.pesan_dari_pengunjung_akan_muncul_di')}
 >
   {#snippet row(message)}
     <tr class:fw-semibold={!message.read_at}>
@@ -104,7 +105,7 @@
           class:text-bg-primary={!message.read_at}
           class:text-bg-secondary={!!message.read_at}
         >
-          {message.read_at ? 'Dibaca' : 'Baru'}
+          {message.read_at ? t('admin-contact-messages.dibaca') : t('dashboard.baru')}
         </span>
       </td>
       <td class="text-end">
@@ -114,11 +115,11 @@
             class="btn btn-sm btn-outline-secondary"
             onclick={() => openMessage(message)}
           >
-            Lihat
+            {t('admin.lihat')}
           </button>
           <AdminDeleteButton
             href={destroy(message.id).url}
-            label={`Hapus pesan dari "${message.name}"?`}
+            label={t('admin-contact-messages.delete_confirm', { name: message.name })}
           />
         </div>
       </td>
@@ -128,7 +129,7 @@
 
 <FormModal
   bind:open={viewOpen}
-  title="Pesan dari Pengunjung"
+  title={t('admin-contact-messages.pesan_dari_pengunjung')}
   subtitle={viewing ? `${viewing.name} · ${viewing.email}` : ''}
   size="lg"
 >
@@ -142,7 +143,7 @@
         {@html viewing.message}
       </div>
       {#if viewing.replies.length > 0}
-        <h6 class="mb-2">Riwayat Balasan</h6>
+        <h6 class="mb-2">{t('admin-contact-messages.riwayat_balasan')}</h6>
         <ul class="list-unstyled d-flex flex-column gap-2 mb-3">
           {#each viewing.replies as item (item.id)}
             <li class="border rounded-3 px-3 py-2">
@@ -182,12 +183,12 @@
           <button
             type="button"
             class="btn btn-outline-primary"
-            onclick={() => (replying = true)}>Balas</button
+            onclick={() => (replying = true)}>{t('admin-contact-messages.balas')}</button
           >
           <button
             type="button"
             class="btn btn-primary"
-            onclick={() => (viewOpen = false)}>Tutup</button
+            onclick={() => (viewOpen = false)}>{t('admin.tutup')}</button
           >
         </div>
       {/if}

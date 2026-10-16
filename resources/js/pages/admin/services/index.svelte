@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -20,9 +21,9 @@
   }: { services: InfiniteList<Service>; filters: TableFilters } = $props();
 </script>
 
-<AppHead title="Layanan" />
+<AppHead title={t('admin.layanan')} />
 
-<AdminPageHeader title="Layanan" subtitle="Ubah informasi layanan yang Anda tawarkan." />
+<AdminPageHeader title={t('admin.layanan')} subtitle={t('admin-services.ubah_informasi_layanan_yang_anda_tawarkan')} />
 
 <DataTable
   data={services}
@@ -30,13 +31,13 @@
   {filters}
   url={index().url}
   columns={[
-    { label: 'Nama', key: 'name', sortable: true },
-    { label: 'Warna' },
-    { label: 'Portofolio' },
-    { label: 'Aksi', align: 'end' },
+    { label: t('admin.nama'), key: 'name', sortable: true },
+    { label: t('admin-services.warna') },
+    { label: t('admin.portofolio') },
+    { label: t('admin-media.aksi'), align: 'end' },
   ]}
-  emptyTitle="Belum ada layanan"
-  emptyText="Layanan diisi lewat seeder."
+  emptyTitle={t('admin-services.belum_ada_layanan')}
+  emptyText={t('admin-services.layanan_diisi_lewat_seeder')}
 >
   {#snippet row(service)}
     <tr>
@@ -55,7 +56,7 @@
       </td>
       <td>{service.portfolios_count}</td>
       <td class="text-end">
-        <Link href={edit(service.id).url} class="btn btn-sm btn-outline-secondary">Ubah</Link>
+        <Link href={edit(service.id).url} class="btn btn-sm btn-outline-secondary">{t('admin.ubah')}</Link>
       </td>
     </tr>
   {/snippet}

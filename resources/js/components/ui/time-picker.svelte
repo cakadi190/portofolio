@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { overlayIn, overlayOut } from '@/lib/overlay-motion';
   /**
    * Bootstrap-themed time picker. Renders a hidden `<input {name}>` so
@@ -10,7 +11,7 @@
     name,
     value = null,
     invalid = false,
-    placeholder = 'Pilih jam…',
+    placeholder = t('ui.pilih_jam'),
     minuteStep = 5,
   }: {
     id?: string;
@@ -89,7 +90,7 @@
       <button
         type="button"
         class="btn btn-outline-secondary"
-        aria-label="Hapus jam"
+        aria-label={t('ui.hapus_jam')}
         onclick={clear}
       >
         &times;

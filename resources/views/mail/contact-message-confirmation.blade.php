@@ -1,16 +1,16 @@
 @extends('mail.layout')
 
-@section('title', 'Pesan Anda sudah kami terima')
-@section('preheader', 'Terima kasih sudah menghubungi kami, pesan Anda akan segera diproses.')
-@section('heading', 'Pesan Anda sudah kami terima')
+@section('title', __('mail.confirmation.subject'))
+@section('preheader', __('mail.confirmation.preheader'))
+@section('heading', __('mail.confirmation.subject'))
 
 @section('content')
-    <p>Halo, <strong>{{ $contactMessage->name }}</strong>.</p>
-    <p>Terima kasih sudah menghubungi {{ config('app.name') }}. Pesan Anda dengan keperluan <strong>{{ $contactMessage->reason->label() }}</strong> sudah kami terima dan akan segera diproses. Balasan akan dikirim ke alamat email ini.</p>
-    <p style="margin-bottom:8px;color:#5f6f86;font-size:13px;">Salinan pesan Anda:</p>
+    <p>{!! __('mail.hello', ['name' => e($contactMessage->name)]) !!}</p>
+    <p>{!! __('mail.confirmation.body', ['site' => e(config('app.name')), 'reason' => e($contactMessage->reason->label())]) !!}</p>
+    <p style="margin-bottom:8px;color:#5f6f86;font-size:13px;">{{ __('mail.confirmation.copy') }}</p>
     <div class="quote" style="background:#f3f5f8;border-radius:12px;padding:14px 18px;margin:0 0 8px;">
         {!! \App\Services\EmailHtml::format($contactMessage->message) !!}
     </div>
 @endsection
 
-@section('footnote', 'Anda menerima email ini karena mengirim pesan lewat formulir kontak. Jika bukan Anda, abaikan saja email ini.')
+@section('footnote', __('mail.confirmation.footnote'))

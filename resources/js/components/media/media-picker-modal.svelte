@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { untrack } from 'svelte';
   import FileText from '@lucide/svelte/icons/file-text';
   import Upload from '@lucide/svelte/icons/upload';
@@ -16,7 +17,7 @@
   let {
     open = $bindable(false),
     accept = 'all',
-    title = 'Pilih Media',
+    title = t('ui.pilih_media'),
     multiple = false,
     onSelect,
   }: {
@@ -63,7 +64,7 @@
       items = page > 1 ? [...items, ...payload.data] : payload.data;
       lastPage = payload.last_page;
     } catch {
-      error = 'Pustaka media gagal dimuat.';
+      error = t('ui.pustaka_media_gagal_dimuat');
       toast.error(error);
     } finally {
       loading = false;
@@ -124,7 +125,7 @@
     try {
       for (const file of Array.from(files)) {
         if (accept === 'image' && !file.type.startsWith('image/')) {
-          throw new Error('Hanya berkas gambar yang diperbolehkan di sini.');
+          throw new Error(t('ui.hanya_berkas_gambar_yang_diperbolehkan_di'));
         }
 
         await uploadMedia(file);
@@ -133,7 +134,7 @@
       page = 1;
       await load();
     } catch (exception) {
-      error = exception instanceof Error ? exception.message : 'Unggahan gagal.';
+      error = exception instanceof Error ? exception.message : t('ui.unggahan_gagal');
     } finally {
       uploading = false;
 
@@ -162,7 +163,7 @@
   }
 </script>
 
-<FormModal bind:open {title} subtitle="Pilih dari pustaka atau unggah berkas baru." size="xl">
+<FormModal bind:open {title} subtitle={t('ui.pilih_dari_pustaka_atau_unggah_berkas')} size="xl">
   {#snippet children()}
     <div
       class="media-picker"
@@ -182,9 +183,9 @@
       <div class="d-flex flex-wrap gap-2 mb-3">
         <input
           type="search"
-          aria-label="Cari media"
+          aria-label={t('ui.cari_media')}
           class="form-control w-auto flex-grow-1"
-          placeholder="Cari media…"
+          placeholder={t('ui.cari_media_2')}
           bind:value={search}
           oninput={onSearch}
         />
@@ -195,7 +196,7 @@
           onclick={() => fileInput?.click()}
         >
           <Upload size={16} />
-          {uploading ? 'Mengunggah…' : 'Unggah Berkas'}
+          {uploading ? t('ui.mengunggah') : t('ui.unggah_berkas')}
         </button>
         <input
           bind:this={fileInput}
@@ -212,10 +213,10 @@
       {/if}
 
       {#if loading && items.length === 0}
-        <p class="text-muted text-center py-5 mb-0">Memuat…</p>
+        <p class="text-muted text-center py-5 mb-0">{t('ui.memuat')}</p>
       {:else if items.length === 0}
         <p class="text-muted text-center py-5 mb-0">
-          Belum ada media. Seret berkas ke sini atau klik “Unggah Berkas”.
+          {t('ui.belum_ada_media_seret_berkas_ke')}
         </p>
       {:else}
         <div class="media-picker-grid">
@@ -245,7 +246,7 @@
             use:observeEnd
           >
             <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            Memuat lebih banyak…
+            {t('ui.memuat_lebih_banyak')}
           </div>
         {/if}
       {/if}
@@ -258,7 +259,7 @@
             disabled={selected.length === 0}
             onclick={confirmSelection}
           >
-            Tambahkan {selected.length} berkas
+            {t('ui.tambahkan_berkas', { count: selected.length })}
           </button>
         </div>
       {/if}

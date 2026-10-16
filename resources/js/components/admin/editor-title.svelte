@@ -1,12 +1,13 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Field } from '@/components/ui/field';
 
   /** Large borderless title field shown at the top of the editor canvas. */
   let {
     name,
     value = $bindable(''),
-    placeholder = 'Tambahkan judul',
-    ariaLabel = 'Judul',
+    placeholder = t('admin.tambahkan_judul'),
+    ariaLabel = t('ui.judul'),
     required = true,
     error,
   }: {

@@ -1,12 +1,6 @@
-<script module lang="ts">
-  export const layout = {
-    title: 'Verifikasi email',
-    description:
-      'Silakan verifikasi alamat email Anda dengan mengklik tautan yang telah kami kirimkan',
-  };
-</script>
-
 <script lang="ts">
+  import { setLayoutProps } from '@inertiajs/svelte';
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import LogoutAction from '@/components/logout-action.svelte';
@@ -19,21 +13,24 @@
   } = $props();
 
   const verificationLinkSent = $derived(status === 'verification-link-sent');
+
+  setLayoutProps({
+    title: t('auth.verifikasi_email'),
+    description:
+      t('auth.silakan_verifikasi_alamat_email_anda_dengan'),
+  });
 </script>
 
-<AppHead title="Verifikasi email" />
+<AppHead title={t('auth.verifikasi_email')} />
 
 <div class="d-flex flex-column gap-3">
   <div class="text-center small text-muted">
-    Terima kasih telah mendaftar! Sebelum memulai, mohon verifikasi alamat email
-    Anda dengan mengklik tautan yang baru saja kami kirimkan. Jika Anda tidak
-    menerima email tersebut, kami akan dengan senang hati mengirimkan yang baru.
+    {t('auth.terima_kasih_telah_mendaftar_sebelum_memulai')}
   </div>
 
   {#if verificationLinkSent}
     <div class="text-center small fw-medium text-success">
-      Tautan verifikasi baru telah dikirim ke alamat email yang Anda daftarkan
-      saat pendaftaran.
+      {t('auth.tautan_verifikasi_baru_telah_dikirim_ke')}
     </div>
   {/if}
 
@@ -45,12 +42,12 @@
         disabled={processing}
         data-test="resend-verification-button"
       >
-        Kirim ulang email verifikasi
+        {t('auth.kirim_ulang_email_verifikasi')}
       </button>
     {/snippet}
   </Form>
 
   <div class="text-center small text-muted">
-    <LogoutAction class="btn btn-link p-0 text-body">Keluar</LogoutAction>
+    <LogoutAction class="btn btn-link p-0 text-body">{t('auth.keluar')}</LogoutAction>
   </div>
 </div>

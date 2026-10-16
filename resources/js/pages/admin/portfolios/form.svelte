@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form, router } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import EditorPanel from '@/components/admin/editor-panel.svelte';
@@ -75,7 +76,7 @@
   }
 
   const heading = $derived(
-    portfolio ? 'Ubah Portofolio' : 'Tambah Portofolio Baru',
+    portfolio ? t('admin-portfolios.ubah_portofolio') : t('admin-portfolios.tambah_portofolio_baru'),
   );
 </script>
 
@@ -92,8 +93,8 @@
       <EditorTitle
         name={field('name')}
         bind:value={translatable.values.name[translatable.locale]}
-        placeholder="Tambahkan nama portofolio"
-        ariaLabel="Nama portofolio"
+        placeholder={t('admin-portfolios.tambahkan_nama_portofolio')}
+        ariaLabel={t('admin-portfolios.nama_portofolio')}
         required={translatable.isDefault}
         error={errors[field('name')]}
       />
@@ -104,7 +105,7 @@
       <Field.Feedback message={errors[field('description')]} />
 
       <div class="card mt-4">
-        <div class="card-header fw-semibold">Galeri</div>
+        <div class="card-header fw-semibold">{t('admin.galeri')}</div>
         <div class="card-body">
           <MediaGalleryField value={portfolio?.galleries ?? []} {errors} />
         </div>
@@ -122,11 +123,11 @@
         mode={editor.mode}
         setMode={editor.setMode}
         danger={{
-          label: 'Hapus portofolio',
-          title: 'Hapus portofolio ini?',
+          label: t('admin-portfolios.hapus_portofolio'),
+          title: t('admin-portfolios.hapus_portofolio_ini'),
           description:
-            'Portofolio beserta galerinya dihapus permanen dan tidak dapat dikembalikan.',
-          confirmLabel: 'Hapus',
+            t('admin-portfolios.portofolio_beserta_galerinya_dihapus_permanen_da'),
+          confirmLabel: t('security.hapus'),
           processing: deleting,
           run: deletePortfolio,
         }}
@@ -134,7 +135,7 @@
     {/snippet}
 
     {#snippet portfolioSettings()}
-      <EditorPanel title="Visibilitas">
+      <EditorPanel title={t('admin-portfolios.visibilitas')}>
         <input type="hidden" name="is_private" value="0" />
         <Field.Input.Check
           id="portfolio-is_private"
@@ -142,26 +143,26 @@
           value="1"
           checked={portfolio?.is_private ?? false}
         >
-          Portofolio privat
+          {t('admin-portfolios.portofolio_privat')}
         </Field.Input.Check>
       </EditorPanel>
 
-      <EditorPanel title="Tautan">
+      <EditorPanel title={t('admin-portfolios.tautan')}>
         <div>
-          <label class="gb-label" for="portfolio-slug">Permalink</label>
+          <label class="gb-label" for="portfolio-slug">{t('admin.permalink')}</label>
           <input
             id="portfolio-slug"
             name="slug"
             type="text"
             class="form-control form-control-sm"
             class:is-invalid={!!errors.slug}
-            placeholder="Otomatis dari nama"
+            placeholder={t('admin-portfolios.otomatis_dari_nama')}
             value={portfolio?.slug ?? ''}
           />
           <Field.Feedback message={errors.slug} />
         </div>
         <div>
-          <label class="gb-label" for="portfolio-demo_link">Tautan Demo</label>
+          <label class="gb-label" for="portfolio-demo_link">{t('admin-portfolios.tautan_demo')}</label>
           <Field.Input
             id="portfolio-demo_link"
             name="demo_link"
@@ -173,7 +174,7 @@
           <Field.Feedback message={errors.demo_link} />
         </div>
         <div>
-          <label class="gb-label" for="portfolio-source_code">Kode Sumber</label
+          <label class="gb-label" for="portfolio-source_code">{t('admin-portfolios.kode_sumber')}</label
           >
           <Field.Input
             id="portfolio-source_code"
@@ -187,7 +188,7 @@
         </div>
       </EditorPanel>
 
-      <EditorPanel title="Gambar Sampul">
+      <EditorPanel title={t('admin.gambar_sampul')}>
         <MediaField
           name="image"
           required
@@ -197,20 +198,20 @@
         <Field.Feedback message={errors.image} />
       </EditorPanel>
 
-      <EditorPanel title="Ringkasan">
+      <EditorPanel title={t('admin.ringkasan')}>
         <textarea
           name={field('short_desc')}
-          aria-label="Deskripsi singkat"
+          aria-label={t('admin-portfolios.deskripsi_singkat')}
           class="form-control form-control-sm"
           class:is-invalid={!!errors[field('short_desc')]}
           rows="4"
           maxlength="255"
-          placeholder="Deskripsi singkat yang tampil di daftar portofolio"
+          placeholder={t('admin-portfolios.deskripsi_singkat_yang_tampil_di_daftar')}
           bind:value={translatable.values.short_desc[translatable.locale]}></textarea>
         <Field.Feedback message={errors[field('short_desc')]} />
       </EditorPanel>
 
-      <EditorPanel title="Layanan">
+      <EditorPanel title={t('admin.layanan')}>
         <MultiCheck
           name="services"
           options={services.map((c) => ({ value: c.id, label: c.name }))}
@@ -218,7 +219,7 @@
         />
       </EditorPanel>
 
-      <EditorPanel title="Teknologi">
+      <EditorPanel title={t('admin.teknologi')}>
         <TaxonomySelect
           name="technologies"
           items={technologies}
@@ -227,7 +228,7 @@
         />
       </EditorPanel>
 
-      <EditorPanel title="Karier Terkait">
+      <EditorPanel title={t('admin-portfolios.karier_terkait')}>
         <MultiCheck
           name="careers"
           options={careers.map((c) => ({
@@ -251,7 +252,7 @@
       invalid={!!errors[field('description')]}
       viewHref={portfolio?.slug ? show(portfolio.slug).url : null}
       documentTitle={name}
-      rootLabel="Portofolio"
+      rootLabel={t('admin.portofolio')}
       header={portfolioHeader}
       settings={portfolioSettings}
       actions={portfolioActions}

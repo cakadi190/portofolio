@@ -57,7 +57,7 @@ class ResumeController extends Controller
         } catch (Throwable $exception) {
             Log::error('Resume PDF generation failed', ['profile' => $profile->value, 'exception' => $exception]);
 
-            abort(503, 'CV sementara tidak dapat dibuat. Coba lagi beberapa saat.');
+            abort(503, __('resume.unavailable'));
         }
 
         return response($output, 200, [

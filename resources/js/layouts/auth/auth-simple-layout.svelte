@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
   import ThemeToggler from '@/components/theme-toggler.svelte';
@@ -40,7 +41,7 @@
     </div>
 
     <div class="auth-layout-footer">
-      Hak Cipta 2026 <Link href="/">Catatan Cak Adi</Link>.
+      {t('auth.hak_cipta_2026')} <Link href="/">{t('auth.catatan_cak_adi')}</Link>.
     </div>
   </div>
 </div>

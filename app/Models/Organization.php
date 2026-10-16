@@ -3,13 +3,20 @@
 namespace App\Models;
 
 use App\Concerns\RecordsActivity;
+use App\Traits\Models\HasEnglishContent;
 use Illuminate\Database\Eloquent\Model;
 
 class Organization extends Model
 {
-    use RecordsActivity;
+    use HasEnglishContent, RecordsActivity;
 
-    protected $fillable = ['name', 'description', 'start_date', 'end_date'];
+    /** @var list<string> */
+    protected array $englishAttributes = ['description'];
+
+    /** Admin lists carry the raw text of every language, for the edit form. */
+    protected bool $withTranslations = true;
+
+    protected $fillable = ['name', 'description', 'start_date', 'end_date', 'description_en'];
 
     /**
      * @return array<string, string>

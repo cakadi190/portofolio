@@ -10,7 +10,13 @@ const toast = vi.hoisted(() => ({
   info: vi.fn(),
 }));
 
-vi.mock('@inertiajs/svelte', () => ({
+vi.mock('@inertiajs/svelte', async () => ({
+  page: {
+    props: {
+      translations: (await import('@/tests/translations'))
+        .indonesianTranslations,
+    },
+  },
   router: {
     on: (name: string, cb: (e?: unknown) => void) => (handlers[name] = cb),
   },

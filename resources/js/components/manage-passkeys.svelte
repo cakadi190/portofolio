@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { usePasskeyRegister } from '@laravel/passkeys/svelte';
   import { router } from '@inertiajs/svelte';
   import Check from '@lucide/svelte/icons/check';
@@ -105,9 +106,9 @@
 {#if canManagePasskeys}
   <div class="card mb-4">
     <div class="card-body">
-      <h2 class="h5 mb-1">Passkey</h2>
+      <h2 class="h5 mb-1">{t('security.passkey')}</h2>
       <p class="text-muted small mb-3">
-        Kelola passkey Anda untuk masuk tanpa kata sandi.
+        {t('security.kelola_passkey_anda_untuk_masuk_tanpa')}
       </p>
 
       <div class="border rounded mb-3">
@@ -164,7 +165,7 @@
                     form={`passkey-rename-form-${passkey.id}`}
                     class="btn btn-square btn-outline-primary btn-sm"
                     disabled={isRenaming || !renameValue.trim()}
-                    aria-label="Simpan nama passkey"
+                    aria-label={t('security.simpan_nama_passkey')}
                   >
                     <Check size={16} />
                   </button>
@@ -172,7 +173,7 @@
                     type="button"
                     class="btn btn-square btn-outline-secondary btn-sm"
                     onclick={cancelRename}
-                    aria-label="Batal ubah nama"
+                    aria-label={t('security.batal_ubah_nama')}
                   >
                     <X size={16} />
                   </button>
@@ -181,7 +182,7 @@
                     type="button"
                     class="btn btn-square btn-outline-secondary btn-sm"
                     onclick={() => startRename(passkey)}
-                    aria-label="Ubah nama passkey"
+                    aria-label={t('security.ubah_nama_passkey')}
                   >
                     <Pencil size={16} />
                   </button>
@@ -190,7 +191,7 @@
                   type="button"
                   class="btn btn-square btn-outline-danger btn-sm"
                   onclick={() => openDeleteModal(passkey)}
-                  aria-label="Hapus passkey"
+                  aria-label={t('security.hapus_passkey')}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -200,9 +201,9 @@
         {:else}
           <div class="text-center p-4">
             <KeyRound size={28} class="text-muted mb-2" />
-            <p class="fw-medium mb-1">Belum ada passkey</p>
+            <p class="fw-medium mb-1">{t('security.belum_ada_passkey')}</p>
             <p class="text-muted small mb-0">
-              Tambahkan passkey untuk masuk tanpa kata sandi.
+              {t('security.tambahkan_passkey_untuk_masuk_tanpa_kata')}
             </p>
           </div>
         {/if}
@@ -210,7 +211,7 @@
 
       {#if !passkeyRegister.isSupported}
         <p class="text-muted small mb-0">
-          Passkey tidak didukung oleh browser ini.
+          {t('security.passkey_tidak_didukung_oleh_browser_ini')}
         </p>
       {:else if !showRegisterForm}
         <button
@@ -218,7 +219,7 @@
           class="btn btn-outline-primary"
           onclick={() => (showRegisterForm = true)}
         >
-          Tambah passkey
+          {t('security.tambah_passkey')}
         </button>
       {:else}
         <form
@@ -226,11 +227,11 @@
           class="border rounded p-3 bg-body-secondary"
         >
           <Field.Group>
-            <Field.Label for="passkey-name">Nama passkey</Field.Label>
+            <Field.Label for="passkey-name">{t('security.nama_passkey')}</Field.Label>
             <Field.Input
               id="passkey-name"
               bind:value={name}
-              placeholder="mis. MacBook Pro, iPhone"
+              placeholder={t('security.mis_macbook_pro_iphone')}
               autofocus
             />
             <Field.Feedback message={passkeyRegister.error ?? undefined} />
@@ -242,7 +243,7 @@
               class="btn btn-primary"
               disabled={passkeyRegister.isLoading || !name.trim()}
             >
-              {passkeyRegister.isLoading ? 'Mendaftarkan...' : 'Daftarkan passkey'}
+              {passkeyRegister.isLoading ? t('security.mendaftarkan') : t('security.daftarkan_passkey')}
             </button>
             <button
               type="button"
@@ -252,7 +253,7 @@
                 name = '';
               }}
             >
-              Batal
+              {t('security.batal')}
             </button>
           </div>
         </form>
@@ -263,11 +264,11 @@
 
 <ModalConfirmation
   bind:open={showDeleteModal}
-  title="Hapus passkey"
+  title={t('security.hapus_passkey')}
   description={deleting
     ? `Apakah Anda yakin ingin menghapus passkey "${deleting.name}"? Anda tidak akan bisa lagi menggunakannya untuk masuk.`
     : ''}
-  confirmLabel="Hapus"
+  confirmLabel={t('security.hapus')}
   processing={isDeleting}
   actions={{
     confirm: confirmDelete,

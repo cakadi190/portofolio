@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Form } from '@inertiajs/svelte';
   import FormModal from '@/components/form-modal.svelte';
   import { Field } from '@/components/ui/field';
@@ -18,7 +19,7 @@
   } = $props();
 </script>
 
-<FormModal bind:open title="Ganti Penulis" subtitle={post?.title ?? ''}>
+<FormModal bind:open title={t('admin.ganti_penulis')} subtitle={post?.title ?? ''}>
   {#snippet children()}
     {#if post}
       <Form
@@ -29,7 +30,7 @@
       >
         {#snippet children({ errors, processing })}
           <Field.Group>
-            <Field.Label for="post-author-select">Penulis</Field.Label>
+            <Field.Label for="post-author-select">{t('admin.penulis')}</Field.Label>
             <Select
               id="post-author-select"
               name="user_id"
@@ -45,10 +46,10 @@
             <button
               type="button"
               class="btn btn-outline-secondary"
-              onclick={() => (open = false)}>Batal</button
+              onclick={() => (open = false)}>{t('admin.batal')}</button
             >
             <button type="submit" class="btn btn-primary" disabled={processing}
-              >Simpan</button
+              >{t('admin.simpan')}</button
             >
           </div>
         {/snippet}

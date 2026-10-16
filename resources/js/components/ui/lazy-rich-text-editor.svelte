@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import type { Component, ComponentProps } from 'svelte';
   import { onMount } from 'svelte';
   import type RichTextEditor from '@/components/ui/rich-text-editor.svelte';
@@ -63,7 +64,7 @@
     aria-busy="true"
   >
     <input type="hidden" name={props.name} value={props.value ?? ''} />
-    <span class="lazy-rte-hint">{props.placeholder ?? 'Mulai menulis cerita Anda...'}</span>
+    <span class="lazy-rte-hint">{props.placeholder ?? t('ui.mulai_menulis_cerita_anda')}</span>
   </div>
 {/if}
 

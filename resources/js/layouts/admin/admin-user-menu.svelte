@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { Link } from '@inertiajs/svelte';
   import KeyRound from '@lucide/svelte/icons/key-round';
   import LogOut from '@lucide/svelte/icons/log-out';
@@ -89,11 +90,11 @@
 
     <li><hr class="dropdown-divider" /></li>
 
-    <li class="userinfo-segment" role="group" aria-label="Tema">
+    <li class="userinfo-segment" role="group" aria-label={t('admin.tema')}>
       <button
         type="button"
         class:active={theme === 'light'}
-        aria-label="Mode terang"
+        aria-label={t('admin.mode_terang')}
         aria-pressed={theme === 'light'}
         data-track="theme_toggle"
         onclick={() => chooseTheme('light')}
@@ -103,7 +104,7 @@
       <button
         type="button"
         class:active={theme === 'dark'}
-        aria-label="Mode gelap"
+        aria-label={t('admin.mode_gelap')}
         aria-pressed={theme === 'dark'}
         data-track="theme_toggle"
         onclick={() => chooseTheme('dark')}
@@ -112,7 +113,7 @@
       </button>
     </li>
 
-    <li class="userinfo-segment" role="group" aria-label="Bahasa">
+    <li class="userinfo-segment" role="group" aria-label={t('admin.bahasa')}>
       {#each locales as locale (locale.code)}
         <button
           type="button"
@@ -131,13 +132,13 @@
     <li>
       <Link href="/settings/profile" class="dropdown-item">
         <UserRound size={16} aria-hidden="true" />
-        Profil Saya
+        {t('admin.profil_saya')}
       </Link>
     </li>
     <li>
       <Link href="/settings/security" class="dropdown-item">
         <KeyRound size={16} aria-hidden="true" />
-        Keamanan
+        {t('admin.keamanan')}
       </Link>
     </li>
 
@@ -149,7 +150,7 @@
         class="dropdown-item dropdown-item-danger logout-actions"
       >
         <LogOut size={16} aria-hidden="true" />
-        Keluar
+        {t('admin.keluar')}
       </LogoutAction>
     </li>
   </ul>

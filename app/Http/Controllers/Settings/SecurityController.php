@@ -79,7 +79,7 @@ class SecurityController extends Controller
 
         $passkey->update($validated);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Nama passkey berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.nama_passkey_berhasil_diperbarui')]);
 
         return back();
     }
