@@ -67,4 +67,13 @@ return [
     'resume_profile.description.executive' => 'Highlights leadership, entrepreneurship, organizations, and speaking.',
     'resume_profile.headline.technical' => 'Software Engineer',
     'resume_profile.headline.executive' => 'Software Engineer & Entrepreneur',
+    'blog_comment_status.pending' => 'Pending',
+    'blog_comment_status.approved' => 'Approved',
+    'blog_comment_status.rejected' => 'Rejected',
+    'contact_reply_status.queued' => 'Queued',
+    'contact_reply_status.sent' => 'Sent',
+    'contact_reply_status.failed' => 'Failed',
+    'user_role.admin' => 'Admin',
+    'user_role.redaktur' => 'Editor',
+    'user_role.user' => 'User',
 ];

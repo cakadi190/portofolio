@@ -111,15 +111,15 @@ class AppServiceProvider extends ServiceProvider
     protected function configureSecurityToasts(): void
     {
         $messages = [
-            TwoFactorAuthenticationEnabled::class => 'Autentikasi dua faktor diaktifkan. Selesaikan dengan memasukkan kode konfirmasi.',
-            TwoFactorAuthenticationConfirmed::class => 'Autentikasi dua faktor berhasil dikonfirmasi.',
-            TwoFactorAuthenticationDisabled::class => 'Autentikasi dua faktor dinonaktifkan.',
-            RecoveryCodesGenerated::class => 'Kode pemulihan baru berhasil dibuat.',
-            PasswordUpdatedViaController::class => 'Kata sandi berhasil diperbarui.',
+            TwoFactorAuthenticationEnabled::class => 'server.two_factor_enabled',
+            TwoFactorAuthenticationConfirmed::class => 'server.two_factor_confirmed',
+            TwoFactorAuthenticationDisabled::class => 'server.two_factor_disabled',
+            RecoveryCodesGenerated::class => 'server.recovery_codes_generated',
+            PasswordUpdatedViaController::class => 'server.password_updated',
         ];
 
         foreach ($messages as $event => $message) {
-            Event::listen($event, fn () => Inertia::flash('toast', ['type' => 'success', 'message' => $message]));
+            Event::listen($event, fn () => Inertia::flash('toast', ['type' => 'success', 'message' => __($message)]));
         }
     }
 

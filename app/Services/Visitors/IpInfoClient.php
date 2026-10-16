@@ -77,20 +77,20 @@ class IpInfoClient
     public function test(): array
     {
         if ($this->settings->ipInfoToken() === null) {
-            return ['ok' => false, 'message' => 'Token IPInfo belum diisi.'];
+            return ['ok' => false, 'message' => __('server.ipinfo_no_token')];
         }
 
         try {
             $response = $this->request()->get($this->url('8.8.8.8'));
         } catch (ConnectionException) {
-            return ['ok' => false, 'message' => 'Tidak dapat terhubung ke IPInfo.'];
+            return ['ok' => false, 'message' => __('server.ipinfo_unreachable')];
         }
 
         return match (true) {
-            $response->successful() => ['ok' => true, 'message' => 'Koneksi IPInfo berhasil.'],
-            in_array($response->status(), [401, 403], true) => ['ok' => false, 'message' => 'Token IPInfo ditolak.'],
-            $response->status() === 429 => ['ok' => false, 'message' => 'Kuota IPInfo habis (429).'],
-            default => ['ok' => false, 'message' => 'IPInfo mengembalikan status '.$response->status().'.'],
+            $response->successful() => ['ok' => true, 'message' => __('server.ipinfo_ok')],
+            in_array($response->status(), [401, 403], true) => ['ok' => false, 'message' => __('server.ipinfo_rejected')],
+            $response->status() === 429 => ['ok' => false, 'message' => __('server.ipinfo_quota')],
+            default => ['ok' => false, 'message' => __('server.ipinfo_status', ['status' => $response->status()])],
         };
     }
 
@@ -102,9 +102,9 @@ class IpInfoClient
         $configured = $this->settings->ipInfoToken() !== null;
 
         $reason = match (true) {
-            ! $configured => 'Token API belum diisi.',
-            ! $this->settings->ipInfoSwitchedOn() => 'Sakelar "Aktifkan IPInfo" masih nonaktif. Aktifkan lalu simpan.',
-            ! $this->settings->storesIp() => 'Penyimpanan alamat IP dimatikan di tab Analitik Pengunjung, sehingga IPInfo tidak berjalan.',
+            ! $configured => __('server.ipinfo_reason_token'),
+            ! $this->settings->ipInfoSwitchedOn() => __('server.ipinfo_reason_switch'),
+            ! $this->settings->storesIp() => __('server.ipinfo_reason_ip'),
             default => null,
         };
 

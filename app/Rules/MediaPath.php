@@ -25,7 +25,7 @@ class MediaPath implements ValidationRule
         }
 
         if (! Media::query()->where('path', $value)->exists()) {
-            $fail('Media yang dipilih tidak ditemukan di pustaka media.');
+            $fail(__('server.media_missing'));
         }
     }
 }

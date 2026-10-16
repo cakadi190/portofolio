@@ -16,7 +16,7 @@ class PdfTrustController extends Controller
         $validated = $request->validate(['certificate' => ['required', 'string', 'max:20000']]);
         $der = base64_decode($validated['certificate'], true);
 
-        abort_if($der === false || $der === '', 422, 'Sertifikat tidak valid.');
+        abort_if($der === false || $der === '', 422, __('server.pdf_invalid'));
 
         return response()->json($trust->anchorFor($der) ?? ['source' => null, 'anchor' => null]);
     }
