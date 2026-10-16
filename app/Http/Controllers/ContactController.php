@@ -81,7 +81,7 @@ class ContactController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Terima kasih! Pesan Anda sudah terkirim.',
+            'message' => __('flash.contact.sent'),
         ]);
 
         return to_route('contact.index');

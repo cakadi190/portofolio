@@ -8,6 +8,7 @@ use App\Services\Monitoring\SentryConfigurator;
 use App\Services\Monitoring\SentrySettings;
 use App\Services\SeoService;
 use App\Services\SystemSettingService;
+use App\Support\AppLocale;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
@@ -165,9 +166,12 @@ class AppServiceProvider extends ServiceProvider
 
         if (app()->isProduction()) {
             URL::forceHttps();
-
-            Paginator::currentPathResolver(fn (): string => URL::current());
         }
+
+        // Generated links keep the visitor's language: `/blog` becomes `/en/blog` on English pages.
+        URL::formatPathUsing(fn (string $path): string => AppLocale::localize($path, AppLocale::urlLocale()));
+
+        Paginator::currentPathResolver(fn (): string => AppLocale::localize(URL::current(), AppLocale::urlLocale()));
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

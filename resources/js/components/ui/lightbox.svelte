@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import Download from '@lucide/svelte/icons/download';
@@ -71,7 +72,7 @@
     isEmbed && current ? (toEmbedUrl(current.url) ?? (isNonEmbeddableVideoUrl(current.url) ? null : current.url)) : null,
   );
   const defaultTitle = $derived(
-    isVideo || isEmbed ? 'Pratinjau video' : 'Pratinjau gambar',
+    isVideo || isEmbed ? t('lightbox.video_preview') : t('lightbox.image_preview'),
   );
 
   let isMobile = $state(
@@ -318,24 +319,24 @@
 
 {#snippet controls()}
         {#if images.length > 1}
-          <button type="button" class="lightbox-button" aria-label="Sebelumnya" disabled={index === 0} onclick={() => go(-1)}>
+          <button type="button" class="lightbox-button" aria-label={t('lightbox.previous')} disabled={index === 0} onclick={() => go(-1)}>
             <ChevronLeft size={20} />
           </button>
           <span class="lightbox-label">{index + 1} / {images.length}</span>
-          <button type="button" class="lightbox-button" aria-label="Berikutnya" disabled={index === images.length - 1} onclick={() => go(1)}>
+          <button type="button" class="lightbox-button" aria-label={t('lightbox.next')} disabled={index === images.length - 1} onclick={() => go(1)}>
             <ChevronRight size={20} />
           </button>
           {#if isZoomable}<span class="lightbox-divider" aria-hidden="true"></span>{/if}
         {/if}
         {#if isZoomable}
-        <button type="button" class="lightbox-button" aria-label="Perkecil" disabled={scale <= ZOOM_MIN} onclick={zoomOut}>
+        <button type="button" class="lightbox-button" aria-label={t('lightbox.zoom_out')} disabled={scale <= ZOOM_MIN} onclick={zoomOut}>
           <ZoomOut size={20} />
         </button>
         <span class="lightbox-label">{Math.round(scale * 100)}%</span>
-        <button type="button" class="lightbox-button" aria-label="Perbesar" disabled={scale >= ZOOM_MAX} onclick={zoomIn}>
+        <button type="button" class="lightbox-button" aria-label={t('lightbox.zoom_in')} disabled={scale >= ZOOM_MAX} onclick={zoomIn}>
           <ZoomIn size={20} />
         </button>
-        <button type="button" class="lightbox-button" aria-label="Reset zoom" disabled={scale === 1} onclick={resetZoom}>
+        <button type="button" class="lightbox-button" aria-label={t('lightbox.zoom_reset')} disabled={scale === 1} onclick={resetZoom}>
           <RotateCcw size={20} />
         </button>
         {/if}
@@ -346,7 +347,7 @@
   <div class="lightbox" role="dialog" aria-modal="true" aria-label={current.title || defaultTitle} use:portal transition:fade={{ duration: motion(220) }}>
     <div class="lightbox-bar" in:fly|global={{ y: -16, duration: motion(260), delay: motion(60), easing: cubicOut }} out:fade|global={{ duration: motion(120) }}>
       <div class="lightbox-start">
-        <button type="button" class="lightbox-button" aria-label="Tutup pratinjau" onclick={close}>
+        <button type="button" class="lightbox-button" aria-label={t('lightbox.close')} onclick={close}>
           <X size={20} />
         </button>
         <h2 class="lightbox-title" title={current.title ?? ''}>{current.title || defaultTitle}</h2>
@@ -360,11 +361,11 @@
 
       <div class="lightbox-end">
         {#if isZoomable || isVideo}
-        <a class="lightbox-button" href={current.url} download={current.title ?? ''} aria-label={isVideo ? 'Unduh video' : 'Unduh gambar'} title={isVideo ? 'Unduh video' : 'Unduh gambar'}>
+        <a class="lightbox-button" href={current.url} download={current.title ?? ''} aria-label={isVideo ? t('lightbox.download_video') : t('lightbox.download_image')} title={isVideo ? t('lightbox.download_video') : t('lightbox.download_image')}>
           <Download size={20} />
         </a>
         {:else if isEmbed}
-        <a class="lightbox-button" href={current.url} target="_blank" rel="noopener noreferrer" aria-label="Buka di tab baru" title="Buka di tab baru">
+        <a class="lightbox-button" href={current.url} target="_blank" rel="noopener noreferrer" aria-label={t('lightbox.open_new_tab')} title={t('lightbox.open_new_tab')}>
           <ExternalLink size={20} />
         </a>
         {/if}
@@ -384,7 +385,7 @@
               <div class="lightbox-message lightbox-fallback" role="alert">
                 <p>Format video ini tidak dapat diputar di browser Anda.</p>
                 <a class="lightbox-fallback-link" href={current.url} download={current.title ?? ''}>
-                  <Download size={16} /> Unduh video
+                  <Download size={16} /> {t('lightbox.download_video')}
                 </a>
               </div>
             {:else}
@@ -442,7 +443,7 @@
       out:scaleTransition|global={{ start: 0.96, duration: motion(180), easing: cubicOut }}
     >
       {#if failed}
-        <p class="lightbox-message" role="alert">Gambar gagal dimuat.</p>
+        <p class="lightbox-message" role="alert">{t('lightbox.image_failed')}</p>
       {:else}
         {#key current.url}
           <img
@@ -469,10 +470,10 @@
     {/if}
 
     {#if images.length > 1 && isZoomable}
-      <button type="button" class="lightbox-nav lightbox-nav-prev" aria-label="Sebelumnya" disabled={index === 0} onclick={() => go(-1)}>
+      <button type="button" class="lightbox-nav lightbox-nav-prev" aria-label={t('lightbox.previous')} disabled={index === 0} onclick={() => go(-1)}>
         <ChevronLeft size={28} />
       </button>
-      <button type="button" class="lightbox-nav lightbox-nav-next" aria-label="Berikutnya" disabled={index === images.length - 1} onclick={() => go(1)}>
+      <button type="button" class="lightbox-nav lightbox-nav-next" aria-label={t('lightbox.next')} disabled={index === images.length - 1} onclick={() => go(1)}>
         <ChevronRight size={28} />
       </button>
     {/if}

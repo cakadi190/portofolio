@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { Link, page } from '@inertiajs/svelte';
+  import { page } from '@inertiajs/svelte';
+import Link from '@/components/link.svelte';
   import AppBrand from '@/components/app-brand.svelte';
+  import LanguageSwitcher from '@/components/language-switcher.svelte';
   import ThemeToggler from '@/components/theme-toggler.svelte';
+  import { localizeHref, t } from '@/lib/i18n';
 
   interface MenuItem {
     name: string;
@@ -9,32 +12,32 @@
     children?: { name: string; href: string }[];
   }
 
-  const navbarMenu: MenuItem[] = [
-    { name: 'Beranda', href: '/' },
-    { name: 'Portofolio', href: '/portfolio' },
-    { name: 'Pembicara & Mentoring', href: '/speaking' },
-    { name: 'Layanan', href: '/services' },
+  const navbarMenu = $derived<MenuItem[]>([
+    { name: t('nav.home'), href: '/' },
+    { name: t('nav.portfolio'), href: '/portfolio' },
+    { name: t('nav.speaking'), href: '/speaking' },
+    { name: t('nav.services'), href: '/services' },
     {
-      name: 'Tentang Saya',
+      name: t('nav.about'),
       children: [
-        { name: 'Profil', href: '/about' },
-        { name: 'Pendidikan & Organisasi', href: '/education' },
-        { name: 'Penghargaan', href: '/awards' },
-        { name: 'Karir', href: '/career' },
+        { name: t('nav.profile'), href: '/about' },
+        { name: t('nav.education'), href: '/education' },
+        { name: t('nav.awards'), href: '/awards' },
+        { name: t('nav.career'), href: '/career' },
       ],
     },
     {
-      name: 'Bacaan',
+      name: t('nav.reading'),
       children: [
-        { name: 'Artikel dan Bacaan', href: '/blog' },
-        { name: 'Catatan Singkat', href: '/notes' },
+        { name: t('nav.articles'), href: '/blog' },
+        { name: t('nav.notes'), href: '/notes' },
       ],
     },
-    { name: 'Kontak Saya', href: '/contact' },
-  ];
+    { name: t('nav.contact'), href: '/contact' },
+  ]);
 
   function isGroupActive(item: MenuItem): boolean {
-    return item.children?.some((child) => child.href === page.url) ?? false;
+    return item.children?.some((child) => localizeHref(child.href) === page.url) ?? false;
   }
 
   let navbar = $state<HTMLElement>();
@@ -84,7 +87,7 @@
           type="button"
           class="btn-close"
           data-bs-dismiss="offcanvas"
-          aria-label="Tutup"
+          aria-label={t('nav.close')}
         ></button>
       </div>
     </div>
@@ -105,7 +108,7 @@
                 {#each item.children as child (child.href)}
                   <li>
                     <Link
-                      class={`dropdown-item ${child.href === page.url ? 'active' : ''}`}
+                      class={`dropdown-item ${localizeHref(child.href) === page.url ? 'active' : ''}`}
                       href={child.href}
                       onclick={closeOffcanvas}
                     >
@@ -118,7 +121,7 @@
           {:else if item.href}
             <li class="nav-item">
               <Link
-                class={`nav-link ${item.href === page.url ? 'active' : ''}`}
+                class={`nav-link ${localizeHref(item.href) === page.url ? 'active' : ''}`}
                 href={item.href}
                 onclick={closeOffcanvas}
               >
@@ -140,6 +143,7 @@
     <AppBrand class="navbar-brand" href="/" height={32} />
 
     <div class="d-flex align-items-center gap-2 order-lg-last">
+      <LanguageSwitcher />
       <ThemeToggler />
       <button
         class="navbar-toggler p-0 border-0"
@@ -148,7 +152,7 @@
         data-bs-target="#offcanvas"
         aria-controls="offcanvas"
         aria-expanded="false"
-        aria-label="Buka navigasi"
+        aria-label={t('nav.open')}
       >
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -171,7 +175,7 @@
                 {#each item.children as child (child.href)}
                   <li>
                     <Link
-                      class={`dropdown-item ${child.href === page.url ? 'active' : ''}`}
+                      class={`dropdown-item ${localizeHref(child.href) === page.url ? 'active' : ''}`}
                       href={child.href}
                     >
                       {child.name}
@@ -183,7 +187,7 @@
           {:else if item.href}
             <li class="nav-item">
               <Link
-                class={`nav-link ${item.href === page.url ? 'active' : ''}`}
+                class={`nav-link ${localizeHref(item.href) === page.url ? 'active' : ''}`}
                 href={item.href}
               >
                 {item.name}

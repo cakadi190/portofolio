@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'all_platforms' => 'All Platforms',
+    'featured' => '★ Featured',
+    'coffee.title' => 'Coffee Spots',
+    'coffee.subtitle' => 'Here is a list of coffee spots I recommend.',
+    'coffee.disclaimer' => 'And sorry, I am not affiliated with any of these cafes, so if anything is wrong please contact me so I can update it right away.',
+    'coffee.choose_city' => 'Choose a City',
+    'coffee.all_cities' => 'All Cities',
+    'coffee.search_label' => 'Search for a cafe or location',
+    'coffee.search' => 'Search',
+    'coffee.empty_title' => 'No Coffee Spots Found',
+    'coffee.empty_text' => 'We could not find any coffee spots matching those criteria.',
+    'communities.title' => 'Dev ID Communities',
+    'communities.subtitle' => 'A list of Indonesian developer groups and communities you can join to learn, discuss, and network.',
+    'communities.empty_title' => 'No Communities Yet',
+    'communities.empty_text' => 'No communities match those criteria yet.',
+    'communities.members' => ':count members',
+    'communities.join' => 'Join',
+    'channels.title' => 'Programmer Channels',
+    'channels.subtitle' => 'YouTube channels, Telegram channels, and other programming accounts worth following.',
+    'channels.empty_title' => 'No Channels Yet',
+    'channels.empty_text' => 'No channels match those criteria yet.',
+    'channels.visit' => 'Visit',
+];

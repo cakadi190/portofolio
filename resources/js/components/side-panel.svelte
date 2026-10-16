@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import { type Snippet } from 'svelte';
   import { portal } from '@/lib/dom';
 
@@ -73,7 +74,7 @@
       <h5 class="offcanvas-title" id={labelId}>{title}</h5>
       {#if subtitle}<p class="text-muted mb-0 small">{subtitle}</p>{/if}
     </div>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label={t('action.close')}></button>
   </div>
   <div class="offcanvas-body">
     {@render children()}

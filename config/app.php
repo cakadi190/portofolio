@@ -78,9 +78,51 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'id'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'id'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Site Languages
+    |--------------------------------------------------------------------------
+    |
+    | `App\Support\AppLocale::DEFAULT` (Indonesian) lives on plain URLs; every
+    | other language lives under its own prefix (`/en/blog`). Only the first
+    | path segments listed in `localized_segments` (plus the homepage) exist in
+    | every language; admin, settings and auth keep a single URL.
+    |
+    */
+
+    'available_locales' => ['id', 'en'],
+
+    /*
+    | Languages search engines may index. A language whose content is not fully
+    | translated yet stays reachable but gets `noindex` and no `hreflang`; add it
+    | here once its pages are ready.
+    */
+
+    'indexable_locales' => ['id'],
+
+    'localized_segments' => [
+        'about',
+        'awards',
+        'blog',
+        'career',
+        'certifications',
+        'clarifications',
+        'contact',
+        'disclaimer',
+        'education',
+        'guestbook',
+        'notes',
+        'portfolio',
+        'resources',
+        'resume',
+        'services',
+        'speaking',
+        'statistic',
+    ],
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

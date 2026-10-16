@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeForm, t } from '@/lib/i18n';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import Icon from '@iconify/svelte';
   import Info from '@lucide/svelte/icons/info';
@@ -31,12 +32,12 @@
   let formKey = $state(0);
 </script>
 
-<AppHead title="Hubungi Saya" />
+<AppHead title={t('contact.title')} />
 
 <div id="contact-page">
   <HeaderPage
-    title="Hubungi Saya"
-    subtitle="Berikut kontak yang dapat dihubungi apabila anda tertarik dengan skill saya maupun ingin bekerjasama dengan saya."
+    title={t('contact.title')}
+    subtitle={t('contact.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -46,32 +47,21 @@
           <div class="mb-3">
             <div class="alert bg-warning-subtle d-flex gap-3">
               <Info size={32} class="flex-shrink-0" />
-              <div class="content">
-                Sebagai peringatan keras! Informasi yang saya berikan dibawah
-                ini hanya untuk
-                <strong>Kebutuhan Bisnis Saja</strong>. Selebihnya jika kamu
-                ingin terhubung, bisa langsung kirimkan pesan ke sosial media
-                saya dengan syarat harus sopan dan memperkenalkan diri dan dari
-                instansi, institusi, perusahaan dan atau daerah mana. Insyaallah
-                saya akan menjawab secepatnya.
-              </div>
+              <div class="content">{@html t('contact.warning')}</div>
             </div>
-            <p>
-              Saya sangat menghargai kamu apabila menggunakan fitur ini dengan
-              penuh tanggungjawab.
-            </p>
+            <p>{t('contact.responsible')}</p>
           </div>
 
           <div class="mt-4 border-top pt-4" id="information">
-            <h2 class="h4 mb-3">Informasi Kontak</h2>
+            <h2 class="h4 mb-3">{t('contact.info.title')}</h2>
 
             <div class="card mb-4 overflow-hidden">
               <div class="table-responsive">
                 <table class="table mb-0 table-padded">
                   <thead>
                     <tr>
-                      <th class="w-25 text-nowrap">Kontak</th>
-                      <th>Detail</th>
+                      <th class="w-25 text-nowrap">{t('contact.info.col_contact')}</th>
+                      <th>{t('contact.info.col_detail')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -96,7 +86,7 @@
                     {:else}
                       <tr>
                         <td colspan="2" class="text-center opacity-75"
-                          >Belum ada informasi kontak.</td
+                          >{t('contact.info.empty')}</td
                         >
                       </tr>
                     {/each}
@@ -105,32 +95,20 @@
               </div>
             </div>
 
-            <p>
-              Jika Anda membutuhkan informasi lebih lanjut, seperti nomor
-              telepon saya, jangan ragu untuk mengirimkan email kepada saya
-              terlebih dahulu.
-            </p>
+            <p>{t('contact.info.more')}</p>
           </div>
 
           <div class="mt-4 border-top pt-4" id="socmed">
-            <h2 class="h4 mb-3">Sosial Media</h2>
-            <p>
-              Kalau kamu mau cari semua sosial mediaku, kamu bisa menggunakan
-              pencarian
-              <strong>@cakadi190 / @cakadi.id</strong> yang mana itu adalah nama pengguna
-              di hampir semua sosialku.
-            </p>
-            <p>
-              Tapi mungkin kamu gak punya waktu untuk nyari sosmedku, bisa deh
-              pake daftar tautan dibawah ini.
-            </p>
+            <h2 class="h4 mb-3">{t('contact.socials.title')}</h2>
+            <p>{@html t('contact.socials.search')}</p>
+            <p>{t('contact.socials.list')}</p>
             <div class="card mb-4 overflow-hidden">
               <div class="table-responsive">
                 <table class="table mb-0 table-padded">
                   <thead>
                     <tr>
-                      <th class="w-25 text-nowrap">Platform</th>
-                      <th>Detail</th>
+                      <th class="w-25 text-nowrap">{t('contact.socials.col_platform')}</th>
+                      <th>{t('contact.info.col_detail')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -160,7 +138,7 @@
                     {:else}
                       <tr>
                         <td colspan="2" class="text-center opacity-75"
-                          >Belum ada sosial media.</td
+                          >{t('contact.socials.empty')}</td
                         >
                       </tr>
                     {/each}
@@ -171,18 +149,12 @@
           </div>
 
           <div class="border-top pt-4 mt-4" id="form-contact">
-            <h2 class="h3">Atau Kirim Pesan Melalui Form Ini</h2>
-            <p class="opacity-75">
-              Gunakan formulir dibawah ini dan terhubung dengan saya supaya
-              lebih kenal, akrab dan bisa dapet proyek dadakan dari saya. Mohon
-              jangan kirimkan pesan lebih dari 5x, karena bisa membebani <em
-                >server</em
-              >!
-            </p>
+            <h2 class="h3">{t('contact.form.title')}</h2>
+            <p class="opacity-75">{@html t('contact.form.intro')}</p>
 
             {#key formKey}
               <Form
-                {...store.form()}
+                {...localizeForm(store.form())}
                 class="pt-1 d-flex flex-column gap-3"
                 novalidate
                 resetOnSuccess
@@ -191,24 +163,23 @@
                 {#snippet children({ errors, processing })}
                   <div class="row g-3">
                     <Field.Group class="col-md-6">
-                      <Field.Label for="fullName">Nama Lengkapmu</Field.Label>
+                      <Field.Label for="fullName">{t('contact.form.name')}</Field.Label>
                       <Field.Input
                         id="fullName"
                         name="name"
-                        placeholder="Mis: Cak Adi"
+                        placeholder={t('contact.form.name_placeholder')}
                         invalid={!!errors.name}
                       />
                       <Field.Feedback message={errors.name} />
                     </Field.Group>
                     <Field.Group class="col-md-6">
                       <Field.Label for="contactEmail"
-                        >Surel (atau <em>E-Mail</em>)</Field.Label
-                      >
+                        >{@html t('contact.form.email')}</Field.Label>
                       <Field.Input
                         id="contactEmail"
                         name="email"
                         type="email"
-                        placeholder="Mis: cakadi@email.com"
+                        placeholder={t('contact.form.email_placeholder')}
                         invalid={!!errors.email}
                       />
                       <Field.Feedback message={errors.email} />
@@ -216,8 +187,7 @@
                   </div>
 
                   <Field.Group>
-                    <Field.Label for="contactReason">Ada Perlu Apa?</Field.Label
-                    >
+                    <Field.Label for="contactReason">{t('contact.form.reason')}</Field.Label>
                     <Select
                       id="contactReason"
                       name="reason"
@@ -230,11 +200,11 @@
                   </Field.Group>
 
                   <Field.Group>
-                    <Field.Label>Pesan Anda</Field.Label>
+                    <Field.Label>{t('contact.form.message')}</Field.Label>
                     <RichTextEditor
                       name="message"
                       minimal
-                      placeholder="Tuliskan pesan anda disini…"
+                      placeholder={t('contact.form.message_placeholder')}
                       invalid={!!errors.message}
                     />
                     <Field.Feedback message={errors.message} />
@@ -246,7 +216,7 @@
                       class="btn btn-primary d-flex gap-2 align-items-center"
                       disabled={processing}
                     >
-                      <span>Kirim</span>
+                      <span>{t('contact.form.send')}</span>
                       <Send size={16} />
                     </button>
                   </CaptchaSubmitRow>
@@ -259,24 +229,21 @@
         <div class="col-md-4">
           <div class="card sticky-top rounded-4 overflow-hidden">
             <div class="card-header p-4">
-              <h2 class="h4 mb-0">Navigasi</h2>
+              <h2 class="h4 mb-0">{t('contact.nav.title')}</h2>
             </div>
             <div class="card-body">
               <ul class="nav nav-pills flex-column align-items-stretch">
                 <li class="nav-item">
                   <a href="#information" class="nav-link py-3 w-100 text-start"
-                    >Informasi Kontak</a
-                  >
+                    >{t('contact.nav.information')}</a>
                 </li>
                 <li class="nav-item">
                   <a href="#socmed" class="nav-link py-3 w-100 text-start"
-                    >Sosial Media</a
-                  >
+                    >{t('contact.nav.socials')}</a>
                 </li>
                 <li class="nav-item">
                   <a href="#form-contact" class="nav-link py-3 w-100 text-start"
-                    >Formulir Kontak</a
-                  >
+                    >{t('contact.nav.form')}</a>
                 </li>
               </ul>
             </div>

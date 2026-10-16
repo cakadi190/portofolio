@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Middleware\ApplyAccountLocale;
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\DeferHydrationScripts;
 use App\Http\Middleware\EnrichSentryScope;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\MinifyHtmlResponse;
 use App\Http\Middleware\PreloadHomeHeroPhoto;
+use App\Http\Middleware\ResolveLocalePrefix;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackVisitor;
 use App\Http\Middleware\VerifyTurnstile;
@@ -28,12 +30,16 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['sidebar_state']);
 
+        // Global (runs before routing) so `/en/...` can be matched by the unprefixed routes.
+        $middleware->prepend(ResolveLocalePrefix::class);
+
         $middleware->web(prepend: [AssignRequestId::class]);
 
         $middleware->web(append: [
             EnrichSentryScope::class,
             SecurityHeaders::class,
             VerifyTurnstile::class,
+            ApplyAccountLocale::class,
             HandleInertiaRequests::class,
             DeferHydrationScripts::class,
             AddLinkHeadersForPreloadedAssets::class,

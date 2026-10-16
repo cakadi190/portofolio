@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\NoteFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,11 +28,14 @@ use Illuminate\Support\Carbon;
 class Note extends Model
 {
     /** @use HasFactory<NoteFactory> */
-    use AutoGenerateSlug, HasFactory, RecordsActivity;
+    use AutoGenerateSlug, HasEnglishContent, HasFactory, RecordsActivity;
 
     protected string $slugSource = 'title';
 
-    protected $fillable = ['user_id', 'title', 'slug', 'excerpt', 'content', 'is_published', 'published_at'];
+    /** @var list<string> */
+    protected array $englishAttributes = ['title', 'excerpt', 'content'];
+
+    protected $fillable = ['user_id', 'title', 'slug', 'excerpt', 'content', 'is_published', 'published_at', 'title_en', 'excerpt_en', 'content_en'];
 
     /**
      * @return array<string, string>

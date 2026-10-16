@@ -11,6 +11,7 @@ use App\Services\ContentImageOptimizer;
 use App\Services\HtmlSanitizer;
 use App\Services\ImageService;
 use App\Services\SeoService;
+use App\Support\AppLocale;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -31,9 +32,9 @@ class BlogTaxonomyController extends Controller
     public function category(Request $request, PostCategory $category, SeoService $seo): Response
     {
         $posts = $this->posts($request, $category->posts());
-        $description = "Kumpulan {$posts->total()} artikel dalam kategori {$category->name}.";
+        $description = __('seo.category.description', ['count' => $posts->total(), 'name' => $category->name]);
 
-        $this->describe($seo, "Kategori {$category->name}", $description, route('blog.categories.show', $category), $category->name);
+        $this->describe($seo, __('seo.category.title', ['name' => $category->name]), $description, route('blog.categories.show', $category), $category->name);
 
         return Inertia::render('blog/category', [
             'category' => ['name' => $category->name, 'slug' => $category->slug, 'color' => $category->color],
@@ -47,9 +48,9 @@ class BlogTaxonomyController extends Controller
     public function tag(Request $request, Tag $tag, SeoService $seo): Response
     {
         $posts = $this->posts($request, $tag->posts());
-        $description = "Kumpulan {$posts->total()} artikel dengan tag {$tag->name}.";
+        $description = __('seo.tag.description', ['count' => $posts->total(), 'name' => $tag->name]);
 
-        $this->describe($seo, "Tag {$tag->name}", $description, route('blog.tags.show', $tag), $tag->name);
+        $this->describe($seo, __('seo.tag.title', ['name' => $tag->name]), $description, route('blog.tags.show', $tag), $tag->name);
 
         return Inertia::render('blog/tag', [
             'tag' => ['name' => $tag->name, 'slug' => $tag->slug],
@@ -72,17 +73,17 @@ class BlogTaxonomyController extends Controller
         );
 
         $posts = $this->posts($request, $author->authoredPosts());
-        $description = "Profil penulis {$author->name} dengan {$posts->total()} artikel yang diterbitkan.";
+        $description = __('seo.author.description', ['name' => $author->name, 'count' => $posts->total()]);
         $url = route('blog.authors.show', $author);
 
-        $this->describe($seo, "Penulis {$author->name}", $description, $url, $author->name, [
+        $this->describe($seo, __('seo.author.title', ['name' => $author->name]), $description, $url, $author->name, [
             'type' => 'profile',
             'image' => ImageService::url($author->avatar),
             'json_ld' => [[
                 '@context' => 'https://schema.org',
                 '@type' => 'ProfilePage',
                 'url' => $url,
-                'inLanguage' => 'id-ID',
+                'inLanguage' => AppLocale::languageTag(),
                 'mainEntity' => array_filter([
                     '@type' => 'Person',
                     'name' => $author->name,
@@ -178,7 +179,7 @@ class BlogTaxonomyController extends Controller
                 '@type' => 'CollectionPage',
                 'name' => $title,
                 'url' => $url,
-                'inLanguage' => 'id-ID',
+                'inLanguage' => AppLocale::languageTag(),
             ]],
             ...$extra,
         ]);

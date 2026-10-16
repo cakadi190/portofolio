@@ -45,7 +45,10 @@ class PortfolioController extends Controller
     public function edit(Portfolio $portfolio): Response
     {
         return Inertia::render('admin/portfolios/form', [
-            'portfolio' => $portfolio->load(['technologies:id', 'services:id', 'careers:id', 'galleries:id,portfolio_id,image_url,description']),
+            'portfolio' => [
+                ...$portfolio->load(['technologies:id', 'services:id', 'careers:id', 'galleries:id,portfolio_id,image_url,description'])->toArray(),
+                'translations' => $portfolio->translationPayload(),
+            ],
             ...$this->options(),
         ]);
     }

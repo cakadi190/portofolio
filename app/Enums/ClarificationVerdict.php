@@ -4,27 +4,17 @@ namespace App\Enums;
 
 use App\Enums\Concerns\HasEnumOptions;
 use App\Enums\Concerns\HasEnumValues;
+use App\Enums\Concerns\HasLabel;
 
 enum ClarificationVerdict: string
 {
-    use HasEnumOptions, HasEnumValues;
+    use HasEnumOptions, HasEnumValues, HasLabel;
 
     case False = 'false';
     case Misleading = 'misleading';
     case PartiallyTrue = 'partially_true';
     case TrueWithApology = 'true_with_apology';
     case Unverified = 'unverified';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::False => 'Tidak Benar',
-            self::Misleading => 'Menyesatkan',
-            self::PartiallyTrue => 'Benar Sebagian',
-            self::TrueWithApology => 'Benar, Saya Meminta Maaf',
-            self::Unverified => 'Belum Terbukti',
-        };
-    }
 
     /**
      * Bootstrap contextual color used for the verdict badge.

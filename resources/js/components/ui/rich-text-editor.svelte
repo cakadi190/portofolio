@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import '../../../css/content.scss';
   import AlignCenter from '@lucide/svelte/icons/align-center';
   import AlignLeft from '@lucide/svelte/icons/align-left';
@@ -54,7 +55,7 @@
   import TextAlign from '@tiptap/extension-text-align';
   import { NodeSelection } from '@tiptap/pm/state';
   import StarterKit from '@tiptap/starter-kit';
-  import { onMount, type Snippet } from 'svelte';
+  import { onMount, untrack, type Snippet } from 'svelte';
   import { useAdminSidebarState } from '@/layouts/admin/sidebar-state.svelte';
   import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
@@ -64,6 +65,7 @@
     Callout,
     CODE_THEMES,
     CodeBlockHighlight,
+    LinkHighlight,
     Definition,
     FigureImage,
     LinkCard,
@@ -82,6 +84,7 @@
     sourceUrl,
   } from '@/lib/editor-blocks';
   import { normalizeCodeTitle } from '@/lib/code-card';
+  import LinkPopover from '@/components/ui/link-popover.svelte';
   import { portal } from '@/lib/dom';
   import { overlayIn, overlayOut } from '@/lib/overlay-motion';
   import { highlightSource, languageNames } from '@/lib/highlight';
@@ -102,6 +105,11 @@
   let {
     name,
     value = '',
+    contentKey = '',
+    onchange,
+    languages = [],
+    language = '',
+    onlanguage,
     placeholder = 'Mulai menulis cerita Anda...',
     invalid = false,
     minimal = false,
@@ -116,6 +124,15 @@
   }: {
     name: string;
     value?: string | null;
+    /** Changing this key replaces the document with the current `value` (e.g. when switching language). */
+    contentKey?: string;
+    /** Called with the document's HTML whenever it changes. */
+    onchange?: (html: string) => void;
+    /** Content languages offered by the language dropdown next to the preview button (shell only). */
+    languages?: { code: string; label: string; flag: string }[];
+    /** Code of the language being edited. */
+    language?: string;
+    onlanguage?: (code: string) => void;
     placeholder?: string;
     invalid?: boolean;
     /** Public-safe mode: basic formatting only, no images, links, headings or HTML tab. */
@@ -158,6 +175,28 @@
   // svelte-ignore state_referenced_locally
   let html = $state(value ?? '');
   let mode = $state<'visual' | 'html'>('visual');
+  // svelte-ignore state_referenced_locally
+  let loadedKey = contentKey;
+
+  $effect(() => {
+    onchange?.(html);
+  });
+
+  $effect(() => {
+    const key = contentKey;
+
+    if (key === loadedKey) {
+      return;
+    }
+
+    loadedKey = key;
+
+    untrack(() => {
+      html = value ?? '';
+      editor?.commands.setContent(html, { emitUpdate: false });
+      words = editor?.storage.characterCount.words() ?? 0;
+    });
+  });
   let uploading = $state(false);
   let words = $state(0);
   // Bumped on every editor transaction so toolbar state re-evaluates.
@@ -165,6 +204,7 @@
   let pickerOpen = $state(false);
   let toolbarOpen = $state(false);
   let host = $state<HTMLDivElement>();
+  let linkPopover = $state<{ start(): void }>();
   let blockInfo = $state.raw<BlockInfo | null>(null);
   // Floating language picker anchored to the code block under the caret.
   let codeBadge = $state({ visible: false, top: 0, right: 0 });
@@ -173,7 +213,7 @@
     open: false,
     x: 0,
     y: 0,
-    kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device',
+    kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device' | 'language',
   });
   let ctxEl = $state<HTMLDivElement>();
   let menuEl = $state<HTMLDivElement>();
@@ -419,7 +459,7 @@
       hint: 'Cuplikan kode',
       icon: SquareCode,
       keywords: 'code kode',
-      run: (c) => c.toggleCodeBlock(),
+      run: (c) => c.toggleCodeBlock({ lineNumbers: true } as never),
     },
     {
       label: 'Garis pemisah',
@@ -566,7 +606,7 @@
   }
 
   function openToolbarMenu(
-    kind: 'type' | 'align' | 'context' | 'table' | 'device',
+    kind: 'type' | 'align' | 'context' | 'table' | 'device' | 'language',
     event: MouseEvent,
   ): void {
     if (ctx.open && ctx.kind === kind) {
@@ -1190,6 +1230,16 @@
       ];
     }
 
+    if (ctx.kind === 'language') {
+      return [
+        languages.map<ContextItem>((option) => ({
+          label: option.label,
+          on: language === option.code,
+          action: () => onlanguage?.(option.code),
+        })),
+      ];
+    }
+
     if (ctx.kind === 'device') {
       return [
         deviceOptions.map<ContextItem>((option) => ({
@@ -1457,27 +1507,9 @@
     }
   }
 
+  /** Opens the link popover: preview of the link under the caret, or a new link on the selection. */
   function setLink(): void {
-    if (!editor) return;
-
-    const previous = editor.getAttributes('link').href as string | undefined;
-    const url = window.prompt(
-      'Alamat tautan (kosongkan untuk menghapus)',
-      previous ?? 'https://',
-    );
-
-    if (url === null) return;
-
-    if (url.trim() === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-    } else {
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange('link')
-        .setLink({ href: url.trim() })
-        .run();
-    }
+    linkPopover?.start();
   }
 
   function setMode(next: 'visual' | 'html'): void {
@@ -1526,6 +1558,7 @@
               ...TableBlocks,
               TableSetup,
               CodeBlockHighlight,
+              LinkHighlight,
             ]),
         Placeholder.configure({ placeholder }),
         ...(minimal
@@ -1540,7 +1573,16 @@
           // The contenteditable textbox needs an accessible name.
           'aria-label': placeholder || 'Editor teks',
         },
-        handleKeyDown: (_view, event) => handleMenuKey(event),
+        handleKeyDown: (_view, event) => {
+          if (!minimal && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            setLink();
+
+            return true;
+          }
+
+          return handleMenuKey(event);
+        },
         handleDOMEvents: {
           click: (_view, event) => {
             // Link cards are previews while editing; they must not navigate.
@@ -1868,11 +1910,36 @@
             placeholder="Judul (mis. User.php)"
             maxlength="60"
             value={blockInfo.attrs.title ?? ''}
+            disabled={!!blockInfo.attrs.titleHidden}
             onchange={(event) =>
               patchBlock({
                 title: normalizeCodeTitle(event.currentTarget.value),
               })}
           />
+        </div>
+        <div class="rte-ins-section">
+          <label class="rte-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={!blockInfo.attrs.titleHidden}
+              onchange={(event) =>
+                patchBlock({ titleHidden: !event.currentTarget.checked })}
+            />
+            <span class="rte-switch-track" aria-hidden="true"></span>
+            <span>{t('code.show_title')}</span>
+          </label>
+          <label class="rte-switch">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={!!blockInfo.attrs.lineNumbers}
+              onchange={(event) =>
+                patchBlock({ lineNumbers: event.currentTarget.checked })}
+            />
+            <span class="rte-switch-track" aria-hidden="true"></span>
+            <span>{t('code.line_numbers')}</span>
+          </label>
         </div>
         <div class="rte-ins-group">
           <span class="rte-ins-label">Tema</span>
@@ -2217,6 +2284,22 @@
       {/if}
 
       {#if shell}
+        {#if languages.length > 0}
+          {@const activeLanguage = languages.find((option) => option.code === language) ?? languages[0]}
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg rte-lang-btn"
+            class:on={ctx.open && ctx.kind === 'language'}
+            title={t('content.language.label')}
+            aria-label={`${t('content.language.label')}: ${activeLanguage.label}`}
+            aria-haspopup="menu"
+            data-rte-trigger
+            onclick={(event) => openToolbarMenu('language', event)}
+            ><span class="fi {activeLanguage.flag} fis" aria-hidden="true"></span
+            ><span class="rte-lang-code">{activeLanguage.code.toUpperCase()}</span
+            ><ChevronDown size={14} aria-hidden="true" /></button
+          >
+        {/if}
         <button
           type="button"
           class="rte-btn rte-btn-lg"
@@ -2259,6 +2342,10 @@
           hidden={mode !== 'visual'}
           bind:this={element}
         ></div>
+
+        {#if !minimal && editor && mode === 'visual'}
+          <LinkPopover {editor} {host} bind:this={linkPopover} />
+        {/if}
 
         {#if codeBadge.visible}
           <div
@@ -2494,6 +2581,9 @@
             class="rte-btn rte-btn-lg"
             class:on={active('link')}
             title="Tautan"
+            aria-keyshortcuts="Control+K Meta+K"
+            data-rte-link-trigger
+            onmousedown={(event) => event.preventDefault()}
             onclick={setLink}><Link size={18} /></button
           >
         {:else}
@@ -3285,6 +3375,19 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--neo-secondary-color);
+  }
+  .rte-lang-btn {
+    width: auto;
+    gap: 0.375rem;
+    padding-inline: 0.5rem;
+  }
+  .rte-lang-code {
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  :global(.rte-link-target) {
+    border-radius: 0.125rem;
+    background: rgba(var(--neo-primary-rgb, 13, 110, 253), 0.22);
   }
   .rte-code-badge {
     position: absolute;

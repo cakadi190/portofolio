@@ -53,6 +53,7 @@ class ServiceController extends Controller
         $excerpt = str(strip_tags((string) $service->description))->squish()->limit(160)->toString();
 
         $seo->set([
+            'locales' => $service->translatedLocales(),
             'title' => $service->name,
             'description' => $excerpt ?: $service->name,
             'image' => ImageService::url($service->image),

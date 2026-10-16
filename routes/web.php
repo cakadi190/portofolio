@@ -17,6 +17,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\GuestbookController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegacyRedirectController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PdfTrustController;
 use App\Http\Controllers\PortfolioController;
@@ -103,6 +104,7 @@ Route::prefix('about')->name('about.')->group(function () {
     Route::get('skills', [AboutController::class, 'skills'])->name('skills');
 });
 
+Route::post('locale', [LocaleController::class, 'update'])->middleware('throttle:30,1')->name('locale.update');
 Route::post('pdf-trust', PdfTrustController::class)->middleware('throttle:60,1')->name('pdf-trust');
 Route::get('certifications/{slug}', [CertificationController::class, 'show'])->name('certifications.show');
 

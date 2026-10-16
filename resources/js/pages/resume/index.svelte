@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import ResumeViewer from '@/components/resume/resume-viewer.svelte';
   import { router } from '@inertiajs/svelte';
@@ -25,7 +26,7 @@
     const target = profiles.find((item) => item.key === key);
 
     if (target && target.key !== profile) {
-      router.visit(target.url, { preserveScroll: false });
+      router.visit(localizeHref(target.url), { preserveScroll: false });
     }
   };
 </script>
@@ -52,6 +53,6 @@
       { label: 'Format', value: 'PDF (ATS-friendly)' },
     ]}
     onprofile={switchProfile}
-    onclose={() => router.visit('/')}
+    onclose={() => router.visit(localizeHref('/'))}
   />
 {/key}

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,12 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Post extends Model
 {
     /** @use HasFactory<PostFactory> */
-    use AutoGenerateSlug, HasFactory, RecordsActivity, SoftDeletes;
+    use AutoGenerateSlug, HasEnglishContent, HasFactory, RecordsActivity, SoftDeletes;
 
     protected string $slugSource = 'title';
 
+    /** @var list<string> */
+    protected array $englishAttributes = ['title', 'excerpt', 'content'];
+
     protected $fillable = [
-        'user_id', 'title', 'slug', 'excerpt', 'content', 'cover_image', 'is_published', 'published_at',
+        'user_id', 'title', 'slug', 'excerpt', 'content', 'cover_image', 'is_published', 'published_at', 'title_en', 'excerpt_en', 'content_en',
     ];
 
     /**

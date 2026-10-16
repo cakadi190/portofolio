@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import EmptyState from '@/components/empty-state.svelte';
   import InfiniteFeed from '@/components/infinite-feed.svelte';
   import type { InfiniteList } from '@/types/pagination';
@@ -7,8 +8,8 @@
 
   let {
     posts,
-    emptyTitle = 'Belum Ada Artikel',
-    emptyText = 'Belum ada artikel yang tersedia saat ini.',
+    emptyTitle,
+    emptyText,
   }: {
     posts: InfiniteList<BlogPostCard>;
     emptyTitle?: string;
@@ -17,7 +18,10 @@
 </script>
 
 {#if posts.data.length === 0}
-  <EmptyState title={emptyTitle} text={emptyText} />
+  <EmptyState
+    title={emptyTitle ?? t('empty.no_articles_title')}
+    text={emptyText ?? t('empty.no_articles_text')}
+  />
 {:else}
   <InfiniteFeed data="posts">
     <div class="row">

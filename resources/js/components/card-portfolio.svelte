@@ -1,7 +1,7 @@
 <script lang="ts">
   import Folder from '@lucide/svelte/icons/folder';
   import Icon from '@iconify/svelte';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import { techIcon } from '@/lib/tech-icon';
 
   type Props = {

@@ -1,11 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AppHead from '@/components/app-head.svelte';
 import CardCoffee from '@/components/card-coffee.svelte';
 import HeaderHome from '@/components/home/header-home.svelte';
 import ManageTwoFactor from '@/components/manage-two-factor.svelte';
 import Turnstile from '@/components/turnstile.svelte';
 import { hrefOf } from '@/tests/helpers';
+import { indonesianTranslations } from '@/tests/translations';
 
 const state = vi.hoisted(() => ({
   page: { props: {} as Record<string, unknown> },
@@ -44,8 +45,12 @@ vi.mock('@/lib/two-factor-auth.svelte', () => ({
   twoFactorAuthState: () => twoFactor,
 }));
 
+beforeEach(() => {
+  state.page.props = { translations: indonesianTranslations };
+});
+
 afterEach(() => {
-  state.page.props = {};
+  state.page.props = { translations: indonesianTranslations };
   twoFactor.state.qrCodeSvg = null;
   twoFactor.state.manualSetupKey = null;
   twoFactor.state.recoveryCodesList = [];

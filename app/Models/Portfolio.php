@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEnglishContent;
 use Database\Factories\PortfolioFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,10 +14,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Portfolio extends Model
 {
     /** @use HasFactory<PortfolioFactory> */
-    use AutoGenerateSlug, HasFactory, RecordsActivity;
+    use AutoGenerateSlug, HasEnglishContent, HasFactory, RecordsActivity;
+
+    /** @var list<string> */
+    protected array $englishAttributes = ['name', 'short_desc', 'description'];
 
     protected $fillable = [
         'name', 'slug', 'image', 'short_desc', 'description', 'demo_link', 'source_code', 'is_private',
+        'name_en', 'short_desc_en', 'description_en',
     ];
 
     /**

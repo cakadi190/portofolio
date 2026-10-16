@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import '../../../css/content.scss';
   import AppHead from '@/components/app-head.svelte';
   import CardPortfolio from '@/components/card-portfolio.svelte';
@@ -31,7 +32,7 @@
   <HeaderPage
     backTo="/services"
     title={service.name}
-    subtitle="Detail layanan yang bisa saya berikan untuk anda."
+    subtitle={t('services.show.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -51,12 +52,12 @@
             {@html service.description}
           </div>
         {:else}
-          <p class="opacity-75">Belum ditambahkan deskripsi.</p>
+          <p class="opacity-75">{t('services.show.no_description')}</p>
         {/if}
       </div>
 
       <div id="portfolios">
-        <h2 class="h3 mb-4">Portofolio {service.name}</h2>
+        <h2 class="h3 mb-4">{t('services.show.portfolio', { name: service.name })}</h2>
 
         {#if portfolios.length > 0}
           <div class="row">
@@ -67,7 +68,7 @@
             {/each}
           </div>
         {:else}
-          <p class="opacity-75">Belum ada portofolio untuk layanan ini.</p>
+          <p class="opacity-75">{t('services.show.no_portfolio')}</p>
         {/if}
       </div>
     </div>

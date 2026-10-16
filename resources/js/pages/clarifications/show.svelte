@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref, t, intlLocale } from '@/lib/i18n';
   import '../../../css/content.scss';
   import Calendar from '@lucide/svelte/icons/calendar';
   import ExternalLink from '@lucide/svelte/icons/external-link';
@@ -33,7 +34,7 @@
   const shareUrl = $derived(
     typeof window === 'undefined'
       ? ''
-      : `${window.location.origin}/clarifications/${clarification.slug}`,
+      : `${window.location.origin}${localizeHref(`/clarifications/${clarification.slug}`)}`,
   );
   const lastUpdated = $derived(
     clarification.updates[0]?.date ?? clarification.updatedAt,
@@ -41,7 +42,7 @@
 
   function formatDate(value: string | null): string {
     return value
-      ? new Date(value).toLocaleDateString('id-ID', {
+      ? new Date(value).toLocaleDateString(intlLocale(), {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
@@ -65,9 +66,11 @@
         <div class="col-lg-9">
           {#if isPreview}
             <div class="alert alert-warning" role="status">
-              Pratinjau: halaman ini {clarification.publishedAt
-                ? 'sesuai tampilan publik setelah terbit'
-                : 'belum terbit'} dan hanya terlihat oleh admin.
+              {t('clarifications.show.preview', {
+                state: clarification.publishedAt
+                  ? t('clarifications.show.preview_published')
+                  : t('clarifications.show.preview_draft'),
+              })}
             </div>
           {/if}
 
@@ -82,13 +85,13 @@
           <div class="d-flex flex-wrap align-items-center gap-3 mb-4 opacity-75">
             <div class="d-flex align-items-center gap-2">
               <Calendar size={16} />
-              <span>Terbit {formatDate(clarification.publishedAt)}</span>
+              <span>{t('clarifications.show.published', { date: formatDate(clarification.publishedAt) })}</span>
             </div>
             {#if lastUpdated}
-              <span>Terakhir diperbarui {formatDate(lastUpdated)}</span>
+              <span>{t('clarifications.show.updated', { date: formatDate(lastUpdated) })}</span>
             {/if}
             <span class="d-inline-flex gap-2 ms-md-auto">
-              Bagikan:
+              {t('clarifications.show.share')}
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(`${clarification.title} ${shareUrl}`)}`}
                 target="_blank"
@@ -110,16 +113,16 @@
           <div class={`card border-${clarification.verdictColor} rounded-4 mb-4`}>
             <div class="card-body p-4">
               <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                <span class="fw-semibold">Vonis:</span>
+                <span class="fw-semibold">{t('clarifications.show.verdict')}</span>
                 <VerdictBadge
                   label={clarification.verdictLabel}
                   color={clarification.verdictColor}
                 />
               </div>
-              <h2 class="h6 text-uppercase opacity-75">Klaim yang beredar</h2>
+              <h2 class="h6 text-uppercase opacity-75">{t('clarifications.show.claim_heading')}</h2>
               <blockquote class="mb-2 fs-5">“{clarification.claim}”</blockquote>
               {#if clarification.claimOrigin}
-                <div class="small opacity-75">Asal klaim: {clarification.claimOrigin}</div>
+                <div class="small opacity-75">{t('clarifications.show.claim_origin', { origin: clarification.claimOrigin })}</div>
               {/if}
             </div>
           </div>
@@ -132,7 +135,7 @@
           {#if clarification.apology}
             <div class="card rounded-4 mt-5">
               <div class="card-header p-4">
-                <h2 class="h5 mb-0">Permintaan Maaf</h2>
+                <h2 class="h5 mb-0">{t('clarifications.show.apology')}</h2>
               </div>
               <div class="card-body p-4" style="white-space: pre-line">
                 {clarification.apology}
@@ -143,7 +146,7 @@
           {#if clarification.sources.length}
             <div class="card rounded-4 mt-5">
               <div class="card-header p-4">
-                <h2 class="h5 mb-0">Bukti dan Sumber</h2>
+                <h2 class="h5 mb-0">{t('clarifications.show.sources')}</h2>
               </div>
               <ul class="list-group list-group-flush">
                 {#each clarification.sources as source (source.url)}
@@ -166,7 +169,7 @@
           {#if clarification.updates.length}
             <div class="card rounded-4 mt-5">
               <div class="card-header p-4">
-                <h2 class="h5 mb-0">Riwayat Pembaruan</h2>
+                <h2 class="h5 mb-0">{t('clarifications.show.updates')}</h2>
               </div>
               <ul class="list-group list-group-flush">
                 {#each clarification.updates as update (update.date + update.note)}
@@ -180,9 +183,10 @@
           {/if}
 
           <p class="small opacity-75 mt-5 mb-0">
-            Halaman ini adalah klarifikasi dari pemilik situs sebagai pihak yang
-            bersangkutan, bukan pemeriksaan fakta independen. Bila Anda menemukan
-            kekeliruan, silakan <a href="/contact">hubungi saya</a> atau baca <a href="/disclaimer">penyangkalan dan ketentuan</a>.
+            {t('clarifications.show.note')}
+            <a href={localizeHref('/contact')}>{t('clarifications.show.contact')}</a>
+            {t('clarifications.show.or_read')}
+            <a href={localizeHref('/disclaimer')}>{t('clarifications.show.disclaimer')}</a>.
           </p>
         </div>
       </div>

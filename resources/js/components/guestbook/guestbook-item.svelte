@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, tChoice, intlLocale } from '@/lib/i18n';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ThreadAvatar from '@/components/thread-avatar.svelte';
   import GuestbookForm from './guestbook-form.svelte';
@@ -23,7 +24,7 @@
   let collapsed = $state(false);
 
   const postedAt = $derived(
-    new Date(entry.createdAt).toLocaleDateString('id-ID', {
+    new Date(entry.createdAt).toLocaleDateString(intlLocale(), {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -51,16 +52,16 @@
           aria-expanded={replyingTo === entry.id}
           onclick={() => onReply(replyingTo === entry.id ? null : entry.id)}
         >
-          {replyingTo === entry.id ? 'Batal' : 'Balas'}
+          {replyingTo === entry.id ? t('thread.cancel') : t('thread.reply')}
       </button>
 
       {#if replyingTo === entry.id}
         <div class="mt-3">
           <GuestbookForm
             parentId={entry.id}
-            label={`Balas ${entry.author}`}
-            submitLabel="Kirim Balasan"
-            placeholder="Tulis balasan…"
+            label={t('thread.reply_to', { name: entry.author })}
+            submitLabel={t('thread.send_reply')}
+            placeholder={t('thread.reply_placeholder')}
             onSuccess={() => onReply(null)}
           />
         </div>
@@ -80,8 +81,8 @@
         aria-hidden="true"
         style={collapsed ? 'transform: rotate(-90deg)' : ''}
       />
-      {collapsed ? 'Tampilkan' : 'Sembunyikan'}
-      {entry.replies.length} balasan
+      {collapsed ? t('thread.show') : t('thread.hide')}
+      {tChoice('thread.replies', entry.replies.length)}
     </button>
   {/if}
 

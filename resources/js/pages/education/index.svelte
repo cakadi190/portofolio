@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Clock from '@lucide/svelte/icons/clock';
   import GraduationCap from '@lucide/svelte/icons/graduation-cap';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
@@ -31,7 +32,7 @@
   let activeTab = $state<'education' | 'organization'>('education');
 
   function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    return new Date(date).toLocaleDateString(intlLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   function formatYear(date: string): string {
@@ -47,12 +48,12 @@
   }
 </script>
 
-<AppHead title="Pendidikan dan Organisasi" />
+<AppHead title={t('education.title')} />
 
 <div id="education">
   <HeaderPage
-    title="Riwayat Pendidikan dan Organisasi"
-    subtitle="Biar gak bingung saya ini alumni mana aja dan atau lagi sekolah dimana?"
+    title={t('education.heading')}
+    subtitle={t('education.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -97,7 +98,7 @@
                             <span>&bullet;</span>
                           {/if}
                           <span class={`badge ${item.endDate ? 'bg-success' : 'bg-secondary'}`}>
-                            {item.endDate ? 'Lulus' : 'Sedang Menempuh Pendidikan'}
+                            {item.endDate ? t('education.graduated') : t('education.studying')}
                           </span>
                         </div>
                         <p class="card-text mb-2">{item.place}</p>
@@ -114,8 +115,8 @@
                         <div class="d-flex gap-2 align-items-center mb-0">
                           <Clock size={16} />
                           <span>
-                            {formatDate(item.startDate)} s/d
-                            {item.endDate ? formatDate(item.endDate) : 'Sekarang'}
+                            {formatDate(item.startDate)} {t('education.until')}
+                            {item.endDate ? formatDate(item.endDate) : t('time.present')}
                           </span>
                         </div>
                       </div>
@@ -136,7 +137,7 @@
                         <p class="mb-0">{org.description}</p>
                       {/if}
                       <p class="mb-0">
-                        {formatYear(org.startDate)} - {org.endDate ? formatYear(org.endDate) : 'Sekarang'}
+                        {formatYear(org.startDate)} - {org.endDate ? formatYear(org.endDate) : t('time.present')}
                       </p>
                     </div>
                   </div>
@@ -148,7 +149,7 @@
         <div class="col-md-4">
           <div class="card sticky-top overflow-hidden rounded-4">
             <div class="card-header p-4">
-              <h2 class="h4 mb-0">Navigasi</h2>
+              <h2 class="h4 mb-0">{t('education.nav.title')}</h2>
             </div>
             <div class="card-body">
               <div class="nav nav-pills flex-column align-items-stretch">
@@ -158,7 +159,7 @@
                     type="button"
                     onclick={() => (activeTab = 'education')}
                   >
-                    Riwayat Pendidikan
+                    {t('education.nav.education')}
                   </button>
                 </div>
                 <div class="nav-item">
@@ -167,7 +168,7 @@
                     type="button"
                     onclick={() => (activeTab = 'organization')}
                   >
-                    Riwayat Organisasi dan Kepanitiaan
+                    {t('education.nav.organizations')}
                   </button>
                 </div>
               </div>

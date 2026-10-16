@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'title' => 'Disclaimer & Terms',
+    'subtitle' => 'Terms of use, the comment policy, and how to request a correction.',
+    's.opinion.title' => 'Personal opinion',
+    's.opinion.body' => 'Articles, notes, and clarifications on this site are the personal opinions and experiences of its owner, not professional, legal, or financial advice.',
+    's.accuracy.title' => 'No guarantee of accuracy',
+    's.accuracy.body' => 'I try to write accurately, but information can be outdated or wrong. Use it at your own discretion and verify with official sources before making decisions.',
+    's.links.title' => 'Third-party links',
+    's.links.body' => 'This site links to other sites. Their content, policies, and security are beyond my control.',
+    's.copyright.title' => 'Copyright',
+    's.copyright.body' => 'Original writing and work on this site is protected by copyright. You may quote parts of it with credit and a link; copying it in full requires written permission.',
+    's.comments.title' => 'Comments and reviews',
+    's.comments.body' => 'Blog comments and portfolio reviews are moderated and reflect their authors\' opinions. I may reject or remove content containing spam, hate speech, personal data, or baseless accusations.',
+    's.clarifications.title' => 'Clarifications',
+    's.clarifications.body' => 'Clarification pages are the site owner\'s response as the party concerned, not an independent fact-check.',
+    's.liability.title' => 'Limitation of liability',
+    's.liability.body' => 'Using this site is entirely at your own risk. I am not responsible for any loss arising from using the information in it.',
+    'correction.title' => 'Corrections and right of reply',
+    'correction.before' => 'If you find a mistake or feel wronged by content here, choose "Correction / Right of Reply" on the',
+    'correction.form' => 'contact form',
+    'correction.middle' => 'See also the',
+    'correction.list' => 'list of clarifications',
+];

@@ -1,4 +1,6 @@
+import { page } from '@inertiajs/svelte';
 import { cleanup } from '@testing-library/svelte';
+import { indonesianTranslations } from './translations';
 import { afterEach, beforeEach, vi } from 'vitest';
 
 // Components load Bootstrap lazily; transforming its ES sources on first use can
@@ -73,6 +75,7 @@ installBrowserStubs();
 
 beforeEach(() => {
   installBrowserStubs();
+  page.props = { ...page.props, translations: indonesianTranslations };
 });
 
 afterEach(() => {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import Wifi from '@lucide/svelte/icons/wifi';
   import ThumbsUp from '@lucide/svelte/icons/thumbs-up';
   import ExternalLink from '@lucide/svelte/icons/external-link';
@@ -84,10 +85,10 @@
 
   const parkFeeLabel = $derived(
     parkFee && parkFee > 0
-      ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(
+      ? new Intl.NumberFormat(intlLocale(), { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(
           parkFee,
         )
-      : 'Gratis',
+      : t('coffee.free'),
   );
 </script>
 
@@ -133,7 +134,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id={`label-${modalId}`}>{name}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label={t('action.close')}></button>
       </div>
       <div class="modal-body">
         <div class="thumbnail">
@@ -142,7 +143,7 @@
 
         {#if isRecommended}
           <span class="badge text-bg-warning mt-3 d-inline-flex align-items-center gap-1">
-            <ThumbsUp size={12} /> Direkomendasikan
+            <ThumbsUp size={12} /> {t('coffee.recommended')}
           </span>
         {/if}
 
@@ -157,7 +158,7 @@
                 <button
                   type="button"
                   class="d-block w-100 p-0 border rounded-3 overflow-hidden bg-transparent"
-                  aria-label={`Pratinjau ${gallery.title || `foto ${position + 1}`}`}
+                  aria-label={t('coffee.preview', { title: gallery.title || t('coffee.photo_n', { n: position + 1 }) })}
                   onclick={() => openLightbox(position)}
                 >
                   <img
@@ -185,13 +186,13 @@
             </div>
           {/snippet}
 
-          {@render info('Wilayah', region ?? '-')}
-          {@render info('Jam Buka', `${opensAt ?? '-'} s/d ${closesAt ?? '-'}`)}
-          {@render info('Parkir', parkFeeLabel)}
+          {@render info(t('coffee.region'), region ?? '-')}
+          {@render info(t('coffee.hours'), t('coffee.hours_range', { from: opensAt ?? '-', to: closesAt ?? '-' }))}
+          {@render info(t('coffee.parking'), parkFeeLabel)}
 
           <div class="col-6 col-md-3">
             <div class="border rounded-3 px-3 py-2 h-100">
-              <small class="text-muted d-block">Harga</small>
+              <small class="text-muted d-block">{t('coffee.price')}</small>
               {#if priceTier}
                 <span class={`badge text-bg-${priceTierColor ?? 'secondary'}`}>{priceTier}</span>
               {:else}
@@ -216,7 +217,7 @@
           {#if facilities.length > 0}
             <div class="col-md-12">
               <div class="card card-body">
-                <p class="text-muted mb-2">Fasilitas</p>
+                <p class="text-muted mb-2">{t('coffee.facilities')}</p>
                 <div class="d-flex flex-wrap gap-2">
                   {#each facilities as facility (facility)}
                     <span class="badge bg-secondary-subtle text-body border">{facility}</span>
@@ -229,10 +230,10 @@
           <div class="col-md-12">
             <div class="border rounded-3 px-3 py-2">
               <div class="d-flex gap-2 justify-content-between">
-                <small class="text-muted">Alamat</small>
+                <small class="text-muted">{t('coffee.address')}</small>
                 {#if mapUrl}
                   <a href={mapUrl} target="_blank" rel="noopener" class="d-flex align-items-center gap-1">
-                    Arahkan Saya
+                    {t('coffee.directions')}
                     <ExternalLink size={14} />
                   </a>
                 {/if}

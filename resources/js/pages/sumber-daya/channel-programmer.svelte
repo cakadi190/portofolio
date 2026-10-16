@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref, t } from '@/lib/i18n';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import Users from '@lucide/svelte/icons/users';
   import { router } from '@inertiajs/svelte';
@@ -30,19 +31,19 @@
 
   function selectPlatform(platform: string | null): void {
     router.get(
-      '/resources/programmer-channels',
+      localizeHref('/resources/programmer-channels'),
       { platform },
       { preserveState: true, preserveScroll: true },
     );
   }
 </script>
 
-<AppHead title="Channel Programmer" />
+<AppHead title={t('resources.channels.title')} />
 
 <div id="channel-programmer-page">
   <HeaderPage
-    title="Channel Programmer"
-    subtitle="Channel YouTube, Telegram, dan akun lain seputar pemrograman yang layak kamu ikuti."
+    title={t('resources.channels.title')}
+    subtitle={t('resources.channels.subtitle')}
   />
 
   <section class="need-space pt-0 position-relative">
@@ -53,7 +54,7 @@
           class={`btn btn-sm ${filters.platform ? 'btn-outline-primary' : 'btn-primary'}`}
           onclick={() => selectPlatform(null)}
         >
-          Semua Platform
+          {t('resources.all_platforms')}
         </button>
         {#each platforms as platform (platform.value)}
           <button
@@ -68,8 +69,8 @@
 
       {#if channels.data.length === 0}
         <EmptyState
-          title="Channel Belum Tersedia"
-          text="Belum ada channel dengan kriteria tersebut."
+          title={t('resources.channels.empty_title')}
+          text={t('resources.channels.empty_text')}
         />
       {:else}
         <InfiniteFeed data="channels">
@@ -83,7 +84,7 @@
                         >{item.platformLabel}</span
                       >
                       {#if item.isFeatured}
-                        <span class="badge text-bg-warning">★ Unggulan</span>
+                        <span class="badge text-bg-warning">{t('resources.featured')}</span>
                       {/if}
                     </div>
                     <h2 class="h5 mb-0">{item.name}</h2>
@@ -97,7 +98,7 @@
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                       >
-                        Kunjungi
+                        {t('resources.channels.visit')}
                         <ExternalLink size={14} aria-hidden="true" />
                       </a>
                     </div>

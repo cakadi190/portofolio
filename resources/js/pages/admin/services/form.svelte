@@ -6,6 +6,9 @@
   import { Field } from '@/components/ui/field';
   import MediaField from '@/components/media/media-field.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
+  import TranslationBar from '@/components/admin/translation-bar.svelte';
+  import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
+  import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
   import { index, update } from '@/wayfinder/routes/admin/services';
   import { show } from '@/wayfinder/routes/services';
 
@@ -16,9 +19,17 @@
     color: string | null;
     image: string | null;
     description: string | null;
+    translations: Record<string, Record<string, string>>;
   };
 
   let { service }: { service: Service } = $props();
+
+  // svelte-ignore state_referenced_locally
+  const translatable = createTranslatable(service.translations ?? {}, {
+    name: 'text',
+    description: 'html',
+  });
+  const field = (key: string): string => fieldName(key, translatable.locale);
 </script>
 
 <AppHead title="Ubah Layanan" />
@@ -38,18 +49,21 @@
 
     <div class="row g-4">
       <div class="col-lg-9 d-flex flex-column gap-3">
+        <TranslationBar {translatable} picker />
+        <TranslationHiddenInputs {translatable} fields={['name', 'description']} />
+
         <div>
           <input
             id="service-name"
-            name="name"
+            name={field('name')}
             type="text"
             class="form-control form-control-lg fw-semibold"
-            class:is-invalid={!!errors.name}
+            class:is-invalid={!!errors[field('name')]}
             placeholder="Nama layanan"
-            value={service.name}
-            required
+            bind:value={translatable.values.name[translatable.locale]}
+            required={translatable.isDefault}
           />
-          <Field.Feedback message={errors.name} />
+          <Field.Feedback message={errors[field('name')]} />
         </div>
 
         <div class="d-flex align-items-center gap-2 small">
@@ -77,11 +91,13 @@
 
         <div>
           <RichTextEditor
-            name="description"
-            value={service.description ?? ''}
-            invalid={!!errors.description}
+            name={field('description')}
+            value={translatable.values.description[translatable.locale]}
+            contentKey={translatable.contentKey}
+            onchange={(html) => (translatable.values.description[translatable.locale] = html)}
+            invalid={!!errors[field('description')]}
           />
-          <Field.Feedback message={errors.description} />
+          <Field.Feedback message={errors[field('description')]} />
         </div>
       </div>
 

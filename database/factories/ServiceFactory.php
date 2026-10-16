@@ -22,4 +22,15 @@ class ServiceFactory extends Factory
             'description' => '<p>'.fake()->paragraph().'</p>',
         ];
     }
+
+    /**
+     * The text also exists in English.
+     */
+    public function withEnglish(string $name = 'English name'): static
+    {
+        return $this->state(fn (): array => [
+            'name_en' => $name,
+            'description_en' => '<p>English body</p>',
+        ]);
+    }
 }

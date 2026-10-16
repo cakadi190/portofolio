@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\SystemSettingGroup;
 use App\Models\Technology;
+use App\Support\AppLocale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -27,6 +28,7 @@ use Illuminate\Support\Str;
  *     modified_time?: string|null,
  *     section?: string|null,
  *     robots?: string,
+ *     locales?: list<string>,
  *     breadcrumbs?: list<array{name: string, url: string}>,
  *     tags?: list<string>,
  *     json_ld?: list<array<string, mixed>>,
@@ -52,7 +54,22 @@ class SeoService
      */
     private function page(): ?array
     {
-        return config('seo.pages', [])[$this->request->route()?->getName()] ?? null;
+        $name = $this->request->route()?->getName();
+        $page = config('seo.pages', [])[$name] ?? null;
+
+        if ($page === null) {
+            return null;
+        }
+
+        foreach (['title', 'description'] as $field) {
+            $line = __("seo.pages.{$name}.{$field}");
+
+            if ($line !== "seo.pages.{$name}.{$field}") {
+                $page[$field] = $line;
+            }
+        }
+
+        return $page;
     }
 
     /**
@@ -95,7 +112,7 @@ class SeoService
             default => "{$pageTitle} • {$siteName}",
         };
         $description = $this->plainText(
-            $this->overrides['description'] ?? $page['description'] ?? $this->settings->get('seo_description', config('seo.description')),
+            $this->overrides['description'] ?? $page['description'] ?? $this->settings->get('seo_description', __('seo.description')),
         );
 
         $image = $this->overrides['image'] ?? null;
@@ -104,21 +121,29 @@ class SeoService
         $usesSiteImage = $usesDefaultImage && $defaultImage === config('seo.image');
         $image = url($usesDefaultImage ? $defaultImage : $image);
 
-        $canonical = $this->request->url();
+        $locale = AppLocale::urlLocale();
+        $plainUrl = $this->request->url();
+        $canonical = AppLocale::localize($plainUrl, $locale);
+        $available = $this->overrides['locales'] ?? null;
+        $localeIndexable = in_array($locale, AppLocale::indexable(), true)
+            && ($available === null || in_array($locale, $available, true));
         $type = $this->overrides['type'] ?? 'website';
 
         return [
             'title' => $title,
             'description' => $description,
             'canonical' => $canonical,
-            'robots' => $this->overrides['robots'] ?? ($isIndexable
-                ? 'index,follow,max-image-preview:large,max-snippet:-1'
-                : 'noindex,nofollow'),
+            'robots' => $this->overrides['robots'] ?? match (true) {
+                ! $localeIndexable => 'noindex,follow',
+                $isIndexable => 'index,follow,max-image-preview:large,max-snippet:-1',
+                default => 'noindex,nofollow',
+            },
+            'hreflangs' => $isIndexable && $localeIndexable ? AppLocale::hreflangs($plainUrl, $available) : [],
             'siteName' => $siteName,
-            'locale' => config('seo.locale'),
+            'locale' => AppLocale::regionalCode($locale),
             'type' => $type,
             'image' => $image,
-            'imageAlt' => $this->overrides['image_alt'] ?? $pageTitle ?? config('seo.image_alt'),
+            'imageAlt' => $this->overrides['image_alt'] ?? $pageTitle ?? __('seo.image_alt'),
             'imageSize' => $usesSiteImage ? ['width' => 1200, 'height' => 630] : null,
             'twitter' => $this->settings->get('seo_twitter', config('seo.twitter')),
             'author' => $this->author(),
@@ -160,7 +185,7 @@ class SeoService
                 'name' => config('app.name'),
                 'url' => url('/'),
                 'description' => $description,
-                'inLanguage' => 'id-ID',
+                'inLanguage' => AppLocale::languageTag(),
                 'publisher' => ['@id' => url('/').'#person'],
             ];
             $graph[] = $this->person($image);
@@ -196,7 +221,7 @@ class SeoService
      */
     private function breadcrumbTrail(?array $page, string $canonical): array
     {
-        $trail = [['name' => 'Beranda', 'url' => url('/')]];
+        $trail = [['name' => __('seo.home'), 'url' => url('/')]];
 
         if (isset($this->overrides['breadcrumbs'])) {
             return [...$trail, ...$this->overrides['breadcrumbs']];
@@ -234,7 +259,7 @@ class SeoService
             'url' => $canonical,
             'name' => $page['title'],
             'description' => $description,
-            'inLanguage' => 'id-ID',
+            'inLanguage' => AppLocale::languageTag(),
             'isPartOf' => ['@type' => 'WebSite', '@id' => url('/').'#website', 'name' => config('app.name'), 'url' => url('/')],
             ...($type === 'ProfilePage' ? ['mainEntity' => $this->person($image)] : []),
         ];
@@ -259,7 +284,7 @@ class SeoService
             'url' => url('/'),
             'image' => $image,
             'jobTitle' => 'Fullstack Web Developer',
-            'description' => $this->plainText($this->settings->get('seo_description', config('seo.description'))),
+            'description' => $this->plainText($this->settings->get('seo_description', __('seo.description'))),
             'address' => ['@type' => 'PostalAddress', 'addressLocality' => $locality, 'addressCountry' => 'ID'],
             'knowsAbout' => $knowsAbout,
             'sameAs' => $this->socialProfiles(),

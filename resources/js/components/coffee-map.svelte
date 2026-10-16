@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import 'leaflet/dist/leaflet.css';
   import type { LatLngTuple } from 'leaflet';
   import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -74,5 +75,5 @@
   class="border rounded-3"
   style="height:16rem;z-index:0;"
   role="application"
-  aria-label={`Peta lokasi ${label}`}
+  aria-label={t('coffee.map_label', { label })}
 ></div>

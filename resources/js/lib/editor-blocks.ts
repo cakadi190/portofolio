@@ -12,9 +12,12 @@ import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import {
   createCodeHeader,
+  createGutter,
+  lineNumbersText,
   normalizeCodeTitle,
   CODE_TITLE_MAX_LENGTH,
 } from '@/lib/code-card';
+import { t } from '@/lib/i18n';
 import { highlightSource } from '@/lib/highlight';
 import { renderMathInto } from '@/lib/math';
 
@@ -798,9 +801,9 @@ function codeBlockView(
   card.className = 'code-card';
   input.type = 'text';
   input.className = 'code-card__title code-card__title-input';
-  input.placeholder = 'Judul (mis. app/Models/User.php)';
+  input.placeholder = t('code.title_placeholder');
   input.maxLength = CODE_TITLE_MAX_LENGTH;
-  input.setAttribute('aria-label', 'Judul blok kode');
+  input.setAttribute('aria-label', t('code.title_label'));
   input.spellcheck = false;
 
   const commitTitle = (): void => {
@@ -825,7 +828,39 @@ function codeBlockView(
     }
   });
 
+  let gutter: HTMLElement | null = null;
+
   const sync = (): void => {
+    card.classList.toggle('code-card--untitled', !!node.attrs.titleHidden);
+
+    if (node.attrs.lineNumbers) {
+      if (!gutter) {
+        gutter = createGutter(node.textContent);
+        pre.prepend(gutter);
+      }
+
+      const numbers = lineNumbersText(node.textContent);
+
+      if (gutter.textContent !== numbers) {
+        gutter.textContent = numbers;
+      }
+    } else if (gutter) {
+      gutter.remove();
+      gutter = null;
+    }
+
+    if (node.attrs.titleHidden) {
+      pre.dataset.codeTitleHidden = '1';
+    } else {
+      delete pre.dataset.codeTitleHidden;
+    }
+
+    if (node.attrs.lineNumbers) {
+      pre.dataset.codeLines = '1';
+    } else {
+      delete pre.dataset.codeLines;
+    }
+
     if (document.activeElement !== input) {
       input.value = node.attrs.title ?? '';
     }
@@ -868,9 +903,17 @@ function codeBlockView(
     stopEvent: (event) =>
       event.target instanceof HTMLElement &&
       event.target.closest('.code-card__header') !== null,
-    ignoreMutation: (mutation) =>
-      mutation.target instanceof HTMLElement &&
-      mutation.target.closest('.code-card__header') !== null,
+    ignoreMutation: (mutation) => {
+      const target =
+        mutation.target instanceof HTMLElement
+          ? mutation.target
+          : mutation.target.parentElement;
+
+      return (
+        target?.closest('.code-card__header, .code-card__gutter') != null ||
+        (target === pre && mutation.type === 'childList')
+      );
+    },
   };
 }
 
@@ -892,6 +935,20 @@ export const CodeBlockHighlight = Extension.create({
 
               return title ? { 'data-code-title': title } : {};
             },
+          },
+          titleHidden: {
+            default: false,
+            parseHTML: (element) =>
+              element.getAttribute('data-code-title-hidden') === '1',
+            renderHTML: (attributes) =>
+              attributes.titleHidden ? { 'data-code-title-hidden': '1' } : {},
+          },
+          lineNumbers: {
+            default: false,
+            parseHTML: (element) =>
+              element.getAttribute('data-code-lines') === '1',
+            renderHTML: (attributes) =>
+              attributes.lineNumbers ? { 'data-code-lines': '1' } : {},
           },
           theme: {
             default: null,
@@ -924,6 +981,59 @@ export const CodeBlockHighlight = Extension.create({
           nodeViews: {
             codeBlock: (initial, view, getPos) =>
               codeBlockView(initial, view, getPos),
+          },
+        },
+      }),
+    ];
+  },
+});
+
+/** Transaction meta that sets (or with `null` clears) the highlighted link target range. */
+export const LINK_HIGHLIGHT_META = 'rteLinkHighlight';
+
+/**
+ * Keeps the text being linked visibly selected while the link popover owns the
+ * keyboard focus, so the writer can see what the link will apply to.
+ */
+export const LinkHighlight = Extension.create({
+  name: 'linkHighlight',
+
+  addProseMirrorPlugins() {
+    const key = new PluginKey<{ from: number; to: number } | null>(
+      'linkHighlight',
+    );
+
+    return [
+      new Plugin<{ from: number; to: number } | null>({
+        key,
+        state: {
+          init: () => null,
+          apply: (tr, previous) => {
+            const meta = tr.getMeta(LINK_HIGHLIGHT_META);
+
+            if (meta !== undefined) {
+              return meta;
+            }
+
+            return previous && tr.docChanged
+              ? {
+                  from: tr.mapping.map(previous.from),
+                  to: tr.mapping.map(previous.to),
+                }
+              : previous;
+          },
+        },
+        props: {
+          decorations: (state) => {
+            const range = key.getState(state);
+
+            return range && range.to > range.from
+              ? DecorationSet.create(state.doc, [
+                  Decoration.inline(range.from, range.to, {
+                    class: 'rte-link-target',
+                  }),
+                ])
+              : null;
           },
         },
       }),

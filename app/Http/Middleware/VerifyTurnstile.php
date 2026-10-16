@@ -33,7 +33,7 @@ class VerifyTurnstile
         if ($this->turnstile->isEnabled() && $request->isMethod('POST') && $request->routeIs(self::PROTECTED_ROUTES)) {
             if (! $this->turnstile->verify($request->input(TurnstileService::RESPONSE_FIELD), $request->ip())) {
                 throw ValidationException::withMessages([
-                    TurnstileService::RESPONSE_FIELD => 'Verifikasi keamanan gagal. Silakan coba lagi.',
+                    TurnstileService::RESPONSE_FIELD => __('validation.turnstile'),
                 ]);
             }
         }

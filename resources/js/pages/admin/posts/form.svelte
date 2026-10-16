@@ -8,6 +8,9 @@
   import EditorSummaryRow from '@/components/admin/editor-summary-row.svelte';
   import EditorSaveMenu from '@/components/admin/editor-save-menu.svelte';
   import EditorTitle from '@/components/admin/editor-title.svelte';
+  import TranslationHiddenInputs from '@/components/admin/translation-hidden-inputs.svelte';
+  import TranslationBar from '@/components/admin/translation-bar.svelte';
+  import { createTranslatable, fieldName } from '@/lib/translatable.svelte';
   import DatePicker from '@/components/ui/date-picker.svelte';
   import { Field } from '@/components/ui/field';
   import MediaField from '@/components/media/media-field.svelte';
@@ -27,6 +30,7 @@
     slug: string;
     excerpt: string | null;
     content: string;
+    translations: Record<'title' | 'excerpt' | 'content', Record<string, string>>;
     cover_image: string | null;
     user_id: number | null;
     is_published: boolean;
@@ -52,7 +56,12 @@
   // svelte-ignore state_referenced_locally
   let isPublished = $state(post?.is_published ?? false);
   // svelte-ignore state_referenced_locally
-  let title = $state(post?.title ?? '');
+  const translatable = createTranslatable(post?.translations ?? {}, {
+    title: 'text',
+    excerpt: 'text',
+    content: 'html',
+  });
+  const title = $derived(translatable.values.title[translatable.locale] || translatable.values.title.id);
   // svelte-ignore state_referenced_locally
   let slug = $state(post?.slug ?? '');
   let publishedDisplay = $state('');
@@ -96,16 +105,19 @@
 >
   {#snippet children({ errors, processing })}
     {#snippet postHeader()}
+      <TranslationBar {translatable} />
       <EditorTitle
-        name="title"
-        bind:value={title}
+        name={fieldName('title', translatable.locale)}
+        bind:value={translatable.values.title[translatable.locale]}
         ariaLabel="Judul artikel"
-        error={errors.title}
+        required={translatable.isDefault}
+        error={errors[fieldName('title', translatable.locale)]}
       />
+      <TranslationHiddenInputs {translatable} fields={['title', 'excerpt', 'content']} />
     {/snippet}
 
     {#snippet contentFeedback()}
-      <Field.Feedback message={errors.content} />
+      <Field.Feedback message={errors[fieldName('content', translatable.locale)]} />
     {/snippet}
 
     {#snippet postActions(editor: {
@@ -226,15 +238,15 @@
 
       <EditorPanel title="Kutipan">
         <textarea
-          name="excerpt"
+          name={fieldName('excerpt', translatable.locale)}
           aria-label="Ringkasan artikel"
           class="form-control form-control-sm"
-          class:is-invalid={!!errors.excerpt}
+          class:is-invalid={!!errors[fieldName('excerpt', translatable.locale)]}
           rows="4"
           maxlength="255"
           placeholder="Ringkasan singkat yang tampil di daftar artikel"
-          value={post?.excerpt ?? ''}></textarea>
-        <Field.Feedback message={errors.excerpt} />
+          bind:value={translatable.values.excerpt[translatable.locale]}></textarea>
+        <Field.Feedback message={errors[fieldName('excerpt', translatable.locale)]} />
       </EditorPanel>
 
       <EditorPanel title="Kategori">
@@ -258,9 +270,14 @@
 
     <RichTextEditor
       shell
-      name="content"
-      value={post?.content ?? ''}
-      invalid={!!errors.content}
+      name={fieldName('content', translatable.locale)}
+      value={translatable.values.content[translatable.locale]}
+      contentKey={translatable.contentKey}
+      languages={translatable.languages}
+      language={translatable.locale}
+      onlanguage={(code) => (translatable.locale = code)}
+      onchange={(html) => (translatable.values.content[translatable.locale] = html)}
+      invalid={!!errors[fieldName('content', translatable.locale)]}
       viewHref={post?.slug
         ? post.is_published
           ? show(post.slug).url

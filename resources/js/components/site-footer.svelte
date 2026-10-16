@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
+  import { t } from '@/lib/i18n';
   import { me as about, site } from '@/wayfinder/routes/about';
   import { index as awards } from '@/wayfinder/routes/awards';
   import { index as blog } from '@/wayfinder/routes/blog';
@@ -48,45 +49,41 @@
     },
   ];
 
-  const workLinks = [
-    { label: 'Pendidikan', href: education().url },
-    { label: 'Penghargaan', href: awards().url },
-    { label: 'Pembicara', href: speaking().url },
-    { label: 'Skill & Perkakas', href: `${about().url}#skills` },
-    { label: 'Layanan', href: services().url },
-    { label: 'Portofolio Saya', href: portfolios().url },
-    { label: 'Karir', href: career().url },
-  ];
+  const workLinks = $derived([
+    { label: t('footer.education'), href: education().url },
+    { label: t('footer.awards'), href: awards().url },
+    { label: t('footer.speaking'), href: speaking().url },
+    { label: t('footer.skills'), href: `${about().url}#skills` },
+    { label: t('footer.services'), href: services().url },
+    { label: t('footer.portfolio'), href: portfolios().url },
+    { label: t('footer.career'), href: career().url },
+  ]);
 
-  const resourceLinks = [
-    { label: 'Blog Pribadi', href: blog().url },
-    { label: 'Catatan Singkat', href: notesIndex().url },
-    { label: 'Buku Tamu', href: guestbook().url },
-    { label: 'Statistik', href: statistic().url },
-    { label: 'Klarifikasi', href: clarifications().url },
-    { label: 'Channel Programmer', href: programmerChannels().url },
-    { label: 'Komunitas Dev ID', href: devCommunities().url },
-    { label: 'Tempat Ngopi', href: coffeeShops().url },
-  ];
+  const resourceLinks = $derived([
+    { label: t('footer.blog'), href: blog().url },
+    { label: t('footer.notes'), href: notesIndex().url },
+    { label: t('footer.guestbook'), href: guestbook().url },
+    { label: t('footer.statistic'), href: statistic().url },
+    { label: t('footer.clarifications'), href: clarifications().url },
+    { label: t('footer.channels'), href: programmerChannels().url },
+    { label: t('footer.communities'), href: devCommunities().url },
+    { label: t('footer.coffee'), href: coffeeShops().url },
+  ]);
 
-  const otherLinks = [
-    { label: 'Penyangkalan & Ketentuan', href: disclaimer().url },
-    { label: 'Kredit', href: '#' },
-    { label: 'Donasi di trakteer.id', href: '#' },
-    { label: 'Donasi di ko-fi.com', href: '#' },
-  ];
+  const otherLinks = $derived([
+    { label: t('footer.disclaimer'), href: disclaimer().url },
+    { label: t('footer.credits'), href: '#' },
+    { label: t('footer.donate.trakteer'), href: '#' },
+    { label: t('footer.donate.kofi'), href: '#' },
+  ]);
 </script>
 
 <footer class="site-footer border-top py-4 mt-auto">
   <div class="container py-4">
     <div class="row gy-5">
       <div class="col-md-6">
-        <h2 class="h6">Tentang Saya</h2>
-        <p class="opacity-75">
-          Saya adalah seorang fullstack developer yang suka sekali dengan desain
-          dan juga tertarik di dunia teknologi. Saya adalah orang kelahiran
-          Klaten, Jawa Tengah dan berdomisili di Ngawi, Jawa Timur.
-        </p>
+        <h2 class="h6">{t('footer.about.title')}</h2>
+        <p class="opacity-75">{t('footer.about.text')}</p>
         <div class="d-flex gap-3 mt-4">
           {#each socials as social (social.href)}
             <a
@@ -103,7 +100,7 @@
       </div>
 
       <div class="col-lg-2 col-6">
-        <h2 class="h6">Ke(-rjaan/gabut)-an Saya</h2>
+        <h2 class="h6">{t('footer.work.title')}</h2>
         <ul class="list-unstyled">
           {#each workLinks as link (link.label)}
             <li><Link href={link.href}>{link.label}</Link></li>
@@ -112,7 +109,7 @@
       </div>
 
       <div class="col-lg-2 col-6">
-        <h2 class="h6">Sumber Daya</h2>
+        <h2 class="h6">{t('footer.resources.title')}</h2>
         <ul class="list-unstyled">
           {#each resourceLinks as link (link.label)}
             <li><Link href={link.href}>{link.label}</Link></li>
@@ -121,7 +118,7 @@
       </div>
 
       <div class="col-md-2">
-        <h2 class="h6">Tautan Lain-lain</h2>
+        <h2 class="h6">{t('footer.other.title')}</h2>
         <ul class="list-unstyled">
           {#each otherLinks as link (link.label)}
             <li><Link href={link.href}>{link.label}</Link></li>
@@ -134,10 +131,10 @@
   <div class="container mt-3">
     <div class="row">
       <div class="col-md-6 text-center text-lg-start">
-        <p class="mb-0">Hak cipta &copy; {year} Cak Adi.</p>
+        <p class="mb-0">{t('footer.copyright', { year })}</p>
       </div>
       <div class="col-md-6 text-center text-lg-end">
-        <p class="mb-0">Made with ❤ in Ngawi, Indonesia.</p>
+        <p class="mb-0">{t('footer.madewith')}</p>
       </div>
     </div>
   </div>

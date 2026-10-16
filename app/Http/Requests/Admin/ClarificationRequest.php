@@ -21,7 +21,7 @@ class ClarificationRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $plainTextFields = ['claim', 'claim_origin', 'summary', 'apology', 'withdrawal_note'];
+        $plainTextFields = ['claim', 'claim_origin', 'summary', 'apology', 'withdrawal_note', 'claim_en', 'claim_origin_en', 'summary_en', 'apology_en', 'withdrawal_note_en'];
 
         $this->merge(collect($plainTextFields)
             ->filter(fn (string $field): bool => is_string($this->input($field)))
@@ -64,6 +64,13 @@ class ClarificationRequest extends FormRequest
             'withdrawal_note' => ['nullable', 'string', 'max:2000'],
             'is_published' => ['required', 'boolean'],
             'published_at' => ['nullable', 'date'],
+            'title_en' => ['nullable', 'string', 'max:255'],
+            'claim_en' => ['nullable', 'string', 'max:1000'],
+            'claim_origin_en' => ['nullable', 'string', 'max:255'],
+            'summary_en' => ['nullable', 'string', 'max:255'],
+            'content_en' => ['nullable', 'string'],
+            'apology_en' => ['nullable', 'string', 'max:5000'],
+            'withdrawal_note_en' => ['nullable', 'string', 'max:2000'],
         ];
     }
 

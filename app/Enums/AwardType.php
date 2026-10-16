@@ -4,10 +4,11 @@ namespace App\Enums;
 
 use App\Enums\Concerns\HasEnumOptions;
 use App\Enums\Concerns\HasEnumValues;
+use App\Enums\Concerns\HasLabel;
 
 enum AwardType: string
 {
-    use HasEnumOptions, HasEnumValues;
+    use HasEnumOptions, HasEnumValues, HasLabel;
 
     case Competition = 'competition';
     case Certification = 'certification';
@@ -19,20 +20,4 @@ enum AwardType: string
     case Honors = 'honors';
     case Publication = 'publication';
     case Contribution = 'contribution';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Competition => 'Kompetisi / Lomba',
-            self::Certification => 'Sertifikasi',
-            self::Awardee => 'Awardee',
-            self::Recognition => 'Pengakuan',
-            self::Achievement => 'Pencapaian',
-            self::Scholarship => 'Beasiswa',
-            self::Appointment => 'Penunjukan',
-            self::Honors => 'Penghargaan Kehormatan',
-            self::Publication => 'Publikasi',
-            self::Contribution => 'Kontribusi',
-        };
-    }
 }

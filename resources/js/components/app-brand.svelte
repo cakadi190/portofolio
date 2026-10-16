@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import logoColor from '../../images/brands/logo-color.svg?no-inline';
   import logoWhite from '../../images/brands/logo-white.svg?no-inline';
 

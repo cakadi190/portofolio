@@ -21,8 +21,10 @@ class ProfileUpdateRequest extends FormRequest
             $this->merge(['username' => Str::lower(ltrim(trim((string) $this->input('username')), '@'))]);
         }
 
-        if ($this->has('bio')) {
-            $this->merge(['bio' => HtmlSanitizer::clean((string) $this->input('bio'))]);
+        foreach (['bio', 'bio_en'] as $field) {
+            if ($this->has($field)) {
+                $this->merge([$field => HtmlSanitizer::clean((string) $this->input($field))]);
+            }
         }
     }
 
@@ -39,6 +41,7 @@ class ProfileUpdateRequest extends FormRequest
             'gender' => ['nullable', new Enum(Gender::class)],
             'username' => ['sometimes', ...$this->usernameRules($this->user()->id)],
             'bio' => ['nullable', 'string', 'max:5000'],
+            'bio_en' => ['nullable', 'string', 'max:5000'],
             'avatar' => ['nullable', 'string', new MediaPath($this->user()->avatar)],
         ];
     }

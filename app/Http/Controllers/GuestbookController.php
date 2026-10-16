@@ -49,8 +49,8 @@ class GuestbookController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => $entry->status === BlogCommentStatus::Approved
-                ? 'Pesan Anda telah dikirim.'
-                : 'Terima kasih! Pesan Anda akan tampil setelah ditinjau.',
+                ? __('flash.guestbook.sent')
+                : __('flash.guestbook.pending'),
         ]);
 
         return to_route('guestbook.index');

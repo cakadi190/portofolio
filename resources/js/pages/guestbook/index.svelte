@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref, t } from '@/lib/i18n';
   import { InfiniteScroll } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import GuestbookItem from '@/components/guestbook/guestbook-item.svelte';
@@ -14,12 +15,12 @@
   let replyingTo = $state<number | null>(null);
 </script>
 
-<AppHead title="Buku Tamu" />
+<AppHead title={t('guestbook.title')} />
 
 <div id="guestbook-page">
   <HeaderPage
-    title="Buku Tamu"
-    subtitle="Tinggalkan pesan, sapaan, atau kesan Anda di sini."
+    title={t('guestbook.title')}
+    subtitle={t('guestbook.subtitle')}
   />
 
   <section class="need-space pt-0">
@@ -29,12 +30,12 @@
           <div class="mb-5">
             <GuestbookForm />
             <p class="small opacity-75 mt-3 mb-0">
-              Pesan mencerminkan pendapat penulisnya. Baca
-              <a href="/disclaimer">penyangkalan</a>.
+              {t('guestbook.note')}
+              <a href={localizeHref('/disclaimer')}>{t('guestbook.disclaimer')}</a>.
             </p>
           </div>
 
-          <h2 class="h3 mb-4">Pesan ({totalEntries})</h2>
+          <h2 class="h3 mb-4">{t('guestbook.messages', { total: totalEntries })}</h2>
 
           {#if entries.data.length}
             <InfiniteScroll data="entries" buffer={300}>
@@ -50,12 +51,12 @@
               {#snippet loading()}
                 <div class="d-flex justify-content-center align-items-center gap-2 py-3 small opacity-75">
                   <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                  Memuat pesan…
+                  {t('guestbook.loading')}
                 </div>
               {/snippet}
             </InfiniteScroll>
           {:else}
-            <p class="opacity-75">Belum ada pesan. Jadilah yang pertama.</p>
+            <p class="opacity-75">{t('guestbook.empty')}</p>
           {/if}
         </div>
       </div>

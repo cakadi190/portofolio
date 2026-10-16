@@ -20,26 +20,17 @@ enum ResumeProfile: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Technical => 'CV Teknis',
-            self::Executive => 'CV Eksekutif & Bisnis',
-        };
+        return __('enums.resume_profile.label.'.$this->value);
     }
 
     public function description(): string
     {
-        return match ($this) {
-            self::Technical => 'Menonjolkan keahlian, proyek, dan pengalaman rekayasa perangkat lunak.',
-            self::Executive => 'Menonjolkan kepemimpinan, kewirausahaan, organisasi, dan pembicara.',
-        };
+        return __('enums.resume_profile.description.'.$this->value);
     }
 
     public function headline(): string
     {
-        return match ($this) {
-            self::Technical => 'Software Engineer',
-            self::Executive => 'Software Engineer & Wirausahawan',
-        };
+        return __('enums.resume_profile.headline.'.$this->value);
     }
 
     /**

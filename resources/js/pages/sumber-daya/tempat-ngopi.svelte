@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref, t } from '@/lib/i18n';
   import Info from '@lucide/svelte/icons/info';
   import Search from '@lucide/svelte/icons/search';
   import { router } from '@inertiajs/svelte';
@@ -47,7 +48,7 @@
 
   function selectRegion(region: string | null): void {
     router.get(
-      '/resources/coffee-shops',
+      localizeHref('/resources/coffee-shops'),
       { region, search: filters.search },
       { preserveState: true, preserveScroll: true },
     );
@@ -57,27 +58,23 @@
     event.preventDefault();
 
     router.get(
-      '/resources/coffee-shops',
+      localizeHref('/resources/coffee-shops'),
       { region: filters.region, search: searchQuery || undefined },
       { preserveState: true, preserveScroll: true },
     );
   }
 </script>
 
-<AppHead title="Tempat Ngopi" />
+<AppHead title={t('resources.coffee.title')} />
 
 <div id="coffee-page">
   <HeaderPage
-    title="Tempat Ngopi"
-    subtitle="Berikut daftar tempat ngopi yang aku rekomendasikan."
+    title={t('resources.coffee.title')}
+    subtitle={t('resources.coffee.subtitle')}
   >
     <p class="text-muted mt-3 align-items-center gap-2">
       <Info size={16} />
-      <span>
-        Dan mohon maaf, saya tidak terafiliasi terhadap salah satu kafe / warkop
-        ini, jadi apabila ada kesalahan mohon segera hubungi saya supaya segera
-        saya perbaharui.
-      </span>
+      <span>{t('resources.coffee.disclaimer')}</span>
     </p>
   </HeaderPage>
 
@@ -91,7 +88,7 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            {filters.region ?? 'Pilih Kota'}
+            {filters.region ?? t('resources.coffee.choose_city')}
           </button>
           <ul class="dropdown-menu">
             <li>
@@ -100,7 +97,7 @@
                 type="button"
                 onclick={() => selectRegion(null)}
               >
-                Semua Kota
+                {t('resources.coffee.all_cities')}
               </button>
             </li>
             {#each regions as region (region)}
@@ -122,10 +119,10 @@
             bind:value={searchQuery}
             type="text"
             class="form-control"
-            aria-label="Cari kafe atau lokasi"
-            placeholder="Cari kafe atau lokasi"
+            aria-label={t('resources.coffee.search_label')}
+            placeholder={t('resources.coffee.search_label')}
           />
-          <button class="btn btn-primary" type="submit" aria-label="Cari">
+          <button class="btn btn-primary" type="submit" aria-label={t('resources.coffee.search')}>
             <Search size={16} />
           </button>
         </form>
@@ -134,8 +131,8 @@
       <div class="row pt-5">
         {#if places.data.length === 0}
           <EmptyState
-            title="Tempat Ngopi Tidak Ditemukan"
-            text="Kami tidak dapat menemukan tempat ngopi dengan kriteria tersebut."
+            title={t('resources.coffee.empty_title')}
+            text={t('resources.coffee.empty_text')}
           />
         {:else}
           <div class="col-md-12 mx-auto">

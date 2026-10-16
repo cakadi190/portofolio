@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t, intlLocale } from '@/lib/i18n';
   import CalendarDays from '@lucide/svelte/icons/calendar-days';
   import Clock from '@lucide/svelte/icons/clock';
   import Globe from '@lucide/svelte/icons/globe';
@@ -40,12 +41,14 @@
     onzones?: (engagement: Engagement) => void;
   } = $props();
 
-  const dateFormatter = new Intl.DateTimeFormat('id-ID', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  const dateFormatter = $derived(
+    new Intl.DateTimeFormat(intlLocale(), {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }),
+  );
 
   /** Parse "YYYY-MM-DD HH:mm" as a wall-clock date, ignoring the viewer's timezone. */
   function parse(value: string): Date {
@@ -78,7 +81,7 @@
       <CalendarDays size={15} aria-hidden="true" />
       <span>{dateLabel}</span>
       <span class="speaking-item-status">
-        {engagement.isUpcoming ? 'Akan datang' : 'Selesai'}
+        {engagement.isUpcoming ? t('speaking_item.upcoming') : t('speaking_item.done')}
       </span>
     </p>
 
@@ -103,7 +106,7 @@
         {#if engagement.isUpcoming && hasTime && onzones}
           <li>
             <button type="button" onclick={() => onzones(engagement)}>
-              <Globe size={14} aria-hidden="true" />Lihat waktu di zona waktu Anda
+              <Globe size={14} aria-hidden="true" />{t('speaking_item.local_time')}
             </button>
           </li>
         {/if}
@@ -122,7 +125,7 @@
         rel="noopener noreferrer"
         class="btn btn-sm btn-primary align-self-start"
       >
-        Daftar Sekarang
+        {t('speaking_item.register')}
       </a>
     {/if}
   </div>
@@ -132,7 +135,7 @@
       <button
         type="button"
         class="speaking-item-poster"
-        aria-label={`Lihat poster ${engagement.title}`}
+        aria-label={t('speaking_item.view_poster', { title: engagement.title })}
         onclick={() => onposter(engagement)}
       >
         <img

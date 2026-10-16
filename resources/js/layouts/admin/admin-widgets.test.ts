@@ -9,6 +9,31 @@ import AdminNotificationBell from '@/layouts/admin/admin-notification-bell.svelt
 import AdminUserMenu from '@/layouts/admin/admin-user-menu.svelte';
 import { hrefOf } from '@/tests/helpers';
 
+const i18n = vi.hoisted(() => ({
+  options: [
+    { code: 'id', label: 'Bahasa Indonesia', flag: 'fi-id' },
+    { code: 'en', label: 'English', flag: 'fi-us' },
+  ],
+}));
+
+vi.mock('@/lib/i18n', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/i18n')>()),
+  currentLocale: () => 'id',
+  localeOptions: () => i18n.options,
+  localeAlternates: () => null,
+}));
+
+const post = vi.hoisted(() => vi.fn());
+
+vi.mock('@inertiajs/svelte', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@inertiajs/svelte')>();
+
+  return {
+    ...original,
+    router: Object.assign(Object.create(original.router), { post }),
+  };
+});
+
 afterEach(() => {
   vi.useRealTimers();
 });
@@ -112,7 +137,7 @@ describe('AdminFullscreenToggle', () => {
 });
 
 describe('AdminLanguageSwitcher', () => {
-  it('switches the current locale', async () => {
+  it('shows the current language and posts the chosen one', async () => {
     render(AdminLanguageSwitcher);
 
     expect(
@@ -121,13 +146,13 @@ describe('AdminLanguageSwitcher', () => {
       }),
     ).toBeTruthy();
 
-    await fireEvent.click(screen.getByText('Bahasa Inggris'));
+    await fireEvent.click(screen.getByText('English'));
 
-    expect(
-      screen.getByLabelText('Pilih bahasa: Bahasa Inggris', {
-        selector: 'button',
-      }),
-    ).toBeTruthy();
+    expect(post).toHaveBeenCalledWith(
+      '/locale',
+      { locale: 'en' },
+      { preserveScroll: true },
+    );
   });
 });
 

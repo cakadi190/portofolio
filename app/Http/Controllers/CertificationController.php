@@ -40,7 +40,7 @@ class CertificationController extends Controller
         if (! $certification->is_pdf) {
             return Inertia::render('certification/detail', [
                 'title' => $certification->title,
-                'description' => "Sertifikat {$certification->title} dari {$certification->issuer}.",
+                'description' => __('seo.certificate.description', ['title' => $certification->title, 'issuer' => $certification->issuer]),
                 'imageUrl' => ImageService::url($certification->file),
                 'info' => $info,
             ]);
@@ -50,7 +50,7 @@ class CertificationController extends Controller
 
         return Inertia::render('certification/show', [
             'title' => $certification->title,
-            'description' => "Sertifikat {$certification->title} dari {$certification->issuer}.",
+            'description' => __('seo.certificate.description', ['title' => $certification->title, 'issuer' => $certification->issuer]),
             'pdfUrl' => ImageService::url($certification->file),
             'downloadName' => Str::slug($certification->title).'.pdf',
             'info' => $info,

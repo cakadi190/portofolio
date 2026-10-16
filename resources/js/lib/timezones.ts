@@ -1,3 +1,5 @@
+import { intlLocale, t } from '@/lib/i18n';
+
 /** Event times are entered as WIB (UTC+7) wall-clock values: "YYYY-MM-DD HH:mm". */
 const WIB_OFFSET_HOURS = 7;
 
@@ -14,7 +16,7 @@ const ZONES = [
   { key: 'wib', label: 'WIB', timeZone: 'Asia/Jakarta' },
   { key: 'wita', label: 'WITA', timeZone: 'Asia/Makassar' },
   { key: 'wit', label: 'WIT', timeZone: 'Asia/Jayapura' },
-  { key: 'sgt', label: 'Singapura / Malaysia', timeZone: 'Asia/Singapore' },
+  { key: 'sgt', label: 'zone.singapore', timeZone: 'Asia/Singapore' },
   { key: 'utc', label: 'UTC', timeZone: 'UTC' },
 ];
 
@@ -30,7 +32,7 @@ export function wibToInstant(value: string): Date {
 }
 
 function formatIn(instant: Date, timeZone: string): string {
-  const parts = new Intl.DateTimeFormat('id-ID', {
+  const parts = new Intl.DateTimeFormat(intlLocale(), {
     timeZone,
     weekday: 'long',
     day: 'numeric',
@@ -67,13 +69,14 @@ export function zoneRows(
   if (device && !zones.some((zone) => zone.timeZone === device)) {
     zones.unshift({
       key: 'device',
-      label: 'Zona waktu perangkat Anda',
+      label: t('zone.device'),
       timeZone: device,
     });
   }
 
   return zones.map((zone) => ({
     ...zone,
+    label: zone.label.startsWith('zone.') ? t(zone.label) : zone.label,
     start: formatIn(start, zone.timeZone),
     end: end ? formatIn(end, zone.timeZone) : null,
     isDevice: zone.timeZone === device || zone.key === 'device',

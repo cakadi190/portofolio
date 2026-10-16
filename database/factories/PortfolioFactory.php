@@ -25,4 +25,16 @@ class PortfolioFactory extends Factory
             'is_private' => false,
         ];
     }
+
+    /**
+     * The text also exists in English.
+     */
+    public function withEnglish(string $name = 'English name'): static
+    {
+        return $this->state(fn (): array => [
+            'name_en' => $name,
+            'short_desc_en' => 'English summary',
+            'description_en' => '<p>English body</p>',
+        ]);
+    }
 }

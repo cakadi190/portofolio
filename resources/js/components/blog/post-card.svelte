@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { t } from '@/lib/i18n';
   import Folder from '@lucide/svelte/icons/folder';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import { show as showAuthor } from '@/wayfinder/routes/blog/authors';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
   import { show as showPost } from '@/wayfinder/routes/blog';
@@ -61,7 +62,7 @@
 
       {#if post.author}
         <div class="small opacity-75">
-          Oleh
+          {t('post.by_label')}
           {#if post.author.username}
             <Link
               href={showAuthor(post.author.username).url}

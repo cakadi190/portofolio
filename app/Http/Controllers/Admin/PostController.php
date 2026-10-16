@@ -50,7 +50,10 @@ class PostController extends Controller
     public function edit(Post $post): Response
     {
         return Inertia::render('admin/posts/form', [
-            'post' => $post->load(['tags:id', 'categories:id']),
+            'post' => [
+                ...$post->load(['tags:id', 'categories:id'])->toArray(),
+                'translations' => $post->translationPayload(),
+            ],
             'previewUrl' => $post->isLive() ? null : $post->previewUrl(),
             ...$this->options(),
         ]);

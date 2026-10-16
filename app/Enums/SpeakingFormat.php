@@ -4,21 +4,13 @@ namespace App\Enums;
 
 use App\Enums\Concerns\HasEnumOptions;
 use App\Enums\Concerns\HasEnumValues;
+use App\Enums\Concerns\HasLabel;
 
 enum SpeakingFormat: string
 {
-    use HasEnumOptions, HasEnumValues;
+    use HasEnumOptions, HasEnumValues, HasLabel;
 
     case Online = 'online';
     case Offline = 'offline';
     case Hybrid = 'hybrid';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::Online => 'Online',
-            self::Offline => 'Tatap Muka',
-            self::Hybrid => 'Hybrid',
-        };
-    }
 }

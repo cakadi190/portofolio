@@ -78,7 +78,7 @@ class SitemapController extends Controller
         $urls = Post::query()
             ->published()
             ->latest('published_at')
-            ->get(['id', 'title', 'slug', 'cover_image', 'published_at', 'updated_at'])
+            ->get(['id', 'title', 'title_en', 'slug', 'cover_image', 'published_at', 'updated_at'])
             ->map(fn (Post $post): array => [
                 'title' => $post->title,
                 'loc' => route('blog.show', $post),
@@ -86,6 +86,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.7',
                 'images' => $this->images([[$post->cover_image, $post->title]]),
+                'locales' => $post->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
@@ -99,7 +100,7 @@ class SitemapController extends Controller
         $urls = Portfolio::query()
             ->with('galleries:id,portfolio_id,image_url,description')
             ->latest()
-            ->get(['id', 'name', 'slug', 'image', 'updated_at'])
+            ->get(['id', 'name', 'name_en', 'slug', 'image', 'updated_at'])
             ->map(fn (Portfolio $portfolio): array => [
                 'title' => $portfolio->name,
                 'loc' => route('portfolios.show', $portfolio),
@@ -113,6 +114,7 @@ class SitemapController extends Controller
                         $gallery->description ?: $portfolio->name,
                     ])->all(),
                 ]),
+                'locales' => $portfolio->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
@@ -126,7 +128,7 @@ class SitemapController extends Controller
         $urls = Clarification::query()
             ->published()
             ->latest('published_at')
-            ->get(['id', 'title', 'slug', 'cover_image', 'published_at', 'updated_at'])
+            ->get(['id', 'title', 'title_en', 'slug', 'cover_image', 'published_at', 'updated_at'])
             ->map(fn (Clarification $clarification): array => [
                 'title' => $clarification->title,
                 'loc' => route('clarifications.show', $clarification),
@@ -134,6 +136,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.6',
                 'images' => $this->images([[$clarification->cover_image, $clarification->title]]),
+                'locales' => $clarification->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
@@ -147,7 +150,7 @@ class SitemapController extends Controller
         $urls = Note::query()
             ->published()
             ->latest('published_at')
-            ->get(['id', 'title', 'slug', 'published_at', 'updated_at'])
+            ->get(['id', 'title', 'title_en', 'slug', 'published_at', 'updated_at'])
             ->map(fn (Note $note): array => [
                 'title' => $note->title,
                 'loc' => route('notes.show', $note),
@@ -155,6 +158,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.6',
                 'images' => [],
+                'locales' => $note->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);
@@ -167,7 +171,7 @@ class SitemapController extends Controller
     {
         $urls = Service::query()
             ->orderBy('id')
-            ->get(['id', 'name', 'slug', 'image', 'updated_at'])
+            ->get(['id', 'name', 'name_en', 'slug', 'image', 'updated_at'])
             ->map(fn (Service $service): array => [
                 'title' => $service->name,
                 'loc' => route('services.show', $service),
@@ -175,6 +179,7 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.7',
                 'images' => $this->images([[$service->image, $service->name]]),
+                'locales' => $service->translatedLocales(),
             ]);
 
         return $this->xml('misc.sitemaps.urlset', ['urls' => $urls]);

@@ -25,4 +25,16 @@ class PostFactory extends Factory
             'published_at' => now(),
         ];
     }
+
+    /**
+     * The text also exists in English.
+     */
+    public function withEnglish(string $title = 'English title'): static
+    {
+        return $this->state(fn (): array => [
+            'title_en' => $title,
+            'excerpt_en' => 'English excerpt',
+            'content_en' => '<p>English body</p>',
+        ]);
+    }
 }

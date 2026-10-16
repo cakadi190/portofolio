@@ -31,7 +31,10 @@ class ServiceController extends Controller
     public function edit(Service $service): Response
     {
         return Inertia::render('admin/services/form', [
-            'service' => $service,
+            'service' => [
+                ...$service->toArray(),
+                'translations' => $service->translationPayload(),
+            ],
         ]);
     }
 

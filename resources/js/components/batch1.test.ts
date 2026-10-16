@@ -15,6 +15,32 @@ import ThemeToggler from '@/components/theme-toggler.svelte';
 import { THEME_STORAGE_KEY } from '@/lib/theme';
 import { hrefOf } from '@/tests/helpers';
 
+const i18n = vi.hoisted(() => ({
+  options: [
+    { code: 'id', label: 'Bahasa Indonesia', flag: 'fi-id' },
+    { code: 'en', label: 'English', flag: 'fi-us' },
+  ],
+  alternates: null as Record<string, string> | null,
+}));
+
+vi.mock('@/lib/i18n', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/i18n')>()),
+  currentLocale: () => 'id',
+  localeOptions: () => i18n.options,
+  localeAlternates: () => i18n.alternates,
+}));
+
+const post = vi.hoisted(() => vi.fn());
+
+vi.mock('@inertiajs/svelte', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@inertiajs/svelte')>();
+
+  return {
+    ...original,
+    router: Object.assign(Object.create(original.router), { post }),
+  };
+});
+
 describe('AdminPageHeader', () => {
   it('renders title and subtitle', () => {
     render(AdminPageHeader, { title: 'Artikel', subtitle: 'Kelola artikel' });
@@ -185,11 +211,27 @@ describe('HeaderPage', () => {
 });
 
 describe('LanguageSwitcher', () => {
-  it('lists both languages', () => {
+  it('links to the same page in the other language on localized pages', () => {
+    i18n.alternates = { id: '/blog', en: '/en/blog' };
     render(LanguageSwitcher);
 
     expect(screen.getByText('Bahasa Indonesia')).toBeTruthy();
-    expect(screen.getByText('Bahasa Inggris')).toBeTruthy();
+    expect(hrefOf(screen.getByRole('link', { name: /English/ }))).toBe(
+      '/en/blog',
+    );
+    i18n.alternates = null;
+  });
+
+  it('posts the chosen language on pages without a language in the URL', async () => {
+    render(LanguageSwitcher);
+
+    await fireEvent.click(screen.getByRole('button', { name: /English/ }));
+
+    expect(post).toHaveBeenCalledWith(
+      '/locale',
+      { locale: 'en' },
+      { preserveScroll: true },
+    );
   });
 });
 

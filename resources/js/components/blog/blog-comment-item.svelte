@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeForm, t, tChoice, intlLocale } from '@/lib/i18n';
   import { Form, page } from '@inertiajs/svelte';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ThreadAvatar from '@/components/thread-avatar.svelte';
@@ -31,7 +32,7 @@
   const isGuest = $derived(!page.props.auth?.user);
 
   const postedAt = $derived(
-    new Date(comment.createdAt).toLocaleDateString('id-ID', {
+    new Date(comment.createdAt).toLocaleDateString(intlLocale(), {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -58,12 +59,12 @@
         aria-expanded={replyingTo === comment.id}
         onclick={() => onReply(replyingTo === comment.id ? null : comment.id)}
       >
-        {replyingTo === comment.id ? 'Batal' : 'Balas'}
+        {replyingTo === comment.id ? t('thread.cancel') : t('thread.reply')}
       </button>
 
       {#if replyingTo === comment.id}
         <Form
-          {...store.form(postSlug)}
+          {...localizeForm(store.form(postSlug))}
           class="d-flex flex-column gap-3 mt-3"
           resetOnSuccess
           onSuccess={() => onReply(null)}
@@ -74,7 +75,7 @@
               <div class="row g-3">
                 <Field.Group class="col-md-6">
                   <Field.Label for={`reply-guest-name-${comment.id}`}
-                    >Nama</Field.Label
+                    >{t('form.name')}</Field.Label
                   >
                   <Field.Input
                     id={`reply-guest-name-${comment.id}`}
@@ -85,7 +86,7 @@
                 </Field.Group>
                 <Field.Group class="col-md-6">
                   <Field.Label for={`reply-guest-email-${comment.id}`}
-                    >Email</Field.Label
+                    >{t('form.email')}</Field.Label
                   >
                   <Field.Input
                     id={`reply-guest-email-${comment.id}`}
@@ -98,11 +99,11 @@
               </div>
             {/if}
             <Field.Group>
-              <Field.Label>Balas {comment.author}</Field.Label>
+              <Field.Label>{t('thread.reply_to', { name: comment.author })}</Field.Label>
               <RichTextEditor
                 name="body"
                 minimal
-                placeholder="Tulis balasan..."
+                placeholder={t('thread.reply_placeholder')}
                 invalid={!!errors.body || !!errors.parent_id}
               />
               <Field.Feedback message={errors.body ?? errors.parent_id} />
@@ -111,7 +112,7 @@
               <button
                 type="submit"
                 class="btn btn-primary btn-sm"
-                disabled={processing}>Kirim Balasan</button
+                disabled={processing}>{t('thread.send_reply')}</button
               >
             </CaptchaSubmitRow>
           {/snippet}
@@ -132,8 +133,8 @@
         aria-hidden="true"
         style={collapsed ? 'transform: rotate(-90deg)' : ''}
       />
-      {collapsed ? 'Tampilkan' : 'Sembunyikan'}
-      {comment.replies.length} balasan
+      {collapsed ? t('thread.show') : t('thread.hide')}
+      {tChoice('thread.replies', comment.replies.length)}
     </button>
   {/if}
 

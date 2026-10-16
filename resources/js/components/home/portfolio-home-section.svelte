@@ -1,7 +1,8 @@
 <script lang="ts">
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import CardPortfolio from '@/components/card-portfolio.svelte';
+  import { t } from '@/lib/i18n';
 
   type Portfolio = {
     name: string;
@@ -19,11 +20,11 @@
   <div class="container">
     <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
       <div>
-        <h2 class="mb-1">Portofolio</h2>
-        <p class="mb-0 opacity-75">Beberapa proyek yang sudah saya kerjakan akhir-akhir ini.</p>
+        <h2 class="mb-1">{t('home.portfolio.title')}</h2>
+        <p class="mb-0 opacity-75">{t('home.portfolio.subtitle')}</p>
       </div>
-      <Link href="/portfolio" class="btn btn-outline-primary d-flex align-items-center gap-2" aria-label="Lihat Selengkapnya: Portofolio">
-        <span>Lihat Selengkapnya</span>
+      <Link href="/portfolio" class="btn btn-outline-primary d-flex align-items-center gap-2" aria-label={`${t('home.more')}: ${t('home.portfolio.title')}`}>
+        <span>{t('home.more')}</span>
         <ArrowRight size={16} />
       </Link>
     </div>
@@ -37,7 +38,7 @@
         {/each}
       </div>
     {:else}
-      <div class="text-center opacity-75">Belum ada portofolio yang tersedia saat ini.</div>
+      <div class="text-center opacity-75">{t('home.portfolio.empty')}</div>
     {/if}
   </div>
 </section>

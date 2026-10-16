@@ -7,12 +7,14 @@
     value = $bindable(''),
     placeholder = 'Tambahkan judul',
     ariaLabel = 'Judul',
+    required = true,
     error,
   }: {
     name: string;
     value?: string;
     placeholder?: string;
     ariaLabel?: string;
+    required?: boolean;
     error?: string;
   } = $props();
 </script>
@@ -25,7 +27,7 @@
   aria-label={ariaLabel}
   {placeholder}
   rows="1"
-  required
+  {required}
   bind:value
   onkeydown={(event) => {
     if (event.key === 'Enter') event.preventDefault();
