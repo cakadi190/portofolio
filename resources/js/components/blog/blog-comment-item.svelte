@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeForm } from '@/lib/i18n';
   import { Form, page } from '@inertiajs/svelte';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import ThreadAvatar from '@/components/thread-avatar.svelte';
@@ -63,7 +64,7 @@
 
       {#if replyingTo === comment.id}
         <Form
-          {...store.form(postSlug)}
+          {...localizeForm(store.form(postSlug))}
           class="d-flex flex-column gap-3 mt-3"
           resetOnSuccess
           onSuccess={() => onReply(null)}

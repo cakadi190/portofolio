@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeForm, localizeHref } from '@/lib/i18n';
   import '../../../css/content.scss';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import Icon from '@iconify/svelte';
@@ -281,7 +282,7 @@
 
                     {#key formKey}
                       <Form
-                        {...store.form(portfolio.slug)}
+                        {...localizeForm(store.form(portfolio.slug))}
                         class="d-flex flex-column gap-3"
                         novalidate
                         resetOnSuccess
@@ -403,7 +404,7 @@
                           </CaptchaSubmitRow>
                           <p class="small opacity-75 mb-0">
                             Ulasan dimoderasi dan merupakan pendapat pengulas.
-                            Baca <a href="/disclaimer">kebijakan ulasan</a>.
+                            Baca <a href={localizeHref('/disclaimer')}>kebijakan ulasan</a>.
                           </p>
                         {/snippet}
                       </Form>

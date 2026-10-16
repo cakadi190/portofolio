@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeForm, localizeHref } from '@/lib/i18n';
   import { Form, InfiniteScroll, page } from '@inertiajs/svelte';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import { Field } from '@/components/ui/field';
@@ -34,7 +35,7 @@
 
   {#key formKey}
     <Form
-      {...store.form(postSlug)}
+      {...localizeForm(store.form(postSlug))}
       class="d-flex flex-column gap-3 mb-5"
       resetOnSuccess
       onSuccess={() => formKey++}
@@ -83,7 +84,7 @@
         <p class="small opacity-75 mb-0">
           Komentar ditinjau dulu sebelum tampil dan email tidak ditampilkan.
           Baca
-          <a href="/disclaimer">kebijakan komentar</a>.
+          <a href={localizeHref('/disclaimer')}>kebijakan komentar</a>.
         </p>
       {/snippet}
     </Form>

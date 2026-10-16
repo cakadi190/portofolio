@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
 
   let {
     title,

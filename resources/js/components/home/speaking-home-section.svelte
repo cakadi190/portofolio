@@ -1,6 +1,6 @@
 <script lang="ts">
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import SpeakingItem, {
     type Engagement,
   } from '@/components/speaking-item.svelte';

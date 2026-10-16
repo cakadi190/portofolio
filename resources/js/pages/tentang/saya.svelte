@@ -4,7 +4,7 @@
   import Medal from '@lucide/svelte/icons/medal';
   import Handshake from '@lucide/svelte/icons/handshake';
   import Briefcase from '@lucide/svelte/icons/briefcase';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import FileText from '@lucide/svelte/icons/file-text';
   import HeaderPage from '@/components/header-page.svelte';

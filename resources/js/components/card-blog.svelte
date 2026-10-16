@@ -1,6 +1,6 @@
 <script lang="ts">
   import Folder from '@lucide/svelte/icons/folder';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
 
   type Props = {
     title: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
   import StatsHomeSection from '@/components/home/stats-home-section.svelte';

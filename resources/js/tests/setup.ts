@@ -1,3 +1,5 @@
+import { execFileSync } from 'node:child_process';
+import { page } from '@inertiajs/svelte';
 import { cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, vi } from 'vitest';
 
@@ -11,6 +13,28 @@ vi.mock(
     default: (await import('./stubs/infinite-scroll-stub.svelte')).default,
   }),
 );
+
+/**
+ * Components read UI strings from the shared `translations` Inertia prop. Load the
+ * Indonesian `lang/id/common.php` once so tests see what the server would share.
+ */
+function loadIndonesianTranslations(): Record<string, string> {
+  try {
+    return JSON.parse(
+      execFileSync(
+        'php',
+        ['-r', 'echo json_encode(require "lang/id/common.php");'],
+        {
+          encoding: 'utf8',
+        },
+      ),
+    ) as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+const indonesianTranslations = loadIndonesianTranslations();
 
 /**
  * happy-dom lacks several browser APIs the app relies on. Minimal stand-ins keep
@@ -73,6 +97,7 @@ installBrowserStubs();
 
 beforeEach(() => {
   installBrowserStubs();
+  page.props = { ...page.props, translations: indonesianTranslations };
 });
 
 afterEach(() => {

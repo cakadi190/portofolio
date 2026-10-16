@@ -1,6 +1,6 @@
 <script lang="ts">
   import Folder from '@lucide/svelte/icons/folder';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import { show as showAuthor } from '@/wayfinder/routes/blog/authors';
   import { show as showCategory } from '@/wayfinder/routes/blog/categories';
   import { show as showPost } from '@/wayfinder/routes/blog';

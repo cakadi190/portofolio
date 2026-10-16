@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref } from '@/lib/i18n';
   import '../../../css/content.scss';
   import Calendar from '@lucide/svelte/icons/calendar';
   import ExternalLink from '@lucide/svelte/icons/external-link';
@@ -182,7 +183,7 @@
           <p class="small opacity-75 mt-5 mb-0">
             Halaman ini adalah klarifikasi dari pemilik situs sebagai pihak yang
             bersangkutan, bukan pemeriksaan fakta independen. Bila Anda menemukan
-            kekeliruan, silakan <a href="/contact">hubungi saya</a> atau baca <a href="/disclaimer">penyangkalan dan ketentuan</a>.
+            kekeliruan, silakan <a href={localizeHref('/contact')}>hubungi saya</a> atau baca <a href={localizeHref('/disclaimer')}>penyangkalan dan ketentuan</a>.
           </p>
         </div>
       </div>

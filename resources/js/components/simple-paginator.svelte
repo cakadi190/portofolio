@@ -1,7 +1,7 @@
 <script lang="ts">
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
 
   let {
     currentPage,

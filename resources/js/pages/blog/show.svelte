@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref } from '@/lib/i18n';
   import '../../../css/content.scss';
   import { badgeStyle } from '@/lib/badge';
   import AppHead from '@/components/app-head.svelte';
@@ -7,7 +8,7 @@
   import PostMeta from '@/components/blog/post-meta.svelte';
   import BlogComments from '@/components/blog/blog-comments.svelte';
   import type { BlogCommentNode } from '@/components/blog/types';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import Folder from '@lucide/svelte/icons/folder';
   import Tags from '@lucide/svelte/icons/tags';
@@ -232,7 +233,7 @@
 
           <p class="small opacity-75 mt-2">
             Artikel ini adalah pendapat pribadi penulis, bukan nasihat
-            profesional. Lihat <a href="/disclaimer">penyangkalan</a>.
+            profesional. Lihat <a href={localizeHref('/disclaimer')}>penyangkalan</a>.
           </p>
 
           {#if adjacent.previous || adjacent.next}

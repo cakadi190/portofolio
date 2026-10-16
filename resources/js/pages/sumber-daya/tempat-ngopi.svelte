@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref } from '@/lib/i18n';
   import Info from '@lucide/svelte/icons/info';
   import Search from '@lucide/svelte/icons/search';
   import { router } from '@inertiajs/svelte';
@@ -47,7 +48,7 @@
 
   function selectRegion(region: string | null): void {
     router.get(
-      '/resources/coffee-shops',
+      localizeHref('/resources/coffee-shops'),
       { region, search: filters.search },
       { preserveState: true, preserveScroll: true },
     );
@@ -57,7 +58,7 @@
     event.preventDefault();
 
     router.get(
-      '/resources/coffee-shops',
+      localizeHref('/resources/coffee-shops'),
       { region: filters.region, search: searchQuery || undefined },
       { preserveState: true, preserveScroll: true },
     );

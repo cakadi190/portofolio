@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref } from '@/lib/i18n';
   import { InfiniteScroll } from '@inertiajs/svelte';
   import AppHead from '@/components/app-head.svelte';
   import GuestbookItem from '@/components/guestbook/guestbook-item.svelte';
@@ -30,7 +31,7 @@
             <GuestbookForm />
             <p class="small opacity-75 mt-3 mb-0">
               Pesan mencerminkan pendapat penulisnya. Baca
-              <a href="/disclaimer">penyangkalan</a>.
+              <a href={localizeHref('/disclaimer')}>penyangkalan</a>.
             </p>
           </div>
 

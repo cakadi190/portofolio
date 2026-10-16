@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref } from '@/lib/i18n';
   import ExternalLink from '@lucide/svelte/icons/external-link';
   import Users from '@lucide/svelte/icons/users';
   import { router } from '@inertiajs/svelte';
@@ -30,7 +31,7 @@
 
   function selectPlatform(platform: string | null): void {
     router.get(
-      '/resources/programmer-channels',
+      localizeHref('/resources/programmer-channels'),
       { platform },
       { preserveState: true, preserveScroll: true },
     );

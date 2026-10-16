@@ -1,7 +1,7 @@
 <script lang="ts">
   import Pencil from '@lucide/svelte/icons/pencil';
   import ShareIcon from '@lucide/svelte/icons/share-2';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import ShareModal from '@/components/share-modal.svelte';
   import CalendarDays from '@lucide/svelte/icons/calendar-days';
   import { storageUrl } from '@/lib/utils';

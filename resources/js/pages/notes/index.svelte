@@ -1,6 +1,6 @@
 <script lang="ts">
   import Eye from '@lucide/svelte/icons/eye';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import EmptyState from '@/components/empty-state.svelte';
   import HeaderPage from '@/components/header-page.svelte';

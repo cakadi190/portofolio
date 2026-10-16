@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeHref } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import ResumeViewer from '@/components/resume/resume-viewer.svelte';
   import { router } from '@inertiajs/svelte';
@@ -32,6 +33,6 @@
     subtitle={title}
     {downloadName}
     {info}
-    onclose={() => router.visit('/about#certification')}
+    onclose={() => router.visit(localizeHref('/about#certification'))}
   />
 {/key}

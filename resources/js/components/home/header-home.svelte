@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
 
   import fotoku480 from '../../../images/hero/fotoku-480.webp?no-inline';
   import fotoku640 from '../../../images/hero/fotoku-640.webp?no-inline';

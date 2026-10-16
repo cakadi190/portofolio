@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../../../css/content.scss';
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import ChevronLeft from '@lucide/svelte/icons/chevron-left';
   import FileText from '@lucide/svelte/icons/file-text';
   import AppHead from '@/components/app-head.svelte';

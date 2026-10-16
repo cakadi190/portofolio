@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { localizeForm } from '@/lib/i18n';
   import CaptchaSubmitRow from '@/components/captcha-submit-row.svelte';
   import Icon from '@iconify/svelte';
   import Info from '@lucide/svelte/icons/info';
@@ -182,7 +183,7 @@
 
             {#key formKey}
               <Form
-                {...store.form()}
+                {...localizeForm(store.form())}
                 class="pt-1 d-flex flex-column gap-3"
                 novalidate
                 resetOnSuccess

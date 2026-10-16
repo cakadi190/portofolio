@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Link } from '@inertiajs/svelte';
+  import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import VerdictBadge from '@/components/clarification/verdict-badge.svelte';
   import EmptyState from '@/components/empty-state.svelte';
