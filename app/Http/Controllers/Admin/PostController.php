@@ -67,7 +67,7 @@ class PostController extends Controller
         $post = Post::query()->create($this->withPublicationDate($data));
         $this->syncRelations($post, $request);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.artikel_berhasil_ditambahkan')]);
 
         return to_route('admin.posts.edit', $post);
     }
@@ -79,7 +79,7 @@ class PostController extends Controller
         $post->update($this->withPublicationDate($data, $post));
         $this->syncRelations($post, $request);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.artikel_berhasil_diperbarui')]);
 
         return to_route('admin.posts.edit', $post);
     }
@@ -88,7 +88,7 @@ class PostController extends Controller
     {
         $post->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Penulis artikel berhasil diganti.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.penulis_artikel_berhasil_diganti')]);
 
         return back();
     }
@@ -102,7 +102,7 @@ class PostController extends Controller
 
         $permanent ? $post->forceDelete() : $post->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => $permanent ? 'Artikel dihapus permanen.' : 'Artikel dipindahkan ke sampah.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $permanent ? __('flash.artikel_dihapus_permanen') : __('flash.artikel_dipindahkan_ke_sampah')]);
 
         return to_route('admin.posts.index', $permanent ? ['trashed' => 1] : []);
     }
@@ -111,7 +111,7 @@ class PostController extends Controller
     {
         $post->restore();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Artikel berhasil dipulihkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.artikel_berhasil_dipulihkan')]);
 
         return to_route('admin.posts.index', ['trashed' => 1]);
     }

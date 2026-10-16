@@ -19,7 +19,7 @@ class LinkPreviewController extends Controller
         $preview = $previews->preview($data['url']);
 
         return $preview === null
-            ? response()->json(['message' => 'Pratinjau tautan tidak dapat diambil.'], 422)
+            ? response()->json(['message' => __('flash.pratinjau_tautan_tidak_dapat_diambil')], 422)
             : response()->json($preview);
     }
 }

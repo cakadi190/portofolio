@@ -85,7 +85,7 @@ class SystemSettingController extends Controller
 
         $this->systemSettings->forget();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Pengaturan berhasil disimpan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pengaturan_berhasil_disimpan')]);
 
         return to_route('admin.system-settings.index');
     }

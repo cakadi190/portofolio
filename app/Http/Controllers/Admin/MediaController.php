@@ -50,7 +50,7 @@ class MediaController extends Controller
     {
         $media->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Media berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.media_berhasil_diperbarui')]);
 
         return to_route('admin.media.index');
     }
@@ -70,7 +70,7 @@ class MediaController extends Controller
 
         $this->media->delete($media);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Media berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.media_berhasil_dihapus')]);
 
         return to_route('admin.media.index');
     }

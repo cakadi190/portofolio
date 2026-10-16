@@ -8,7 +8,8 @@
   const alternates = $derived(localeAlternates());
 
   function choose(code: string): void {
-    router.post(update.url(), { locale: code }, { preserveScroll: true });
+    // Reload so text computed once (menus, labels) is rebuilt in the new language.
+    router.post(update.url(), { locale: code }, { onSuccess: () => window.location.reload() });
   }
 </script>
 

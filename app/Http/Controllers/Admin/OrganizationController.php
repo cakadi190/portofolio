@@ -32,7 +32,7 @@ class OrganizationController extends Controller
     {
         Organization::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Organisasi berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.organisasi_berhasil_ditambahkan')]);
 
         return to_route('admin.organizations.index');
     }
@@ -41,7 +41,7 @@ class OrganizationController extends Controller
     {
         $organization->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Organisasi berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.organisasi_berhasil_diperbarui')]);
 
         return to_route('admin.organizations.index');
     }
@@ -50,7 +50,7 @@ class OrganizationController extends Controller
     {
         $organization->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Organisasi berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.organisasi_berhasil_dihapus')]);
 
         return to_route('admin.organizations.index');
     }

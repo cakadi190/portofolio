@@ -34,7 +34,7 @@ class ProgrammerChannelController extends Controller
     {
         ProgrammerChannel::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Channel berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.channel_berhasil_ditambahkan')]);
 
         return to_route('admin.programmer-channels.index');
     }
@@ -43,7 +43,7 @@ class ProgrammerChannelController extends Controller
     {
         $programmerChannel->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Channel berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.channel_berhasil_diperbarui')]);
 
         return to_route('admin.programmer-channels.index');
     }
@@ -52,7 +52,7 @@ class ProgrammerChannelController extends Controller
     {
         $programmerChannel->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Channel berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.channel_berhasil_dihapus')]);
 
         return to_route('admin.programmer-channels.index');
     }

@@ -33,7 +33,7 @@ class PostCategoryController extends Controller
     {
         PostCategory::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Kategori artikel berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.kategori_artikel_berhasil_ditambahkan')]);
 
         return to_route('admin.post-categories.index');
     }
@@ -53,7 +53,7 @@ class PostCategoryController extends Controller
     {
         $postCategory->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Kategori artikel berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.kategori_artikel_berhasil_diperbarui')]);
 
         return to_route('admin.post-categories.index');
     }
@@ -62,7 +62,7 @@ class PostCategoryController extends Controller
     {
         $postCategory->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Kategori artikel berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.kategori_artikel_berhasil_dihapus')]);
 
         return to_route('admin.post-categories.index');
     }

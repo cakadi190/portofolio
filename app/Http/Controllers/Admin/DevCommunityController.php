@@ -34,7 +34,7 @@ class DevCommunityController extends Controller
     {
         DevCommunity::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Komunitas berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.komunitas_berhasil_ditambahkan')]);
 
         return to_route('admin.dev-communities.index');
     }
@@ -43,7 +43,7 @@ class DevCommunityController extends Controller
     {
         $devCommunity->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Komunitas berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.komunitas_berhasil_diperbarui')]);
 
         return to_route('admin.dev-communities.index');
     }
@@ -52,7 +52,7 @@ class DevCommunityController extends Controller
     {
         $devCommunity->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Komunitas berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.komunitas_berhasil_dihapus')]);
 
         return to_route('admin.dev-communities.index');
     }

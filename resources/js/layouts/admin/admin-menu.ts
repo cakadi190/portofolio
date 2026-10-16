@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import Activity from '@lucide/svelte/icons/activity';
 import ChartColumn from '@lucide/svelte/icons/chart-column';
 import Award from '@lucide/svelte/icons/award';
@@ -36,145 +37,145 @@ export function adminMenu(
   });
 
   const dashboard: AdminSidebarEntry = {
-    label: 'Dasbor',
+    label: t('admin.menu_dasbor'),
     icon: LayoutDashboard,
     href: '/admin',
     active: currentUrl.split('?')[0] === '/admin',
   };
   const blog: AdminSidebarEntry = {
-    label: 'Blog',
+    label: t('admin.menu_blog'),
     icon: Newspaper,
     children: [
-      link('Semua Artikel', '/admin/posts'),
-      link('Kategori Artikel Blog', '/admin/post-categories'),
-      link('Tag Artikel', '/admin/tags'),
-      link('Komentar Blog', '/admin/blog-comments'),
+      link(t('admin.menu_semua_artikel'), '/admin/posts'),
+      link(t('admin.menu_kategori_artikel_blog'), '/admin/post-categories'),
+      link(t('admin.menu_tag_artikel'), '/admin/tags'),
+      link(t('admin.menu_komentar_blog'), '/admin/blog-comments'),
     ],
   };
   const notes: AdminSidebarEntry = {
-    label: 'Catatan & Buku Tamu',
+    label: t('admin.menu_catatan_buku_tamu'),
     icon: NotebookPen,
     children: [
-      link('Catatan Singkat', '/admin/notes'),
-      link('Buku Tamu', '/admin/guestbook-entries'),
+      link(t('admin.menu_catatan_singkat'), '/admin/notes'),
+      link(t('admin.menu_buku_tamu'), '/admin/guestbook-entries'),
     ],
   };
 
   if (accountType !== 'admin') {
     return [
-      { type: 'header', label: 'Menu Utama' },
+      { type: 'header', label: t('admin.menu_menu_utama') },
       dashboard,
-      { type: 'header', label: 'Blog' },
+      { type: 'header', label: t('admin.menu_blog') },
       blog,
       notes,
     ];
   }
 
   return [
-    { type: 'header', label: 'Menu Utama' },
+    { type: 'header', label: t('admin.menu_menu_utama') },
     dashboard,
 
-    { type: 'header', label: 'Profil & Karier' },
+    { type: 'header', label: t('admin.menu_profil_karier') },
     {
-      label: 'Profil',
+      label: t('admin.profil'),
       icon: GraduationCap,
       children: [
-        link('Riwayat Pendidikan', '/admin/educations'),
-        link('Pengalaman Organisasi', '/admin/organizations'),
-        link('Pengalaman Karier', '/admin/careers'),
-        link('Sertifikasi', '/admin/certifications'),
+        link(t('admin.menu_riwayat_pendidikan'), '/admin/educations'),
+        link(t('admin.menu_pengalaman_organisasi'), '/admin/organizations'),
+        link(t('admin.menu_pengalaman_karier'), '/admin/careers'),
+        link(t('admin.menu_sertifikasi'), '/admin/certifications'),
       ],
     },
     {
-      label: 'Penghargaan',
+      label: t('admin.menu_penghargaan'),
       icon: Award,
       href: '/admin/awards',
       active: isActive('/admin/awards'),
     },
     {
-      label: 'Pembicara & Mentoring',
+      label: t('admin.menu_pembicara_mentoring'),
       icon: Mic,
       href: '/admin/speaking-engagements',
       active: isActive('/admin/speaking-engagements'),
     },
-    { type: 'header', label: 'Portofolio' },
+    { type: 'header', label: t('admin.portofolio') },
     {
-      label: 'Portofolio',
+      label: t('admin.portofolio'),
       icon: FolderKanban,
       children: [
-        link('Semua Portofolio', '/admin/portfolios'),
-        link('Galeri Portofolio', '/admin/portfolio-galleries'),
-        link('Ulasan Portofolio', '/admin/portfolio-ratings'),
-        link('Layanan', '/admin/services'),
-        link('Teknologi', '/admin/technologies'),
+        link(t('admin.menu_semua_portofolio'), '/admin/portfolios'),
+        link(t('admin.menu_galeri_portofolio'), '/admin/portfolio-galleries'),
+        link(t('admin.menu_ulasan_portofolio'), '/admin/portfolio-ratings'),
+        link(t('admin.layanan'), '/admin/services'),
+        link(t('admin.teknologi'), '/admin/technologies'),
       ],
     },
-    { type: 'header', label: 'Blog & Tulisan' },
+    { type: 'header', label: t('admin.menu_blog_tulisan') },
     blog,
     notes,
     {
-      label: 'Klarifikasi',
+      label: t('admin.menu_klarifikasi'),
       icon: BadgeCheck,
       href: '/admin/clarifications',
       active: isActive('/admin/clarifications'),
     },
-    { type: 'header', label: 'Serba-Serbi' },
+    { type: 'header', label: t('admin.menu_serba_serbi') },
     {
-      label: 'Komunitas Dev ID',
+      label: t('admin.menu_komunitas_dev_id'),
       icon: Users,
       href: '/admin/dev-communities',
       active: isActive('/admin/dev-communities'),
     },
     {
-      label: 'Channel Programmer',
+      label: t('admin.menu_channel_programmer'),
       icon: Tv,
       href: '/admin/programmer-channels',
       active: isActive('/admin/programmer-channels'),
     },
     {
-      label: 'Kedai Kopi',
+      label: t('admin.menu_kedai_kopi'),
       icon: Coffee,
       href: '/admin/coffee-places',
       active: isActive('/admin/coffee-places'),
     },
 
-    { type: 'header', label: 'Pesan & Media' },
+    { type: 'header', label: t('admin.menu_pesan_media') },
     {
-      label: 'Pesan Masuk',
+      label: t('admin.menu_pesan_masuk'),
       icon: Contact,
       href: '/admin/contact-messages',
       active: isActive('/admin/contact-messages'),
     },
     {
-      label: 'Pustaka Media',
+      label: t('admin.menu_pustaka_media'),
       icon: Images,
       href: '/admin/media',
       active: isActive('/admin/media'),
     },
 
-    { type: 'header', label: 'Pengguna & Akses' },
+    { type: 'header', label: t('admin.menu_pengguna_akses') },
     {
-      label: 'Pengguna',
+      label: t('admin.pengguna'),
       icon: User,
       href: '/admin/users',
       active: isActive('/admin/users'),
     },
 
-    { type: 'header', label: 'Sistem' },
+    { type: 'header', label: t('admin.menu_sistem') },
     {
-      label: 'Analitik Pengunjung',
+      label: t('admin.menu_analitik_pengunjung'),
       icon: ChartColumn,
       href: '/admin/visitor-analytics',
       active: isActive('/admin/visitor-analytics'),
     },
     {
-      label: 'Log Aktivitas',
+      label: t('admin.menu_log_aktivitas'),
       icon: Activity,
       href: '/admin/activity-logs',
       active: isActive('/admin/activity-logs'),
     },
     {
-      label: 'Pengaturan Sistem',
+      label: t('admin.menu_pengaturan_sistem'),
       icon: Settings,
       href: '/admin/system-settings',
       active: isActive('/admin/system-settings'),

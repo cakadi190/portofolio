@@ -33,7 +33,7 @@ class TechnologyController extends Controller
     {
         Technology::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Teknologi berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.teknologi_berhasil_ditambahkan')]);
 
         return to_route('admin.technologies.index');
     }
@@ -53,7 +53,7 @@ class TechnologyController extends Controller
     {
         $technology->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Teknologi berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.teknologi_berhasil_diperbarui')]);
 
         return to_route('admin.technologies.index');
     }
@@ -62,7 +62,7 @@ class TechnologyController extends Controller
     {
         $technology->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Teknologi berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.teknologi_berhasil_dihapus')]);
 
         return to_route('admin.technologies.index');
     }

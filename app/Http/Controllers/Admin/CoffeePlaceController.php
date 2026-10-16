@@ -40,7 +40,7 @@ class CoffeePlaceController extends Controller
         $coffeePlace = CoffeePlace::query()->create($request->safe()->except('galleries'));
         $this->syncGalleries($coffeePlace, $request);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.kedai_kopi_berhasil_ditambahkan')]);
 
         return to_route('admin.coffee-places.index');
     }
@@ -50,7 +50,7 @@ class CoffeePlaceController extends Controller
         $coffeePlace->update($request->safe()->except('galleries'));
         $this->syncGalleries($coffeePlace, $request);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.kedai_kopi_berhasil_diperbarui')]);
 
         return to_route('admin.coffee-places.index');
     }
@@ -59,7 +59,7 @@ class CoffeePlaceController extends Controller
     {
         $coffeePlace->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Kedai kopi berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.kedai_kopi_berhasil_dihapus')]);
 
         return to_route('admin.coffee-places.index');
     }

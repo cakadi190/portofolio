@@ -61,7 +61,7 @@ class NoteController extends Controller
         $note = Note::query()->create($data);
         $note->tags()->sync($request->validated('tags', []));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Catatan berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.catatan_berhasil_ditambahkan')]);
 
         return to_route('admin.notes.edit', $note);
     }
@@ -71,7 +71,7 @@ class NoteController extends Controller
         $note->update($request->safe()->except('tags'));
         $note->tags()->sync($request->validated('tags', []));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Catatan berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.catatan_berhasil_diperbarui')]);
 
         return to_route('admin.notes.edit', $note);
     }
@@ -80,7 +80,7 @@ class NoteController extends Controller
     {
         $note->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Catatan berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.catatan_berhasil_dihapus')]);
 
         return to_route('admin.notes.index');
     }

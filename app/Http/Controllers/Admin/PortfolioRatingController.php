@@ -36,7 +36,7 @@ class PortfolioRatingController extends Controller
     {
         PortfolioRating::query()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Ulasan portofolio berhasil ditambahkan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.ulasan_portofolio_berhasil_ditambahkan')]);
 
         return to_route('admin.portfolio-ratings.index');
     }
@@ -45,7 +45,7 @@ class PortfolioRatingController extends Controller
     {
         $portfolioRating->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Ulasan portofolio berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.ulasan_portofolio_berhasil_diperbarui')]);
 
         return to_route('admin.portfolio-ratings.index');
     }
@@ -54,7 +54,7 @@ class PortfolioRatingController extends Controller
     {
         $portfolioRating->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Ulasan portofolio berhasil dihapus.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.ulasan_portofolio_berhasil_dihapus')]);
 
         return to_route('admin.portfolio-ratings.index');
     }

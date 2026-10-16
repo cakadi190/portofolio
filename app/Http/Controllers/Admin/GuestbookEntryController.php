@@ -53,7 +53,7 @@ class GuestbookEntryController extends Controller
         $reply->status = BlogCommentStatus::Approved;
         $reply->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Balasan berhasil dikirim.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.balasan_berhasil_dikirim')]);
 
         return back();
     }
@@ -64,7 +64,7 @@ class GuestbookEntryController extends Controller
         $guestbookEntry->status = $request->validated('status');
         $guestbookEntry->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Pesan buku tamu berhasil diperbarui.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pesan_buku_tamu_berhasil_diperbarui')]);
 
         return back();
     }
@@ -76,7 +76,7 @@ class GuestbookEntryController extends Controller
     {
         $guestbookEntry->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Pesan dihapus. Balasannya dipertahankan.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pesan_dihapus_balasannya_dipertahankan')]);
 
         return to_route('admin.guestbook-entries.index');
     }
