@@ -1,11 +1,10 @@
 <script lang="ts">
-  import Languages from '@lucide/svelte/icons/languages';
-  import { canTranslate, localeOptions, t } from '@/lib/i18n';
+  import { localeOptions, t } from '@/lib/i18n';
   import type { createTranslatable } from '@/lib/translatable.svelte';
 
   /**
    * Shown above the content while a non-default language is being edited: tells the writer
-   * so, and drafts the language from Indonesian automatically. The language itself is
+   * so. The language itself is
    * picked from the dropdown in the editor's top bar.
    */
   let {
@@ -17,7 +16,6 @@
     picker?: boolean;
   } = $props();
 
-  const defaultLabel = $derived(localeOptions()[0]?.label ?? '');
   const current = $derived(localeOptions().find((option) => option.code === translatable.locale));
 </script>
 
@@ -61,25 +59,7 @@
         {/if}
       </span>
     {/if}
-
-    {#if canTranslate() && !translatable.isDefault}
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2"
-        disabled={translatable.translating}
-        onclick={() => translatable.translateFromDefault()}
-      >
-        <Languages size={14} aria-hidden="true" />
-        {translatable.translating
-          ? t('translate.working')
-          : t('translate.auto_from', { language: defaultLabel })}
-      </button>
-    {/if}
   </div>
-
-  {#if canTranslate() && !translatable.isDefault}
-    <p class="tr-note">{t('translate.review_note')}</p>
-  {/if}
 {/if}
 
 <style>
@@ -108,11 +88,5 @@
     height: 0.4375rem;
     border-radius: 50%;
     background: var(--neo-warning, #f59e0b);
-  }
-
-  .tr-note {
-    margin: 0 0 0.75rem;
-    color: var(--neo-secondary-color);
-    font-size: 0.8125rem;
   }
 </style>

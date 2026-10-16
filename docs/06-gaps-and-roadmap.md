@@ -28,7 +28,6 @@ Situs publik (UI, SEO, galat, validasi, enum) dan konten editor (artikel, catata
 - **Masih satu bahasa:** keterangan galeri (portofolio, kedai kopi), daftar `sources`/`updates` klarifikasi, serta nama proyek/tempat/institusi (nama diri).
 - **UI admin** sudah dwibahasa (mengikuti `users.locale`/cookie); string baru di admin wajib lewat `t()` dan berkas `lang/{id,en}/admin*.php`. Sisa kecil: teks resume/viewer PDF dan pesan log aktivitas (data audit, tetap Indonesia).
 - **Email dan CV** sudah dwibahasa (`contact_messages.locale` menentukan bahasa konfirmasi/balasan; notifikasi untuk pemilik tetap Indonesia; bahasa email otentikasi mengikuti bahasa permintaan). Jika queue worker ditambahkan, pastikan bahasa dibawa ke job.
-- Terjemahan otomatis memerlukan `ANTHROPIC_API_KEY`; tanpa kunci tombolnya tersembunyi.
 
 ## Ide lanjutan
 

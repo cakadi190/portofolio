@@ -27,7 +27,6 @@ use App\Http\Controllers\Admin\SpeakingEngagementController;
 use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TechnologyController;
-use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VisitorAnalyticsController;
 use Illuminate\Support\Facades\Route;
@@ -53,7 +52,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // The post editor's media picker and uploader.
         Route::get('media/browse', [MediaController::class, 'browse'])->name('media.browse');
         Route::post('media', [MediaController::class, 'store'])->name('media.store');
-        Route::post('translate', TranslationController::class)->middleware('throttle:30,1')->name('translate');
         Route::post('link-preview', LinkPreviewController::class)->middleware('throttle:30,1')->name('link-preview');
     });
 

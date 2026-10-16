@@ -29,7 +29,6 @@ function renderForm(translations = post.translations) {
       { code: 'id', label: 'Bahasa Indonesia', flag: 'fi-id' },
       { code: 'en', label: 'English', flag: 'fi-us' },
     ],
-    canTranslate: true,
   };
 
   return render(PostForm, {
@@ -52,9 +51,6 @@ describe('PostForm language dropdown', () => {
     expect(field('input[type="hidden"][name="content_en"]')?.value).toBe(
       '<p>Body</p>',
     );
-    expect(
-      screen.queryByRole('button', { name: /Terjemahkan otomatis/ }),
-    ).toBeNull();
   });
 
   it('offers both content languages next to the preview button', async () => {
@@ -88,11 +84,6 @@ describe('PostForm language dropdown', () => {
     expect(
       document.querySelector('textarea[name="excerpt_en"]'),
     ).not.toBeNull();
-    expect(
-      screen.getByRole('button', {
-        name: /Terjemahkan otomatis dari Bahasa Indonesia/,
-      }),
-    ).toBeTruthy();
     expect(
       screen.getByRole('button', {
         name: /Bahasa konten: Konten Bahasa Inggris/,
