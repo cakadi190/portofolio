@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AssignRequestId;
+use App\Http\Middleware\DeferHydrationScripts;
 use App\Http\Middleware\EnrichSentryScope;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\MinifyHtmlResponse;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SecurityHeaders::class,
             VerifyTurnstile::class,
             HandleInertiaRequests::class,
+            DeferHydrationScripts::class,
             AddLinkHeadersForPreloadedAssets::class,
             PreloadHomeHeroPhoto::class,
             MinifyHtmlResponse::class,

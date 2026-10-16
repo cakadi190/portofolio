@@ -21,6 +21,7 @@ Dokumen ini adalah **PRD (Product Requirements Document)** hasil reverse enginee
 - Migrasi: ubah migrasi `create_*` hanya bila belum pernah dideploy. Produksi berisi data nyata: untuk tabel yang sudah dideploy, tambahkan migrasi aditif baru dan **jangan** memicu `migrate:fresh` di produksi (detail di `04`).
 - Upload file: selalu lewat Pustaka Media (`MediaService`, `MediaField`), jangan menyimpan file langsung dari controller.
 - Enum baru: gunakan trait `HasEnumOptions`/`HasEnumValues` di `app/Enums`, label Bahasa Indonesia.
+- **Performa adalah syarat:** setiap perubahan harus mengedepankan PageSpeed Insights dengan skor Performance minimal **95** pada beranda `/` (mobile). Ukur sebelum/sesudah; jangan menambah JS/CSS/font/gambar/animasi above-the-fold tanpa memeriksa dampaknya (`07` NFR-P4/P6, `04` Performa & SSR).
 - Teks antarmuka berbahasa Indonesia; kode, nama kolom, dan rute admin berbahasa Inggris.
 - Tes frontend memakai Vitest (`bun run test`); tes backend memakai Pest. Lihat `04-architecture.md`.
 - Ikuti `CLAUDE.md` / `AGENTS.md` (Laravel Boost guidelines) untuk konvensi kode dan pengujian.
