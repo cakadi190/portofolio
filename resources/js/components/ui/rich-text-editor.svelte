@@ -3686,6 +3686,9 @@
   .rte-minimal .rte-body :global(.rte-content) {
     padding-right: 1.5rem;
   }
+  .rte-body :global(.rte-content figure.wp-block-image.ProseMirror-selectednode) {
+    outline: none;
+  }
   .rte-body :global(.rte-content .ProseMirror-selectednode) {
     outline: 2px solid var(--neo-primary);
   }

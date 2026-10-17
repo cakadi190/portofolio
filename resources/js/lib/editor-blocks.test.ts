@@ -155,6 +155,107 @@ describe('FigureImage link', () => {
   });
 });
 
+describe('FigureImage selection and keyboard navigation', () => {
+  const figure =
+    '<figure class="wp-block-image is-align-center"><img src="/a.webp" alt="A"><figcaption>Cap</figcaption></figure>';
+
+  const press = (instance: ReturnType<typeof editor>, key: string) =>
+    instance.view.someProp('handleKeyDown', (handler) =>
+      handler(instance.view, new KeyboardEvent('keydown', { key })),
+    ) ?? false;
+
+  const selectedType = (instance: ReturnType<typeof editor>) =>
+    instance.state.selection.constructor.name;
+
+  it('selects the whole image when the picture is clicked', () => {
+    const instance = editor(`<p>Atas</p>${figure}`);
+    const imagePos = instance.state.doc.firstChild!.nodeSize;
+    const node = instance.state.doc.nodeAt(imagePos)!;
+    const img = document.createElement('img');
+
+    const handled = instance.view.someProp('handleClickOn', (handler) =>
+      handler(
+        instance.view,
+        imagePos + 1,
+        node,
+        imagePos,
+        { target: img } as unknown as MouseEvent,
+        true,
+      ),
+    );
+
+    expect(handled).toBe(true);
+    expect(selectedType(instance)).toBe('NodeSelection');
+    expect(instance.state.selection.from).toBe(imagePos);
+    instance.destroy();
+  });
+
+  it('steps from the last paragraph onto the image below with arrow down or right', () => {
+    for (const key of ['ArrowRight', 'ArrowDown']) {
+      const instance = editor(`<p>Atas</p>${figure}`);
+      instance.commands.setTextSelection(5);
+
+      if (key === 'ArrowDown') {
+        instance.view.endOfTextblock = () => true;
+      }
+
+      expect(press(instance, key)).toBe(true);
+      expect(selectedType(instance)).toBe('NodeSelection');
+      instance.destroy();
+    }
+  });
+
+  it('steps back onto the image from the paragraph below with arrow up or left', () => {
+    const instance = editor(`${figure}<p>Bawah</p>`);
+    const below = instance.state.doc.firstChild!.nodeSize + 1;
+    instance.commands.setTextSelection(below);
+
+    expect(press(instance, 'ArrowLeft')).toBe(true);
+    expect(selectedType(instance)).toBe('NodeSelection');
+    expect(instance.state.selection.from).toBe(0);
+    instance.destroy();
+  });
+
+  it('leaves a selected image in both directions and Enter opens a paragraph below', () => {
+    const instance = editor(`<p>Atas</p>${figure}<p>Bawah</p>`);
+    const imagePos = instance.state.doc.firstChild!.nodeSize;
+    instance.commands.setNodeSelection(imagePos);
+
+    expect(press(instance, 'ArrowDown')).toBe(true);
+    expect(selectedType(instance)).toBe('TextSelection');
+    expect(instance.state.selection.$from.parent.textContent).toBe('Bawah');
+
+    instance.commands.setNodeSelection(imagePos);
+    expect(press(instance, 'ArrowUp')).toBe(true);
+    expect(instance.state.selection.$from.parent.textContent).toBe('Atas');
+
+    instance.commands.setNodeSelection(imagePos);
+    expect(press(instance, 'Enter')).toBe(true);
+    expect(instance.state.selection.$from.parent.type.name).toBe('paragraph');
+    expect(instance.state.selection.$from.parent.content.size).toBe(0);
+    instance.destroy();
+  });
+
+  it('opens a paragraph when arrowing down from an image that ends the document', () => {
+    const instance = editor(figure);
+    instance.commands.setNodeSelection(0);
+
+    expect(press(instance, 'ArrowDown')).toBe(true);
+    expect(instance.state.doc.lastChild?.type.name).toBe('paragraph');
+    expect(selectedType(instance)).toBe('TextSelection');
+    instance.destroy();
+  });
+
+  it('does not hijack arrows in the middle of text or with modifiers', () => {
+    const instance = editor(`<p>Atas panjang</p>${figure}`);
+    instance.commands.setTextSelection(3);
+
+    expect(press(instance, 'ArrowRight')).toBe(false);
+    expect(selectedType(instance)).toBe('TextSelection');
+    instance.destroy();
+  });
+});
+
 describe('FigureImage credit and source', () => {
   it('round-trips the photo credit and original source link', () => {
     const instance = editor(

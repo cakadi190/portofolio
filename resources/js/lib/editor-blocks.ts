@@ -8,7 +8,12 @@ import {
 } from '@tiptap/extension-table';
 import type { Node as ProseNode } from '@tiptap/pm/model';
 import type { EditorView, NodeView } from '@tiptap/pm/view';
-import { Plugin, PluginKey } from '@tiptap/pm/state';
+import {
+  NodeSelection,
+  Plugin,
+  PluginKey,
+  TextSelection,
+} from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import {
   createCodeHeader,
@@ -66,6 +71,138 @@ function alignFromClass(element: Element): BlockAlign {
   );
 }
 
+const isImage = (node: ProseNode | null | undefined): node is ProseNode =>
+  node?.type.name === 'image';
+
+/**
+ * Word/Gutenberg-style image selection: clicking the picture selects the whole
+ * block, and arrow keys step onto an adjacent image (and off it again) instead
+ * of jumping over it. Enter on a selected image opens a paragraph below it.
+ */
+function imageNavigation(): Plugin {
+  const select = (view: EditorView, pos: number): true => {
+    view.dispatch(
+      view.state.tr
+        .setSelection(NodeSelection.create(view.state.doc, pos))
+        .scrollIntoView(),
+    );
+    view.focus();
+
+    return true;
+  };
+
+  const caretAt = (view: EditorView, pos: number, bias: 1 | -1): true => {
+    view.dispatch(
+      view.state.tr
+        .setSelection(TextSelection.near(view.state.doc.resolve(pos), bias))
+        .scrollIntoView(),
+    );
+
+    return true;
+  };
+
+  const paragraphAfter = (view: EditorView, at: number): true => {
+    const tr = view.state.tr.insert(
+      at,
+      view.state.schema.nodes.paragraph.create(),
+    );
+
+    view.dispatch(
+      tr.setSelection(TextSelection.create(tr.doc, at + 1)).scrollIntoView(),
+    );
+
+    return true;
+  };
+
+  return new Plugin({
+    key: new PluginKey('imageNavigation'),
+    props: {
+      handleClickOn(view, _pos, node, nodePos, event) {
+        if (!isImage(node) || !(event.target as Element)?.closest?.('img')) {
+          return false;
+        }
+
+        return select(view, nodePos);
+      },
+
+      handleKeyDown(view, event) {
+        if (event.shiftKey || event.metaKey || event.ctrlKey || event.altKey) {
+          return false;
+        }
+
+        const forward = event.key === 'ArrowDown' || event.key === 'ArrowRight';
+        const backward = event.key === 'ArrowUp' || event.key === 'ArrowLeft';
+        const { selection, doc } = view.state;
+
+        if (selection instanceof NodeSelection && isImage(selection.node)) {
+          if (event.key === 'Enter') {
+            return paragraphAfter(view, selection.to);
+          }
+
+          if (forward) {
+            const next = doc.resolve(selection.to).nodeAfter;
+
+            if (isImage(next)) return select(view, selection.to);
+            if (next) return caretAt(view, selection.to, 1);
+
+            return paragraphAfter(view, selection.to);
+          }
+
+          if (backward) {
+            const previous = doc.resolve(selection.from).nodeBefore;
+
+            if (isImage(previous)) {
+              return select(view, selection.from - previous.nodeSize);
+            }
+
+            return previous ? caretAt(view, selection.from, -1) : true;
+          }
+
+          return false;
+        }
+
+        if (
+          !(selection instanceof TextSelection) ||
+          !selection.empty ||
+          !(forward || backward)
+        ) {
+          return false;
+        }
+
+        const { $from } = selection;
+        const horizontal =
+          event.key === 'ArrowLeft' || event.key === 'ArrowRight';
+        const direction = forward ? 'forward' : 'backward';
+        const atEdge = horizontal
+          ? forward
+            ? $from.parentOffset === $from.parent.content.size
+            : $from.parentOffset === 0
+          : view.endOfTextblock(forward ? 'down' : 'up');
+
+        if (!atEdge || !$from.parent.isTextblock) {
+          return false;
+        }
+
+        if (forward) {
+          const next = doc.resolve($from.after()).nodeAfter;
+
+          return isImage(next) ? select(view, $from.after()) : false;
+        }
+
+        if (isImage($from.parent) && direction === 'backward') {
+          return select(view, $from.before());
+        }
+
+        const previous = doc.resolve($from.before()).nodeBefore;
+
+        return isImage(previous)
+          ? select(view, $from.before() - previous.nodeSize)
+          : false;
+      },
+    },
+  });
+}
+
 /** Link wrapped around an image: a safe URL, or '' when there is none. */
 function linkHref(anchor: Element | null): string {
   const value = anchor?.getAttribute('href')?.trim() ?? '';
@@ -105,6 +242,10 @@ export const FigureImage = Image.extend({
       href: { default: '', rendered: false },
       newTab: { default: false, rendered: false },
     };
+  },
+
+  addProseMirrorPlugins() {
+    return [...(this.parent?.() ?? []), imageNavigation()];
   },
 
   inline: false,
