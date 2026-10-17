@@ -93,6 +93,7 @@
     cleanBlockText,
     safeHref,
     sourceUrl,
+    stripResponsiveAttributes,
   } from '@/lib/editor-blocks';
   import { normalizeCodeTitle } from '@/lib/code-card';
   import LinkPopover from '@/components/ui/link-popover.svelte';
@@ -463,7 +464,8 @@
       label: 'Callout',
       hint: t('ui.kotak_catatan_judul_dan_label_opsional'),
       icon: Info,
-      keywords: 'callout note catatan info peringatan kotak judul label kategori',
+      keywords:
+        'callout note catatan info peringatan kotak judul label kategori',
       run: (c) => c.wrapIn('callout', { type: 'info' }),
     },
     {
@@ -562,7 +564,8 @@
       label: t('ui.kutipan_kitab_suci'),
       hint: t('ui.alkitab_quran_dan_hadis'),
       icon: BookOpenText,
-      keywords: 'scripture quote alkitab bible quran al-quran ayat hadis hadith kutipan kitab suci',
+      keywords:
+        'scripture quote alkitab bible quran al-quran ayat hadis hadith kutipan kitab suci',
       run: (c) =>
         c.insertContent({
           type: 'scriptureQuote',
@@ -641,7 +644,11 @@
       const node = caret.node(depth);
 
       if (node.type.name === 'orderedList' || node.type.name === 'bulletList') {
-        return { kind: node.type.name, pos: caret.before(depth), attrs: node.attrs };
+        return {
+          kind: node.type.name,
+          pos: caret.before(depth),
+          attrs: node.attrs,
+        };
       }
     }
 
@@ -958,9 +965,15 @@
       const node = selection.$from.node(depth);
 
       if (
-        ['image', 'callout', 'codeBlock', 'definition', 'scriptureQuote', 'specSheet', 'table'].includes(
-          node.type.name,
-        )
+        [
+          'image',
+          'callout',
+          'codeBlock',
+          'definition',
+          'scriptureQuote',
+          'specSheet',
+          'table',
+        ].includes(node.type.name)
       ) {
         return {
           kind: node.type.name as BlockKind,
@@ -1196,7 +1209,11 @@
    * (HTML with `data-pm-slice`), so pasting it into any editor of this app restores the
    * block exactly and other apps (Word, Docs) receive plain HTML.
    */
-  function blockClipboard(): { html: string; text: string; range: { pos: number; size: number } } | null {
+  function blockClipboard(): {
+    html: string;
+    text: string;
+    range: { pos: number; size: number };
+  } | null {
     const range = topBlock();
     const node = editor && range ? editor.state.doc.nodeAt(range.pos) : null;
 
@@ -1265,7 +1282,14 @@
   }
 
   /** Plain text blocks: selecting part of their text copies just that text, as in any editor. */
-  const TEXT_BLOCKS = new Set(['paragraph', 'heading', 'blockquote', 'bulletList', 'orderedList', 'codeBlock']);
+  const TEXT_BLOCKS = new Set([
+    'paragraph',
+    'heading',
+    'blockquote',
+    'bulletList',
+    'orderedList',
+    'codeBlock',
+  ]);
 
   /**
    * Whether a copy/cut should take the whole top-level block: nothing is selected (caret
@@ -1279,7 +1303,8 @@
 
     if (selection.empty) return true;
 
-    if (selection instanceof NodeSelection || selection.$from.depth < 1) return false;
+    if (selection instanceof NodeSelection || selection.$from.depth < 1)
+      return false;
 
     const range = topBlock();
     const block = range ? editor.state.doc.nodeAt(range.pos) : null;
@@ -1302,15 +1327,27 @@
    * editor copies the current line), so every block type can be copied with the caret in
    * it. A selection, including a selected node, keeps the browser's normal behaviour.
    */
-  function clipboardEventForBlock(event: ClipboardEvent, cut: boolean): boolean {
-    if (minimal || !editor || !event.clipboardData || !selectionMeansWholeBlock()) {
+  function clipboardEventForBlock(
+    event: ClipboardEvent,
+    cut: boolean,
+  ): boolean {
+    if (
+      minimal ||
+      !editor ||
+      !event.clipboardData ||
+      !selectionMeansWholeBlock()
+    ) {
       return false;
     }
 
     const data = blockClipboard();
 
     // An empty paragraph has nothing worth replacing the clipboard with.
-    if (!data || (editor.state.doc.nodeAt(data.range.pos)?.type.name === 'paragraph' && data.text === '')) {
+    if (
+      !data ||
+      (editor.state.doc.nodeAt(data.range.pos)?.type.name === 'paragraph' &&
+        data.text === '')
+    ) {
       return false;
     }
 
@@ -1330,7 +1367,9 @@
     if (!editor) return;
 
     const range = topBlock();
-    const position = range ? range.pos + range.size : editor.state.doc.content.size;
+    const position = range
+      ? range.pos + range.size
+      : editor.state.doc.content.size;
 
     try {
       let content = '';
@@ -1347,7 +1386,10 @@
 
         content = text
           .split(/\n{2,}/)
-          .map((paragraph) => `<p>${paragraph.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c] as string).replaceAll('\n', '<br>')}</p>`)
+          .map(
+            (paragraph) =>
+              `<p>${paragraph.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c] as string).replaceAll('\n', '<br>')}</p>`,
+          )
           .join('');
       }
 
@@ -1558,26 +1600,45 @@
           label: t('ui.salin'),
           shortcut: 'Ctrl+C',
           disabled: !hasSelection && minimal,
-          action: () => (hasSelection ? clipboardCommand('copy') : void copyBlock()),
+          action: () =>
+            hasSelection ? clipboardCommand('copy') : void copyBlock(),
         },
         {
           label: t('ui.potong'),
           shortcut: 'Ctrl+X',
           disabled: !hasSelection && minimal,
-          action: () => (hasSelection ? clipboardCommand('cut') : void cutBlock()),
+          action: () =>
+            hasSelection ? clipboardCommand('cut') : void cutBlock(),
         },
-        { label: t('ui.tempel'), shortcut: 'Ctrl+V', action: pasteFromClipboard },
+        {
+          label: t('ui.tempel'),
+          shortcut: 'Ctrl+V',
+          action: pasteFromClipboard,
+        },
       ],
     ];
 
     if (!minimal) {
       groups[0].push(
-        { label: t('ui.gandakan_blok'), shortcut: 'Ctrl+Shift+D', action: duplicateBlock },
+        {
+          label: t('ui.gandakan_blok'),
+          shortcut: 'Ctrl+Shift+D',
+          action: duplicateBlock,
+        },
         { label: t('ui.salin_blok'), action: () => void copyBlock() },
         { label: t('ui.potong_blok'), action: () => void cutBlock() },
-        { label: t('ui.tempel_di_bawah_blok'), action: () => void pasteBlockBelow() },
-        { label: t('ui.tambahkan_sebelumnya'), action: () => addParagraph('before') },
-        { label: t('ui.tambahkan_setelahnya'), action: () => addParagraph('after') },
+        {
+          label: t('ui.tempel_di_bawah_blok'),
+          action: () => void pasteBlockBelow(),
+        },
+        {
+          label: t('ui.tambahkan_sebelumnya'),
+          action: () => addParagraph('before'),
+        },
+        {
+          label: t('ui.tambahkan_setelahnya'),
+          action: () => addParagraph('after'),
+        },
       );
     }
 
@@ -1750,7 +1811,11 @@
 
   function pickMedia(media: MediaItem): void {
     if (pickerMode === 'replace' && media.url) {
-      patchBlock({ src: media.url, alt: media.alt ?? media.name });
+      patchBlock({
+        src: media.url,
+        alt: media.alt ?? media.name,
+        srcset: media.srcset ?? null,
+      });
     } else {
       insertImage(media);
     }
@@ -1761,7 +1826,11 @@
       editor
         ?.chain()
         .focus()
-        .setImage({ src: media.url, alt: media.alt ?? media.name })
+        .setImage({
+          src: media.url,
+          alt: media.alt ?? media.name,
+          srcset: media.srcset ?? null,
+        } as Parameters<typeof editor.commands.setImage>[0])
         .run();
     }
   }
@@ -1853,7 +1922,11 @@
           'aria-label': placeholder || t('ui.editor_teks'),
         },
         handleKeyDown: (_view, event) => {
-          if (!minimal && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+          if (
+            !minimal &&
+            (event.ctrlKey || event.metaKey) &&
+            event.key.toLowerCase() === 'k'
+          ) {
             event.preventDefault();
             setLink();
 
@@ -1909,7 +1982,9 @@
       onUpdate: ({ editor: current }) => {
         html = current.isEmpty
           ? ''
-          : current.getHTML().replaceAll('<figcaption></figcaption>', '');
+          : stripResponsiveAttributes(
+              current.getHTML().replaceAll('<figcaption></figcaption>', ''),
+            );
         words = current.storage.characterCount.words();
       },
       onTransaction: () => {
@@ -2118,7 +2193,9 @@
             class="btn btn-sm btn-outline-secondary align-self-start"
             disabled={fetchingPreview || !blockInfo.attrs.url}
             onclick={() => loadLinkPreview(String(blockInfo?.attrs.url ?? ''))}
-            >{fetchingPreview ? t('ui.mengambil') : t('ui.ambil_pratinjau')}</button
+            >{fetchingPreview
+              ? t('ui.mengambil')
+              : t('ui.ambil_pratinjau')}</button
           >
         </div>
         <div class="rte-ins-group">
@@ -2127,7 +2204,8 @@
             class="form-control form-control-sm"
             aria-label={t('ui.judul_kartu_tautan')}
             value={blockInfo.attrs.title ?? ''}
-            oninput={(event) => patchBlock({ title: event.currentTarget.value })}
+            oninput={(event) =>
+              patchBlock({ title: event.currentTarget.value })}
           />
         </div>
         <div class="rte-ins-group">
@@ -2138,7 +2216,9 @@
             maxlength="60"
             value={blockInfo.attrs.siteName ?? ''}
             oninput={(event) =>
-              patchBlock({ siteName: cleanBlockText(event.currentTarget.value) })}
+              patchBlock({
+                siteName: cleanBlockText(event.currentTarget.value),
+              })}
           />
         </div>
         <div class="rte-ins-group">
@@ -2297,7 +2377,9 @@
               aria-pressed={blockInfo.attrs.title !== ''}
               onclick={() =>
                 patchBlock({
-                  title: blockInfo?.attrs.title ? '' : t('admin-notes.judul_catatan'),
+                  title: blockInfo?.attrs.title
+                    ? ''
+                    : t('admin-notes.judul_catatan'),
                 })}>{t('ui.judul')}</button
             >
             <button
@@ -2444,8 +2526,7 @@
                     event.currentTarget.value,
                     'arabic',
                   ),
-                })}
-            ></textarea>
+                })}></textarea>
           </div>
           <div class="rte-ins-group">
             <span class="rte-ins-label">{t('ui.ukuran_teks_arab')}</span>
@@ -2644,7 +2725,10 @@
             ariaLabel={t('ui.jenis_penanda')}
             items={bulletStyleItems}
             value={listInfo.attrs.type || 'disc'}
-            onchange={(next) => patchList({ type: next && next !== 'disc' ? String(next) : null })}
+            onchange={(next) =>
+              patchList({
+                type: next && next !== 'disc' ? String(next) : null,
+              })}
           />
         </div>
       {/if}
@@ -2654,11 +2738,14 @@
         class="btn btn-sm btn-outline-danger align-self-start"
         onclick={() => deleteBlock()}
       >
-        <Trash size={14} /> {t('ui.hapus_blok')}
+        <Trash size={14} />
+        {t('ui.hapus_blok')}
       </button>
     </div>
   {:else}
-    <p class="rte-ins-empty">{t('ui.pilih_sebuah_blok_untuk_mengubah_pengaturannya')}</p>
+    <p class="rte-ins-empty">
+      {t('ui.pilih_sebuah_blok_untuk_mengubah_pengaturannya')}
+    </p>
   {/if}
 {/snippet}
 
@@ -2761,17 +2848,18 @@
 
       {#if shell}
         {#if isDesktop}
-        <button
-          type="button"
-          class="rte-btn rte-btn-lg"
-          class:on={device !== 'desktop' || (ctx.open && ctx.kind === 'device')}
-          title={t('ui.pratinjau')}
-          aria-label={t('ui.pratinjau')}
-          aria-haspopup="menu"
-          data-rte-trigger
-          onclick={(event) => openToolbarMenu('device', event)}
-          ><DeviceIcon size={18} /></button
-        >
+          <button
+            type="button"
+            class="rte-btn rte-btn-lg"
+            class:on={device !== 'desktop' ||
+              (ctx.open && ctx.kind === 'device')}
+            title={t('ui.pratinjau')}
+            aria-label={t('ui.pratinjau')}
+            aria-haspopup="menu"
+            data-rte-trigger
+            onclick={(event) => openToolbarMenu('device', event)}
+            ><DeviceIcon size={18} /></button
+          >
         {/if}
         {@render actions?.({ mode, setMode })}
         <button
@@ -2788,7 +2876,11 @@
     </div>
 
     {#if !shell && blockInfo && mode === 'visual'}
-      <div class="rte-blockbar" role="group" aria-label={t('ui.pengaturan_blok')}>
+      <div
+        class="rte-blockbar"
+        role="group"
+        aria-label={t('ui.pengaturan_blok')}
+      >
         {@render inspector()}
       </div>
     {/if}

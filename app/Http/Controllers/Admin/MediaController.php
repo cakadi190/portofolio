@@ -20,10 +20,16 @@ class MediaController extends Controller
 
     public function __construct(protected MediaService $media) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
+        $media = $this->library($request)->paginate(24)->withQueryString();
+
+        if ($media->isEmpty() && $media->currentPage() > 1) {
+            return redirect()->route('admin.media.index', [...$request->query(), 'page' => $media->lastPage()]);
+        }
+
         return Inertia::render('admin/media/index', [
-            'media' => Inertia::scroll($this->library($request)->paginate(42)->withQueryString()),
+            'media' => $media,
             'filters' => [
                 'search' => trim((string) $request->query('search', '')),
                 'type' => $this->typeFilter($request),

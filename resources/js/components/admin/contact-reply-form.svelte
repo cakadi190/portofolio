@@ -132,7 +132,7 @@
 <MediaPickerModal
   bind:open={pickerOpen}
   accept="all"
-  multiple
+  mode="multiple"
   title={t('admin.pilih_lampiran')}
-  onSelect={attach}
+  onSelectMultiple={(items) => items.forEach(attach)}
 />

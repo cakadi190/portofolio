@@ -4,15 +4,24 @@
   let {
     open = $bindable(false),
     onSelect,
-  }: { open?: boolean; onSelect?: (media: MediaItem) => void } = $props();
+    onSelectMultiple,
+  }: {
+    open?: boolean;
+    onSelect?: (media: MediaItem) => void;
+    onSelectMultiple?: (items: MediaItem[]) => void;
+  } = $props();
 </script>
 
 {#if open}
   <div data-testid="picker-stub">
     <button
       type="button"
-      onclick={() =>
-        onSelect?.({ path: 'media/new.webp', name: 'new' } as MediaItem)}
+      onclick={() => {
+        const picked = { path: 'media/new.webp', name: 'new' } as MediaItem;
+
+        onSelect?.(picked);
+        onSelectMultiple?.([picked]);
+      }}
     >
       pick-new
     </button>

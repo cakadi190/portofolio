@@ -208,5 +208,6 @@ When working on Wayfinder itself — generating types, wiring the Vite plugin, c
 - When your change alters product behavior, data schema, business rules, or the media/upload flow, update the matching file in `docs/` in the same change.
 - Never create `alter table` migrations; edit the existing `create_*` migration so `migrate:fresh` works in production.
 - Every change must protect PageSpeed Insights: the homepage (`/`) must keep a Performance score of at least 95 on mobile (see `docs/07-nonfunctional-and-acceptance.md` NFR-P4/P6 and `docs/04-architecture.md` "Performa & SSR"). Measure with Lighthouse/PSI before and after changes that add JS, CSS, fonts, images or above-the-fold animation, and do not ship a change that drops the score below 95.
+- Code must be formatted with Prettier and pass `bun run check:fix` (then `bun run check`) before finishing a change; PHP still uses Pint.
 - Never handle file uploads inside controllers; use the Media Library (`MediaService`, `MediaField`, `MediaPath` rule) as described in `docs/05-media-library.md`.
   </product-requirements>

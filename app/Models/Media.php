@@ -16,10 +16,10 @@ class Media extends Model
     use HasFactory, RecordsActivity;
 
     protected $fillable = [
-        'user_id', 'disk', 'path', 'name', 'alt', 'mime_type', 'size', 'width', 'height',
+        'user_id', 'disk', 'path', 'name', 'alt', 'mime_type', 'size', 'width', 'height', 'variants',
     ];
 
-    protected $appends = ['url', 'is_image'];
+    protected $appends = ['url', 'is_image', 'srcset'];
 
     /**
      * @return array<string, string>
@@ -30,6 +30,7 @@ class Media extends Model
             'size' => 'integer',
             'width' => 'integer',
             'height' => 'integer',
+            'variants' => 'array',
         ];
     }
 
@@ -47,6 +48,14 @@ class Media extends Model
     protected function url(): Attribute
     {
         return Attribute::get(fn (): ?string => ImageService::url($this->path));
+    }
+
+    /**
+     * @return Attribute<string|null, never>
+     */
+    protected function srcset(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->is_image ? ImageService::srcset($this->path, $this->width, $this->variants) : null);
     }
 
     /**

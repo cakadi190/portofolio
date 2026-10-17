@@ -4,33 +4,50 @@
   import FileText from '@lucide/svelte/icons/file-text';
   import Upload from '@lucide/svelte/icons/upload';
   import FormModal from '@/components/form-modal.svelte';
+  import MediaImage from '@/components/media/media-image.svelte';
+  import PaginationNav from '@/components/pagination-nav.svelte';
   import { formatBytes, uploadMedia } from '@/lib/media';
   import { toast } from '@/lib/toast';
   import { browse } from '@/wayfinder/routes/admin/media';
   import type { Paginated } from '@/types/pagination';
-  import type { MediaAccept, MediaItem } from '@/types/media';
+  import type { MediaAccept, MediaItem, MediaSelectionMode } from '@/types/media';
 
   /**
-   * WordPress-style media picker: browse and search the library, upload new
-   * files (button or drag & drop), then pick one. Calls `onSelect` and closes.
+   * WordPress-style media picker: browse (server-side pages) and search the
+   * library, upload new files (button or drag & drop), tick the items to use
+   * and confirm.
+   *
+   * `mode="single"` (Choose Single) keeps exactly one item and calls
+   * `onSelect(media)`; `mode="multiple"` (Choose Multi) keeps any number,
+   * across pages, and calls `onSelectMultiple(items)` in the order they were
+   * picked. Cancelling or closing never calls either callback.
    */
   let {
     open = $bindable(false),
     accept = 'all',
     title = t('ui.pilih_media'),
-    multiple = false,
+    mode = 'single',
+    initialSelection = [],
     onSelect,
+    onSelectMultiple,
   }: {
     open?: boolean;
     accept?: MediaAccept;
     title?: string;
-    multiple?: boolean;
-    onSelect: (media: MediaItem) => void;
+    mode?: MediaSelectionMode;
+    initialSelection?: MediaItem[];
+    onSelect?: (media: MediaItem) => void;
+    onSelectMultiple?: (items: MediaItem[]) => void;
   } = $props();
 
   let selected = $state<MediaItem[]>([]);
 
   let items = $state<MediaItem[]>([]);
+  let meta = $state<{ total: number; from: number | null; to: number | null }>({
+    total: 0,
+    from: null,
+    to: null,
+  });
   let page = $state(1);
   let lastPage = $state(1);
   let search = $state('');
@@ -40,9 +57,18 @@
   let dragOver = $state(false);
   let fileInput = $state<HTMLInputElement>();
   let searchTimer: ReturnType<typeof setTimeout> | undefined;
+  let controller: AbortController | undefined;
 
+  const isMultiple = $derived(mode === 'multiple');
+  const confirmLabel = $derived(t('ui.pilih_n_berkas', { count: selected.length }));
+
+  /** Loads the current `page`/`search`; a newer call aborts the one in flight. */
   async function load(): Promise<void> {
+    controller?.abort();
+    const current = new AbortController();
+    controller = current;
     loading = true;
+    error = null;
 
     try {
       const response = await fetch(
@@ -53,7 +79,11 @@
             type: accept === 'image' ? 'image' : undefined,
           },
         }).url,
-        { headers: { Accept: 'application/json' }, credentials: 'same-origin' },
+        {
+          headers: { Accept: 'application/json' },
+          credentials: 'same-origin',
+          signal: current.signal,
+        },
       );
 
       if (!response.ok) {
@@ -61,24 +91,45 @@
       }
 
       const payload = (await response.json()) as Paginated<MediaItem>;
-      items = page > 1 ? [...items, ...payload.data] : payload.data;
+
+      if (current.signal.aborted) {
+        return;
+      }
+
+      if (payload.data.length === 0 && page > 1 && payload.last_page >= 1) {
+        page = Math.min(page - 1, payload.last_page);
+        await load();
+
+        return;
+      }
+
+      items = payload.data;
       lastPage = payload.last_page;
-    } catch {
+      meta = { total: payload.total ?? payload.data.length, from: payload.from ?? null, to: payload.to ?? null };
+    } catch (exception) {
+      if (current.signal.aborted || (exception instanceof DOMException && exception.name === 'AbortError')) {
+        return;
+      }
+
       error = t('ui.pustaka_media_gagal_dimuat');
       toast.error(error);
     } finally {
-      loading = false;
+      if (controller === current) {
+        loading = false;
+      }
     }
   }
 
   $effect(() => {
     if (open) {
       untrack(() => {
-        selected = [];
+        selected = (isMultiple ? initialSelection : initialSelection.slice(0, 1)).slice();
         page = 1;
         error = null;
         void load();
       });
+    } else {
+      controller?.abort();
     }
   });
 
@@ -90,28 +141,9 @@
     }, 300);
   }
 
-  /** Loads the next page when the sentinel below the grid scrolls into view. */
-  function loadMore(): void {
-    if (loading || page >= lastPage) {
-      return;
-    }
-
-    page += 1;
+  function goTo(next: number): void {
+    page = next;
     void load();
-  }
-
-  function observeEnd(node: HTMLElement) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          loadMore();
-        }
-      },
-      { rootMargin: '200px' },
-    );
-    observer.observe(node);
-
-    return { destroy: () => observer.disconnect() };
   }
 
   async function upload(files: FileList | null): Promise<void> {
@@ -144,26 +176,44 @@
     }
   }
 
-  function choose(media: MediaItem): void {
-    if (multiple) {
-      selected = selected.some((item) => item.id === media.id)
-        ? selected.filter((item) => item.id !== media.id)
-        : [...selected, media];
+  const isSelected = (media: MediaItem): boolean => selected.some((item) => item.id === media.id);
+
+  /** Ticks or unticks one item; single mode replaces the previous choice. */
+  function toggle(media: MediaItem, checked: boolean): void {
+    if (!isMultiple) {
+      selected = checked ? [media] : [];
 
       return;
     }
 
-    onSelect(media);
-    open = false;
+    selected = checked
+      ? isSelected(media)
+        ? selected
+        : [...selected, media]
+      : selected.filter((item) => item.id !== media.id);
   }
 
   function confirmSelection(): void {
-    selected.forEach(onSelect);
+    if (selected.length === 0) {
+      return;
+    }
+
+    if (isMultiple) {
+      onSelectMultiple?.([...selected]);
+    } else {
+      onSelect?.(selected[0]);
+    }
+
     open = false;
   }
 </script>
 
-<FormModal bind:open {title} subtitle={t('ui.pilih_dari_pustaka_atau_unggah_berkas')} size="xl">
+<FormModal
+  bind:open
+  {title}
+  subtitle={`${isMultiple ? t('ui.pilih_banyak_media') : t('ui.pilih_satu_media')} · ${t('ui.pilih_dari_pustaka_atau_unggah_berkas')}`}
+  size="xl"
+>
   {#snippet children()}
     <div
       class="media-picker"
@@ -209,60 +259,73 @@
       </div>
 
       {#if error}
-        <div class="alert alert-danger py-2 small">{error}</div>
+        <div class="alert alert-danger py-2 small d-flex justify-content-between align-items-center" role="alert">
+          <span>{error}</span>
+          <button type="button" class="btn btn-sm btn-outline-danger" onclick={() => void load()}>
+            {t('ui.coba_lagi')}
+          </button>
+        </div>
       {/if}
 
       {#if loading && items.length === 0}
-        <p class="text-muted text-center py-5 mb-0">{t('ui.memuat')}</p>
-      {:else if items.length === 0}
+        <p class="text-muted text-center py-5 mb-0" role="status">{t('ui.memuat')}</p>
+      {:else if items.length === 0 && !error}
         <p class="text-muted text-center py-5 mb-0">
-          {t('ui.belum_ada_media_seret_berkas_ke')}
+          {search ? t('ui.tidak_ada_media_ditemukan') : t('ui.belum_ada_media_seret_berkas_ke')}
         </p>
       {:else}
-        <div class="media-picker-grid">
+        <div class="media-picker-grid" class:is-loading={loading} aria-busy={loading}>
           {#each items as media (media.id)}
-            <button
-              type="button"
-              class="media-picker-item"
-              class:is-selected={selected.some((item) => item.id === media.id)}
-              title={media.name}
-              onclick={() => choose(media)}
-            >
+            <label class="media-picker-item" class:is-selected={isSelected(media)} title={media.name}>
+              <input
+                type="checkbox"
+                class="form-check-input media-picker-check"
+                aria-label={t('ui.pilih_item_media', { name: media.name })}
+                checked={isSelected(media)}
+                onchange={(event) => toggle(media, (event.currentTarget as HTMLInputElement).checked)}
+              />
               {#if media.is_image}
-                <img src={media.url} alt={media.alt ?? media.name} loading="lazy" />
+                <MediaImage {media} sizes="(min-width: 768px) 14vw, (min-width: 576px) 33vw, 50vw" />
               {:else}
                 <span class="media-picker-doc"><FileText size={32} /></span>
               {/if}
               <span class="media-picker-name">{media.name}</span>
               <span class="media-picker-meta">{formatBytes(media.size)}</span>
-            </button>
+            </label>
           {/each}
         </div>
 
-        {#if page < lastPage}
-          <div
-            class="d-flex justify-content-center align-items-center gap-2 py-3 small text-muted"
-            role="status"
-            use:observeEnd
-          >
-            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            {t('ui.memuat_lebih_banyak')}
-          </div>
-        {/if}
+        <PaginationNav
+          currentPage={page}
+          {lastPage}
+          total={meta.total}
+          from={meta.from}
+          to={meta.to}
+          disabled={loading}
+          onNavigate={goTo}
+        />
       {/if}
 
-      {#if multiple}
-        <div class="d-flex justify-content-end mt-3">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+        <span class="small text-muted" aria-live="polite">
+          {selected.length > 0
+            ? t('ui.n_berkas_dipilih', { count: selected.length })
+            : t('ui.belum_ada_media_dipilih_picker')}
+        </span>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary" onclick={() => (open = false)}>
+            {t('ui.batal_pilih')}
+          </button>
           <button
             type="button"
             class="btn btn-primary"
             disabled={selected.length === 0}
             onclick={confirmSelection}
           >
-            {t('ui.tambahkan_berkas', { count: selected.length })}
+            {confirmLabel}
           </button>
         </div>
-      {/if}
+      </div>
     </div>
   {/snippet}
 </FormModal>
@@ -303,6 +366,8 @@
   }
 
   .media-picker-item {
+    position: relative;
+    cursor: pointer;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -319,12 +384,25 @@
     box-shadow: 0 0 0 2px var(--neo-primary);
   }
 
+  .media-picker-grid.is-loading {
+    opacity: 0.6;
+    transition: opacity 0.15s;
+  }
+
+  .media-picker-check {
+    position: absolute;
+    top: 0.9rem;
+    left: 0.9rem;
+    z-index: 1;
+    margin: 0;
+  }
+
   .media-picker-item:hover,
-  .media-picker-item:focus-visible {
+  .media-picker-item:focus-within {
     border-color: var(--neo-primary);
   }
 
-  .media-picker-item img,
+  .media-picker-item :global(img),
   .media-picker-doc {
     display: flex;
     align-items: center;

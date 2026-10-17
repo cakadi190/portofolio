@@ -16,7 +16,8 @@
   import ModalConfirmation from '@/components/modal-confirmation.svelte';
   import AdminPageHeader from '@/components/admin/admin-page-header.svelte';
   import FormModal from '@/components/form-modal.svelte';
-  import InfiniteFeed from '@/components/infinite-feed.svelte';
+  import MediaImage from '@/components/media/media-image.svelte';
+  import PaginationNav from '@/components/pagination-nav.svelte';
   import { Field } from '@/components/ui/field';
   import { formatBytes, uploadMedia } from '@/lib/media';
   import { toast } from '@/lib/toast';
@@ -24,13 +25,13 @@
   import { Form, router } from '@inertiajs/svelte';
   import { destroy, index, update } from '@/wayfinder/routes/admin/media';
   import type { MediaItem } from '@/types/media';
-  import type { InfiniteList } from '@/types/pagination';
+  import type { Paginated } from '@/types/pagination';
 
   let {
     media,
     filters,
   }: {
-    media: InfiniteList<MediaItem>;
+    media: Paginated<MediaItem>;
     filters: { search: string; type: 'all' | 'image' | 'document' };
   } = $props();
 
@@ -128,6 +129,18 @@
     }, 300);
   }
 
+  function goToPage(page: number): void {
+    router.get(
+      index().url,
+      {
+        search: search || undefined,
+        type: type === 'all' ? undefined : type,
+        page,
+      },
+      { preserveState: true },
+    );
+  }
+
   async function upload(files: FileList | null): Promise<void> {
     if (!files?.length) {
       return;
@@ -141,7 +154,7 @@
         await uploadMedia(file);
       }
 
-      router.reload({ only: ['media'], reset: ['media'] });
+      goToPage(1);
     } catch (exception) {
       error =
         exception instanceof Error ? exception.message : t('ui.unggahan_gagal');
@@ -281,7 +294,6 @@
     <p class="mb-0">{t('admin-media.unggah_berkas_pertama_anda')}</p>
   </div>
 {:else}
-  <InfiniteFeed data="media">
   {#if view === 'grid'}
     <div class="media-grid">
       {#each media.data as item (item.id)}
@@ -295,10 +307,9 @@
               onclick={() => openEdit(item)}
             >
               {#if item.is_image}
-                <img
-                  src={item.url}
-                  alt={item.alt ?? item.name}
-                  loading="lazy"
+                <MediaImage
+                  media={item}
+                  sizes="(min-width: 1200px) 16vw, (min-width: 768px) 25vw, 50vw"
                 />
               {:else}
                 <Icon size={40} />
@@ -371,11 +382,7 @@
                 <td>
                   <div class="media-row-thumb">
                     {#if item.is_image}
-                      <img
-                        src={item.url}
-                        alt={item.alt ?? item.name}
-                        loading="lazy"
-                      />
+                      <MediaImage media={item} sizes="64px" />
                     {:else}
                       <Icon size={22} />
                     {/if}
@@ -429,7 +436,15 @@
       </div>
     </div>
   {/if}
-  </InfiniteFeed>
+
+  <PaginationNav
+    currentPage={media.current_page}
+    lastPage={media.last_page}
+    total={media.total}
+    from={media.from}
+    to={media.to}
+    onNavigate={goToPage}
+  />
 {/if}
 
 <ModalConfirmation

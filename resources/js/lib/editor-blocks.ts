@@ -66,6 +66,20 @@ function alignFromClass(element: Element): BlockAlign {
   );
 }
 
+/** `sizes` for images in the editor canvas, which is as wide as the article column. */
+export const EDITOR_IMAGE_SIZES = '(min-width: 992px) 800px, 100vw';
+
+/**
+ * Removes the editor-only `srcset`/`sizes` from `<img>` tags. They only make the
+ * canvas preview light; saved HTML stays plain because the server rebuilds them
+ * from the media library when the content is rendered.
+ */
+export function stripResponsiveAttributes(html: string): string {
+  return html.replace(/<img\b[^>]*>/g, (tag) =>
+    tag.replace(/\s(?:srcset|sizes)="[^"]*"/g, ''),
+  );
+}
+
 /**
  * Image rendered as `<figure class="wp-block-image is-align-*">` with an
  * optional `<figcaption>` and a percentage width. Plain `<img>` HTML saved by
@@ -79,6 +93,8 @@ export const FigureImage = Image.extend({
       width: { default: null, rendered: false },
       credit: { default: '', rendered: false },
       source: { default: '', rendered: false },
+      // Preview-only: set for images picked in this session, never parsed from HTML.
+      srcset: { default: null, rendered: false, parseHTML: () => null },
     };
   },
 
@@ -124,7 +140,7 @@ export const FigureImage = Image.extend({
   },
 
   renderHTML({ node }) {
-    const { src, alt, title, align, width, credit } = node.attrs;
+    const { src, alt, title, align, width, credit, srcset } = node.attrs;
     const source = sourceUrl(node.attrs.source);
     const attrs: Record<string, string> = {
       class: `wp-block-image is-align-${pick(ALIGNMENTS, align, 'center')}`,
@@ -137,6 +153,11 @@ export const FigureImage = Image.extend({
 
     if (alt) image.alt = alt;
     if (title) image.title = title;
+
+    if (srcset) {
+      image.srcset = srcset;
+      image.sizes = EDITOR_IMAGE_SIZES;
+    }
 
     const cleanCredit = cleanBlockText(credit);
 

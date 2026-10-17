@@ -60,3 +60,30 @@ it('describes a cover image with its original, thumbnail and size', function ():
     ])
         ->and(ContentImageOptimizer::cover(null))->toMatchArray(['src' => null, 'srcset' => null, 'width' => null]);
 });
+
+it('builds the srcset and sizes from stored responsive variants', function (): void {
+    Media::factory()->create([
+        'path' => 'media/2026/10/varian-a1b2c3d4.webp',
+        'width' => 1200,
+        'height' => 800,
+        'variants' => [
+            ['width' => 320, 'height' => 213, 'path' => 'media/2026/10/varian-a1b2c3d4-320w.webp', 'size' => 1, 'format' => 'webp'],
+            ['width' => 750, 'height' => 500, 'path' => 'media/2026/10/varian-a1b2c3d4-750w.webp', 'size' => 1, 'format' => 'webp'],
+        ],
+    ]);
+
+    $html = ContentImageOptimizer::optimize('<img src="/storage/media/2026/10/varian-a1b2c3d4.webp" alt="">');
+    $cover = ContentImageOptimizer::cover('media/2026/10/varian-a1b2c3d4.webp');
+
+    expect($html)
+        ->toContain('srcset="/storage/media/2026/10/varian-a1b2c3d4-320w.webp 320w, /storage/media/2026/10/varian-a1b2c3d4-750w.webp 750w, /storage/media/2026/10/varian-a1b2c3d4.webp 1200w"')
+        ->toContain('sizes="'.config('media.sizes.content').'"')
+        ->and($cover['srcset'])->toContain('-750w.webp 750w')
+        ->and($cover['sizes'])->toBe(config('media.sizes.cover'));
+});
+
+it('renders old media without variants or thumbnail as a plain image', function (): void {
+    Media::factory()->create(['path' => 'media/2026/10/tua-a1b2c3d4.webp', 'width' => 1600, 'height' => 900]);
+
+    expect(ContentImageOptimizer::optimize('<img src="/storage/media/2026/10/tua-a1b2c3d4.webp" alt="">'))->not->toContain('srcset');
+});

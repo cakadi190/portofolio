@@ -26,7 +26,14 @@ const media = (id: number, extra = {}) => ({
 function mockLibrary(items = [media(1), media(2)], lastPage = 1) {
   const fetchMock = vi.fn().mockResolvedValue({
     ok: true,
-    json: async () => ({ data: items, last_page: lastPage }),
+    json: async () => ({
+      data: items,
+      current_page: 1,
+      last_page: lastPage,
+      total: items.length,
+      from: 1,
+      to: items.length,
+    }),
   });
   vi.stubGlobal('fetch', fetchMock);
 
@@ -59,34 +66,86 @@ describe('MediaPickerModal', () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain('type=image');
   });
 
-  it('selects an item and closes in single mode', async () => {
+  const confirm = (label: string) =>
+    screen.getByRole('button', { name: label, hidden: true });
+
+  it('Choose Single keeps one item, replaces it and confirms a single media', async () => {
     mockLibrary();
     const onSelect = vi.fn();
     render(MediaPickerModal, { open: true, onSelect });
 
-    await fireEvent.click(await screen.findByTitle('file-2'));
+    const first = (await screen.findByLabelText(
+      'Pilih file-1',
+    )) as HTMLInputElement;
+    const second = screen.getByLabelText('Pilih file-2') as HTMLInputElement;
+    await fireEvent.click(first);
+    await fireEvent.click(second);
 
+    expect(first.checked).toBe(false);
+    expect(second.checked).toBe(true);
+    expect(onSelect).not.toHaveBeenCalled();
+
+    await fireEvent.click(confirm('Pilih 1 berkas'));
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 2 }));
   });
 
-  it('collects several items in multiple mode', async () => {
+  it('disables confirm until something is chosen and cancel never selects', async () => {
     mockLibrary();
     const onSelect = vi.fn();
-    render(MediaPickerModal, { open: true, multiple: true, onSelect });
+    render(MediaPickerModal, { open: true, onSelect });
+    await screen.findByText('file-1');
 
-    await fireEvent.click(await screen.findByTitle('file-1'));
-    await fireEvent.click(screen.getByTitle('file-2'));
-    await fireEvent.click(screen.getByTitle('file-2'));
+    expect((confirm('Pilih 0 berkas') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+
+    await fireEvent.click(screen.getByLabelText('Pilih file-1'));
     await fireEvent.click(
-      screen.getByRole('button', { name: 'Tambahkan 1 berkas', hidden: true }),
+      screen.getByRole('button', { name: 'Batal', hidden: true }),
     );
 
-    expect(onSelect).toHaveBeenCalledTimes(1);
-    expect(onSelect).toHaveBeenCalledWith(
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('Choose Multi returns the picked items in selection order', async () => {
+    mockLibrary([media(1), media(2), media(3)]);
+    const onSelectMultiple = vi.fn();
+    render(MediaPickerModal, {
+      open: true,
+      mode: 'multiple',
+      onSelectMultiple,
+    });
+
+    await fireEvent.click(await screen.findByLabelText('Pilih file-3'));
+    await fireEvent.click(screen.getByLabelText('Pilih file-1'));
+    await fireEvent.click(screen.getByLabelText('Pilih file-2'));
+    await fireEvent.click(screen.getByLabelText('Pilih file-2'));
+
+    expect(screen.getByText('2 berkas dipilih')).toBeTruthy();
+    await fireEvent.click(confirm('Pilih 2 berkas'));
+
+    expect(onSelectMultiple).toHaveBeenCalledWith([
+      expect.objectContaining({ id: 3 }),
       expect.objectContaining({ id: 1 }),
-      0,
-      expect.anything(),
-    );
+    ]);
+  });
+
+  it('starts from the initial selection', async () => {
+    mockLibrary();
+    render(MediaPickerModal, {
+      open: true,
+      mode: 'multiple',
+      initialSelection: [media(1)] as never,
+      onSelectMultiple: vi.fn(),
+    });
+
+    expect(
+      ((await screen.findByLabelText('Pilih file-1')) as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+    expect(screen.getByText('1 berkas dipilih')).toBeTruthy();
   });
 
   it('shows the empty state', async () => {
@@ -104,34 +163,70 @@ describe('MediaPickerModal', () => {
     expect(toast.error).toHaveBeenCalled();
   });
 
-  it('loads the next page when the end sentinel is visible', async () => {
-    let observerCallback: ((entries: object[]) => void) | undefined;
-    vi.stubGlobal(
-      'IntersectionObserver',
-      class {
-        constructor(callback: (entries: object[]) => void) {
-          observerCallback = callback;
-        }
-        observe = vi.fn();
-        disconnect = vi.fn();
-      },
-    );
-    const fetchMock = vi.fn().mockImplementation(async (url: string) => ({
-      ok: true,
-      json: async () => ({
-        data: [media(String(url).includes('page=2') ? 2 : 1)],
-        last_page: 3,
-      }),
-    }));
+  it('paginates server-side and keeps the selection across pages', async () => {
+    const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+      const page = String(url).includes('page=2') ? 2 : 1;
+
+      return {
+        ok: true,
+        json: async () => ({
+          data: [media(page)],
+          current_page: page,
+          last_page: 2,
+          total: 2,
+          from: page,
+          to: page,
+        }),
+      };
+    });
     vi.stubGlobal('fetch', fetchMock);
+    const onSelectMultiple = vi.fn();
+    render(MediaPickerModal, {
+      open: true,
+      mode: 'multiple',
+      onSelectMultiple,
+    });
+
+    await fireEvent.click(await screen.findByLabelText('Pilih file-1'));
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Halaman berikutnya', hidden: true }),
+    );
+
+    await screen.findByText('file-2');
+    expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('page=2');
+    await fireEvent.click(screen.getByLabelText('Pilih file-2'));
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Halaman sebelumnya', hidden: true }),
+    );
+    await screen.findByText('file-1');
+
+    expect(
+      (screen.getByLabelText('Pilih file-1') as HTMLInputElement).checked,
+    ).toBe(true);
+    await fireEvent.click(confirm('Pilih 2 berkas'));
+
+    expect(onSelectMultiple).toHaveBeenCalledWith([
+      expect.objectContaining({ id: 1 }),
+      expect.objectContaining({ id: 2 }),
+    ]);
+  });
+
+  it('renders srcset and sizes for images that have variants', async () => {
+    mockLibrary([
+      media(1, {
+        srcset: '/storage/a-320w.webp 320w, /storage/a.webp 900w',
+        width: 900,
+        height: 600,
+      }),
+    ]);
     render(MediaPickerModal, { open: true, onSelect: vi.fn() });
 
-    await screen.findByText('file-1');
-    observerCallback?.([{ isIntersecting: true }]);
+    const image = (await screen.findByAltText('file-1')) as HTMLImageElement;
 
-    await vi.waitFor(() =>
-      expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('page=2'),
-    );
+    expect(image.getAttribute('srcset')).toContain('320w');
+    expect(image.getAttribute('sizes')).toBeTruthy();
+    expect(image.getAttribute('width')).toBe('900');
+    expect(image.getAttribute('src')).toBe('/storage/media/1.webp');
   });
 
   it('debounces search', async () => {

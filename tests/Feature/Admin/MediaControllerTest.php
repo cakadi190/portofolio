@@ -5,8 +5,10 @@ use App\Models\Media;
 use App\Models\Post;
 use App\Models\User;
 use App\Services\ImageService;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
 
 beforeEach(function () {
     Storage::fake('public');
@@ -163,11 +165,84 @@ test('deleting media removes its thumbnail too', function () {
     Storage::disk('public')->assertMissing($thumbnail);
 });
 
-test('media:thumbnails backfills images uploaded before thumbnails existed', function () {
-    $media = Media::factory()->create(['mime_type' => 'image/webp', 'path' => 'media/2026/10/lama.webp']);
+test('media:variants backfills images uploaded before variants existed and is re-runnable', function () {
+    $media = Media::factory()->create(['mime_type' => 'image/webp', 'path' => 'media/2026/10/lama.webp', 'width' => 1200, 'height' => 800]);
     Storage::disk('public')->put($media->path, UploadedFile::fake()->image('lama.jpg', 1200, 800)->getContent());
 
-    $this->artisan('media:thumbnails')->assertSuccessful();
+    $this->artisan('media:variants')->assertSuccessful();
 
+    $widths = collect($media->refresh()->variants)->pluck('width')->all();
+    expect($widths)->toBe([320, 480, 640, 750, 1024]);
     Storage::disk('public')->assertExists(ImageService::thumbnailPath($media->path));
+    $files = count(Storage::disk('public')->allFiles());
+
+    $this->artisan('media:variants --force')->assertSuccessful();
+
+    expect(count(Storage::disk('public')->allFiles()))->toBe($files);
+});
+
+test('an upload produces non-upscaled responsive variants that keep the aspect ratio', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('lebar.jpg', 1500, 1000)])
+        ->assertCreated();
+
+    $media = Media::query()->firstOrFail();
+
+    expect(collect($media->variants)->pluck('width')->all())->toBe([320, 480, 640, 750, 1024, 1280]);
+
+    foreach ($media->variants as $variant) {
+        Storage::disk('public')->assertExists($variant['path']);
+        expect($variant['format'])->toBe('webp')
+            ->and($variant['height'])->toBe((int) round($variant['width'] * 1000 / 1500))
+            ->and($variant['size'])->toBeGreaterThan(0);
+    }
+
+    expect($media->srcset)->toContain('-320w.webp 320w')->toContain("{$media->path} 1500w");
+});
+
+test('small images get no variants and no srcset', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('kecil.jpg', 300, 200)])
+        ->assertCreated()
+        ->assertJsonPath('srcset', null);
+
+    expect(Media::query()->firstOrFail()->variants)->toBe([])
+        ->and(Storage::disk('public')->allFiles())->toHaveCount(1);
+});
+
+test('a failure while generating variants leaves no files or records behind', function () {
+    $this->app->bind(ImageService::class, fn ($app) => new class($app->make(ImageManager::class), $app->make(Request::class)) extends ImageService
+    {
+        public function createVariants(string $path, ?int $originalWidth = null): array
+        {
+            throw new RuntimeException('boom');
+        }
+    });
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('rusak.jpg', 1500, 1000)])
+        ->assertJsonValidationErrors('file');
+
+    expect(Media::query()->count())->toBe(0)->and(Storage::disk('public')->allFiles())->toBe([]);
+});
+
+test('deleting media removes every variant file', function () {
+    $user = User::factory()->admin()->create();
+    $this->actingAs($user)->postJson(route('admin.media.store'), ['file' => UploadedFile::fake()->image('hapus.jpg', 1500, 1000)]);
+    $media = Media::query()->firstOrFail();
+
+    $this->actingAs($user)->delete(route('admin.media.destroy', $media));
+
+    expect(Storage::disk('public')->allFiles())->toBe([]);
+});
+
+test('the media index and browse endpoints paginate traditionally', function () {
+    Media::factory()->count(30)->create();
+    $user = User::factory()->admin()->create();
+
+    $this->actingAs($user)->getJson(route('admin.media.browse', ['page' => 2]))
+        ->assertJsonPath('current_page', 2)->assertJsonPath('last_page', 2)->assertJsonPath('total', 30)->assertJsonCount(2, 'data');
+
+    $this->actingAs($user)->get(route('admin.media.index', ['page' => 2]))
+        ->assertInertia(fn ($page) => $page->where('media.current_page', 2)->where('media.total', 30)->has('media.data', 30 - 24));
 });

@@ -255,14 +255,23 @@ class ImageService
     public const THUMBNAIL_WIDTH = 640;
 
     /**
-     * Path of the thumbnail variant of a stored WebP image.
+     * Path of the responsive variant of a stored WebP image.
      *
      * @param  string  $path  Stored image path, e.g. "media/2026/10/foo.webp".
+     * @param  int  $width  Variant width in pixels.
      * @return string Variant path, e.g. "media/2026/10/foo-640w.webp".
+     */
+    public static function variantPath(string $path, int $width): string
+    {
+        return preg_replace('/\.webp$/i', "-{$width}w.webp", $path) ?? $path;
+    }
+
+    /**
+     * Path of the thumbnail variant of a stored WebP image.
      */
     public static function thumbnailPath(string $path): string
     {
-        return preg_replace('/\.webp$/i', '-'.self::THUMBNAIL_WIDTH.'w.webp', $path) ?? $path;
+        return self::variantPath($path, self::THUMBNAIL_WIDTH);
     }
 
     /**
@@ -293,26 +302,119 @@ class ImageService
      */
     public function createThumbnail(string $path): ?string
     {
-        $disk = Storage::disk('public');
-        $thumbnail = self::thumbnailPath($path);
+        return $this->createVariant($path, self::THUMBNAIL_WIDTH)['path'] ?? null;
+    }
 
-        if ($thumbnail === $path || ! $disk->exists($path)) {
+    /**
+     * Create one responsive variant beside a stored WebP image. Deterministic
+     * naming makes re-running overwrite instead of piling up files.
+     *
+     * @param  string  $path  Stored image path on the public disk.
+     * @param  int  $width  Target width; nothing is made unless the image is wider.
+     * @return array{width: int, height: int, path: string, size: int, format: string}|null
+     */
+    public function createVariant(string $path, int $width): ?array
+    {
+        $disk = Storage::disk('public');
+        $variant = self::variantPath($path, $width);
+
+        if ($variant === $path || ! $disk->exists($path)) {
             return null;
         }
 
         $image = $this->fromContents((string) $disk->get($path));
 
-        if (($image->get()?->width() ?? 0) <= self::THUMBNAIL_WIDTH) {
+        if (($image->get()?->width() ?? 0) <= $width) {
             return null;
         }
 
-        return $image->scaleDown(self::THUMBNAIL_WIDTH)->save(
-            dirname($thumbnail),
+        $saved = $image->scaleDown($width)->save(
+            dirname($variant),
             'webp',
-            75,
+            (int) config('media.variant_quality', 75),
             0,
-            pathinfo($thumbnail, PATHINFO_FILENAME),
+            pathinfo($variant, PATHINFO_FILENAME),
         );
+
+        return [
+            'width' => (int) $image->get()?->width(),
+            'height' => (int) $image->get()?->height(),
+            'path' => $saved,
+            'size' => $disk->size($saved),
+            'format' => 'webp',
+        ];
+    }
+
+    /**
+     * Create every configured variant narrower than the stored image.
+     *
+     * @param  string  $path  Stored image path on the public disk.
+     * @param  int|null  $originalWidth  Width of the stored image, used to skip widths that would upscale.
+     * @return list<array{width: int, height: int, path: string, size: int, format: string}>
+     */
+    public function createVariants(string $path, ?int $originalWidth = null): array
+    {
+        $variants = [];
+
+        foreach (self::variantWidths() as $width) {
+            if ($originalWidth !== null && $width >= $originalWidth) {
+                break;
+            }
+
+            $variant = $this->createVariant($path, $width);
+
+            if ($variant !== null) {
+                $variants[] = $variant;
+            }
+        }
+
+        return $variants;
+    }
+
+    /**
+     * Configured candidate widths, ascending and unique.
+     *
+     * @return list<int>
+     */
+    public static function variantWidths(): array
+    {
+        $widths = array_map('intval', (array) config('media.variant_widths', [self::THUMBNAIL_WIDTH]));
+        $widths = array_values(array_unique(array_filter($widths, fn (int $width): bool => $width > 0)));
+        sort($widths);
+
+        return $widths;
+    }
+
+    /**
+     * Build a `srcset` value from stored variants plus the original image.
+     *
+     * @param  string|null  $path  Stored image path.
+     * @param  int|null  $width  Intrinsic width of the original.
+     * @param  array<int, array{width: int, path: string}>|null  $variants  Stored variant metadata.
+     * @return string|null The `srcset`, or null when there is nothing to choose between.
+     */
+    public static function srcset(?string $path, ?int $width, ?array $variants): ?string
+    {
+        if (blank($path) || ! $width || blank($variants) || Str::startsWith($path, ['http://', 'https://', '/'])) {
+            return null;
+        }
+
+        $candidates = [];
+
+        foreach ($variants as $variant) {
+            if ($variant['width'] < $width) {
+                $candidates[$variant['width']] = (string) self::url($variant['path']);
+            }
+        }
+
+        if ($candidates === []) {
+            return null;
+        }
+
+        $candidates[$width] = (string) self::url($path);
+        ksort($candidates);
+
+        return collect($candidates)->map(fn (string $url, int $candidate): string => "{$url} {$candidate}w")->implode(', ');
     }
 
     /**

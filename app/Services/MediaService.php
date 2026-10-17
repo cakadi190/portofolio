@@ -52,14 +52,21 @@ class MediaService
         if (str_starts_with((string) $file->getMimeType(), 'image/') && $file->getMimeType() !== 'image/svg+xml') {
             $this->assertDecodable($file);
 
+            $path = null;
+            $variants = [];
+
             try {
                 $image = $this->images->fromContents($file->getContent())->scaleDown(1920, 1920);
-                $path = $image->save($directory, 'webp', 80, 400, $filename);
                 $width = $image->get()?->width();
                 $height = $image->get()?->height();
-                $this->images->createThumbnail($path);
+                $path = $image->save($directory, 'webp', 80, 400, $filename);
+                $variants = $this->images->createVariants($path, $width);
             } catch (Throwable $exception) {
                 report($exception);
+
+                if ($path !== null) {
+                    $this->deleteFiles($path);
+                }
 
                 throw ValidationException::withMessages([
                     'file' => __('server.image_unprocessable'),
@@ -69,7 +76,7 @@ class MediaService
             $size = Storage::disk('public')->size($path);
         } else {
             $path = $file->storeAs($directory, $filename.'.'.($file->extension() ?: 'bin'), 'public');
-            $width = $height = null;
+            $width = $height = $variants = null;
             $mime = (string) $file->getMimeType();
             $size = $file->getSize();
         }
@@ -82,7 +89,19 @@ class MediaService
             'size' => $size,
             'width' => $width,
             'height' => $height,
+            'variants' => $variants,
         ]);
+    }
+
+    /**
+     * (Re)build the responsive variants of a stored image and record them.
+     * Deterministic file names make this safe to run repeatedly.
+     */
+    public function regenerateVariants(Media $media): void
+    {
+        $variants = $this->images->createVariants($media->path, $media->width);
+
+        $media->update(['variants' => $variants]);
     }
 
     /**
@@ -162,7 +181,17 @@ class MediaService
 
     public function delete(Media $media): void
     {
-        Storage::disk($media->disk)->delete([$media->path, ImageService::thumbnailPath($media->path)]);
+        $this->deleteFiles($media->path, $media->disk);
         $media->delete();
+    }
+
+    /**
+     * Remove a stored file together with every possible responsive variant.
+     */
+    protected function deleteFiles(string $path, string $disk = 'public'): void
+    {
+        $variants = array_map(fn (int $width): string => ImageService::variantPath($path, $width), ImageService::variantWidths());
+
+        Storage::disk($disk)->delete([$path, ImageService::thumbnailPath($path), ...$variants]);
     }
 }

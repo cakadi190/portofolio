@@ -114,7 +114,13 @@
 
 <Lightbox bind:open={lightboxOpen} bind:index={lightboxIndex} images={lightboxImages} />
 
-<MediaPickerModal bind:open={pickerOpen} accept="image" multiple title={t('ui.pilih_gambar_galeri')} {onSelect} />
+<MediaPickerModal
+  bind:open={pickerOpen}
+  accept="image"
+  mode="multiple"
+  title={t('ui.pilih_gambar_galeri')}
+  onSelectMultiple={(selection) => selection.forEach(onSelect)}
+/>
 
 <style>
   .gallery-grid {

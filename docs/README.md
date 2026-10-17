@@ -23,5 +23,6 @@ Dokumen ini adalah **PRD (Product Requirements Document)** hasil reverse enginee
 - Enum baru: gunakan trait `HasEnumOptions`/`HasEnumValues` di `app/Enums`, label Bahasa Indonesia.
 - **Performa adalah syarat:** setiap perubahan harus mengedepankan PageSpeed Insights dengan skor Performance minimal **95** pada beranda `/` (mobile). Ukur sebelum/sesudah; jangan menambah JS/CSS/font/gambar/animasi above-the-fold tanpa memeriksa dampaknya (`07` NFR-P4/P6, `04` Performa & SSR).
 - Situs dwibahasa (Indonesia bawaan, Inggris di `/en`; lihat `04` "Dwibahasa"). Teks antarmuka baru ditulis di `lang/{id,en}/` (bukan hardcode); kode, nama kolom, dan rute admin berbahasa Inggris.
+- **Format kode:** semua perubahan frontend dan dokumen harus diformat dengan Prettier dan lolos `bun run check:fix` (lalu `bun run check`) sebelum selesai. Kode PHP tetap memakai Pint.
 - Tes frontend memakai Vitest (`bun run test`); tes backend memakai Pest. Lihat `04-architecture.md`.
 - Ikuti `CLAUDE.md` / `AGENTS.md` (Laravel Boost guidelines) untuk konvensi kode dan pengujian.

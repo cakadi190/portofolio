@@ -8,6 +8,7 @@ import {
   CodeBlockHighlight,
   Definition,
   FigureImage,
+  stripResponsiveAttributes,
   LinkCard,
   MathBlock,
   MathInline,
@@ -101,6 +102,31 @@ describe('FigureImage', () => {
     const instance = editor('<img src="/old.png">');
 
     expect(instance.getHTML()).toContain('wp-block-image is-align-center');
+    instance.destroy();
+  });
+});
+
+describe('FigureImage responsive preview', () => {
+  it('renders srcset for a freshly inserted image but never parses it back', () => {
+    const instance = editor('<p>x</p>');
+    instance.commands.setImage({
+      src: '/a.webp',
+      srcset: '/a-320w.webp 320w, /a.webp 900w',
+    } as never);
+
+    const output = instance.getHTML();
+
+    expect(output).toContain('srcset="/a-320w.webp 320w, /a.webp 900w"');
+    expect(output).toContain('sizes=');
+    expect(stripResponsiveAttributes(output)).not.toMatch(/srcset|sizes=/);
+    expect(stripResponsiveAttributes(output)).toContain('src="/a.webp"');
+    instance.destroy();
+  });
+
+  it('ignores srcset found in stored HTML', () => {
+    const instance = editor('<img src="/a.webp" srcset="/x.webp 1w">');
+
+    expect(instance.getHTML()).not.toContain('srcset');
     instance.destroy();
   });
 });
