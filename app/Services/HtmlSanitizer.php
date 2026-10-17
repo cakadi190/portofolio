@@ -41,7 +41,7 @@ class HtmlSanitizer
      *
      * @var list<string>
      */
-    private const GLOBAL_ATTRIBUTES = ['class', 'style', 'data-type'];
+    private const GLOBAL_ATTRIBUTES = ['class', 'style', 'data-type', 'lang', 'dir'];
 
     /**
      * Elements removed together with everything inside them.
@@ -204,6 +204,8 @@ class HtmlSanitizer
             'width', 'height', 'colspan', 'rowspan', 'start' => preg_match('/^\d{1,4}%?$/', $value) === 1 ? $value : null,
             'type' => preg_match('/^(?:1|a|A|i|I|disc|circle|square|dash)$/', $value) === 1 ? $value : null,
             'data-type', 'data-code-theme' => preg_match('/^[a-z0-9-]{1,40}$/i', $value) === 1 ? $value : null,
+            'lang' => preg_match('/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i', $value) === 1 ? $value : null,
+            'dir' => in_array($value, ['ltr', 'rtl'], true) ? $value : null,
             'data-code-title-hidden', 'data-code-lines' => $value === '1' ? '1' : null,
             'data-source' => self::safeUrl($value, ['http', 'https']),
             'data-code-title', 'data-credit' => preg_match('/^[^\x00-\x1f<>"]{1,60}$/u', $value) === 1 ? $value : null,

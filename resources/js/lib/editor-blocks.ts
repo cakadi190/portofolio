@@ -268,6 +268,139 @@ export const Callout = Node.create({
   },
 });
 
+export const SCRIPTURE_KINDS = ['bible', 'quran', 'hadith'] as const;
+export type ScriptureKind = (typeof SCRIPTURE_KINDS)[number];
+
+/** Default type labels (Indonesian, the site's content language). */
+export const SCRIPTURE_LABELS: Record<ScriptureKind, string> = {
+  bible: 'Alkitab',
+  quran: "Al-Qur'an",
+  hadith: 'Hadis',
+};
+
+const SCRIPTURE_LIMITS = {
+  label: 30,
+  reference: 80,
+  source: 160,
+  arabic: 600,
+} as const;
+
+/** Trims a scripture header/footer field, dropping characters the sanitizer would reject. */
+export function cleanScriptureText(
+  value: unknown,
+  field: keyof typeof SCRIPTURE_LIMITS,
+): string {
+  return typeof value === 'string'
+    ? value
+        .replace(/[<>"]|\p{Cc}/gu, '')
+        .trim()
+        .slice(0, SCRIPTURE_LIMITS[field])
+    : '';
+}
+
+function scriptureAttribute(
+  field: keyof typeof SCRIPTURE_LIMITS,
+  selector: string,
+) {
+  return {
+    default: '',
+    rendered: false,
+    parseHTML: (element: HTMLElement) =>
+      cleanScriptureText(element.querySelector(selector)?.textContent, field),
+  };
+}
+
+/**
+ * Editorial scripture quote (Alkitab, Al-Qur'an, Hadis): a type label and
+ * reference above, the quotation as paragraphs, an optional Arabic line for
+ * the Qur'an and a source line below. Header, Arabic text and source are
+ * attributes edited from the block settings; the quotation is edited in place.
+ */
+export const ScriptureQuote = Node.create({
+  name: 'scriptureQuote',
+  group: 'block',
+  content: 'paragraph+',
+  defining: true,
+
+  addAttributes() {
+    return {
+      kind: {
+        default: 'bible',
+        rendered: false,
+        parseHTML: (element) =>
+          pick(SCRIPTURE_KINDS, element.getAttribute('data-type'), 'bible'),
+      },
+      label: scriptureAttribute('label', '.wp-scripture-type'),
+      reference: scriptureAttribute('reference', '.wp-scripture-reference'),
+      arabic: scriptureAttribute('arabic', '.wp-scripture-arabic'),
+      source: scriptureAttribute('source', '.wp-scripture-source'),
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div.wp-block-scripture',
+        contentElement: (element) =>
+          (element as HTMLElement).querySelector<HTMLElement>(
+            '.wp-scripture-body',
+          ) ?? (element as HTMLElement),
+      },
+    ];
+  },
+
+  renderHTML({ node }) {
+    const kind = pick(SCRIPTURE_KINDS, node.attrs.kind, 'bible');
+    const label = cleanScriptureText(node.attrs.label, 'label');
+    const reference = cleanScriptureText(node.attrs.reference, 'reference');
+    const arabic = cleanScriptureText(node.attrs.arabic, 'arabic');
+    const source = cleanScriptureText(node.attrs.source, 'source');
+
+    return [
+      'div',
+      { class: `wp-block-scripture is-${kind}`, 'data-type': kind },
+      ...(label || reference
+        ? [
+            [
+              'div',
+              { class: 'wp-scripture-head', contenteditable: 'false' },
+              ...(label
+                ? [['span', { class: 'wp-scripture-type' }, label]]
+                : []),
+              ...(reference
+                ? [['span', { class: 'wp-scripture-reference' }, reference]]
+                : []),
+            ],
+          ]
+        : []),
+      ...(arabic
+        ? [
+            [
+              'div',
+              {
+                class: 'wp-scripture-arabic',
+                lang: 'ar',
+                dir: 'rtl',
+                contenteditable: 'false',
+              },
+              arabic,
+            ],
+          ]
+        : []),
+      ['div', { class: 'wp-scripture-body' }, 0],
+      ...(source
+        ? [
+            [
+              'div',
+              { class: 'wp-scripture-foot', contenteditable: 'false' },
+              ['span', { class: 'wp-scripture-source' }, source],
+            ],
+          ]
+        : []),
+    ];
+  },
+});
+
 /**
  * Link preview card (site, image and title of another page), rendered as a
  * single `<a class="wp-block-linkcard">`.

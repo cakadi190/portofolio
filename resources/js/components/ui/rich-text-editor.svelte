@@ -17,6 +17,7 @@
   import BetweenVerticalEnd from '@lucide/svelte/icons/between-vertical-end';
   import BetweenVerticalStart from '@lucide/svelte/icons/between-vertical-start';
   import BookA from '@lucide/svelte/icons/book-a';
+  import BookOpenText from '@lucide/svelte/icons/book-open-text';
   import BookText from '@lucide/svelte/icons/book-text';
   import Bold from '@lucide/svelte/icons/bold';
   import ClipboardList from '@lucide/svelte/icons/clipboard-list';
@@ -77,6 +78,11 @@
     MathInline,
     Reference,
     References,
+    SCRIPTURE_KINDS,
+    SCRIPTURE_LABELS,
+    ScriptureQuote,
+    cleanScriptureText,
+    type ScriptureKind,
     SpecLabel,
     SpecRow,
     SpecSheet,
@@ -256,6 +262,7 @@
     | 'callout'
     | 'codeBlock'
     | 'definition'
+    | 'scriptureQuote'
     | 'specSheet'
     | 'table'
     | 'mathBlock'
@@ -283,6 +290,29 @@
     dark: t('ui.gelap'),
   };
 
+  const scriptureLabels: Record<ScriptureKind, string> = {
+    bible: t('ui.alkitab'),
+    quran: t('ui.al_quran'),
+    hadith: t('ui.hadis'),
+  };
+
+  /** Switches the quote type, swapping the label only while it is still the old type's default. */
+  function setScriptureKind(kind: ScriptureKind): void {
+    const current = blockInfo?.attrs;
+
+    if (!current) return;
+
+    const isDefaultLabel =
+      !current.label ||
+      current.label === scriptureLabels[current.kind as ScriptureKind] ||
+      current.label === SCRIPTURE_LABELS[current.kind as ScriptureKind];
+
+    patchBlock({
+      kind,
+      ...(isDefaultLabel ? { label: scriptureLabels[kind] } : {}),
+    });
+  }
+
   const blockLabels: Record<string, string> = {
     paragraph: t('ui.paragraf'),
     bulletList: t('ui.daftar_poin'),
@@ -296,6 +326,7 @@
     horizontalRule: t('ui.garis_pemisah'),
     table: t('ui.tabel'),
     definition: t('ui.kartu_definisi'),
+    scriptureQuote: t('ui.kutipan_kitab_suci'),
     specSheet: t('ui.kartu_spesifikasi'),
     references: t('ui.daftar_referensi'),
     mathBlock: t('ui.rumus_blok'),
@@ -315,6 +346,7 @@
     horizontalRule: t('ui.pisahkan_bagian_tulisan_dengan_garis'),
     table: t('ui.susun_data_dalam_baris_dan_kolom'),
     definition: t('ui.kartu_istilah_dengan_pelafalan_dan_artinya'),
+    scriptureQuote: t('ui.kutipan_ayat_alkitab_quran_atau_hadis'),
     specSheet: t('ui.lembar_pasangan_label_dan_nilai_mis'),
     references: t('ui.daftar_sumber_atau_rujukan_bernomor'),
     mathBlock: t('ui.persamaan_matematika_tampil_di_tengah_latex'),
@@ -334,6 +366,7 @@
     horizontalRule: Minus,
     table: Table2,
     definition: BookA,
+    scriptureQuote: BookOpenText,
     specSheet: ClipboardList,
     references: BookText,
     mathBlock: Sigma,
@@ -513,6 +546,18 @@
       icon: BookA,
       keywords: 'definition dictionary term kamus istilah arti glossary',
       run: (c) => c.wrapIn('definition', { term: t('ui.istilah') }),
+    },
+    {
+      label: t('ui.kutipan_kitab_suci'),
+      hint: t('ui.alkitab_quran_dan_hadis'),
+      icon: BookOpenText,
+      keywords: 'scripture quote alkitab bible quran al-quran ayat hadis hadith kutipan kitab suci',
+      run: (c) =>
+        c.insertContent({
+          type: 'scriptureQuote',
+          attrs: { kind: 'bible', label: scriptureLabels.bible },
+          content: [{ type: 'paragraph' }],
+        }),
     },
     {
       label: t('ui.daftar_referensi'),
@@ -902,7 +947,7 @@
       const node = selection.$from.node(depth);
 
       if (
-        ['image', 'callout', 'codeBlock', 'definition', 'specSheet', 'table'].includes(
+        ['image', 'callout', 'codeBlock', 'definition', 'scriptureQuote', 'specSheet', 'table'].includes(
           node.type.name,
         )
       ) {
@@ -1769,6 +1814,7 @@
               Callout,
               ButtonBlock,
               Definition,
+              ScriptureQuote,
               SpecSheet,
               SpecRow,
               SpecLabel,
@@ -2324,6 +2370,93 @@
           title={t('ui.keluarkan_isi_dari_kartu')}
           onclick={() => editor?.chain().focus().lift('definition').run()}
           >{t('ui.lepas_kartu')}</button
+        >
+      {:else if blockInfo?.kind === 'scriptureQuote'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.jenis')}</span>
+          <div class="rte-ins-row">
+            {#each SCRIPTURE_KINDS as kind (kind)}
+              <button
+                type="button"
+                class="rte-chip"
+                class:on={blockInfo.attrs.kind === kind}
+                onclick={() => setScriptureKind(kind)}
+                >{scriptureLabels[kind]}</button
+              >
+            {/each}
+          </div>
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.label')}</span>
+          <input
+            class="form-control form-control-sm"
+            aria-label={t('ui.label')}
+            maxlength="30"
+            value={blockInfo.attrs.label ?? ''}
+            oninput={(event) =>
+              patchBlock({
+                label: cleanScriptureText(event.currentTarget.value, 'label'),
+              })}
+          />
+        </div>
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.rujukan')}</span>
+          <input
+            class="form-control form-control-sm"
+            placeholder={t('ui.mis_yohanes_14_27')}
+            aria-label={t('ui.rujukan')}
+            maxlength="80"
+            value={blockInfo.attrs.reference ?? ''}
+            oninput={(event) =>
+              patchBlock({
+                reference: cleanScriptureText(
+                  event.currentTarget.value,
+                  'reference',
+                ),
+              })}
+          />
+        </div>
+        {#if blockInfo.attrs.kind === 'quran' || blockInfo.attrs.arabic}
+          <div class="rte-ins-group">
+            <span class="rte-ins-label">{t('ui.teks_arab')}</span>
+            <textarea
+              class="form-control form-control-sm"
+              lang="ar"
+              dir="rtl"
+              rows="3"
+              aria-label={t('ui.teks_arab')}
+              maxlength="600"
+              value={blockInfo.attrs.arabic ?? ''}
+              oninput={(event) =>
+                patchBlock({
+                  arabic: cleanScriptureText(
+                    event.currentTarget.value,
+                    'arabic',
+                  ),
+                })}
+            ></textarea>
+          </div>
+        {/if}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.sumber_kutipan')}</span>
+          <input
+            class="form-control form-control-sm"
+            placeholder={t('ui.mis_yohanes_14_27_terjemahan_baru')}
+            aria-label={t('ui.sumber_kutipan')}
+            maxlength="160"
+            value={blockInfo.attrs.source ?? ''}
+            oninput={(event) =>
+              patchBlock({
+                source: cleanScriptureText(event.currentTarget.value, 'source'),
+              })}
+          />
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary align-self-start"
+          title={t('ui.keluarkan_isi_dari_kutipan')}
+          onclick={() => editor?.chain().focus().lift('scriptureQuote').run()}
+          >{t('ui.lepas_kutipan')}</button
         >
       {:else if blockInfo?.kind === 'specSheet'}
         <div class="rte-ins-group">

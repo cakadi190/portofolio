@@ -563,6 +563,138 @@
     opacity: 0.7;
   }
 
+  // Editorial scripture quote (Alkitab, Al-Qur'an, Hadis): accent per kind,
+  // serif quotation, optional right-to-left Arabic line and a source footer.
+  .wp-block-scripture {
+    --scripture-accent: #647a56;
+
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid var(--neo-border-color);
+    border-inline-start: 3px solid var(--scripture-accent);
+    border-radius: 3px;
+    background: var(--neo-body-bg);
+    line-height: 1.7;
+
+    &.is-quran {
+      --scripture-accent: #a17e40;
+    }
+
+    &.is-hadith {
+      --scripture-accent: #627f94;
+    }
+
+    > * {
+      margin-block: 0;
+    }
+
+    [data-bs-theme='dark'] & {
+      --scripture-accent: #a0b78f;
+
+      &.is-quran {
+        --scripture-accent: #d4b77b;
+      }
+
+      &.is-hadith {
+        --scripture-accent: #9bb8cc;
+      }
+    }
+  }
+
+  .wp-scripture-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.35rem 1rem;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .wp-scripture-type {
+    color: var(--scripture-accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .wp-scripture-reference {
+    color: var(--neo-secondary-color);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .wp-scripture-arabic {
+    margin-bottom: 1.25rem !important;
+    font-family: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', serif;
+    font-size: clamp(1.7rem, 4vw, 2.25rem);
+    line-height: 2;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .wp-scripture-body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+    line-height: 1.65;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
+
+    > p {
+      margin-block: 0;
+    }
+
+    > p + p {
+      margin-top: 0.5em;
+    }
+  }
+
+  .wp-block-scripture.is-quran .wp-scripture-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    letter-spacing: normal;
+  }
+
+  .wp-scripture-foot {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 1.5rem !important;
+    padding-top: 1rem;
+    border-top: 1px solid var(--neo-border-color);
+
+    &::before {
+      content: '';
+      flex: 0 0 1.5rem;
+      height: 2px;
+      margin-top: 0.65rem;
+      background: var(--scripture-accent);
+    }
+  }
+
+  .wp-scripture-source {
+    color: var(--neo-secondary-color);
+    font-size: 0.8rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 480px) {
+    .wp-block-scripture {
+      margin-block: 1.5rem;
+      padding: 1.125rem;
+    }
+
+    .wp-scripture-head {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .wp-scripture-body {
+      font-size: 1.25rem;
+    }
+  }
+
   // Label/value sheet; labels in a fixed-width column, values wrap beside them.
   .wp-block-spec {
     margin: 1.25em 0;

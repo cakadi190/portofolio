@@ -13,6 +13,7 @@ import {
   MathInline,
   Reference,
   References,
+  ScriptureQuote,
   SpecLabel,
   SpecRow,
   SpecSheet,
@@ -35,6 +36,7 @@ function editor(content: string) {
       ButtonBlock,
       CodeBlockHighlight,
       Definition,
+      ScriptureQuote,
       SpecSheet,
       SpecRow,
       SpecLabel,
@@ -350,5 +352,44 @@ describe('list styles', () => {
     expect(instance.getHTML()).toBe(
       '<ol start="3" type="I"><li><p>a</p><ol type="i"><li><p>b</p></li></ol></li></ol>',
     );
+  });
+});
+
+describe('ScriptureQuote', () => {
+  const quran =
+    '<div class="wp-block-scripture is-quran" data-type="quran"><div class="wp-scripture-head"><span class="wp-scripture-type">Al-Qur\'an</span><span class="wp-scripture-reference">Ar-Ra\'d · 13:28</span></div><div class="wp-scripture-arabic" lang="ar" dir="rtl">أَلَا بِذِكْرِ اللَّهِ</div><div class="wp-scripture-body"><p>Ingatlah.</p></div><div class="wp-scripture-foot"><span class="wp-scripture-source">QS. Ar-Ra\'d [13]: 28</span></div></div>';
+
+  it('round-trips kind, header, Arabic text, quotation and source', () => {
+    const instance = editor(quran);
+    const node = instance.state.doc.firstChild;
+
+    expect(node?.type.name).toBe('scriptureQuote');
+    expect(node?.attrs).toMatchObject({
+      kind: 'quran',
+      label: "Al-Qur'an",
+      reference: "Ar-Ra'd · 13:28",
+      arabic: 'أَلَا بِذِكْرِ اللَّهِ',
+      source: "QS. Ar-Ra'd [13]: 28",
+    });
+
+    const output = instance.getHTML();
+
+    expect(output).toContain('is-quran');
+    expect(output).toContain('lang="ar" dir="rtl"');
+    expect(output.match(/<p>Ingatlah\.<\/p>/g)).toHaveLength(1);
+    instance.destroy();
+  });
+
+  it('falls back to the Bible kind and leaves out empty header, Arabic and source', () => {
+    const instance = editor(
+      '<div class="wp-block-scripture" data-type="bogus"><div class="wp-scripture-body"><p>Damai</p></div></div>',
+    );
+    const output = instance.getHTML();
+
+    expect(output).toContain('is-bible');
+    expect(output).not.toContain('wp-scripture-head');
+    expect(output).not.toContain('wp-scripture-arabic');
+    expect(output).not.toContain('wp-scripture-foot');
+    instance.destroy();
   });
 });

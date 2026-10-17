@@ -85,6 +85,7 @@ test('article blocks keep their markup and equations stay escaped text', functio
 })->with([
     'callout with header' => '<div class="wp-block-callout is-info" data-type="info"><div class="wp-callout-head"><span class="wp-callout-label">Ekonomi</span><strong class="wp-callout-title">Biaya</strong></div><div class="wp-callout-body"><p>isi</p></div></div>',
     'definition card' => '<div class="wp-block-definition"><div class="wp-definition-head"><strong class="wp-definition-term">realm</strong><span class="wp-definition-phonetic">/rɛlm/</span></div><div class="wp-definition-body"><p>wilayah</p></div></div>',
+    'scripture quote' => '<div class="wp-block-scripture is-quran" data-type="quran"><div class="wp-scripture-head"><span class="wp-scripture-type">Al-Qur\'an</span><span class="wp-scripture-reference">13:28</span></div><div class="wp-scripture-arabic" lang="ar" dir="rtl">أَلَا بِذِكْرِ اللَّهِ</div><div class="wp-scripture-body"><p>Ingatlah.</p></div><div class="wp-scripture-foot"><span class="wp-scripture-source">QS. 13:28</span></div></div>',
     'spec sheet' => '<div class="wp-block-spec"><div class="wp-spec-title">Uniform</div><div class="wp-spec-rows"><div class="wp-spec-row"><div class="wp-spec-label">Bobot</div><div class="wp-spec-value">280 GSM</div></div></div></div>',
     'references' => '<div class="wp-block-references"><p class="wp-reference"><strong>A</strong> <a href="https://doi.org/10.1/x">DOI</a></p></div>',
     'equations' => '<p>Teks <span class="wp-math">a &lt; b</span></p><div class="wp-math-block">E = mc^2</div>',
@@ -120,4 +121,9 @@ it('keeps the numbering and marker types of lists but drops unknown values', fun
         ->toContain('<ol type="i">')
         ->toContain('<ul type="square">')
         ->not->toContain('javascript');
+});
+
+test('language and direction attributes keep only safe values', function () {
+    expect(HtmlSanitizer::clean('<div lang="ar" dir="rtl">x</div>'))->toBe('<div lang="ar" dir="rtl">x</div>')
+        ->and(HtmlSanitizer::clean('<div lang="ar&quot; onclick=&quot;x" dir="evil">x</div>'))->toBe('<div>x</div>');
 });
