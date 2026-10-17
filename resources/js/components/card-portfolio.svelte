@@ -1,8 +1,7 @@
 <script lang="ts">
   import Folder from '@lucide/svelte/icons/folder';
-  import Icon from '@iconify/svelte';
   import Link from '@/components/link.svelte';
-  import { techIcon } from '@/lib/tech-icon';
+  import { technologyIconUrl, type TechnologyChip } from '@/lib/tech-icon';
 
   type Props = {
     name: string;
@@ -10,7 +9,7 @@
     image: string;
     shortDesc: string | null;
     services: { name: string; color: string | null }[];
-    technologies: string[];
+    technologies: TechnologyChip[];
     /** First card of a list: loaded eagerly with high priority (LCP candidate). */
     eager?: boolean;
   };
@@ -49,8 +48,8 @@
 
       {#if technologies.length}
         <div class="techstacks">
-          {#each technologies as tech (tech)}
-            <Icon icon={techIcon(tech)} width={24} height={24} />
+          {#each technologies as tech (tech.name)}
+            <img src={technologyIconUrl(tech)} alt={tech.name} title={tech.name} width="24" height="24" loading="lazy" />
           {/each}
         </div>
       {/if}

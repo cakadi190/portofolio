@@ -16,6 +16,7 @@ use App\Http\Controllers\DisclaimerController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\GuestbookController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\IconController;
 use App\Http\Controllers\LegacyRedirectController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MediaRedirectController;
@@ -33,6 +34,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('icons/{prefix}/{name}.svg', [IconController::class, 'show'])->where(['prefix' => '[a-z0-9-]+', 'name' => '[a-z0-9-]+'])->name('icons.show');
 Route::get('storage/{path}', MediaRedirectController::class)->where('path', '.*')->name('media.legacy');
 
 Route::name('sitemaps.')->controller(SitemapController::class)->group(function () {

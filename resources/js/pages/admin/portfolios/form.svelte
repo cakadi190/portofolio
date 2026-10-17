@@ -12,7 +12,7 @@
   import MediaField from '@/components/media/media-field.svelte';
   import MediaGalleryField from '@/components/media/media-gallery-field.svelte';
   import MultiCheck from '@/components/ui/multi-check.svelte';
-  import TaxonomySelect from '@/components/ui/taxonomy-select.svelte';
+  import TechnologyPicker from '@/components/icons/technology-picker.svelte';
   import RichTextEditor from '@/components/ui/rich-text-editor.svelte';
   import {
     destroy,
@@ -20,7 +20,6 @@
     update,
   } from '@/wayfinder/routes/admin/portfolios';
   import { show } from '@/wayfinder/routes/portfolios';
-  import { quick as quickTechnology } from '@/wayfinder/routes/admin/technologies';
 
   type Option = { id: number; name: string };
 
@@ -35,7 +34,7 @@
     demo_link: string | null;
     source_code: string | null;
     is_private: boolean;
-    technologies: { id: number }[];
+    technologies: { id: number; name: string; icon: string | null }[];
     services: { id: number }[];
     careers: { id: number }[];
     galleries: { image_url: string; description: string | null }[];
@@ -43,12 +42,10 @@
 
   let {
     portfolio,
-    technologies,
     services,
     careers,
   }: {
     portfolio: Portfolio | null;
-    technologies: Option[];
     services: Option[];
     careers: { id: number; position: string; company: string }[];
   } = $props();
@@ -220,12 +217,7 @@
       </EditorPanel>
 
       <EditorPanel title={t('admin.teknologi')}>
-        <TaxonomySelect
-          name="technologies"
-          items={technologies}
-          selected={portfolio?.technologies.map((t) => t.id) ?? []}
-          createUrl={quickTechnology().url}
-        />
+        <TechnologyPicker name="technologies" selected={portfolio?.technologies ?? []} />
       </EditorPanel>
 
       <EditorPanel title={t('admin-portfolios.karier_terkait')}>

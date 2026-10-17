@@ -107,7 +107,6 @@ export function adminMenu(
         link(t('admin.menu_galeri_portofolio'), '/admin/portfolio-galleries'),
         link(t('admin.menu_ulasan_portofolio'), '/admin/portfolio-ratings'),
         link(t('admin.layanan'), '/admin/services'),
-        link(t('admin.teknologi'), '/admin/technologies'),
       ],
     },
     { type: 'header', label: t('admin.menu_blog_tulisan') },

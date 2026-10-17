@@ -73,3 +73,17 @@ const normalize = (name: string): string =>
 export function techIcon(name: string): string {
   return TECH_ICONS[normalize(name)] ?? 'lucide:code';
 }
+
+/** A portfolio technology as the public pages receive it; `icon` is an Iconify id, null on older records. */
+export type TechnologyChip = { name: string; icon: string | null };
+
+/** Same-origin SVG route for an Iconify id; the server keeps its own copy so pages never call the icon API. */
+export function iconUrl(id: string): string {
+  const [prefix, name] = id.split(':');
+
+  return `/icons/${prefix}/${name}.svg`;
+}
+
+export function technologyIconUrl(technology: TechnologyChip): string {
+  return iconUrl(technology.icon ?? techIcon(technology.name));
+}

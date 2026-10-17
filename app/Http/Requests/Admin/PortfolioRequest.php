@@ -3,7 +3,10 @@
 namespace App\Http\Requests\Admin;
 
 use App\Http\Requests\Concerns\SanitizesRichText;
+use App\Models\Technology;
 use App\Rules\MediaPath;
+use App\Services\IconService;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -39,7 +42,14 @@ class PortfolioRequest extends FormRequest
             'source_code' => ['nullable', 'url', 'max:255'],
             'is_private' => ['boolean'],
             'technologies' => ['nullable', 'array'],
-            'technologies.*' => ['integer', 'exists:technologies,id'],
+            'technologies.*' => ['required', function (string $attribute, mixed $value, Closure $fail): void {
+                $valid = IconService::isValidId((string) $value)
+                    || (ctype_digit((string) $value) && Technology::query()->whereKey($value)->exists());
+
+                if (! $valid) {
+                    $fail(__('validation.exists', ['attribute' => $attribute]));
+                }
+            }],
             'services' => ['nullable', 'array'],
             'services.*' => ['integer', 'exists:services,id'],
             'careers' => ['nullable', 'array'],

@@ -62,6 +62,8 @@
   import { useAdminSidebarState } from '@/layouts/admin/sidebar-state.svelte';
   import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
   import ImageBlockToolbar from '@/components/ui/image-block-toolbar.svelte';
+  import IconPickerModal, { type IconResult } from '@/components/icons/icon-picker-modal.svelte';
+  import Shapes from '@lucide/svelte/icons/shapes';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
   import {
     BULLET_STYLES,
@@ -211,6 +213,7 @@
   // Bumped on every editor transaction so toolbar state re-evaluates.
   let tick = $state(0);
   let pickerOpen = $state(false);
+  let iconPickerOpen = $state(false);
   let toolbarOpen = $state(false);
   let host = $state<HTMLDivElement>();
   let linkPopover = $state<{ start(): void }>();
@@ -255,6 +258,7 @@
     keywords: string;
     run?: (chain: ChainedCommands) => ChainedCommands;
     picker?: boolean;
+    iconPicker?: boolean;
     action?: () => void;
   };
 
@@ -460,6 +464,13 @@
       icon: ImageIcon,
       keywords: 'image foto gambar',
       picker: true,
+    },
+    {
+      label: t('ui.ikon'),
+      hint: t('ui.ikon_teknologi_dan_logo'),
+      icon: Shapes,
+      keywords: 'icon ikon logo teknologi technology iconify',
+      iconPicker: true,
     },
     {
       label: 'Callout',
@@ -774,6 +785,8 @@
     if (item.action) item.action();
 
     if (item.picker) openPicker('insert');
+
+    if (item.iconPicker) iconPickerOpen = true;
   }
 
   function isAligned(align: 'left' | 'center' | 'right'): boolean {
@@ -937,6 +950,8 @@
     if (item.action) item.action();
 
     if (item.picker) openPicker('insert');
+
+    if (item.iconPicker) iconPickerOpen = true;
   }
 
   function openPicker(mode: 'insert' | 'replace'): void {
@@ -1832,6 +1847,19 @@
           alt: media.alt ?? media.name,
           srcset: media.srcset ?? null,
         } as Parameters<typeof editor.commands.setImage>[0])
+        .run();
+    }
+  }
+
+  /** Icons are stored as local SVGs (cached by the server) and start small; resize like any image. */
+  function insertIcons(icons: IconResult[]): void {
+    for (const icon of icons) {
+      editor
+        ?.chain()
+        .focus()
+        .setImage({ src: icon.url, alt: icon.name, width: 12 } as Parameters<
+          typeof editor.commands.setImage
+        >[0])
         .run();
     }
   }
@@ -3281,6 +3309,12 @@
     accept="image"
     title={t('ui.sisipkan_gambar')}
     onSelect={pickMedia}
+  />
+  <IconPickerModal
+    bind:open={iconPickerOpen}
+    multiple
+    title={t('ui.sisipkan_ikon')}
+    onSelect={insertIcons}
   />
 {/if}
 

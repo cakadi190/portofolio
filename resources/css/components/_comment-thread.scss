@@ -41,6 +41,11 @@
   border-radius: 50%;
   user-select: none;
 
+  &.has-initial {
+    color: #fff;
+    background: var(--thread-avatar-bg);
+  }
+
   img {
     width: 100%;
     height: 100%;

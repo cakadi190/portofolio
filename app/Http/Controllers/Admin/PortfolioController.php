@@ -46,7 +46,7 @@ class PortfolioController extends Controller
     {
         return Inertia::render('admin/portfolios/form', [
             'portfolio' => [
-                ...$portfolio->load(['technologies:id', 'services:id', 'careers:id', 'galleries:id,portfolio_id,image_url,description'])->toArray(),
+                ...$portfolio->load(['technologies:id,name,icon', 'services:id', 'careers:id', 'galleries:id,portfolio_id,image_url,description'])->toArray(),
                 'translations' => $portfolio->translationPayload(),
             ],
             ...$this->options(),
@@ -88,7 +88,7 @@ class PortfolioController extends Controller
 
     private function syncRelations(Portfolio $portfolio, PortfolioRequest $request): void
     {
-        $portfolio->technologies()->sync($request->validated('technologies', []));
+        $portfolio->technologies()->sync(Technology::idsFor($request->validated('technologies', [])));
         $portfolio->services()->sync($request->validated('services', []));
         $portfolio->careers()->sync($request->validated('careers', []));
 
@@ -102,7 +102,6 @@ class PortfolioController extends Controller
     private function options(): array
     {
         return [
-            'technologies' => Technology::query()->orderBy('name')->get(['id', 'name']),
             'services' => Service::query()->orderBy('name')->get(['id', 'name']),
             'careers' => Career::query()->orderBy('position')->get(['id', 'position', 'company']),
         ];

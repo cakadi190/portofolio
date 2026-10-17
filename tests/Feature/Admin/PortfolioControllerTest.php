@@ -115,13 +115,28 @@ test('a portfolio can be deleted while its image stays in the library', function
     Storage::disk('public')->assertExists($media->path);
 });
 
-test('a technology can be created on the fly from the portfolio editor', function () {
+test('technologies are picked by icon id and reused by name', function () {
     $admin = User::factory()->admin()->create();
+    $existing = Technology::factory()->create(['name' => 'Laravel']);
+    $portfolio = Portfolio::factory()->create();
 
-    $id = $this->actingAs($admin)->postJson(route('admin.technologies.quick'), ['name' => 'Bun'])
-        ->assertCreated()->json('id');
+    $this->actingAs($admin)->put(route('admin.portfolios.update', $portfolio), [
+        'name' => $portfolio->name,
+        'image' => $portfolio->image,
+        'technologies' => ['devicon:laravel', 'devicon:php'],
+    ])->assertRedirect();
 
-    $this->assertDatabaseHas('technologies', ['id' => $id, 'name' => 'Bun']);
-    $this->actingAs($admin)->postJson(route('admin.technologies.quick'), ['name' => 'Bun'])
-        ->assertOk()->assertJsonPath('id', $id);
+    expect($existing->refresh()->icon)->toBe('devicon:laravel');
+    expect($portfolio->technologies()->pluck('name')->sort()->values()->all())->toBe(['Laravel', 'Php']);
+    expect(Technology::query()->count())->toBe(2);
+});
+
+test('an invalid technology value is rejected', function () {
+    $portfolio = Portfolio::factory()->create();
+
+    $this->actingAs(User::factory()->admin()->create())->put(route('admin.portfolios.update', $portfolio), [
+        'name' => $portfolio->name,
+        'image' => $portfolio->image,
+        'technologies' => ['not an icon'],
+    ])->assertSessionHasErrors('technologies.0');
 });

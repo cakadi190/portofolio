@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { TechnologyChip } from '@/lib/tech-icon';
   import { t } from '@/lib/i18n';
   import AppHead from '@/components/app-head.svelte';
   import CardPortfolio from '@/components/card-portfolio.svelte';
@@ -13,7 +14,7 @@
     image: string;
     shortDesc: string | null;
     services: { name: string; color: string | null }[];
-    technologies: string[];
+    technologies: TechnologyChip[];
   };
 
   let { portfolios }: { portfolios: InfiniteList<Portfolio> } = $props();

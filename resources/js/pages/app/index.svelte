@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { TechnologyChip } from '@/lib/tech-icon';
   import { t } from '@/lib/i18n';
   import type { Engagement } from '@/components/speaking-item.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -15,7 +16,7 @@
     image: string;
     shortDesc: string | null;
     services: { name: string; color: string | null }[];
-    technologies: string[];
+    technologies: TechnologyChip[];
   };
 
   type Post = {

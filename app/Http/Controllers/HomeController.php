@@ -23,7 +23,7 @@ class HomeController extends Controller
         return Inertia::render('app/index', [
             'stats' => $this->stats(),
             'portfolios' => Portfolio::query()
-                ->with(['services:id,name,color', 'technologies:id,name'])
+                ->with(['services:id,name,color', 'technologies:id,name,icon'])
                 ->latest()
                 ->take(3)
                 ->get()
@@ -36,7 +36,7 @@ class HomeController extends Controller
                         'name' => $service->name,
                         'color' => $service->color,
                     ]),
-                    'technologies' => $portfolio->technologies->pluck('name'),
+                    'technologies' => $portfolio->technologies->map(fn ($technology): array => ['name' => $technology->name, 'icon' => $technology->icon]),
                 ]),
             'speakings' => $this->speakings(),
             'posts' => Post::query()

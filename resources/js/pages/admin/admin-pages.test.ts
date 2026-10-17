@@ -26,7 +26,6 @@ import Profile from '@/pages/admin/settings/profile.svelte';
 import Security from '@/pages/admin/settings/security.svelte';
 import SystemSettings from '@/pages/admin/system-settings/index.svelte';
 import Tags from '@/pages/admin/tags/index.svelte';
-import Technologies from '@/pages/admin/technologies/index.svelte';
 import Users from '@/pages/admin/users/index.svelte';
 
 vi.mock('@laravel/passkeys/svelte', () => ({
@@ -119,7 +118,6 @@ const indexPages: Case[] = [
   ['Kategori Artikel', PostCategories, { postCategories: empty, filters }],
   ['Artikel Blog', Posts, { posts: empty, filters, authors: [] }],
   ['Tag', Tags, { tags: empty, filters }],
-  ['Teknologi', Technologies, { technologies: empty, filters }],
   [
     'Pengguna',
     Users,

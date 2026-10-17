@@ -102,7 +102,10 @@ describe('PortfolioShow', () => {
     demoLink: 'https://demo.test',
     sourceCode: null,
     isPrivate: true,
-    technologies: ['Laravel', 'Svelte'],
+    technologies: [
+      { name: 'Laravel', icon: 'devicon:laravel' },
+      { name: 'Svelte', icon: null },
+    ],
     slug: 'proyek-hebat',
     galleries: [{ url: '/g1.webp', title: 'Satu' }],
   };

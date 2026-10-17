@@ -5,7 +5,7 @@
   import Icon from '@iconify/svelte';
   import Expand from '@lucide/svelte/icons/expand';
   import Link2 from '@lucide/svelte/icons/link-2';
-  import { techIcon } from '@/lib/tech-icon';
+  import { technologyIconUrl, type TechnologyChip } from '@/lib/tech-icon';
   import AppHead from '@/components/app-head.svelte';
   import { highlightCode } from '@/lib/highlight/action';
   import HeaderPage from '@/components/header-page.svelte';
@@ -24,7 +24,7 @@
     demoLink: string | null;
     sourceCode: string | null;
     isPrivate: boolean;
-    technologies: string[];
+    technologies: TechnologyChip[];
     slug: string;
     imageSrcset?: string | null;
     imageSize?: { width: number; height: number } | null;
@@ -161,8 +161,8 @@
                 </h2>
 
                 <div class="d-flex gap-3 align-items-center flex-wrap">
-                  {#each portfolio.technologies as tech (tech)}
-                    <Icon icon={techIcon(tech)} width={32} height={32} />
+                  {#each portfolio.technologies as tech (tech.name)}
+                    <img src={technologyIconUrl(tech)} alt={tech.name} title={tech.name} width="32" height="32" loading="lazy" />
                   {/each}
                 </div>
               </div>

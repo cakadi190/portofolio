@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { TechnologyChip } from '@/lib/tech-icon';
   import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import Link from '@/components/link.svelte';
   import CardPortfolio from '@/components/card-portfolio.svelte';
@@ -10,7 +11,7 @@
     image: string;
     shortDesc: string | null;
     services: { name: string; color: string | null }[];
-    technologies: string[];
+    technologies: TechnologyChip[];
   };
 
   let { portfolios = [] }: { portfolios?: Portfolio[] } = $props();

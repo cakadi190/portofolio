@@ -21,7 +21,7 @@ class PortfolioController extends Controller
     public function index(): Response
     {
         $portfolios = Portfolio::query()
-            ->with(['services:id,name,color', 'technologies:id,name'])
+            ->with(['services:id,name,color', 'technologies:id,name,icon'])
             ->latest()
             ->paginate(9)
             ->withQueryString()
@@ -34,7 +34,7 @@ class PortfolioController extends Controller
                     'name' => $service->name,
                     'color' => $service->color,
                 ]),
-                'technologies' => $portfolio->technologies->pluck('name'),
+                'technologies' => $portfolio->technologies->map(fn ($technology): array => ['name' => $technology->name, 'icon' => $technology->icon]),
             ]);
 
         return Inertia::render('portfolio/index', [
@@ -47,7 +47,7 @@ class PortfolioController extends Controller
      */
     public function show(Portfolio $portfolio, SeoService $seo): Response
     {
-        $portfolio->load(['technologies:id,name', 'galleries:id,portfolio_id,image_url,description']);
+        $portfolio->load(['technologies:id,name,icon', 'galleries:id,portfolio_id,image_url,description']);
 
         $image = ImageService::url($portfolio->image);
 
@@ -92,7 +92,7 @@ class PortfolioController extends Controller
                 'demoLink' => $portfolio->demo_link,
                 'sourceCode' => $portfolio->source_code,
                 'isPrivate' => $portfolio->is_private,
-                'technologies' => $portfolio->technologies->pluck('name'),
+                'technologies' => $portfolio->technologies->map(fn ($technology): array => ['name' => $technology->name, 'icon' => $technology->icon]),
                 'slug' => $portfolio->slug,
                 'galleries' => $portfolio->galleries->map(fn (PortfolioGallery $gallery): array => [
                     'url' => ImageService::url($gallery->image_url),
