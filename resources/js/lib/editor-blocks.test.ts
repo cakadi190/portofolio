@@ -380,6 +380,19 @@ describe('ScriptureQuote', () => {
     instance.destroy();
   });
 
+  it('keeps the Arabic text size and defaults to md', () => {
+    const large = editor(
+      quran.replace('wp-scripture-arabic', 'wp-scripture-arabic is-xl'),
+    );
+    const plain = editor(quran);
+
+    expect(large.state.doc.firstChild?.attrs.arabicSize).toBe('xl');
+    expect(large.getHTML()).toContain('wp-scripture-arabic is-xl');
+    expect(plain.getHTML()).toContain('wp-scripture-arabic is-md');
+    large.destroy();
+    plain.destroy();
+  });
+
   it('falls back to the Bible kind and leaves out empty header, Arabic and source', () => {
     const instance = editor(
       '<div class="wp-block-scripture" data-type="bogus"><div class="wp-scripture-body"><p>Damai</p></div></div>',

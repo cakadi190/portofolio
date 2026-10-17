@@ -271,6 +271,9 @@ export const Callout = Node.create({
 export const SCRIPTURE_KINDS = ['bible', 'quran', 'hadith'] as const;
 export type ScriptureKind = (typeof SCRIPTURE_KINDS)[number];
 
+export const SCRIPTURE_ARABIC_SIZES = ['sm', 'md', 'lg', 'xl'] as const;
+export type ScriptureArabicSize = (typeof SCRIPTURE_ARABIC_SIZES)[number];
+
 /** Default type labels (Indonesian, the site's content language). */
 export const SCRIPTURE_LABELS: Record<ScriptureKind, string> = {
   bible: 'Alkitab',
@@ -333,6 +336,20 @@ export const ScriptureQuote = Node.create({
       label: scriptureAttribute('label', '.wp-scripture-type'),
       reference: scriptureAttribute('reference', '.wp-scripture-reference'),
       arabic: scriptureAttribute('arabic', '.wp-scripture-arabic'),
+      arabicSize: {
+        default: 'md',
+        rendered: false,
+        parseHTML: (element) => {
+          const classes =
+            element.querySelector('.wp-scripture-arabic')?.className ?? '';
+
+          return (
+            SCRIPTURE_ARABIC_SIZES.find((size) =>
+              classes.split(/\s+/).includes(`is-${size}`),
+            ) ?? 'md'
+          );
+        },
+      },
       source: scriptureAttribute('source', '.wp-scripture-source'),
     };
   },
@@ -355,6 +372,11 @@ export const ScriptureQuote = Node.create({
     const reference = cleanScriptureText(node.attrs.reference, 'reference');
     const arabic = cleanScriptureText(node.attrs.arabic, 'arabic');
     const source = cleanScriptureText(node.attrs.source, 'source');
+    const arabicSize = pick(
+      SCRIPTURE_ARABIC_SIZES,
+      node.attrs.arabicSize,
+      'md',
+    );
 
     return [
       'div',
@@ -378,7 +400,7 @@ export const ScriptureQuote = Node.create({
             [
               'div',
               {
-                class: 'wp-scripture-arabic',
+                class: `wp-scripture-arabic is-${arabicSize}`,
                 lang: 'ar',
                 dir: 'rtl',
                 contenteditable: 'false',

@@ -533,4 +533,7 @@ return [
     'ui.mis_yohanes_14_27_terjemahan_baru' => 'e.g. John 14:27 · New International Version',
     'ui.keluarkan_isi_dari_kutipan' => 'Take the content out of the quote',
     'ui.lepas_kutipan' => 'Unwrap quote',
+    'ui.ukuran_teks_arab' => 'Arabic text size',
+    'ui.perkecil_teks_arab' => 'Smaller Arabic text',
+    'ui.perbesar_teks_arab' => 'Larger Arabic text',
 ];

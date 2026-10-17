@@ -78,6 +78,7 @@
     MathInline,
     Reference,
     References,
+    SCRIPTURE_ARABIC_SIZES,
     SCRIPTURE_KINDS,
     SCRIPTURE_LABELS,
     ScriptureQuote,
@@ -295,6 +296,16 @@
     quran: t('ui.al_quran'),
     hadith: t('ui.hadis'),
   };
+
+  /** Steps the Arabic font size one notch smaller (-1) or larger (+1) within sm, md, lg, xl. */
+  function stepArabicSize(direction: -1 | 1): void {
+    const index = SCRIPTURE_ARABIC_SIZES.indexOf(
+      blockInfo?.attrs.arabicSize ?? 'md',
+    );
+    const next = SCRIPTURE_ARABIC_SIZES[index + direction];
+
+    if (next) patchBlock({ arabicSize: next });
+  }
 
   /** Switches the quote type, swapping the label only while it is still the old type's default. */
   function setScriptureKind(kind: ScriptureKind): void {
@@ -2435,6 +2446,32 @@
                   ),
                 })}
             ></textarea>
+          </div>
+          <div class="rte-ins-group">
+            <span class="rte-ins-label">{t('ui.ukuran_teks_arab')}</span>
+            <div class="rte-ins-row align-items-center">
+              <button
+                type="button"
+                class="rte-chip"
+                aria-label={t('ui.perkecil_teks_arab')}
+                title={t('ui.perkecil_teks_arab')}
+                disabled={(blockInfo.attrs.arabicSize ?? 'md') ===
+                  SCRIPTURE_ARABIC_SIZES[0]}
+                onclick={() => stepArabicSize(-1)}>−</button
+              >
+              <span class="rte-chip on" aria-live="polite"
+                >{(blockInfo.attrs.arabicSize ?? 'md').toUpperCase()}</span
+              >
+              <button
+                type="button"
+                class="rte-chip"
+                aria-label={t('ui.perbesar_teks_arab')}
+                title={t('ui.perbesar_teks_arab')}
+                disabled={(blockInfo.attrs.arabicSize ?? 'md') ===
+                  SCRIPTURE_ARABIC_SIZES[SCRIPTURE_ARABIC_SIZES.length - 1]}
+                onclick={() => stepArabicSize(1)}>+</button
+              >
+            </div>
           </div>
         {/if}
         <div class="rte-ins-group">

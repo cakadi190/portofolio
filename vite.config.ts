@@ -103,6 +103,12 @@ export default defineConfig({
                     weights: [400],
                     preload: false,
                   }),
+                  // Arabic text of the scripture quote block; the unicode-range
+                  // subsets mean pages without Arabic never download it.
+                  bunny('Noto Naskh Arabic', {
+                    weights: [400],
+                    preload: false,
+                  }),
                 ],
               }),
             ]),

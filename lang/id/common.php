@@ -533,4 +533,7 @@ return [
     'ui.mis_yohanes_14_27_terjemahan_baru' => 'mis. Yohanes 14:27 · Terjemahan Baru (TB)',
     'ui.keluarkan_isi_dari_kutipan' => 'Keluarkan isi dari kutipan',
     'ui.lepas_kutipan' => 'Lepas kutipan',
+    'ui.ukuran_teks_arab' => 'Ukuran teks Arab',
+    'ui.perkecil_teks_arab' => 'Perkecil teks Arab',
+    'ui.perbesar_teks_arab' => 'Perbesar teks Arab',
 ];

@@ -632,6 +632,19 @@
     line-height: 2;
     text-align: right;
     overflow-wrap: anywhere;
+
+    &.is-sm {
+      font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+    }
+
+    &.is-lg {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+    }
+
+    &.is-xl {
+      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      line-height: 2.1;
+    }
   }
 
   .wp-scripture-body {
