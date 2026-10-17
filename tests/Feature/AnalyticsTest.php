@@ -53,5 +53,5 @@ test('the umami tracker is rendered and allowed by the content security policy',
     $policy = $response->headers->get('Content-Security-Policy')
         ?? $response->headers->get('Content-Security-Policy-Report-Only');
 
-    expect($policy)->toContain('script-src', 'https://cloud.umami.is', 'https://api-gateway.umami.dev');
+    expect($policy)->toContain('script-src', 'https://cloud.umami.is', 'https://api-gateway.umami.dev', 'https://gateway.umami.is');
 });
