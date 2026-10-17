@@ -131,6 +131,30 @@ describe('FigureImage responsive preview', () => {
   });
 });
 
+describe('FigureImage link', () => {
+  it('round-trips a link around the image, including the new-tab flag', () => {
+    const instance = editor(
+      '<figure class="wp-block-image is-align-center"><a href="https://x.id" target="_blank" rel="noopener noreferrer"><img src="/a.webp" alt="A"></a><figcaption>Cap</figcaption></figure>',
+    );
+
+    const output = instance.getHTML();
+
+    expect(output).toContain(
+      '<a href="https://x.id" target="_blank" rel="noopener noreferrer"><img src="/a.webp" alt="A"></a>',
+    );
+    instance.destroy();
+  });
+
+  it('drops unsafe link targets and renders no anchor without a link', () => {
+    const unsafe = editor(
+      '<figure class="wp-block-image"><a href="javascript:alert(1)"><img src="/a.webp"></a><figcaption></figcaption></figure>',
+    );
+
+    expect(unsafe.getHTML()).not.toContain('<a');
+    unsafe.destroy();
+  });
+});
+
 describe('FigureImage credit and source', () => {
   it('round-trips the photo credit and original source link', () => {
     const instance = editor(

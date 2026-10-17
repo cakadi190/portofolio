@@ -7,6 +7,7 @@ use App\Models\SystemSetting;
 use App\Rules\MediaPath;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateSystemSettingRequest extends FormRequest
 {
@@ -45,6 +46,28 @@ class UpdateSystemSettingRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    /**
+     * A bucket needs a name and credentials (new, or already stored) before it can be selected.
+     *
+     * @return list<callable>
+     */
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            if ($this->input('storage_driver') !== 's3') {
+                return;
+            }
+
+            foreach (['storage_s3_bucket' => false, 'storage_s3_access_key' => true, 'storage_s3_secret_key' => true] as $key => $secret) {
+                $stored = $secret && SystemSetting::query()->where('key', $key)->whereNotNull('value')->exists() && ! $this->boolean($key.'__clear');
+
+                if (blank($this->input($key)) && ! $stored) {
+                    $validator->errors()->add($key, __('validation.required', ['attribute' => $this->attributes()[$key] ?? $key]));
+                }
+            }
+        }];
     }
 
     /**

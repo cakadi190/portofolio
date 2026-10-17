@@ -5,9 +5,9 @@ namespace App\Services;
 use App\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -37,7 +37,7 @@ class MediaService
         'clarifications' => ['exact' => ['cover_image'], 'like' => ['content']],
     ];
 
-    public function __construct(protected ImageService $images) {}
+    public function __construct(protected ImageService $images, protected MediaStorage $storage) {}
 
     /**
      * Store an uploaded file: images are scaled down and compressed to WebP,
@@ -48,6 +48,7 @@ class MediaService
         $originalName = $file->getClientOriginalName();
         $directory = $directory.'/'.now()->format('Y/m');
         $filename = $this->kebabFilename($originalName);
+        $disk = $this->storage->activeDisk();
 
         if (str_starts_with((string) $file->getMimeType(), 'image/') && $file->getMimeType() !== 'image/svg+xml') {
             $this->assertDecodable($file);
@@ -59,13 +60,13 @@ class MediaService
                 $image = $this->images->fromContents($file->getContent())->scaleDown(1920, 1920);
                 $width = $image->get()?->width();
                 $height = $image->get()?->height();
-                $path = $image->save($directory, 'webp', 80, 400, $filename);
-                $variants = $this->images->createVariants($path, $width);
+                $path = $image->save($directory, 'webp', 80, 400, $filename, $disk);
+                $variants = $this->images->createVariants($path, $width, $disk);
             } catch (Throwable $exception) {
                 report($exception);
 
                 if ($path !== null) {
-                    $this->deleteFiles($path);
+                    $this->deleteFiles($path, $disk);
                 }
 
                 throw ValidationException::withMessages([
@@ -73,9 +74,9 @@ class MediaService
                 ]);
             }
             $mime = 'image/webp';
-            $size = Storage::disk('public')->size($path);
+            $size = $this->storage->filesystem($disk)->size($path);
         } else {
-            $path = $file->storeAs($directory, $filename.'.'.($file->extension() ?: 'bin'), 'public');
+            $path = $file->storeAs($directory, $filename.'.'.($file->extension() ?: 'bin'), $disk);
             $width = $height = $variants = null;
             $mime = (string) $file->getMimeType();
             $size = $file->getSize();
@@ -83,6 +84,7 @@ class MediaService
 
         return Media::query()->create([
             'user_id' => $userId,
+            'disk' => $disk,
             'path' => $path,
             'name' => $originalName,
             'mime_type' => $mime,
@@ -99,7 +101,7 @@ class MediaService
      */
     public function regenerateVariants(Media $media): void
     {
-        $variants = $this->images->createVariants($media->path, $media->width);
+        $variants = $this->images->createVariants($media->path, $media->width, $media->disk);
 
         $media->update(['variants' => $variants]);
     }
@@ -188,10 +190,60 @@ class MediaService
     /**
      * Remove a stored file together with every possible responsive variant.
      */
-    protected function deleteFiles(string $path, string $disk = 'public'): void
+    protected function deleteFiles(string $path, string $disk = MediaStorage::LOCAL_DISK): void
     {
         $variants = array_map(fn (int $width): string => ImageService::variantPath($path, $width), ImageService::variantWidths());
 
-        Storage::disk($disk)->delete([$path, ImageService::thumbnailPath($path), ...$variants]);
+        $this->storage->filesystem($disk)->delete([$path, ImageService::thumbnailPath($path), ...$variants]);
+        ImageService::forgetThumbnailCache($path);
+    }
+
+    /**
+     * Copy a record's files (original, thumbnail, every variant) to the active
+     * storage and repoint the record. Files already on the target are skipped.
+     *
+     * @throws RuntimeException When the original file is missing from its source disk.
+     */
+    public function syncToActiveStorage(Media $media, bool $deleteSource = false): void
+    {
+        $target = $this->storage->activeDisk();
+
+        if ($media->disk === $target) {
+            return;
+        }
+
+        $source = $this->storage->filesystem($media->disk);
+        $destination = $this->storage->filesystem($target);
+        $variants = array_map(fn (int $width): string => ImageService::variantPath($media->path, $width), ImageService::variantWidths());
+        $copied = [];
+
+        foreach (array_unique([$media->path, ImageService::thumbnailPath($media->path), ...$variants]) as $path) {
+            if (! $source->exists($path)) {
+                continue;
+            }
+
+            if (! $destination->exists($path)) {
+                $stream = $source->readStream($path);
+                $destination->writeStream($path, $stream);
+
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+            }
+
+            $copied[] = $path;
+        }
+
+        if (! in_array($media->path, $copied, true)) {
+            throw new RuntimeException('source file is missing');
+        }
+
+        $media->update(['disk' => $target]);
+        ImageService::forgetThumbnailCache($media->path);
+        $this->storage->forgetUnsynced();
+
+        if ($deleteSource) {
+            $source->delete($copied);
+        }
     }
 }

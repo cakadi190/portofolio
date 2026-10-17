@@ -14,6 +14,7 @@
   import ChartColumn from '@lucide/svelte/icons/chart-column';
   import Globe from '@lucide/svelte/icons/globe';
   import Bug from '@lucide/svelte/icons/bug';
+  import HardDrive from '@lucide/svelte/icons/hard-drive';
   import CircleCheck from '@lucide/svelte/icons/circle-check';
   import CircleAlert from '@lucide/svelte/icons/circle-alert';
   import { router } from '@inertiajs/svelte';
@@ -52,7 +53,7 @@
     status?: Record<string, { enabled: boolean; configured: boolean; reason: string | null }>;
   } = $props();
 
-  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search, security: ShieldCheck, visitor_analytics: ChartColumn, ipinfo: Globe, monitoring: Bug } as const;
+  const icons = { information: AtSign, social_media: Share2, mail: Mail, seo: Search, security: ShieldCheck, visitor_analytics: ChartColumn, ipinfo: Globe, monitoring: Bug, storage: HardDrive } as const;
 
   function initialTab(): string {
     const tab =
@@ -203,7 +204,7 @@
                           {/if}
                         </div>
                       </div>
-                      <button type="button" class="btn btn-sm btn-outline-secondary" disabled={!state.configured} onclick={() => router.post(test().url, {}, { preserveScroll: true })}>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" disabled={!state.configured} onclick={() => router.post(test().url, { group: group.value }, { preserveScroll: true })}>
                         {t('admin-system-settings.uji_koneksi')}
                       </button>
                     </div>

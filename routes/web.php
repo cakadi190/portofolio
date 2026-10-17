@@ -18,6 +18,7 @@ use App\Http\Controllers\GuestbookController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegacyRedirectController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\MediaRedirectController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PdfTrustController;
 use App\Http\Controllers\PortfolioController;
@@ -32,6 +33,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('storage/{path}', MediaRedirectController::class)->where('path', '.*')->name('media.legacy');
 
 Route::name('sitemaps.')->controller(SitemapController::class)->group(function () {
     Route::get('sitemap.xml', 'index')->name('index');

@@ -18,4 +18,11 @@ return [
     'ipinfo_reason_switch' => 'Sakelar "Aktifkan IPInfo" masih nonaktif. Aktifkan lalu simpan.',
     'ipinfo_reason_ip' => 'Penyimpanan alamat IP dimatikan di tab Analitik Pengunjung, sehingga IPInfo tidak berjalan.',
     'pdf_invalid' => 'Sertifikat tidak valid.',
+    'storage_probe_incomplete' => 'Bucket, Access Key, dan Secret belum lengkap.',
+    'storage_probe_ok' => 'Koneksi ke bucket berhasil (tulis, baca, hapus).',
+    'storage_probe_unreadable' => 'Berkas uji tertulis tetapi tidak dapat dibaca kembali dari bucket.',
+    'storage_probe_failed' => 'Koneksi ke bucket gagal: :error',
+    'storage_reverted' => 'Koneksi bucket gagal, penyimpanan dikembalikan ke lokal. :message',
+    'storage_switched' => 'Penyimpanan beralih ke bucket. Berkas lama disalin di latar belakang (pastikan `php artisan queue:work` berjalan; atau jalankan `php artisan media:sync-storage`).',
+    'storage_switched_local' => 'Penyimpanan kembali ke lokal. Berkas dan tautan gambar di konten disalin balik di latar belakang (pastikan `php artisan queue:work` berjalan).',
 ];

@@ -66,6 +66,13 @@ function alignFromClass(element: Element): BlockAlign {
   );
 }
 
+/** Link wrapped around an image: a safe URL, or '' when there is none. */
+function linkHref(anchor: Element | null): string {
+  const value = anchor?.getAttribute('href')?.trim() ?? '';
+
+  return value !== '' && safeHref(value) !== '#' ? value : '';
+}
+
 /** `sizes` for images in the editor canvas, which is as wide as the article column. */
 export const EDITOR_IMAGE_SIZES = '(min-width: 992px) 800px, 100vw';
 
@@ -95,6 +102,8 @@ export const FigureImage = Image.extend({
       source: { default: '', rendered: false },
       // Preview-only: set for images picked in this session, never parsed from HTML.
       srcset: { default: null, rendered: false, parseHTML: () => null },
+      href: { default: '', rendered: false },
+      newTab: { default: false, rendered: false },
     };
   },
 
@@ -132,6 +141,8 @@ export const FigureImage = Image.extend({
               element.querySelector('figcaption')?.getAttribute('data-credit'),
             ),
             source: sourceUrl(element.getAttribute('data-source')),
+            href: linkHref(img.closest('a')),
+            newTab: img.closest('a')?.getAttribute('target') === '_blank',
           };
         },
       },
@@ -140,7 +151,11 @@ export const FigureImage = Image.extend({
   },
 
   renderHTML({ node }) {
-    const { src, alt, title, align, width, credit, srcset } = node.attrs;
+    const { src, alt, title, align, width, credit, srcset, newTab } =
+      node.attrs;
+    const href = linkHref({
+      getAttribute: () => node.attrs.href,
+    } as unknown as Element);
     const source = sourceUrl(node.attrs.source);
     const attrs: Record<string, string> = {
       class: `wp-block-image is-align-${pick(ALIGNMENTS, align, 'center')}`,
@@ -164,7 +179,18 @@ export const FigureImage = Image.extend({
     return [
       'figure',
       attrs,
-      ['img', image],
+      href
+        ? [
+            'a',
+            {
+              href,
+              ...(newTab
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {}),
+            },
+            ['img', image],
+          ]
+        : ['img', image],
       ['figcaption', cleanCredit ? { 'data-credit': cleanCredit } : {}, 0],
     ];
   },

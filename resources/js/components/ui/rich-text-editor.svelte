@@ -61,6 +61,7 @@
   import { onMount, untrack, type Snippet } from 'svelte';
   import { useAdminSidebarState } from '@/layouts/admin/sidebar-state.svelte';
   import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
+  import ImageBlockToolbar from '@/components/ui/image-block-toolbar.svelte';
   import MediaPickerModal from '@/components/media/media-picker-modal.svelte';
   import {
     BULLET_STYLES,
@@ -2899,6 +2900,22 @@
 
         {#if !minimal && editor && mode === 'visual'}
           <LinkPopover {editor} {host} bind:this={linkPopover} />
+        {/if}
+
+        {#if !minimal && editor && host && mode === 'visual' && blockInfo?.kind === 'image'}
+          <ImageBlockToolbar
+            {editor}
+            {host}
+            block={blockInfo}
+            revision={tick}
+            {canMove}
+            onpatch={patchBlock}
+            onreplace={() => openPicker('replace')}
+            onmove={moveBlock}
+            onduplicate={duplicateBlock}
+            onremove={() => deleteBlock()}
+            onaddparagraph={addParagraph}
+          />
         {/if}
 
         {#if codeBadge.visible}

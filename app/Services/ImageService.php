@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
@@ -220,7 +221,7 @@ class ImageService
 
         $fullPath = trim($path, '/').'/'.$filename;
 
-        $disk ? Storage::disk($disk)->put($fullPath, $encoded) : Storage::put($fullPath, $encoded);
+        $disk ? app(MediaStorage::class)->filesystem($disk)->put($fullPath, $encoded) : Storage::put($fullPath, $encoded);
 
         return $fullPath;
     }
@@ -246,7 +247,7 @@ class ImageService
             return $path;
         }
 
-        return '/storage/'.ltrim($path, '/');
+        return app(MediaStorage::class)->url($path);
     }
 
     /**
@@ -289,9 +290,32 @@ class ImageService
 
         $thumbnail = self::thumbnailPath($path);
 
-        return $thumbnail !== $path && Storage::disk('public')->exists($thumbnail)
+        return $thumbnail !== $path && self::thumbnailExists($thumbnail)
             ? self::url($thumbnail)
             : self::url($path);
+    }
+
+    /**
+     * Whether the thumbnail file exists. A bucket lookup is a network call, so
+     * its answer is cached (cleared when variants are regenerated or deleted).
+     */
+    protected static function thumbnailExists(string $thumbnail): bool
+    {
+        $storage = app(MediaStorage::class);
+
+        if (! $storage->usesS3()) {
+            return $storage->filesystem()->exists($thumbnail);
+        }
+
+        return Cache::remember('media.thumbnail.'.md5($thumbnail), now()->addDay(), fn (): bool => $storage->filesystem()->exists($thumbnail));
+    }
+
+    /**
+     * Forget cached thumbnail lookups for a stored image.
+     */
+    public static function forgetThumbnailCache(string $path): void
+    {
+        Cache::forget('media.thumbnail.'.md5(self::thumbnailPath($path)));
     }
 
     /**
@@ -311,11 +335,13 @@ class ImageService
      *
      * @param  string  $path  Stored image path on the public disk.
      * @param  int  $width  Target width; nothing is made unless the image is wider.
+     * @param  string|null  $diskName  Disk the image lives on; null uses the active media disk.
      * @return array{width: int, height: int, path: string, size: int, format: string}|null
      */
-    public function createVariant(string $path, int $width): ?array
+    public function createVariant(string $path, int $width, ?string $diskName = null): ?array
     {
-        $disk = Storage::disk('public');
+        $diskName ??= app(MediaStorage::class)->activeDisk();
+        $disk = app(MediaStorage::class)->filesystem($diskName);
         $variant = self::variantPath($path, $width);
 
         if ($variant === $path || ! $disk->exists($path)) {
@@ -334,7 +360,10 @@ class ImageService
             (int) config('media.variant_quality', 75),
             0,
             pathinfo($variant, PATHINFO_FILENAME),
+            $diskName,
         );
+
+        self::forgetThumbnailCache($path);
 
         return [
             'width' => (int) $image->get()?->width(),
@@ -350,9 +379,10 @@ class ImageService
      *
      * @param  string  $path  Stored image path on the public disk.
      * @param  int|null  $originalWidth  Width of the stored image, used to skip widths that would upscale.
+     * @param  string|null  $diskName  Disk the image lives on; null uses the active media disk.
      * @return list<array{width: int, height: int, path: string, size: int, format: string}>
      */
-    public function createVariants(string $path, ?int $originalWidth = null): array
+    public function createVariants(string $path, ?int $originalWidth = null, ?string $diskName = null): array
     {
         $variants = [];
 
@@ -361,7 +391,7 @@ class ImageService
                 break;
             }
 
-            $variant = $this->createVariant($path, $width);
+            $variant = $this->createVariant($path, $width, $diskName);
 
             if ($variant !== null) {
                 $variants[] = $variant;

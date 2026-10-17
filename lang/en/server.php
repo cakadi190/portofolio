@@ -18,4 +18,11 @@ return [
     'ipinfo_reason_switch' => 'The "Enable IPInfo" switch is still off. Turn it on, then save.',
     'ipinfo_reason_ip' => 'IP address storage is turned off in the Visitor Analytics tab, so IPInfo does not run.',
     'pdf_invalid' => 'The certificate is not valid.',
+    'storage_probe_incomplete' => 'Bucket, Access Key and Secret are not complete.',
+    'storage_probe_ok' => 'Bucket connection succeeded (write, read, delete).',
+    'storage_probe_unreadable' => 'The test file was written but could not be read back from the bucket.',
+    'storage_probe_failed' => 'Bucket connection failed: :error',
+    'storage_reverted' => 'The bucket connection failed, so storage was reverted to local. :message',
+    'storage_switched' => 'Storage switched to the bucket. Existing files are being copied in the background (make sure `php artisan queue:work` is running, or run `php artisan media:sync-storage`).',
+    'storage_switched_local' => 'Storage is back to local. Files and image links in content are being copied back in the background (make sure `php artisan queue:work` is running).',
 ];

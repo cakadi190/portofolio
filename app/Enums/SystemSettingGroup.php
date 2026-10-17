@@ -17,6 +17,7 @@ enum SystemSettingGroup: string
     case VisitorAnalytics = 'visitor_analytics';
     case IpInfo = 'ipinfo';
     case Monitoring = 'monitoring';
+    case Storage = 'storage';
 
     public function label(): string
     {
@@ -29,6 +30,7 @@ enum SystemSettingGroup: string
             self::VisitorAnalytics => __('system-settings.group_label.VisitorAnalytics'),
             self::IpInfo => __('system-settings.group_label.IpInfo'),
             self::Monitoring => __('system-settings.group_label.Monitoring'),
+            self::Storage => __('system-settings.group_label.Storage'),
         };
     }
 
@@ -43,6 +45,7 @@ enum SystemSettingGroup: string
             self::VisitorAnalytics => __('system-settings.group_description.VisitorAnalytics'),
             self::IpInfo => __('system-settings.group_description.IpInfo'),
             self::Monitoring => __('system-settings.group_description.Monitoring'),
+            self::Storage => __('system-settings.group_description.Storage'),
         };
     }
 
@@ -137,6 +140,16 @@ enum SystemSettingGroup: string
                 ['key' => 'sentry_traces_sample_percent', 'label' => __('system-settings.sentry_traces_sample_percent.label'), 'type' => 'integer', 'placeholder' => '10', 'min' => 0, 'max' => 100, 'note' => __('system-settings.sentry_traces_sample_percent.note')],
                 ['key' => 'sentry_profiles_sample_percent', 'label' => __('system-settings.sentry_profiles_sample_percent.label'), 'type' => 'integer', 'placeholder' => '0', 'min' => 0, 'max' => 100, 'note' => __('system-settings.sentry_profiles_sample_percent.note')],
                 ['key' => 'sentry_enable_logs', 'label' => __('system-settings.sentry_enable_logs.label'), 'type' => 'toggle', 'placeholder' => '', 'note' => __('system-settings.sentry_enable_logs.note')],
+            ],
+            self::Storage => [
+                ['key' => 'storage_driver', 'label' => __('system-settings.storage_driver.label'), 'type' => 'select', 'placeholder' => '', 'options' => [['value' => 'local', 'label' => __('system-settings.storage_driver.option_local')], ['value' => 's3', 'label' => __('system-settings.storage_driver.option_s3')]], 'note' => __('system-settings.storage_driver.note')],
+                ['key' => 'storage_s3_endpoint', 'label' => 'Endpoint', 'type' => 'url', 'placeholder' => 'https://<account>.r2.cloudflarestorage.com', 'note' => __('system-settings.storage_s3_endpoint.note')],
+                ['key' => 'storage_s3_region', 'label' => 'Region', 'type' => 'text', 'placeholder' => 'us-east-1', 'note' => __('system-settings.storage_s3_region.note')],
+                ['key' => 'storage_s3_bucket', 'label' => 'Bucket', 'type' => 'text', 'placeholder' => 'catatan-cakadi'],
+                ['key' => 'storage_s3_access_key', 'label' => 'Access Key ID', 'type' => 'secret', 'placeholder' => 'AKIA...', 'note' => __('system-settings.storage_secret.note')],
+                ['key' => 'storage_s3_secret_key', 'label' => 'Secret Access Key', 'type' => 'secret', 'placeholder' => '********', 'note' => __('system-settings.storage_secret.note')],
+                ['key' => 'storage_s3_url', 'label' => __('system-settings.storage_s3_url.label'), 'type' => 'url', 'placeholder' => 'https://cdn.contoh.com', 'note' => __('system-settings.storage_s3_url.note')],
+                ['key' => 'storage_s3_path_style', 'label' => __('system-settings.storage_s3_path_style.label'), 'type' => 'toggle', 'placeholder' => '', 'note' => __('system-settings.storage_s3_path_style.note')],
             ],
         };
     }

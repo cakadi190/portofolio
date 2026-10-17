@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\SystemSettingGroup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSystemSettingRequest;
+use App\Jobs\SyncMediaStorageJob;
 use App\Models\SystemSetting;
 use App\Services\AuditLogger;
+use App\Services\MediaStorage;
 use App\Services\SystemSettingService;
 use App\Services\Visitors\IpInfoClient;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,6 +23,7 @@ class SystemSettingController extends Controller
         private SystemSettingService $systemSettings,
         private IpInfoClient $ipInfo,
         private AuditLogger $audit,
+        private MediaStorage $storage,
     ) {}
 
     public function index(): Response
@@ -45,6 +49,11 @@ class SystemSettingController extends Controller
                 ->all(),
             'status' => [
                 'ipinfo' => $this->ipInfo->status(),
+                'storage' => [
+                    'enabled' => $this->storage->usesS3(),
+                    'configured' => $this->storage->isS3Configured(),
+                    'reason' => $this->storage->isS3Configured() ? null : __('server.storage_probe_incomplete'),
+                ],
             ],
         ]);
     }
@@ -84,15 +93,39 @@ class SystemSettingController extends Controller
         }
 
         $this->systemSettings->forget();
+        $this->storage->forgetUnsynced();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pengaturan_berhasil_disimpan')]);
+        $toast = ['type' => 'success', 'message' => __('flash.pengaturan_berhasil_disimpan')];
+
+        if (in_array('storage_driver', $changed, true) && $request->input('storage_driver') === 's3') {
+            $probe = $this->storage->probe();
+
+            if ($probe['ok']) {
+                SyncMediaStorageJob::dispatch();
+                $toast['message'] .= ' '.__('server.storage_switched');
+            } else {
+                SystemSetting::query()->where('key', 'storage_driver')->first()?->update(['value' => 'local']);
+                $this->systemSettings->forget();
+                $this->storage->forgetUnsynced();
+                $toast = ['type' => 'error', 'message' => __('server.storage_reverted', ['message' => $probe['message']])];
+            }
+        }
+
+        if (in_array('storage_driver', $changed, true) && $request->input('storage_driver') === 'local') {
+            SyncMediaStorageJob::dispatch();
+            $toast['message'] .= ' '.__('server.storage_switched_local');
+        }
+
+        Inertia::flash('toast', $toast);
 
         return to_route('admin.system-settings.index');
     }
 
-    public function testConnection(): RedirectResponse
+    public function testConnection(Request $request): RedirectResponse
     {
-        $result = $this->ipInfo->test();
+        $result = $request->input('group') === SystemSettingGroup::Storage->value
+            ? $this->storage->probe()
+            : $this->ipInfo->test();
 
         Inertia::flash('toast', ['type' => $result['ok'] ? 'success' : 'error', 'message' => $result['message']]);
 

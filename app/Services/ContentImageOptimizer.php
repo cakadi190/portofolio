@@ -96,6 +96,10 @@ class ContentImageOptimizer
 
         $image->setAttribute('decoding', 'async');
 
+        if ($path) {
+            $image->setAttribute('src', (string) ImageService::url($path));
+        }
+
         if ($size && $size['srcset'] && ! $image->hasAttribute('srcset')) {
             $image->setAttribute('srcset', $size['srcset']);
             $image->setAttribute('sizes', (string) config('media.sizes.content'));
@@ -103,11 +107,11 @@ class ContentImageOptimizer
     }
 
     /**
-     * Media-library path behind a `/storage/...` URL, or null for any other source.
+     * Media-library path behind a `/storage/...` or bucket URL, or null for any other source.
      */
     private static function storedPath(string $src): ?string
     {
-        return str_starts_with($src, '/storage/') ? ltrim(substr($src, strlen('/storage/')), '/') : null;
+        return app(MediaStorage::class)->pathFromUrl($src);
     }
 
     /**
