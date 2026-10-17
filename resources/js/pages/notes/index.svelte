@@ -1,6 +1,7 @@
 <script lang="ts">
   import { t, intlLocale } from '@/lib/i18n';
   import Eye from '@lucide/svelte/icons/eye';
+  import Tags from '@lucide/svelte/icons/tags';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import EmptyState from '@/components/empty-state.svelte';
@@ -41,21 +42,26 @@
       <div class="row">
         <div class="col-lg-8 mx-auto">
           {#if tags.length}
-            <nav class="d-flex flex-wrap gap-2 mb-4" aria-label={t('notes.filter')}>
-              <Link
-                href={index().url}
-                class={`badge tag-badge text-decoration-none ${activeTag === null ? 'text-bg-primary' : ''}`}
-              >
-                {t('notes.all')}
-              </Link>
-              {#each tags as tag (tag)}
+            <nav class="notes-filter mb-4" aria-label={t('notes.filter')}>
+              <Tags size={18} aria-hidden="true" />
+              <div class="d-flex flex-wrap gap-2">
                 <Link
-                  href={index({ query: { tag } }).url}
-                  class={`badge tag-badge text-decoration-none ${activeTag === tag ? 'text-bg-primary' : ''}`}
+                  href={index().url}
+                  class={`post-taxonomy-tag ${activeTag === null ? 'is-active' : ''}`}
+                  aria-current={activeTag === null ? 'page' : undefined}
                 >
-                  {tag}
+                  {t('notes.all')}
                 </Link>
-              {/each}
+                {#each tags as tag (tag)}
+                  <Link
+                    href={index({ query: { tag } }).url}
+                    class={`post-taxonomy-tag ${activeTag === tag ? 'is-active' : ''}`}
+                    aria-current={activeTag === tag ? 'page' : undefined}
+                  >
+                    {tag}
+                  </Link>
+                {/each}
+              </div>
             </nav>
           {/if}
 
@@ -91,7 +97,7 @@
                     {#if note.tags.length}
                       <div class="d-flex flex-wrap gap-2 mt-3">
                         {#each note.tags as tag (tag)}
-                          <span class="badge tag-badge">{tag}</span>
+                          <span class="post-taxonomy-tag">{tag}</span>
                         {/each}
                       </div>
                     {/if}
@@ -106,3 +112,17 @@
     </div>
   </section>
 </div>
+
+<style>
+  .notes-filter {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    color: var(--neo-secondary-color);
+  }
+
+  .notes-filter > :global(svg) {
+    flex: 0 0 auto;
+    margin-top: 0.4rem;
+  }
+</style>

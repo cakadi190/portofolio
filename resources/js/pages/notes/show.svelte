@@ -5,6 +5,7 @@
   import Clock from '@lucide/svelte/icons/clock';
   import Eye from '@lucide/svelte/icons/eye';
   import Pencil from '@lucide/svelte/icons/pencil';
+  import Tags from '@lucide/svelte/icons/tags';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
   import HeaderPage from '@/components/header-page.svelte';
@@ -89,10 +90,13 @@
           </div>
 
           {#if note.tags.length}
-            <div class="d-flex flex-wrap gap-2 border-top mt-5 pt-4">
-              {#each note.tags as tag (tag)}
-                <span class="badge tag-badge">{tag}</span>
-              {/each}
+            <div class="note-tags border-top mt-5 pt-4">
+              <Tags size={18} aria-label={t('blog.show.tag_icon')} role="img" />
+              <div class="d-flex flex-wrap gap-2">
+                {#each note.tags as tag (tag)}
+                  <span class="post-taxonomy-tag">{tag}</span>
+                {/each}
+              </div>
             </div>
           {/if}
         </div>
@@ -102,6 +106,18 @@
 </div>
 
 <style>
+  .note-tags {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    color: var(--neo-secondary-color);
+  }
+
+  .note-tags > :global(svg) {
+    flex: 0 0 auto;
+    margin-top: 0.4rem;
+  }
+
   :global(.note-edit) {
     display: inline-flex;
     align-items: center;

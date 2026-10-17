@@ -168,7 +168,8 @@
     background-color 0.15s;
 
   &:hover,
-  &:focus-visible {
+  &:focus-visible,
+  &.is-active {
     color: var(--neo-primary);
     border-color: var(--neo-primary);
     background: var(--neo-primary-bg-subtle);
