@@ -48,7 +48,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto">
-          <div class="py-4 border-bottom mb-5 d-flex flex-column gap-3">
+          <div class="py-4 border-bottom mb-5">
             <div
               class="d-flex flex-wrap align-items-center justify-content-between gap-3"
             >
@@ -81,19 +81,20 @@
                 </Link>
               {/if}
             </div>
-            {#if note.tags.length}
-              <div class="d-flex flex-wrap gap-2 border-top pt-3">
-                {#each note.tags as tag (tag)}
-                  <span class="badge tag-badge">{tag}</span>
-                {/each}
-              </div>
-            {/if}
           </div>
 
           <div class="wysiwyg-content-wrapper" use:highlightCode={note.content}>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html note.content}
           </div>
+
+          {#if note.tags.length}
+            <div class="d-flex flex-wrap gap-2 border-top mt-5 pt-4">
+              {#each note.tags as tag (tag)}
+                <span class="badge tag-badge">{tag}</span>
+              {/each}
+            </div>
+          {/if}
         </div>
       </div>
     </div>
