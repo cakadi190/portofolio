@@ -229,7 +229,7 @@ describe('LanguageSwitcher', () => {
 
     expect(post).toHaveBeenCalledWith(
       '/locale',
-      { locale: 'en' },
+      { locale: 'en', redirect: expect.stringMatching(/^\//) },
       expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
   });

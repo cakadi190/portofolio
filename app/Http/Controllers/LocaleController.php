@@ -8,7 +8,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cookie;
 
 /**
- * Saves the interface language for pages that have no language in their URL.
+ * Saves the interface language for pages that have no language in their URL, then
+ * returns to the page the visitor was on. The page sends its own path as `redirect`
+ * (same-site paths only) so the return trip does not depend on the `Referer` header.
  */
 class LocaleController extends Controller
 {
@@ -18,6 +20,8 @@ class LocaleController extends Controller
 
         $request->user()?->update(['locale' => $locale]);
 
-        return back()->withCookie(Cookie::make(AppLocale::COOKIE, $locale, 60 * 24 * 365));
+        $redirect = $request->validated('redirect');
+
+        return ($redirect === null ? back() : redirect($redirect))->withCookie(Cookie::make(AppLocale::COOKIE, $locale, 60 * 24 * 365));
     }
 }

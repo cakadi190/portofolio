@@ -185,3 +185,16 @@ it('shows the language of each sitemap URL in the human readable stylesheet', fu
     expect($xsl)->toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"')
         ->toContain('xhtml:link');
 });
+
+it('returns to the page sent as redirect instead of relying on the referer', function () {
+    $this->post(route('locale.update'), ['locale' => 'en', 'redirect' => '/login?next=1'])
+        ->assertRedirect('/login?next=1')
+        ->assertCookie(AppLocale::COOKIE);
+});
+
+it('refuses redirects that leave the site', function () {
+    foreach (['//evil.test', 'https://evil.test', '/\\evil.test'] as $redirect) {
+        $this->post(route('locale.update'), ['locale' => 'en', 'redirect' => $redirect])
+            ->assertSessionHasErrors('redirect');
+    }
+});

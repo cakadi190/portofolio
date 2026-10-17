@@ -15,6 +15,7 @@ class UpdateLocaleRequest extends FormRequest
     {
         return [
             'locale' => ['required', 'string', Rule::in(AppLocale::available())],
+            'redirect' => ['nullable', 'string', 'max:2048', 'regex:#^/(?![/\\\\])#'],
         ];
     }
 }

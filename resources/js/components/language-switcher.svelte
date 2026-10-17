@@ -9,7 +9,7 @@
 
   function choose(code: string): void {
     // Reload so text computed once (menus, labels) is rebuilt in the new language.
-    router.post(update.url(), { locale: code }, { onSuccess: () => window.location.reload() });
+    router.post(update.url(), { locale: code, redirect: window.location.pathname + window.location.search }, { onSuccess: () => window.location.reload() });
   }
 </script>
 
