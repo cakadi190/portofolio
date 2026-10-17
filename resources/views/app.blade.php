@@ -108,6 +108,7 @@
         <link rel="dns-prefetch" href="https://api.simplesvg.com">
 
         <x-analytics />
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="10c805e0-d6c0-48c3-bb4c-2237269955ed"></script>
         <x-sentry />
 
         {{-- A page's own chunk CSS is otherwise only injected by JS after boot; link it in <head> so these pages are styled on first paint. --}}

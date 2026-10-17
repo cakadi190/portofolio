@@ -21,12 +21,12 @@ class SecurityHeaders
      * Tesseract.js (OCR in the PDF viewers) compiles WebAssembly and fetches its core and language data from jsDelivr.
      */
     private const CONTENT_SECURITY_POLICY = "default-src 'self'; "
-        ."script-src 'self' 'nonce-{nonce}' 'wasm-unsafe-eval' https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
+        ."script-src 'self' 'nonce-{nonce}' 'wasm-unsafe-eval' https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cloud.umami.is; "
         ."style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         ."font-src 'self' data: https://fonts.gstatic.com; "
         ."img-src 'self' data: blob: https:; "
         ."media-src 'self' blob: https:; "
-        ."connect-src 'self' data: blob: https://cdn.jsdelivr.net https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io; "
+        ."connect-src 'self' data: blob: https://cdn.jsdelivr.net https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://cloud.umami.is https://api-gateway.umami.dev https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io; "
         .'frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://www.vidio.com https://www.dailymotion.com https://www.figma.com; '
         ."worker-src 'self' blob:; "
         ."object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";

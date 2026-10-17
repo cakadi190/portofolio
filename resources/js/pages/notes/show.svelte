@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { t, intlLocale } from '@/lib/i18n';
   import '../../../css/content.scss';
   import Calendar from '@lucide/svelte/icons/calendar';
   import Clock from '@lucide/svelte/icons/clock';
   import Eye from '@lucide/svelte/icons/eye';
+  import Minus from '@lucide/svelte/icons/minus';
+  import Plus from '@lucide/svelte/icons/plus';
   import Pencil from '@lucide/svelte/icons/pencil';
   import Tags from '@lucide/svelte/icons/tags';
   import Link from '@/components/link.svelte';
@@ -24,6 +27,40 @@
   };
 
   let { note }: { note: Note } = $props();
+
+  const TEXT_SCALES = [0.9, 1, 1.15, 1.3, 1.5];
+  const TEXT_SCALE_KEY = 'catatancakadi:note-text-scale';
+
+  let scaleIndex = $state(1);
+
+  onMount(() => {
+    try {
+      const stored = Number(window.localStorage.getItem(TEXT_SCALE_KEY));
+      const index = TEXT_SCALES.indexOf(stored);
+
+      if (index !== -1) {
+        scaleIndex = index;
+      }
+    } catch {
+      // Storage can be blocked; the default size still works.
+    }
+  });
+
+  function stepTextScale(direction: -1 | 1): void {
+    const next = TEXT_SCALES[scaleIndex + direction];
+
+    if (next === undefined) {
+      return;
+    }
+
+    scaleIndex += direction;
+
+    try {
+      window.localStorage.setItem(TEXT_SCALE_KEY, String(next));
+    } catch {
+      // Preference just isn't remembered.
+    }
+  }
 
   const publishedLabel = $derived(
     note.publishedAt
@@ -71,6 +108,33 @@
                   })}
                 </span>
               </div>
+              <div
+                class="note-text-size"
+                role="group"
+                aria-label={t('ui.ukuran_teks_bacaan')}
+              >
+                <button
+                  type="button"
+                  aria-label={t('ui.perkecil_teks_bacaan')}
+                  title={t('ui.perkecil_teks_bacaan')}
+                  disabled={scaleIndex === 0}
+                  onclick={() => stepTextScale(-1)}
+                >
+                  <Minus size={14} aria-hidden="true" />
+                </button>
+                <span aria-live="polite"
+                  >{Math.round(TEXT_SCALES[scaleIndex] * 100)}%</span
+                >
+                <button
+                  type="button"
+                  aria-label={t('ui.perbesar_teks_bacaan')}
+                  title={t('ui.perbesar_teks_bacaan')}
+                  disabled={scaleIndex === TEXT_SCALES.length - 1}
+                  onclick={() => stepTextScale(1)}
+                >
+                  <Plus size={14} aria-hidden="true" />
+                </button>
+              </div>
               {#if note.editUrl}
                 <Link
                   href={note.editUrl}
@@ -84,7 +148,11 @@
             </div>
           </div>
 
-          <div class="wysiwyg-content-wrapper" use:highlightCode={note.content}>
+          <div
+            class="wysiwyg-content-wrapper"
+            style:zoom={TEXT_SCALES[scaleIndex]}
+            use:highlightCode={note.content}
+          >
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html note.content}
           </div>
@@ -106,6 +174,35 @@
 </div>
 
 <style>
+  .note-text-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    font-size: 0.875rem;
+    color: var(--neo-body-color);
+  }
+
+  .note-text-size button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--neo-border-color);
+    border-radius: 999px;
+  }
+
+  .note-text-size button:hover:not(:disabled),
+  .note-text-size button:focus-visible {
+    color: var(--neo-primary);
+    border-color: var(--neo-primary);
+  }
+
+  .note-text-size button:disabled {
+    opacity: 0.4;
+  }
+
   .note-tags {
     display: flex;
     align-items: flex-start;

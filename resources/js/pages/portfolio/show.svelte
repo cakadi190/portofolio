@@ -137,7 +137,9 @@
           <div class="row flex-column-reverse flex-md-row gy-5">
             <div class="col-md-8">
               <div class="mb-5">
-                <h2 id="description" class="h3">{t('portfolios.show.description')}</h2>
+                <h2 id="description" class="h3">
+                  {t('portfolios.show.description')}
+                </h2>
                 {#if portfolio.description}
                   <div
                     class="wysiwyg-content-wrapper"
@@ -147,12 +149,16 @@
                     {@html portfolio.description}
                   </div>
                 {:else}
-                  <p class="opacity-75">{t('portfolios.show.no_description')}</p>
+                  <p class="opacity-75">
+                    {t('portfolios.show.no_description')}
+                  </p>
                 {/if}
               </div>
 
               <div class="mb-5">
-                <h2 id="techstack" class="h3">{t('portfolios.show.built_with')}</h2>
+                <h2 id="techstack" class="h3">
+                  {t('portfolios.show.built_with')}
+                </h2>
 
                 <div class="d-flex gap-3 align-items-center flex-wrap">
                   {#each portfolio.technologies as tech (tech)}
@@ -172,7 +178,9 @@
                           type="button"
                           class="position-relative d-block w-100 p-0 border rounded-3 overflow-hidden bg-transparent"
                           aria-label={t('portfolios.show.preview', {
-                            title: gallery.title || t('portfolios.show.image_n', { n: position + 1 }),
+                            title:
+                              gallery.title ||
+                              t('portfolios.show.image_n', { n: position + 1 }),
                           })}
                           onclick={() => openLightbox(position)}
                         >
@@ -190,19 +198,21 @@
                             loading="lazy"
                             decoding="async"
                             class="w-100"
-                            style="aspect-ratio: 4 / 3; object-fit: cover;"
+                            style="aspect-ratio: 1 / 1; object-fit: cover; object-position: top;"
                           />
                           <span
-                            class="position-absolute bottom-0 end-0 m-2 badge text-bg-dark"
+                            class="position-absolute top-0 end-0 m-2 badge text-bg-dark"
                           >
                             <Expand size={14} />
                           </span>
+                          {#if gallery.title}
+                            <span
+                              class="position-absolute bottom-0 end-0 m-2 badge text-bg-dark text-truncate"
+                              style="max-width: calc(100% - 1rem);"
+                              >{gallery.title}</span
+                            >
+                          {/if}
                         </button>
-                        {#if gallery.title}
-                          <small class="d-block mt-1 opacity-75"
-                            >{gallery.title}</small
-                          >
-                        {/if}
                       </div>
                     {/each}
                   </div>
@@ -225,7 +235,9 @@
                     <Star size={20} class="text-warning" fill="currentColor" />
                     <strong>{reviewSummary.average}</strong>
                     <span class="opacity-75"
-                      >{t('portfolios.show.review_count', { count: reviewSummary.count })}</span
+                      >{t('portfolios.show.review_count', {
+                        count: reviewSummary.count,
+                      })}</span
                     >
                   </p>
 
@@ -246,7 +258,9 @@
                             </div>
                             <span
                               class="d-flex text-warning"
-                              aria-label={t('portfolios.show.out_of_five', { rating: review.rating })}
+                              aria-label={t('portfolios.show.out_of_five', {
+                                rating: review.rating,
+                              })}
                             >
                               {#each [1, 2, 3, 4, 5] as value (value)}
                                 <Star
@@ -269,13 +283,17 @@
                     {/each}
                   </div>
                 {:else}
-                  <p class="opacity-75 mb-4">{t('portfolios.show.no_reviews')}</p>
+                  <p class="opacity-75 mb-4">
+                    {t('portfolios.show.no_reviews')}
+                  </p>
                 {/if}
 
                 <div class="card rounded-4">
                   <div class="card-body p-4">
                     <h3 class="h5">{t('portfolios.review.title')}</h3>
-                    <p class="opacity-75">{@html t('portfolios.review.required')}</p>
+                    <p class="opacity-75">
+                      {@html t('portfolios.review.required')}
+                    </p>
 
                     {#key formKey}
                       <Form
@@ -292,23 +310,31 @@
                           <div class="row g-3">
                             <Field.Group class="col-md-6">
                               <Field.Label for="review-name"
-                                >{t('portfolios.review.name')} <span class="text-danger">*</span></Field.Label>
+                                >{t('portfolios.review.name')}
+                                <span class="text-danger">*</span></Field.Label
+                              >
                               <Field.Input
                                 id="review-name"
                                 name="reviewer_name"
-                                placeholder={t('portfolios.review.name_placeholder')}
+                                placeholder={t(
+                                  'portfolios.review.name_placeholder',
+                                )}
                                 invalid={!!errors.reviewer_name}
                               />
                               <Field.Feedback message={errors.reviewer_name} />
                             </Field.Group>
                             <Field.Group class="col-md-6">
                               <Field.Label for="review-email"
-                                >{t('form.email')} <span class="text-danger">*</span></Field.Label>
+                                >{t('form.email')}
+                                <span class="text-danger">*</span></Field.Label
+                              >
                               <Field.Input
                                 id="review-email"
                                 name="reviewer_email"
                                 type="email"
-                                placeholder={t('portfolios.review.email_placeholder')}
+                                placeholder={t(
+                                  'portfolios.review.email_placeholder',
+                                )}
                                 invalid={!!errors.reviewer_email}
                               />
                               <Field.Feedback message={errors.reviewer_email} />
@@ -330,18 +356,25 @@
 
                           <Field.Group>
                             <Field.Label for="review-title"
-                              >{t('portfolios.review.review_title')} <span class="text-danger">*</span></Field.Label>
+                              >{t('portfolios.review.review_title')}
+                              <span class="text-danger">*</span></Field.Label
+                            >
                             <Field.Input
                               id="review-title"
                               name="title"
-                              placeholder={t('portfolios.review.title_placeholder')}
+                              placeholder={t(
+                                'portfolios.review.title_placeholder',
+                              )}
                               invalid={!!errors.title}
                             />
                             <Field.Feedback message={errors.title} />
                           </Field.Group>
 
                           <Field.Group>
-                            <Field.Label>{t('portfolios.review.rating')} <span class="text-danger">*</span></Field.Label>
+                            <Field.Label
+                              >{t('portfolios.review.rating')}
+                              <span class="text-danger">*</span></Field.Label
+                            >
                             <input
                               type="hidden"
                               name="rating"
@@ -352,7 +385,9 @@
                                 <button
                                   type="button"
                                   class="btn btn-link p-0 text-warning"
-                                  aria-label={t('portfolios.review.stars', { value })}
+                                  aria-label={t('portfolios.review.stars', {
+                                    value,
+                                  })}
                                   onclick={() => (selectedRating = value)}
                                 >
                                   <Star
@@ -368,11 +403,16 @@
                           </Field.Group>
 
                           <Field.Group>
-                            <Field.Label>{t('portfolios.review.body')} <span class="text-danger">*</span></Field.Label>
+                            <Field.Label
+                              >{t('portfolios.review.body')}
+                              <span class="text-danger">*</span></Field.Label
+                            >
                             <RichTextEditor
                               name="comment"
                               minimal
-                              placeholder={t('portfolios.review.body_placeholder')}
+                              placeholder={t(
+                                'portfolios.review.body_placeholder',
+                              )}
                               invalid={!!errors.comment}
                             />
                             <Field.Feedback message={errors.comment} />
@@ -384,12 +424,15 @@
                             <button
                               type="submit"
                               class="btn btn-primary"
-                              disabled={processing}>{t('portfolios.review.submit')}</button
+                              disabled={processing}
+                              >{t('portfolios.review.submit')}</button
                             >
                           </CaptchaSubmitRow>
                           <p class="small opacity-75 mb-0">
                             {t('portfolios.review.note')}
-                            <a href={localizeHref('/disclaimer')}>{t('portfolios.review.policy')}</a>.
+                            <a href={localizeHref('/disclaimer')}
+                              >{t('portfolios.review.policy')}</a
+                            >.
                           </p>
                         {/snippet}
                       </Form>
@@ -409,21 +452,25 @@
                       <a
                         href="#description"
                         class="nav-link py-3 w-100 text-start"
-                        >{t('portfolios.show.description')}</a>
+                        >{t('portfolios.show.description')}</a
+                      >
                     </li>
                     <li class="nav-item">
                       <a
                         href="#techstack"
                         class="nav-link py-3 w-100 text-start"
-                        >{t('portfolios.show.built_with')}</a>
+                        >{t('portfolios.show.built_with')}</a
+                      >
                     </li>
                     <li class="nav-item">
                       <a href="#gallery" class="nav-link py-3 w-100 text-start"
-                        >{t('portfolios.show.gallery_short')}</a>
+                        >{t('portfolios.show.gallery_short')}</a
+                      >
                     </li>
                     <li class="nav-item">
                       <a href="#rating" class="nav-link py-3 w-100 text-start"
-                        >{t('portfolios.show.rating_short')}</a>
+                        >{t('portfolios.show.rating_short')}</a
+                      >
                     </li>
                   </ul>
                 </div>

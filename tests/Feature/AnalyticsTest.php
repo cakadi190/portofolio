@@ -43,3 +43,15 @@ test('the sitemap stylesheet omits the google tag without a measurement id', fun
         ->assertOk()
         ->assertDontSee('googletagmanager.com', escape: false);
 });
+
+test('the umami tracker is rendered and allowed by the content security policy', function () {
+    $response = $this->get('/')
+        ->assertOk()
+        ->assertSee('https://cloud.umami.is/script.js', escape: false)
+        ->assertSee('10c805e0-d6c0-48c3-bb4c-2237269955ed', escape: false);
+
+    $policy = $response->headers->get('Content-Security-Policy')
+        ?? $response->headers->get('Content-Security-Policy-Report-Only');
+
+    expect($policy)->toContain('script-src', 'https://cloud.umami.is', 'https://api-gateway.umami.dev');
+});

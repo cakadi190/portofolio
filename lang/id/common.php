@@ -536,4 +536,7 @@ return [
     'ui.ukuran_teks_arab' => 'Ukuran teks Arab',
     'ui.perkecil_teks_arab' => 'Perkecil teks Arab',
     'ui.perbesar_teks_arab' => 'Perbesar teks Arab',
+    'ui.ukuran_teks_bacaan' => 'Ukuran teks bacaan',
+    'ui.perkecil_teks_bacaan' => 'Perkecil teks',
+    'ui.perbesar_teks_bacaan' => 'Perbesar teks',
 ];
