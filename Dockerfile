@@ -51,8 +51,12 @@ ARG UID=1000
 ARG GID=1000
 
 # bash: composer/artisan scripts; curl: compose healthchecks. Neither ships
-# in the Alpine base image.
-RUN apk add --no-cache bash curl
+# in the Alpine base image. ca-certificates: the Vite font plugin downloads
+# Bunny fonts over HTTPS at build time, and Bun fails TLS verification
+# without a system CA bundle.
+RUN apk add --no-cache bash curl ca-certificates && update-ca-certificates
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+    NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
 # gd        — Intervention Image's fallback driver (app/Providers/AppServiceProvider.php
 #             uses imagick only if it happens to be loaded, otherwise gd)
