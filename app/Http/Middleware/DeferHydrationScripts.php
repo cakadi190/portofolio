@@ -33,9 +33,17 @@ class DeferHydrationScripts
     ];
 
     /**
-     * Start loading anyway after this many milliseconds, even if `load` is still pending.
+     * Start loading anyway after this many milliseconds for visitors who never interact.
      */
-    private const int FALLBACK_MS = 4000;
+    private const int FALLBACK_MS = 10000;
+
+    /**
+     * Events that start loading immediately: hydration waits for the visitor instead of
+     * competing with the first paint, so its long task never counts as blocking time.
+     *
+     * @var list<string>
+     */
+    private const array INTERACTION_EVENTS = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart'];
 
     /**
      * @param  Closure(Request): (Response)  $next
@@ -92,10 +100,12 @@ class DeferHydrationScripts
         ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES);
 
         $fallback = self::FALLBACK_MS;
+        $events = json_encode(self::INTERACTION_EVENTS);
 
         return '(function(c){var d=document,done=0;function add(t,a){var n=d.createElement(t);for(var k in a){n.setAttribute(k,a[k])}d.head.appendChild(n)}'
             ."function go(){if(done){return}done=1;c.p.forEach(function(a){add('link',a)});c.s.forEach(function(a){add('script',a)})}"
-            ."if(d.readyState==='complete'){setTimeout(go,0)}else{addEventListener('load',function(){setTimeout(go,0)})}"
+            ."function start(){{$events}.forEach(function(e){removeEventListener(e,start)});go()}"
+            ."{$events}.forEach(function(e){addEventListener(e,start,{passive:true})});"
             ."setTimeout(go,{$fallback})})({$config})";
     }
 

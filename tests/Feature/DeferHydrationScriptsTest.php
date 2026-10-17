@@ -20,7 +20,7 @@ function deferred(string $path, array $headers = []): Response
     );
 }
 
-test('public pages load their scripts after the load event instead of in the head', function () {
+test('public pages load their scripts on first interaction instead of in the head', function () {
     $response = deferred('/portfolio');
     $html = $response->getContent();
 
@@ -30,7 +30,8 @@ test('public pages load their scripts after the load event instead of in the hea
         ->toContain('<div id="root">SSR</div>')
         ->toContain('"s":[{"type":"module","src":"https://x.test/build/assets/app.js"}]')
         ->toContain('"p":[{"rel":"modulepreload","as":"script","href":"https://x.test/build/assets/dep.js"}]')
-        ->toContain("addEventListener('load'");
+        ->toContain('["pointerdown","pointermove","keydown","scroll","touchstart"]')
+        ->toContain('setTimeout(go,10000)');
     expect(strpos($html, 'function(c)'))->toBeLessThan(strpos($html, '</body>'));
 });
 
