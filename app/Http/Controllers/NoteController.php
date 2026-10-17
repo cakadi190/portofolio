@@ -58,7 +58,7 @@ class NoteController extends Controller
     /**
      * Show a single published note.
      */
-    public function show(Note $note, SeoService $seo): Response
+    public function show(Request $request, Note $note, SeoService $seo): Response
     {
         abort_unless($note->is_published, 404);
 
@@ -103,6 +103,9 @@ class NoteController extends Controller
                 'readingMinutes' => $note->readingMinutes(),
                 'views' => $this->views->forPath("/notes/{$note->slug}"),
                 'tags' => $note->tags->pluck('name'),
+                'editUrl' => $request->user()?->can('manage-blog') === true
+                    ? route('admin.notes.edit', $note, absolute: false)
+                    : null,
             ],
         ]);
     }

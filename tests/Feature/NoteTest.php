@@ -36,6 +36,15 @@ test('a published note renders sanitized content, reading time and views', funct
         ->where('note.content', fn ($html) => str_contains($html, 'Halo') && ! str_contains($html, '<script')));
 });
 
+test('the edit shortcut on a note is only given to blogging staff', function () {
+    $note = Note::factory()->create();
+
+    $this->get(route('notes.show', $note))->assertInertia(fn ($page) => $page->where('note.editUrl', null));
+    $this->actingAs(User::factory()->create())->get(route('notes.show', $note))->assertInertia(fn ($page) => $page->where('note.editUrl', null));
+    $this->actingAs(User::factory()->redaktur()->create())->get(route('notes.show', $note))
+        ->assertInertia(fn ($page) => $page->where('note.editUrl', route('admin.notes.edit', $note, absolute: false)));
+});
+
 test('draft notes are not public', function () {
     $this->get(route('notes.show', Note::factory()->draft()->create()))->assertNotFound();
 });
