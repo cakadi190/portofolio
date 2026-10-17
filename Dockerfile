@@ -205,7 +205,14 @@ RUN set -eux; \
 # ---------------------------------------------------------------------------
 FROM frontend-source AS assets
 
-RUN bun run build:ssr
+# The Vite font plugin downloads Bunny fonts at build time; the builder's DNS
+# occasionally times out (getaddrinfo ETIMEOUT), so retry before failing.
+RUN for attempt in 1 2 3 4; do \
+      bun run build:ssr && exit 0; \
+      echo "build:ssr failed (attempt ${attempt}), retrying in 10s" >&2; \
+      sleep 10; \
+    done; \
+    exit 1
 
 
 # ---------------------------------------------------------------------------
