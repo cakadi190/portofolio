@@ -208,6 +208,14 @@ pipeline {
     // Dockerfile uses RUN --mount=type=cache, which needs BuildKit.
     DOCKER_BUILDKIT = '1'
 
+    // Ceiling for the BuildKit cache left on the agent after each build.
+    // BuildKit evicts least-recently-used first, so the stack layers every
+    // build touches (base image, PHP extensions, composer/bun downloads,
+    // vendor, node_modules) stay warm until their inputs change, while the
+    // per-commit source/asset layers are what gets reclaimed. Raise it if
+    // stack layers keep getting rebuilt; lower it if the disk gets tight.
+    BUILDKIT_KEEP_STORAGE = '8GB'
+
     IMAGE_NAME    = 'catatancakadi'
     IMAGE_TAG     = 'latest'
     IMAGE_ARCHIVE = "${IMAGE_NAME}-${env.BUILD_NUMBER}.tar.gz"
@@ -235,6 +243,7 @@ pipeline {
           String commitMessage = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
           env.RUN_MIGRATE_FRESH = (params.SHOULD_MIGRATE_FRESH || commitMessage.contains('refresh-db')) ? 'true' : 'false'
           echo "migrate:fresh on this build: ${env.RUN_MIGRATE_FRESH}"
+          env.BUILD_STARTED_AT = sh(script: 'date +%s', returnStdout: true).trim()
         }
       }
     }
@@ -275,9 +284,38 @@ pipeline {
         }
         stage('Build image') {
           steps {
-            sh 'docker build --pull --tag ${IMAGE_NAME}:${IMAGE_TAG} .'
+            // No --pull: the base images are pinned by version ARG in the
+            // Dockerfile, so the cached stack is reused until that pin (or
+            // composer.lock / bun.lock) changes. Bump the ARG to refresh it.
+            sh 'docker build --tag ${IMAGE_NAME}:${IMAGE_TAG} .'
           }
         }
+      }
+    }
+
+    // Stack = pinned ARG versions + the base stage of the Dockerfile +
+    // composer.lock + bun.lock. While its fingerprint is unchanged the cache
+    // is simply reused. When it changes, every cache record this successful
+    // build did not touch (the old stack's layers and stale source layers)
+    // is deleted at once, rather than waiting for the size cap to evict them.
+    // Runs only after a green build, so a failed build never wipes a cache
+    // the next attempt could still use.
+    stage('Rotate build cache') {
+      steps {
+        sh '''#!/usr/bin/env bash
+          set -eu
+          marker="${HOME}/.cache/${IMAGE_NAME}-stack.sha256"
+          mkdir -p "$(dirname "$marker")"
+          current="$( { grep '^ARG ' Dockerfile; sed '/^FROM base AS vendor-production/q' Dockerfile; cat composer.lock bun.lock; } | sha256sum | cut -d' ' -f1)"
+          previous="$(cat "$marker" 2>/dev/null || true)"
+          if [ "$current" != "$previous" ]; then
+            echo "Stack changed (${previous:-none} -> ${current}); dropping cache the new stack did not use."
+            docker builder prune -f --filter "until=$(( $(date +%s) - BUILD_STARTED_AT ))s" || true
+            printf '%s' "$current" > "$marker"
+          else
+            echo "Stack unchanged; keeping the warm cache."
+          fi
+        '''
       }
     }
 
@@ -343,6 +381,10 @@ pipeline {
     always {
       sh 'rm -f ${IMAGE_ARCHIVE}'
       sh 'docker image rm ${IMAGE_NAME}:${IMAGE_TAG} || true'
+      // Dangling images from superseded builds, then cap the build cache
+      // (see BUILDKIT_KEEP_STORAGE). Never fail the build over cleanup.
+      sh 'docker image prune -f || true'
+      sh 'docker builder prune -f --keep-storage "${BUILDKIT_KEEP_STORAGE}" || true'
     }
   }
 }
