@@ -3,18 +3,41 @@
 use App\Models\User;
 use App\Support\AppLocale;
 
-it('serves public pages on plain URLs in Indonesian', function () {
-    $this->get('/contact')
+it('serves Indonesian public pages under the /id prefix', function () {
+    $this->get('/id/contact')
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->where('locale', 'id')->where('localeAlternates.en', '/en/contact'));
+        ->assertInertia(fn ($page) => $page
+            ->where('locale', 'id')
+            ->url('/id/contact')
+            ->where('localeAlternates.id', '/id/contact')
+            ->where('localeAlternates.en', '/en/contact'));
 });
+
+it('redirects plain public URLs to the default language and keeps the query string', function (string $from, string $to) {
+    $this->withoutLocalePrefixing()->get($from)->assertRedirect($to)->assertStatus(301);
+})->with([
+    'home' => ['/', '/id'],
+    'page' => ['/contact', '/id/contact'],
+    'query string' => ['/blog?search=laravel&page=2', '/id/blog?search=laravel&page=2'],
+]);
+
+it('serves plain POSTs without redirecting them', function () {
+    $this->post('/locale', ['locale' => 'fr'])->assertSessionHasErrors('locale');
+});
+
+it('switches language on the page being viewed', function (string $from, string $expected) {
+    $this->get($from)->assertInertia(fn ($page) => $page->where('localeAlternates.en', $expected));
+})->with([
+    'page with a query' => ['/id/contact?x=1', '/en/contact?x=1'],
+    'home' => ['/id', '/en'],
+]);
 
 it('serves the English version under the /en prefix', function () {
     $this->get('/en/contact')
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('locale', 'en')
-            ->where('localeAlternates.id', '/contact')
+            ->where('localeAlternates.id', '/id/contact')
             ->where('localeAlternates.en', '/en/contact'));
 });
 
@@ -23,29 +46,30 @@ it('serves the English homepage and keeps the query string', function () {
 
     $this->get('/en/blog?search=laravel')
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->where('locale', 'en')->where('localeAlternates.id', '/blog?search=laravel'));
+        ->assertInertia(fn ($page) => $page->where('locale', 'en')->where('localeAlternates.id', '/id/blog?search=laravel'));
 });
 
 it('keeps the language prefix in the URL Inertia reports to the browser', function () {
     $this->get('/en/contact')->assertInertia(fn ($page) => $page->url('/en/contact'));
 });
 
-it('generates prefixed links on English pages only', function () {
+it('generates prefixed links on prefixed pages only', function () {
     request()->attributes->set(AppLocale::URL_LOCALE_ATTRIBUTE, 'en');
     expect(route('blog.index', absolute: false))->toBe('/en/blog')
         ->and(route('home', absolute: false))->toBe('/en')
         ->and(route('login', absolute: false))->toBe('/login');
 
+    request()->attributes->set(AppLocale::URL_LOCALE_ATTRIBUTE, 'id');
+    expect(route('blog.index', absolute: false))->toBe('/id/blog')
+        ->and(route('admin.portfolios.index', absolute: false))->toBe('/admin/portfolios');
+
     request()->attributes->remove(AppLocale::URL_LOCALE_ATTRIBUTE);
     expect(route('blog.index', absolute: false))->toBe('/blog');
 });
 
-it('redirects the default language prefix to the plain URL', function () {
-    $this->get('/id/blog?page=2')->assertRedirect('/blog?page=2')->assertStatus(301);
-});
-
 it('does not localize admin, settings or auth pages', function (string $path) {
     $this->get('/en'.$path)->assertNotFound();
+    $this->get('/id'.$path)->assertNotFound();
 })->with(['/admin', '/settings/profile', '/login']);
 
 it('follows the cookie on pages without a language prefix', function () {
@@ -87,14 +111,14 @@ it('points the canonical of an English page at its own prefixed URL and keeps it
         ->toContain('content="en_US"');
 });
 
-it('keeps Indonesian pages indexable with a plain canonical', function () {
+it('keeps Indonesian pages indexable with a prefixed canonical', function () {
     config(['app.indexable_locales' => ['id']]);
 
     $base = url('/');
-    $html = $this->get('/contact')->getContent();
+    $html = $this->get('/id/contact')->getContent();
 
     expect($html)
-        ->toContain('<link rel="canonical" href="'.$base.'/contact'.'">')
+        ->toContain('<link rel="canonical" href="'.$base.'/id/contact'.'">')
         ->toContain('content="index,follow')
         ->toContain('content="id_ID"')
         ->not->toContain('<link rel="alternate" hreflang="en"');
@@ -107,9 +131,9 @@ it('emits hreflang alternates and indexes English once the language is enabled',
     $html = $this->get('/en/contact')->getContent();
 
     expect($html)
-        ->toContain('hreflang="id" href="'.$base.'/contact'.'"')
+        ->toContain('hreflang="id" href="'.$base.'/id/contact'.'"')
         ->toContain('hreflang="en" href="'.$base.'/en/contact'.'"')
-        ->toContain('hreflang="x-default" href="'.$base.'/contact'.'"')
+        ->toContain('hreflang="x-default" href="'.$base.'/id/contact'.'"')
         ->toContain('content="index,follow');
 });
 
@@ -120,6 +144,7 @@ it('lists every enabled language in the pages sitemap', function () {
     $xml = $this->get(route('sitemaps.pages'))->getContent();
 
     expect($xml)
+        ->toContain('<loc>'.$base.'/id/career'.'</loc>')
         ->toContain('<loc>'.$base.'/en/career'.'</loc>')
         ->toContain('<xhtml:link rel="alternate" hreflang="en" href="'.$base.'/en/career'.'"/>');
 });

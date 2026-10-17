@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\AppLocale;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -26,6 +27,8 @@ class LegacyRedirectController extends Controller
         );
 
         $query = $request->getQueryString();
+
+        $destination = AppLocale::localize($destination, AppLocale::DEFAULT);
 
         return redirect()->to($query === null ? $destination : "{$destination}?{$query}", 301);
     }

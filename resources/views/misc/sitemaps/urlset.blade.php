@@ -6,7 +6,7 @@
 @foreach ($urls as $url)
 @php
     $hreflangs = \App\Support\AppLocale::hreflangs($url['loc'], $url['locales'] ?? null);
-    $locs = $hreflangs === [] ? [$url['loc']] : collect($hreflangs)->except('x-default')->values()->all();
+    $locs = $hreflangs === [] ? [\App\Support\AppLocale::localize($url['loc'], \App\Support\AppLocale::DEFAULT)] : collect($hreflangs)->except('x-default')->values()->all();
 @endphp
 @foreach ($locs as $loc)
   <url>

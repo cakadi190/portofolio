@@ -200,7 +200,7 @@ describe('BlogHomeSection', () => {
     expect(screen.getByText('Dua')).toBeTruthy();
     expect(
       hrefOf(screen.getByRole('link', { name: /Lihat Selengkapnya/ })),
-    ).toBe('/blog');
+    ).toBe('/id/blog');
   });
 });
 
@@ -217,7 +217,7 @@ describe('PortfolioHomeSection', () => {
     expect(screen.getByText('Proyek')).toBeTruthy();
     expect(
       hrefOf(screen.getByRole('link', { name: /Lihat Selengkapnya/ })),
-    ).toBe('/portfolio');
+    ).toBe('/id/portfolio');
   });
 });
 
@@ -225,7 +225,7 @@ describe('CardPortfolio', () => {
   it('renders details and links to the portfolio', () => {
     render(CardPortfolio, portfolio);
 
-    expect(hrefOf(screen.getByRole('link'))).toBe('/portfolio/proyek');
+    expect(hrefOf(screen.getByRole('link'))).toBe('/id/portfolio/proyek');
     expect(screen.getByText('Deskripsi')).toBeTruthy();
     expect(screen.getByText('Web')).toBeTruthy();
     expect(screen.getByRole('img').getAttribute('src')).toBe('/p.webp');
@@ -270,9 +270,11 @@ describe('SiteFooter', () => {
       screen.getByLabelText("Cak Adi's Facebook").getAttribute('target'),
     ).toBe('_blank');
     expect(hrefOf(screen.getByRole('link', { name: 'Blog Pribadi' }))).toBe(
-      '/blog',
+      '/id/blog',
     );
-    expect(hrefOf(screen.getByRole('link', { name: 'Karir' }))).toBe('/career');
+    expect(hrefOf(screen.getByRole('link', { name: 'Karir' }))).toBe(
+      '/id/career',
+    );
   });
 });
 

@@ -27,5 +27,5 @@ test('the statistic page totals human views for the site, blog and notes', funct
 });
 
 test('the legacy statistics url redirects to the statistic page', function () {
-    $this->get('/statistics')->assertRedirect('/statistic')->assertStatus(301);
+    $this->get('/statistics')->assertRedirect('/id/statistic')->assertStatus(301);
 });

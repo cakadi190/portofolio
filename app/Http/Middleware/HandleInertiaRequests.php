@@ -56,7 +56,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function urlResolver(): Closure
     {
-        return fn (Request $request): string => AppLocale::localize($request->getRequestUri(), AppLocale::urlLocale());
+        return fn (Request $request): string => AppLocale::followRequest($request->getRequestUri());
     }
 
     /**

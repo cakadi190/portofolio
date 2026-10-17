@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Global middleware (runs before routing): serves `/en/blog` from the `/blog`
- * route by stripping the language prefix and switching the app locale. The default
- * language never carries a prefix, so `/id/blog` is redirected to `/blog`.
+ * Global middleware (runs before routing): serves `/id/blog` and `/en/blog` from the
+ * `/blog` route by stripping the language prefix and switching the app locale. A plain
+ * public GET such as `/blog` is redirected (301) to the default language, query string
+ * kept; other methods are served as they are so an old form action still works.
  */
 class ResolveLocalePrefix
 {
@@ -19,15 +20,7 @@ class ResolveLocalePrefix
         $path = '/'.ltrim($request->getPathInfo(), '/');
         $segment = explode('/', trim($path, '/'))[0];
 
-        if ($segment === AppLocale::DEFAULT) {
-            $stripped = $this->strip($request);
-
-            if (AppLocale::isLocalizable($this->pathOf($stripped))) {
-                return redirect($stripped, 301);
-            }
-        }
-
-        if (in_array($segment, AppLocale::prefixed(), true)) {
+        if (in_array($segment, AppLocale::available(), true)) {
             $stripped = $this->strip($request);
 
             if (AppLocale::isLocalizable($this->pathOf($stripped))) {
@@ -37,6 +30,10 @@ class ResolveLocalePrefix
 
                 return $next($request);
             }
+        }
+
+        if ($request->isMethodSafe() && AppLocale::isLocalizable($path)) {
+            return redirect(AppLocale::localize($request->getRequestUri(), AppLocale::DEFAULT), 301);
         }
 
         app()->setLocale(AppLocale::DEFAULT);

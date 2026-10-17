@@ -49,12 +49,19 @@ describe('localized links', () => {
     };
   };
 
-  it('keeps plain URLs on Indonesian pages and in the admin', () => {
+  it('prefixes public URLs on Indonesian pages and leaves admin URLs plain', () => {
     english();
+    page.url = '/id/blog';
+
+    expect(urlLocale()).toBe('id');
+    expect(localizeHref('/blog')).toBe('/id/blog');
+    expect(localizeHref('/')).toBe('/id');
+
     page.url = '/admin/posts';
 
     expect(urlLocale()).toBe('id');
-    expect(localizeHref('/blog')).toBe('/blog');
+    expect(localizeHref('/admin/posts')).toBe('/admin/posts');
+    expect(localizeHref('/login')).toBe('/login');
   });
 
   it('prefixes public URLs on English pages', () => {

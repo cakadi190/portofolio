@@ -39,7 +39,7 @@ const LOCALIZED_SEGMENTS = new Set([
 
 const props = (): I18nProps => page.props as I18nProps;
 
-/** Active interface language (`id` is served from plain URLs, `en` from `/en/...`). */
+/** Active interface language (`id` is served from `/id/...`, `en` from `/en/...`). */
 export function currentLocale(): string {
   return props().locale ?? DEFAULT_LOCALE;
 }
@@ -87,33 +87,27 @@ export function t(
 }
 
 /**
- * Language prefix of the page being viewed (`en` on `/en/blog`, `id` everywhere else,
- * including admin). Links follow this, not the interface language, so admin pages
- * never gain a prefix.
+ * Language prefix of the page being viewed (`en` on `/en/blog`, `id` on `/id/blog`; `id`
+ * on pages without a prefix such as admin). Links follow this, not the interface
+ * language, and `localizeHref` only touches public paths, so admin URLs never gain one.
  */
 export function urlLocale(): string {
   const segment = (page.url ?? '').split(/[/?#]/)[1] ?? '';
 
-  return localeOptions().some(
-    (option) => option.code === segment && segment !== DEFAULT_LOCALE,
-  )
+  return localeOptions().some((option) => option.code === segment)
     ? segment
     : DEFAULT_LOCALE;
 }
 
 /**
- * Add the current language prefix to an internal public URL (`/blog` → `/en/blog`).
+ * Add the current language prefix to an internal public URL (`/blog` → `/id/blog`, `/en/blog`).
  * External, anchor-only, already-prefixed and non-public (admin, auth) URLs pass through.
  */
 export function localizeHref(
   href: string,
   locale: string = urlLocale(),
 ): string {
-  if (
-    locale === DEFAULT_LOCALE ||
-    !href.startsWith('/') ||
-    href.startsWith('//')
-  ) {
+  if (!href.startsWith('/') || href.startsWith('//')) {
     return href;
   }
 

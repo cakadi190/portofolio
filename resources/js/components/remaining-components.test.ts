@@ -82,10 +82,10 @@ describe('HeaderHome', () => {
       'Wibowo',
     );
     expect(hrefOf(screen.getByRole('link', { name: /Hubungi Saya/ }))).toBe(
-      '/contact',
+      '/id/contact',
     );
     const resume = screen.getByRole('link', { name: /Resume/ });
-    expect(hrefOf(resume)).toBe('/resume');
+    expect(hrefOf(resume)).toBe('/id/resume');
     expect(document.querySelectorAll('.tech-stack')).toHaveLength(9);
     expect(screen.getByAltText('Cak Adi')).toBeTruthy();
   });

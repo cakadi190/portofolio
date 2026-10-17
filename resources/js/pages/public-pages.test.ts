@@ -82,7 +82,7 @@ describe('ServicePage', () => {
     });
 
     expect(hrefOf(screen.getByRole('link', { name: /Website/ }))).toBe(
-      '/services/website',
+      '/id/services/website',
     );
   });
 });
@@ -111,7 +111,7 @@ describe('ServiceShow', () => {
 
     expect(screen.getByText('Isi layanan')).toBeTruthy();
     expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe(
-      '/portfolio/proyek',
+      '/id/portfolio/proyek',
     );
   });
 
@@ -302,7 +302,7 @@ describe('BlogIndex', () => {
     });
 
     expect(hrefOf(screen.getByRole('link', { name: /satu/ }))).toBe(
-      '/blog/satu',
+      '/id/blog/satu',
     );
   });
 });
@@ -342,7 +342,7 @@ describe('ClarificationIndex', () => {
     });
 
     expect(hrefOf(screen.getByRole('link', { name: /Klaim satu/ }))).toBe(
-      '/clarifications/satu',
+      '/id/clarifications/satu',
     );
     expect(screen.getAllByText('Tidak Benar').length).toBeGreaterThan(0);
     expect(
@@ -390,7 +390,7 @@ describe('ClarificationShow', () => {
     expect(screen.getByText('Bukti ditambahkan.')).toBeTruthy();
     expect(screen.getByText(/bukan pemeriksaan fakta independen/)).toBeTruthy();
     expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe(
-      '/clarifications',
+      '/id/clarifications',
     );
   });
 
@@ -433,7 +433,7 @@ describe('PortfolioIndex', () => {
     });
 
     expect(hrefOf(screen.getByRole('link', { name: /Proyek/ }))).toBe(
-      '/portfolio/proyek',
+      '/id/portfolio/proyek',
     );
   });
 });
@@ -486,18 +486,20 @@ describe('BlogShow', () => {
     expect(screen.getByText('artikel')).toBeTruthy();
     expect(screen.getByText('Tech')).toBeTruthy();
     expect(hrefOf(screen.getAllByRole('link', { name: 'php' })[0])).toBe(
-      '/blog/tags/php',
+      '/id/blog/tags/php',
     );
     expect(hrefOf(screen.getByRole('link', { name: /Tech/ }))).toBe(
-      '/blog/categories/tech',
+      '/id/blog/categories/tech',
     );
     expect(hrefOf(screen.getByRole('link', { name: 'Cakadi' }))).toBe(
-      '/blog/@cakadi',
+      '/id/blog/@cakadi',
     );
     expect(screen.queryByRole('link', { name: /Edit artikel/i })).toBeNull();
     expect(screen.getAllByText(/2024/).length).toBeGreaterThan(0);
     expect(document.querySelector('code.hljs')).not.toBeNull();
-    expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe('/blog');
+    expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe(
+      '/id/blog',
+    );
   });
 
   it('hides the previous/next navigation when the post has no neighbours', () => {

@@ -34,7 +34,7 @@ test('upcoming engagements are listed soonest first', function () {
 
 test('the speaking page is indexable and in the pages sitemap', function () {
     $this->get(route('speaking.index'))->assertDontSee('noindex');
-    $this->get(route('sitemaps.pages'))->assertSee(route('speaking.index'), false);
+    $this->get(route('sitemaps.pages'))->assertSee($this->defaultLanguageUrl(route('speaking.index')), false);
 });
 
 test('an engagement stays upcoming until its end time passes', function () {

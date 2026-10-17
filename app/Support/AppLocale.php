@@ -9,9 +9,9 @@ use Illuminate\Support\Arr;
 /**
  * Single source of truth for the site's languages.
  *
- * Indonesian is the default and lives on the plain URLs (`/blog`); every other
- * language lives under its own prefix (`/en/blog`). Only public content paths are
- * localized: admin, settings and auth keep one URL and follow the account's
+ * Every language, the default included, lives under its own prefix (`/id/blog`,
+ * `/en/blog`); plain public URLs redirect to the default language. Only public content
+ * paths are localized: admin, settings and auth keep one URL and follow the account's
  * preference (see `ApplyAccountLocale`).
  */
 class AppLocale
@@ -22,7 +22,8 @@ class AppLocale
 
     /**
      * Request attribute holding the language prefix the visitor arrived on. Generated
-     * links follow it (not the app locale), so jobs and tests build plain URLs.
+     * links follow it (not the app locale); without it (jobs, tests, admin, unprefixed
+     * POSTs) links stay plain.
      */
     public const string URL_LOCALE_ATTRIBUTE = 'url_locale';
 
@@ -71,7 +72,7 @@ class AppLocale
             ->mapWithKeys(fn (string $locale): array => [$locale => self::localize($url, $locale)])
             ->all();
 
-        return [...$alternates, 'x-default' => $url];
+        return [...$alternates, 'x-default' => self::localize($url, self::DEFAULT)];
     }
 
     /**
@@ -88,7 +89,7 @@ class AppLocale
     }
 
     /**
-     * Locales that are served from a URL prefix, i.e. every one but the default.
+     * Languages other than the default, the ones a visitor can be offered a switch to.
      *
      * @return list<string>
      */
@@ -109,7 +110,25 @@ class AppLocale
 
     public static function urlLocale(): string
     {
-        return request()->attributes->get(self::URL_LOCALE_ATTRIBUTE, self::DEFAULT);
+        return self::requestedPrefix() ?? self::DEFAULT;
+    }
+
+    /**
+     * The language prefix the current request arrived on, null when it had none.
+     */
+    public static function requestedPrefix(): ?string
+    {
+        return request()->attributes->get(self::URL_LOCALE_ATTRIBUTE);
+    }
+
+    /**
+     * Prefix a link with the current request's language, leaving it plain when the request had none.
+     */
+    public static function followRequest(string $uri): string
+    {
+        $prefix = self::requestedPrefix();
+
+        return $prefix === null ? $uri : self::localize($uri, $prefix);
     }
 
     /**
@@ -123,7 +142,7 @@ class AppLocale
         [$path, $query] = array_pad(explode('?', substr($uri, strlen($origin)), 2), 2, null);
         $path = '/'.ltrim($path, '/');
 
-        if ($locale === self::DEFAULT || ! self::isLocalizable($path)) {
+        if (! self::isLocalizable($path)) {
             return $uri;
         }
 
@@ -131,7 +150,7 @@ class AppLocale
     }
 
     /**
-     * A language to offer a first-time visitor on a plain (Indonesian) public page, taken from
+     * A language to offer a first-time visitor on a default-language public page, taken from
      * the browser's `Accept-Language` header; without one, a non-Indonesian Cloudflare country
      * header (`CF-IPCountry`) suggests English. Nothing is suggested to crawlers, to visitors
      * who already chose a language (cookie), or on pages that already have a prefix. The offer
@@ -143,7 +162,7 @@ class AppLocale
     {
         if (! $request->isMethod('GET')
             || $request->cookies->has(self::COOKIE)
-            || self::urlLocale() !== self::DEFAULT
+            || self::requestedPrefix() !== self::DEFAULT
             || ! self::isLocalizable($request->getPathInfo())
             || app(VisitorTracker::class)->isBot($request->userAgent())) {
             return null;

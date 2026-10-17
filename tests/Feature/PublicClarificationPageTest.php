@@ -67,7 +67,7 @@ test('the detail page describes itself as an article for search engines', functi
 
 test('the index page is indexable and listed in the pages sitemap', function () {
     $this->get(route('clarifications.index'))->assertDontSee('noindex');
-    $this->get(route('sitemaps.pages'))->assertSee(route('clarifications.index'), false);
+    $this->get(route('sitemaps.pages'))->assertSee($this->defaultLanguageUrl(route('clarifications.index')), false);
 });
 
 test('the clarifications sitemap only lists published, due clarifications', function () {
@@ -79,8 +79,8 @@ test('the clarifications sitemap only lists published, due clarifications', func
 
     expect(simplexml_load_string($response->getContent()))->not->toBeFalse();
     $response
-        ->assertSee(route('clarifications.show', $published), escape: false)
+        ->assertSee($this->defaultLanguageUrl(route('clarifications.show', $published)), escape: false)
         ->assertSee(url('/storage/media/cover.webp'), escape: false)
-        ->assertDontSee(route('clarifications.show', $draft), escape: false)
-        ->assertDontSee(route('clarifications.show', $scheduled), escape: false);
+        ->assertDontSee($this->defaultLanguageUrl(route('clarifications.show', $draft)), escape: false)
+        ->assertDontSee($this->defaultLanguageUrl(route('clarifications.show', $scheduled)), escape: false);
 });

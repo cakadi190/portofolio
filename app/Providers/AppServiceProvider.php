@@ -168,10 +168,10 @@ class AppServiceProvider extends ServiceProvider
             URL::forceHttps();
         }
 
-        // Generated links keep the visitor's language: `/blog` becomes `/en/blog` on English pages.
-        URL::formatPathUsing(fn (string $path): string => AppLocale::localize($path, AppLocale::urlLocale()));
+        // Generated links keep the visitor's language: `/blog` becomes `/en/blog` on English pages and `/id/blog` on Indonesian ones.
+        URL::formatPathUsing(fn (string $path): string => AppLocale::followRequest($path));
 
-        Paginator::currentPathResolver(fn (): string => AppLocale::localize(URL::current(), AppLocale::urlLocale()));
+        Paginator::currentPathResolver(fn (): string => AppLocale::followRequest(URL::current()));
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

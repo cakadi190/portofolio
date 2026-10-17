@@ -28,11 +28,11 @@ test('the posts sitemap lists every live post, skips drafts and scheduled posts,
 
     expect(simplexml_load_string($response->getContent()))->not->toBeFalse();
     $response
-        ->assertSee(route('blog.show', $published), escape: false)
+        ->assertSee($this->defaultLanguageUrl(route('blog.show', $published)), escape: false)
         ->assertSee(url('/storage/media/cover.webp'), escape: false)
-        ->assertDontSee(route('blog.show', $draft), escape: false)
-        ->assertDontSee(route('blog.show', $dated), escape: false)
-        ->assertSee(route('blog.show', $undated), escape: false);
+        ->assertDontSee($this->defaultLanguageUrl(route('blog.show', $draft)), escape: false)
+        ->assertDontSee($this->defaultLanguageUrl(route('blog.show', $dated)), escape: false)
+        ->assertSee($this->defaultLanguageUrl(route('blog.show', $undated)), escape: false);
 });
 
 test('the portfolios sitemap includes gallery images', function () {
@@ -41,15 +41,15 @@ test('the portfolios sitemap includes gallery images', function () {
 
     $this->get(route('sitemaps.portfolios'))
         ->assertOk()
-        ->assertSee(route('portfolios.show', $portfolio), escape: false)
+        ->assertSee($this->defaultLanguageUrl(route('portfolios.show', $portfolio)), escape: false)
         ->assertSee(url('/storage/media/shot.webp'), escape: false);
 });
 
 test('the pages sitemap lists the static public pages', function () {
     $this->get(route('sitemaps.pages'))
         ->assertOk()
-        ->assertSee(route('home'), escape: false)
-        ->assertSee(route('contact.index'), escape: false);
+        ->assertSee($this->defaultLanguageUrl(route('home')), escape: false)
+        ->assertSee($this->defaultLanguageUrl(route('contact.index')), escape: false);
 });
 
 test('robots.txt points to the sitemap and hides the admin area', function () {
@@ -206,12 +206,12 @@ test('the notes sitemap lists published notes only and the services sitemap list
 
     $this->get(route('sitemaps.notes'))
         ->assertOk()
-        ->assertSee(route('notes.show', $published), escape: false)
-        ->assertDontSee(route('notes.show', $draft), escape: false);
+        ->assertSee($this->defaultLanguageUrl(route('notes.show', $published)), escape: false)
+        ->assertDontSee($this->defaultLanguageUrl(route('notes.show', $draft)), escape: false);
 
     $this->get(route('sitemaps.services'))
         ->assertOk()
-        ->assertSee(route('services.show', $service), escape: false);
+        ->assertSee($this->defaultLanguageUrl(route('services.show', $service)), escape: false);
 });
 
 test('the homepage links the website and the person with stable ids, location and skills', function () {

@@ -92,7 +92,7 @@ describe('AppBrand', () => {
     const { container } = render(AppBrand);
 
     expect(container.querySelectorAll('img')).toHaveLength(2);
-    expect(hrefOf(screen.getByRole('link'))).toBe('/');
+    expect(hrefOf(screen.getByRole('link'))).toBe('/id');
   });
 
   it('pins the colored wordmark', () => {
@@ -160,7 +160,7 @@ describe('CardBlog', () => {
   it('renders all parts and links to the post', () => {
     render(CardBlog, base);
 
-    expect(hrefOf(screen.getByRole('link'))).toBe('/blog/judul');
+    expect(hrefOf(screen.getByRole('link'))).toBe('/id/blog/judul');
     expect(screen.getByText('Ringkasan')).toBeTruthy();
     expect(screen.getByText('Teknologi')).toBeTruthy();
     expect(screen.queryByText('php')).toBeNull();
@@ -206,7 +206,9 @@ describe('HeaderPage', () => {
   it('renders a back link when backTo is set', () => {
     render(HeaderPage, { title: 'B', subtitle: 'S', backTo: '/blog' });
 
-    expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe('/blog');
+    expect(hrefOf(screen.getByRole('link', { name: /Kembali/ }))).toBe(
+      '/id/blog',
+    );
   });
 });
 
@@ -265,7 +267,7 @@ describe('SimplePaginator', () => {
     ).toBe(true);
     expect(
       hrefOf(screen.getByRole('link', { name: 'Halaman berikutnya' })),
-    ).toBe('/blog?page=2');
+    ).toBe('/id/blog?page=2');
   });
 });
 

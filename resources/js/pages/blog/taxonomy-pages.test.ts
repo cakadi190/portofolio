@@ -45,10 +45,10 @@ describe('blog taxonomy pages', () => {
       screen.getByRole('heading', { level: 1, name: 'Tech' }),
     ).toBeTruthy();
     expect(hrefOf(screen.getByRole('link', { name: 'Judul Satu' }))).toBe(
-      '/blog/judul-satu',
+      '/id/blog/judul-satu',
     );
     expect(hrefOf(screen.getByRole('link', { name: 'Penulis' }))).toBe(
-      '/blog/@penulis',
+      '/id/blog/@penulis',
     );
     expect(screen.queryByRole('link', { name: 'php' })).toBeNull();
     expect(screen.queryByRole('link', { name: /Edit Artikel/ })).toBeNull();
@@ -75,7 +75,7 @@ describe('blog taxonomy pages', () => {
       screen.getByRole('heading', { level: 1, name: 'Penulis' }),
     ).toBeTruthy();
     expect(hrefOf(screen.getByRole('link', { name: 'Judul Satu' }))).toBe(
-      '/blog/judul-satu',
+      '/id/blog/judul-satu',
     );
   });
 

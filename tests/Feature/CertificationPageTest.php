@@ -50,8 +50,8 @@ test('unknown slugs are not found', function () {
 });
 
 test('the legacy certification urls redirect permanently', function () {
-    $this->get('/certification/5-foo')->assertRedirect('/certifications/5-foo')->assertStatus(301);
-    $this->get('/certificates/5-foo')->assertRedirect('/certifications/5-foo')->assertStatus(301);
+    $this->get('/certification/5-foo')->assertRedirect('/id/certifications/5-foo')->assertStatus(301);
+    $this->get('/certificates/5-foo')->assertRedirect('/id/certifications/5-foo')->assertStatus(301);
 });
 
 test('the about page links every certification to its page', function () {

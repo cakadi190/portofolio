@@ -237,7 +237,7 @@ describe('CoffeePage', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Madiun' }));
 
     expect(router.get).toHaveBeenLastCalledWith(
-      '/resources/coffee-shops',
+      '/id/resources/coffee-shops',
       { region: 'Madiun', search: null },
       expect.objectContaining({ preserveState: true }),
     );
@@ -248,7 +248,7 @@ describe('CoffeePage', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Cari' }));
 
     expect(router.get).toHaveBeenLastCalledWith(
-      '/resources/coffee-shops',
+      '/id/resources/coffee-shops',
       { region: 'Ngawi', search: 'senja' },
       expect.objectContaining({ preserveState: true }),
     );
