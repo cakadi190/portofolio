@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ContactMessage;
+use App\Models\ContactMessageReply;
 use App\Models\User;
 
 test('guests are redirected to the login page', function () {
@@ -17,6 +18,18 @@ test('authenticated users can list messages', function () {
             ->component('admin/contact-messages/index')
             ->has('messages.data', 3)
             ->where('messages.data.0.reason_label', 'Ingin Bertanya Hal Umum'));
+});
+
+test('the list shows each reply with its translated status label', function () {
+    $message = ContactMessage::factory()->create();
+    ContactMessageReply::factory()->for($message, 'contactMessage')->sent()->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.contact-messages.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('messages.data.0.replies.0.status', 'sent')
+            ->where('messages.data.0.replies.0.status_label', 'Terkirim'));
 });
 
 test('a message read state can be toggled', function () {
