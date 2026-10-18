@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Support\AppLocale;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Laravel\Wayfinder\Attributes\WayfinderIgnore;
 
 /**
  * Permanently redirects a legacy Indonesian URL to its English route, keeping the
@@ -13,7 +14,11 @@ use Illuminate\Http\Request;
  *
  * The destination comes from the route's `destination` default and may reuse the
  * route's own parameters, e.g. `/services/{slug}`.
+ *
+ * Left out of the generated TypeScript: no page links to these old URLs, and `Route::any`
+ * makes Wayfinder emit a `query` method its runtime types do not know yet.
  */
+#[WayfinderIgnore]
 class LegacyRedirectController extends Controller
 {
     public function __invoke(Request $request): RedirectResponse

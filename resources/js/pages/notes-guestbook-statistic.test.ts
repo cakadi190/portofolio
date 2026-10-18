@@ -59,6 +59,7 @@ describe('NotesShow', () => {
         readingMinutes: 4,
         views: 3,
         tags: ['react'],
+        editUrl: null,
       },
     });
 

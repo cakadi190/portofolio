@@ -280,7 +280,6 @@ describe('admin forms', () => {
   it('PortfolioForm renders the create heading for a new portfolio', () => {
     render(PortfolioForm, {
       portfolio: null,
-      technologies: idOptions,
       services: idOptions,
       careers: [],
     });
