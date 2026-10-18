@@ -236,6 +236,9 @@
     kind: 'context' as 'context' | 'type' | 'align' | 'table' | 'device',
   });
   let ctxEl = $state<HTMLDivElement>();
+  let ctxSearchEl = $state<HTMLInputElement>();
+  let ctxQuery = $state('');
+  let ctxIndex = $state(0);
   let menuEl = $state<HTMLDivElement>();
   let focused = $state(false);
   let sidebarOpen = $state(true);
@@ -974,6 +977,29 @@
     if (item.iconPicker) iconPickerOpen = true;
   }
 
+  /** Inserts a block after the one under the caret (reusing an empty paragraph), for the context menu search. */
+  function insertBlockBelow(item: BlockItem): void {
+    if (!editor) return;
+
+    const chain = editor.chain().focus();
+    const range = topBlock();
+    const node = range ? editor.state.doc.nodeAt(range.pos) : null;
+
+    if (!(node?.type.name === 'paragraph' && node.content.size === 0)) {
+      const at = range ? range.pos + range.size : editor.state.doc.content.size;
+
+      chain.insertContentAt(at, { type: 'paragraph' }).focus(at + 1);
+    }
+
+    (item.run ? item.run(chain) : chain).run();
+
+    if (item.action) item.action();
+
+    if (item.picker) openPicker('insert');
+
+    if (item.iconPicker) iconPickerOpen = true;
+  }
+
   function openPicker(mode: 'insert' | 'replace'): void {
     pickerMode = mode;
     pickerOpen = true;
@@ -1481,7 +1507,12 @@
   }
 
   function closeContext(): void {
+    const searching = document.activeElement === ctxSearchEl;
+
     ctx.open = false;
+
+    // The search box took the focus away while typing; hand it back to the text.
+    if (searching) editor?.commands.focus();
   }
 
   function openContext(event: MouseEvent): void {
@@ -1672,10 +1703,12 @@
         },
         {
           label: t('ui.tambahkan_sebelumnya'),
+          shortcut: 'Ctrl+Alt+T',
           action: () => addParagraph('before'),
         },
         {
           label: t('ui.tambahkan_setelahnya'),
+          shortcut: 'Ctrl+Alt+Y',
           action: () => addParagraph('after'),
         },
       );
@@ -1732,11 +1765,13 @@
       },
       {
         label: t('ui.pindah_ke_atas'),
+        shortcut: 'Ctrl+Shift+Alt+T',
         disabled: !canMove(-1),
         action: () => moveBlock(-1),
       },
       {
         label: t('ui.pindah_ke_bawah'),
+        shortcut: 'Ctrl+Shift+Alt+Y',
         disabled: !canMove(1),
         action: () => moveBlock(1),
       },
@@ -1781,12 +1816,17 @@
     }
 
     groups.push([
-      { label: t('ui.sunting_sebagai_html'), action: () => setMode('html') },
+      {
+        label: t('ui.sunting_sebagai_html'),
+        shortcut: 'Ctrl+Shift+Alt+M',
+        action: () => setMode('html'),
+      },
     ]);
 
     groups.push([
       {
         label: t('security.hapus'),
+        shortcut: 'Shift+Alt+Z',
         danger: true,
         action: () => deleteBlock(),
       },
@@ -1795,12 +1835,76 @@
     return groups;
   });
 
+  /**
+   * Flat search results while the context menu search has text: matching actions plus
+   * the blocks that can be inserted ("Ubah menjadi" searches the blocks to turn into).
+   * Null when nothing is typed, so the menu shows its normal groups.
+   */
+  const ctxResults = $derived.by<ContextItem[] | null>(() => {
+    const query = ctxQuery.trim().toLowerCase();
+
+    if (query === '' || !ctx.open || !editor) return null;
+
+    if (ctx.kind !== 'context' && ctx.kind !== 'type') return null;
+
+    const matchingBlocks = blockItems.filter((item) =>
+      `${item.label} ${item.keywords}`.toLowerCase().includes(query),
+    );
+
+    if (ctx.kind === 'type') {
+      return matchingBlocks.map<ContextItem>((item) => ({
+        label: item.label,
+        icon: item.icon,
+        on: currentBlock?.label === item.label,
+        action: () => applyBlock(item),
+      }));
+    }
+
+    return [
+      ...contextGroups
+        .flat()
+        .filter((item) => item.label.toLowerCase().includes(query)),
+      ...(minimal
+        ? []
+        : matchingBlocks.map<ContextItem>((item) => ({
+            label: `${t('ui.sisipkan_blok')}: ${item.label}`,
+            icon: item.icon,
+            action: () => insertBlockBelow(item),
+          }))),
+    ];
+  });
+
+  function handleContextSearchKey(event: KeyboardEvent): void {
+    const results = ctxResults ?? [];
+
+    if (event.key === 'ArrowDown' && results.length > 0) {
+      ctxIndex = (ctxIndex + 1) % results.length;
+    } else if (event.key === 'ArrowUp' && results.length > 0) {
+      ctxIndex = (ctxIndex - 1 + results.length) % results.length;
+    } else if (event.key === 'Enter' && results[ctxIndex]) {
+      runContext(results[ctxIndex]);
+    } else if (event.key === 'Escape') {
+      closeContext();
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+  }
+
   function runContext(item: ContextItem): void {
     if (item.disabled) return;
 
     closeContext();
     item.action();
   }
+
+  $effect(() => {
+    if (ctx.open) return;
+
+    ctxQuery = '';
+    ctxIndex = 0;
+  });
 
   $effect(() => {
     if (!ctx.open || !ctxEl) return;
@@ -1817,6 +1921,54 @@
 
     if (x !== ctx.x || y !== ctx.y) Object.assign(ctx, { x, y });
   });
+
+  /**
+   * Block shortcuts as in the WordPress block editor (Cmd works as Ctrl on a Mac):
+   * Ctrl+Alt+T / Y add a paragraph before / after, Ctrl+Shift+Alt+T / Y move the block,
+   * Shift+Alt+Z removes it, Ctrl+Alt+0–6 set paragraph or heading level, Ctrl+Shift+Alt+M
+   * switches Visual/HTML and Ctrl+Shift+, toggles the settings sidebar. Keys are read by
+   * `event.code`, because Alt changes the character on some layouts.
+   */
+  function handleBlockShortcut(event: KeyboardEvent): boolean {
+    if (!editor) return false;
+
+    const mod = event.ctrlKey || event.metaKey;
+    const { code, shiftKey, altKey } = event;
+    let handled = true;
+
+    if (mod && altKey && !shiftKey && code === 'KeyT') {
+      if (!minimal) addParagraph('before');
+    } else if (mod && altKey && !shiftKey && code === 'KeyY') {
+      if (!minimal) addParagraph('after');
+    } else if (mod && altKey && shiftKey && code === 'KeyT') {
+      if (!minimal && canMove(-1)) moveBlock(-1);
+    } else if (mod && altKey && shiftKey && code === 'KeyY') {
+      if (!minimal && canMove(1)) moveBlock(1);
+    } else if (!mod && altKey && shiftKey && code === 'KeyZ') {
+      if (!minimal) deleteBlock();
+    } else if (mod && altKey && !shiftKey && /^Digit[0-6]$/.test(code)) {
+      const level = Number(code.slice(5));
+
+      if (!minimal) {
+        const chain = editor.chain().focus();
+
+        (level === 0
+          ? chain.setParagraph()
+          : chain.setHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 })
+        ).run();
+      }
+    } else if (mod && altKey && shiftKey && code === 'KeyM') {
+      if (!minimal) setMode('html');
+    } else if (mod && shiftKey && !altKey && code === 'Comma') {
+      sidebarOpen = !sidebarOpen;
+    } else {
+      handled = false;
+    }
+
+    if (handled) event.preventDefault();
+
+    return handled;
+  }
 
   function handleMenuKey(event: KeyboardEvent, fromInput = false): boolean {
     if (!menu.open || (menu.source === 'top' && !fromInput)) return false;
@@ -1986,6 +2138,8 @@
 
             return true;
           }
+
+          if (handleBlockShortcut(event)) return true;
 
           if (
             !minimal &&
@@ -2169,6 +2323,21 @@
       !target.closest('[data-rte-trigger]')
     ) {
       closeMenu();
+    }
+  }}
+  onkeydowncapture={(event) => {
+    // Typing while the context menu is open goes to its search box, not into the text.
+    if (
+      ctx.open &&
+      (ctx.kind === 'context' || ctx.kind === 'type') &&
+      ctxSearchEl &&
+      document.activeElement !== ctxSearchEl &&
+      event.key.length === 1 &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
+      ctxSearchEl.focus();
     }
   }}
   onkeydown={(event) => {
@@ -3351,9 +3520,45 @@
       aria-label={t('ui.menu_konteks_editor')}
       style="top: {ctx.y}px; left: {ctx.x}px"
       bind:this={ctxEl}
-      onmousedown={(event) => event.preventDefault()}
+      onmousedown={(event) => {
+        if (!(event.target instanceof HTMLInputElement)) event.preventDefault();
+      }}
       oncontextmenu={(event) => event.preventDefault()}
     >
+      {#if ctx.kind === 'context' || ctx.kind === 'type'}
+        <label class="rte-context-search">
+          <Search size={14} />
+          <input
+            type="search"
+            placeholder={t('ui.cari_aksi_atau_blok')}
+            aria-label={t('ui.cari_aksi_atau_blok')}
+            bind:this={ctxSearchEl}
+            bind:value={ctxQuery}
+            oninput={() => (ctxIndex = 0)}
+            onkeydown={handleContextSearchKey}
+          />
+        </label>
+      {/if}
+      {#if ctxResults}
+        {#each ctxResults as item, index (item.label)}
+          <button
+            type="button"
+            role="menuitem"
+            class="rte-context-item"
+            class:on={item.on}
+            class:is-active={index === ctxIndex}
+            class:danger={item.danger}
+            disabled={item.disabled}
+            onclick={() => runContext(item)}
+          >
+            {#if item.icon}<item.icon size={16} />{/if}
+            <span>{item.label}</span>
+            {#if item.shortcut}<kbd>{item.shortcut}</kbd>{/if}
+          </button>
+        {:else}
+          <p class="rte-menu-empty">{t('ui.tidak_ada_hasil')}</p>
+        {/each}
+      {:else}
       {#each contextGroups as group, groupIndex (groupIndex)}
         {#if groupIndex > 0}<hr class="rte-context-sep" />{/if}
         {#each group as item (item.label)}
@@ -3372,6 +3577,7 @@
           </button>
         {/each}
       {/each}
+      {/if}
     </div>
   {/if}
 
@@ -3734,6 +3940,29 @@
     border-radius: 0.75rem;
     background: var(--neo-body-bg);
     box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.2);
+  }
+  .rte-context-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.125rem 0.125rem 0.375rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--rte-line);
+    border-radius: 0.5rem;
+    color: var(--neo-secondary-color);
+  }
+  .rte-context-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.4rem 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--neo-body-color);
+    font-size: 0.875rem;
+  }
+  .rte-context-item.is-active {
+    background: rgba(var(--neo-body-color-rgb), 0.08);
   }
   .rte-context-sep {
     margin: 0.375rem 0.25rem;

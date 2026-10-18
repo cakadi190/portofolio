@@ -275,6 +275,7 @@ return [
     'ui.pengaturan_blok' => 'Pengaturan blok',
     'ui.ubah_bahasa_blok_kode' => 'Ubah bahasa blok kode',
     'ui.ubah_tema_blok_kode' => 'Ubah tema blok kode',
+    'ui.cari_aksi_atau_blok' => 'Cari aksi atau blok…',
     'ui.cari_blok' => 'Cari blok',
     'ui.blok_tidak_ditemukan' => 'Blok tidak ditemukan',
     'ui.kode_html' => 'Kode HTML',

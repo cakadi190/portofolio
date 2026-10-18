@@ -240,6 +240,128 @@ describe('RichTextEditor', () => {
     );
   });
 
+  describe('context menu search', () => {
+    const searchLabel = 'Cari aksi atau blok…';
+
+    it('moves focus from the text to the search box when typing', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+      const view = document.querySelector<HTMLElement>('.ProseMirror')!;
+
+      await fireEvent.contextMenu(view);
+      const search = await screen.findByLabelText(searchLabel);
+
+      await fireEvent.keyDown(view, { key: 't' });
+
+      expect(document.activeElement).toBe(search);
+    });
+
+    it('does not steal shortcuts typed with a modifier', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+      const view = document.querySelector<HTMLElement>('.ProseMirror')!;
+
+      await fireEvent.contextMenu(view);
+      const search = await screen.findByLabelText(searchLabel);
+
+      await fireEvent.keyDown(view, { key: 'b', ctrlKey: true });
+
+      expect(document.activeElement).not.toBe(search);
+    });
+
+    it('lists matching actions and insertable blocks, and inserts the chosen block below', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+      const view = document.querySelector<HTMLElement>('.ProseMirror')!;
+
+      await fireEvent.contextMenu(view);
+      const search = await screen.findByLabelText(searchLabel);
+
+      await fireEvent.input(search, { target: { value: 'tabel' } });
+
+      await fireEvent.click(await screen.findByText('Sisipkan blok: Tabel'));
+
+      await vi.waitFor(() =>
+        expect(document.querySelector('.ProseMirror .wp-table-setup')).not.toBeNull(),
+      );
+      expect(hidden('content')?.value).toContain('<p>Satu</p>');
+    });
+
+    it('filters the normal actions too and says when nothing matches', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+      await fireEvent.contextMenu(document.querySelector('.ProseMirror')!);
+      const search = await screen.findByLabelText(searchLabel);
+
+      await fireEvent.input(search, { target: { value: 'gandakan' } });
+      expect(screen.getByText('Gandakan blok')).toBeTruthy();
+      expect(screen.queryByText('Tempel di bawah blok')).toBeNull();
+
+      await fireEvent.input(search, { target: { value: 'zzzxx' } });
+      expect(await screen.findByText('Tidak ada hasil.')).toBeTruthy();
+    });
+
+    it('runs the highlighted result with the keyboard', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+      await fireEvent.contextMenu(document.querySelector('.ProseMirror')!);
+      const search = await screen.findByLabelText(searchLabel);
+
+      await fireEvent.input(search, { target: { value: 'gandakan' } });
+      await fireEvent.keyDown(search, { key: 'Enter' });
+
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toBe('<p>Satu</p><p>Satu</p>'),
+      );
+    });
+  });
+
+  describe('block shortcuts', () => {
+    const press = (init: KeyboardEventInit) =>
+      fireEvent.keyDown(document.querySelector('.ProseMirror')!, init);
+
+    it('adds a paragraph before and after with Ctrl+Alt+T / Y', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+
+      await press({ code: 'KeyY', ctrlKey: true, altKey: true });
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toBe('<p>Satu</p><p></p>'),
+      );
+    });
+
+    it('sets a heading level with Ctrl+Alt+digit and back to paragraph with 0', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+
+      // StarterKit's trailing node adds an empty paragraph after a closing heading.
+      await press({ code: 'Digit2', ctrlKey: true, altKey: true });
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toContain('<h2>Satu</h2>'),
+      );
+
+      await press({ code: 'Digit0', ctrlKey: true, altKey: true });
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toContain('<p>Satu</p>'),
+      );
+      expect(hidden('content')?.value).not.toContain('<h2>');
+    });
+
+    it('removes the block with Shift+Alt+Z', async () => {
+      await mountEditor({ value: '<p>Satu</p><p>Dua</p>' });
+
+      await press({ code: 'KeyZ', shiftKey: true, altKey: true });
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).not.toContain('Satu'),
+      );
+      expect(hidden('content')?.value).toContain('Dua');
+    });
+
+    it('shows the shortcuts next to the context menu actions', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+      await fireEvent.contextMenu(document.querySelector('.ProseMirror')!);
+
+      await screen.findByText('Gandakan blok');
+
+      for (const keys of ['Ctrl+Alt+T', 'Ctrl+Alt+Y', 'Shift+Alt+Z']) {
+        expect(screen.getByText(keys)).toBeTruthy();
+      }
+    });
+  });
+
   describe('device preview', () => {
     function stubDesktop(initial: boolean) {
       const listeners: Array<() => void> = [];
