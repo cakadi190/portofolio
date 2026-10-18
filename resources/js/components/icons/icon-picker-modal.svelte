@@ -1,6 +1,7 @@
 <script lang="ts">
   import { t } from '@/lib/i18n';
   import { untrack } from 'svelte';
+  import Check from '@lucide/svelte/icons/check';
   import FormModal from '@/components/form-modal.svelte';
   import { search as searchIcons } from '@/wayfinder/routes/admin/icons';
 
@@ -139,6 +140,11 @@
           aria-pressed={multiple ? isSelected(icon) : undefined}
           onclick={() => choose(icon)}
         >
+          {#if multiple}
+            <span class="icon-check" aria-hidden="true">
+              {#if isSelected(icon)}<Check size={12} strokeWidth={3} />{/if}
+            </span>
+          {/if}
           <img src={icon.url} alt="" width="32" height="32" loading="lazy" />
           <span class="text-truncate">{icon.name}</span>
         </button>
@@ -165,6 +171,7 @@
   }
 
   .icon-grid-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
@@ -173,17 +180,51 @@
     font-size: 0.75rem;
     color: inherit;
     background: transparent;
-    border: 1px solid var(--bs-border-color);
+    border: 1px solid var(--neo-border-color);
     border-radius: 0.5rem;
+    transition:
+      border-color 0.15s,
+      background-color 0.15s,
+      box-shadow 0.15s;
   }
 
   .icon-grid-item span {
     max-width: 100%;
   }
 
-  .icon-grid-item:hover,
+  .icon-grid-item:hover {
+    border-color: var(--neo-primary);
+  }
+
+  .icon-grid-item:focus-visible {
+    outline: none;
+    border-color: var(--neo-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--neo-primary-rgb), 0.25);
+  }
+
   .icon-grid-item.is-selected {
-    border-color: var(--bs-primary);
-    background: color-mix(in srgb, var(--bs-primary) 10%, transparent);
+    border-color: var(--neo-primary);
+    background: rgba(var(--neo-primary-rgb), 0.1);
+    box-shadow: 0 0 0 1px var(--neo-primary);
+  }
+
+  .icon-check {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.375rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: #fff;
+    background: var(--neo-body-bg);
+    border: 1px solid var(--neo-border-color);
+    border-radius: 0.25rem;
+  }
+
+  .is-selected .icon-check {
+    background: var(--neo-primary);
+    border-color: var(--neo-primary);
   }
 </style>
