@@ -50,6 +50,7 @@
   import Quote from '@lucide/svelte/icons/quote';
   import Redo2 from '@lucide/svelte/icons/redo-2';
   import Sigma from '@lucide/svelte/icons/sigma';
+  import Workflow from '@lucide/svelte/icons/workflow';
   import SquareCode from '@lucide/svelte/icons/square-code';
   import Table2 from '@lucide/svelte/icons/table-2';
   import TableProperties from '@lucide/svelte/icons/table-properties';
@@ -85,6 +86,7 @@
     LinkCard,
     MathBlock,
     MathInline,
+    MermaidBlock,
     Reference,
     References,
     SCRIPTURE_ARABIC_SIZES,
@@ -279,7 +281,8 @@
     | 'specSheet'
     | 'table'
     | 'mathBlock'
-    | 'mathInline';
+    | 'mathInline'
+    | 'mermaidBlock';
   type BlockInfo = {
     kind: BlockKind;
     pos: number;
@@ -354,6 +357,7 @@
     references: t('ui.daftar_referensi'),
     mathBlock: t('ui.rumus_blok'),
     mathInline: t('ui.rumus_sebaris'),
+    mermaidBlock: t('ui.diagram_mermaid'),
   };
   const blockDescriptions: Record<string, string> = {
     paragraph: t('ui.mulai_dengan_komponen_dasar_dari_semua'),
@@ -374,6 +378,7 @@
     references: t('ui.daftar_sumber_atau_rujukan_bernomor'),
     mathBlock: t('ui.persamaan_matematika_tampil_di_tengah_latex'),
     mathInline: t('ui.rumus_matematika_di_tengah_kalimat_latex'),
+    mermaidBlock: t('ui.diagram_dan_flowchart_dengan_sintaks_mermaid'),
   };
   const blockIcons: Record<string, typeof Pilcrow> = {
     paragraph: Pilcrow,
@@ -394,6 +399,7 @@
     references: BookText,
     mathBlock: Sigma,
     mathInline: Sigma,
+    mermaidBlock: Workflow,
   };
   const alignKeys = ['left', 'center', 'right'] as const;
   const headingLevels = [1, 2, 3] as const;
@@ -555,6 +561,14 @@
       icon: Sigma,
       keywords: 'inline math formula latex rumus sebaris',
       action: () => insertAtomAndSelect('mathInline'),
+    },
+    {
+      label: t('ui.diagram_mermaid'),
+      hint: t('ui.diagram_flowchart_urutan_dan_lainnya'),
+      icon: Workflow,
+      keywords:
+        'mermaid diagram flowchart sequence chart graph alur bagan diagram',
+      action: () => insertAtomAndSelect('mermaidBlock'),
     },
     {
       label: t('ui.kartu_spesifikasi'),
@@ -978,6 +992,7 @@
         kind === 'buttonBlock' ||
         kind === 'linkCard' ||
         kind === 'mathBlock' ||
+        kind === 'mermaidBlock' ||
         kind === 'mathInline'
         ? { kind, pos: selection.from, attrs: selection.node.attrs }
         : null;
@@ -1107,7 +1122,9 @@
   }
 
   /** Inserts an atom block (equation) and selects it so the block bar opens on it. */
-  function insertAtomAndSelect(type: 'mathBlock' | 'mathInline'): void {
+  function insertAtomAndSelect(
+    type: 'mathBlock' | 'mathInline' | 'mermaidBlock',
+  ): void {
     if (!editor) return;
 
     editor.chain().focus().insertContent({ type }).run();
@@ -1938,6 +1955,7 @@
               Reference,
               MathInline,
               MathBlock,
+              MermaidBlock,
               ...TableBlocks,
               TableSetup,
               CodeBlockHighlight,
@@ -2725,6 +2743,22 @@
         </div>
         <p class="rte-ins-desc">
           {t('ui.contoh_rumus')}
+        </p>
+      {:else if blockInfo?.kind === 'mermaidBlock'}
+        <div class="rte-ins-group">
+          <span class="rte-ins-label">{t('ui.kode_mermaid')}</span>
+          <textarea
+            class="form-control form-control-sm font-monospace"
+            rows="10"
+            spellcheck="false"
+            placeholder={'flowchart TD\n  A --> B'}
+            aria-label={t('ui.kode_mermaid')}
+            value={blockInfo.attrs.source ?? ''}
+            oninput={(event) =>
+              patchBlock({ source: event.currentTarget.value })}></textarea>
+        </div>
+        <p class="rte-ins-desc">
+          {t('ui.contoh_mermaid')}
         </p>
       {:else if currentBlock.kind === 'references'}
         <p class="rte-ins-desc">

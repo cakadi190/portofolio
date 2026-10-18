@@ -12,6 +12,7 @@ import {
   LinkCard,
   MathBlock,
   MathInline,
+  MermaidBlock,
   Reference,
   References,
   ScriptureQuote,
@@ -46,6 +47,7 @@ function editor(content: string) {
       Reference,
       MathInline,
       MathBlock,
+      MermaidBlock,
       ...TableBlocks,
       TableSetup,
     ],
@@ -555,5 +557,31 @@ describe('ScriptureQuote', () => {
     expect(output).not.toContain('wp-scripture-arabic');
     expect(output).not.toContain('wp-scripture-foot');
     instance.destroy();
+  });
+});
+
+describe('MermaidBlock', () => {
+  const source = 'flowchart TD\n  A --> B';
+
+  it('reads a pre.wp-mermaid as a diagram block and writes it back unchanged', () => {
+    const instance = editor(
+      `<pre class="wp-mermaid">${source.replace('>', '&gt;')}</pre>`,
+    );
+
+    expect(instance.state.doc.firstChild?.type.name).toBe('mermaidBlock');
+    expect(instance.state.doc.firstChild?.attrs.source).toBe(source);
+    expect(instance.getHTML()).toBe(
+      `<pre class="wp-mermaid">${source.replace('>', '&gt;')}</pre>`,
+    );
+  });
+
+  it('keeps ordinary code blocks as code', () => {
+    const instance = new Editor({
+      element: document.createElement('div'),
+      extensions: [StarterKit, MermaidBlock],
+      content: '<pre><code>a = 1</code></pre>',
+    });
+
+    expect(instance.state.doc.firstChild?.type.name).toBe('codeBlock');
   });
 });

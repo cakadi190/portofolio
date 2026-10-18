@@ -801,6 +801,31 @@
     margin: 0;
   }
 
+  // Mermaid diagram: the source text until it is drawn, then the SVG, centered.
+  pre.wp-mermaid {
+    margin: 1.25em 0;
+    overflow-x: auto;
+    min-height: 4rem;
+    white-space: pre-wrap;
+    font-size: 0.85rem;
+
+    &.is-rendered {
+      padding: 0.5rem;
+      text-align: center;
+      white-space: normal;
+      background: transparent;
+
+      svg {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+
+    &.is-invalid {
+      border: 1px dashed var(--neo-danger, #dc3545);
+    }
+  }
+
   .tableWrapper {
     overflow-x: auto;
   }

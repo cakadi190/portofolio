@@ -127,3 +127,18 @@ test('language and direction attributes keep only safe values', function () {
     expect(HtmlSanitizer::clean('<div lang="ar" dir="rtl">x</div>'))->toBe('<div lang="ar" dir="rtl">x</div>')
         ->and(HtmlSanitizer::clean('<div lang="ar&quot; onclick=&quot;x" dir="evil">x</div>'))->toBe('<div>x</div>');
 });
+
+it('keeps a Mermaid diagram with its line breaks and arrows', function () {
+    $html = "<pre class=\"wp-mermaid\">flowchart TD\n  A --&gt; B{Setuju?}\n  B --&gt;|Ya| C</pre>";
+
+    expect(HtmlSanitizer::clean($html))->toBe($html);
+});
+
+it('strips markup injected into a Mermaid diagram', function () {
+    $clean = HtmlSanitizer::clean('<pre class="wp-mermaid" onclick="x()">flowchart TD<script>alert(1)</script><img src=x onerror=alert(1)></pre>');
+
+    expect($clean)->toContain('class="wp-mermaid"')
+        ->not->toContain('onclick')
+        ->not->toContain('<script')
+        ->not->toContain('onerror');
+});

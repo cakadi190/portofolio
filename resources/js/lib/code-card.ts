@@ -132,31 +132,33 @@ export function createCodeHeader(
  * gutter (`data-code-lines="1"`). Idempotent, so it can run again whenever the HTML changes.
  */
 export function enhanceCodeCards(root: ParentNode = document): void {
-  root.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
-    if (pre.parentElement?.classList.contains('code-card')) {
-      return;
-    }
+  root
+    .querySelectorAll<HTMLPreElement>('pre:not(.wp-mermaid)')
+    .forEach((pre) => {
+      if (pre.parentElement?.classList.contains('code-card')) {
+        return;
+      }
 
-    const card = document.createElement('div');
-    const untitled = pre.dataset.codeTitleHidden === '1';
-    let label: HTMLSpanElement | null = null;
+      const card = document.createElement('div');
+      const untitled = pre.dataset.codeTitleHidden === '1';
+      let label: HTMLSpanElement | null = null;
 
-    card.className = untitled ? 'code-card code-card--untitled' : 'code-card';
+      card.className = untitled ? 'code-card code-card--untitled' : 'code-card';
 
-    if (!untitled) {
-      label = document.createElement('span');
-      label.className = 'code-card__title';
-      label.textContent = pre.dataset.codeTitle || t('code.default_title');
-    }
+      if (!untitled) {
+        label = document.createElement('span');
+        label.className = 'code-card__title';
+        label.textContent = pre.dataset.codeTitle || t('code.default_title');
+      }
 
-    if (pre.dataset.codeLines === '1') {
-      pre.prepend(createGutter(codeText(pre)));
-    }
+      if (pre.dataset.codeLines === '1') {
+        pre.prepend(createGutter(codeText(pre)));
+      }
 
-    pre.replaceWith(card);
-    card.append(
-      createCodeHeader(label, () => codeText(pre)),
-      pre,
-    );
-  });
+      pre.replaceWith(card);
+      card.append(
+        createCodeHeader(label, () => codeText(pre)),
+        pre,
+      );
+    });
 }

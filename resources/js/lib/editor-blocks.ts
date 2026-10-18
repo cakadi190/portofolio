@@ -25,6 +25,7 @@ import {
 import { t } from '@/lib/i18n';
 import { highlightSource } from '@/lib/highlight';
 import { renderMathInto } from '@/lib/math';
+import { renderMermaidInto } from '@/lib/mermaid';
 
 export const ALIGNMENTS = ['left', 'center', 'right'] as const;
 export type BlockAlign = (typeof ALIGNMENTS)[number];
@@ -943,6 +944,63 @@ export const MathBlock = mathNode({
   tag: 'div',
   className: 'wp-math-block',
   inline: false,
+});
+
+/** Diagram or flowchart written in Mermaid syntax, drawn client-side; the source is the block's text. */
+export const MermaidBlock = Node.create({
+  name: 'mermaidBlock',
+  group: 'block',
+  atom: true,
+  selectable: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      source: {
+        default:
+          'flowchart TD\n  A[Mulai] --> B{Setuju?}\n  B -->|Ya| C[Lanjut]\n  B -->|Tidak| D[Selesai]',
+        rendered: false,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'pre.wp-mermaid',
+        priority: 100,
+        getAttrs: (element) => ({
+          source: (element as HTMLElement).textContent ?? '',
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ node }) {
+    return ['pre', { class: 'wp-mermaid' }, String(node.attrs.source ?? '')];
+  },
+
+  addNodeView() {
+    return ({ node }) => {
+      const dom = document.createElement('pre');
+
+      dom.className = 'wp-mermaid';
+      dom.contentEditable = 'false';
+      renderMermaidInto(dom, String(node.attrs.source ?? ''));
+
+      return {
+        dom,
+        update: (updated) => {
+          if (updated.type !== node.type) return false;
+
+          node = updated;
+          renderMermaidInto(dom, String(node.attrs.source ?? ''));
+
+          return true;
+        },
+      };
+    };
+  },
 });
 
 /**
