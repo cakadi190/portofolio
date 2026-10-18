@@ -129,4 +129,3 @@ test('an admin can be demoted while another admin remains', function () {
 
     expect($other->refresh()->isAdmin())->toBeFalse();
 });
-
