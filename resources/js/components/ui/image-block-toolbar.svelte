@@ -15,6 +15,7 @@
   import Trash2 from '@lucide/svelte/icons/trash-2';
   import Type from '@lucide/svelte/icons/type';
   import { safeHref } from '@/lib/editor-blocks';
+  import { placeBlockToolbar } from '@/lib/toolbar-placement';
 
   /**
    * Gutenberg-style controls for the selected image: a blue outline with
@@ -60,6 +61,8 @@
   let panel = $state<Panel>(null);
   let box = $state({ top: 0, left: 0, width: 0, height: 0 });
   let root = $state<HTMLElement>();
+  let bar = $state<HTMLElement>();
+  let barPosition = $state({ top: 0, left: 0 });
   let resizing = $state(false);
   let linkDraft = $state('');
   let newTabDraft = $state(false);
@@ -96,6 +99,27 @@
       width: rect.width,
       height: rect.height,
     };
+
+    // The toolbar sits where it hides the least: above the image, below it (past the
+    // caption) or inside its top edge when the neighbouring blocks are too close.
+    const whole = element.getBoundingClientRect();
+    const place = placeBlockToolbar({
+      rect: {
+        top: rect.top,
+        bottom: Math.max(rect.bottom, whole.bottom),
+        left: rect.left,
+        height: whole.height,
+      },
+      previous: element.previousElementSibling?.getBoundingClientRect() ?? null,
+      next: element.nextElementSibling?.getBoundingClientRect() ?? null,
+      toolbar: { width: bar?.offsetWidth || 360, height: bar?.offsetHeight || 40 },
+      viewport: { width: bounds.right, height: Number.MAX_SAFE_INTEGER },
+      floor: bounds.top,
+      footer: 0,
+      isMedia: true,
+    });
+
+    barPosition = { top: place.top - bounds.top, left: place.left - bounds.left };
   }
 
   $effect(() => {
@@ -272,7 +296,8 @@
       role="toolbar"
       aria-label={t('ui.img_toolbar')}
       tabindex="-1"
-      style="top: {Math.max(box.top - 50, 0)}px; left: {box.left}px"
+      bind:this={bar}
+      style="top: {barPosition.top}px; left: {barPosition.left}px"
       onmousedown={keepSelection}
     >
       <div class="ibt-group">

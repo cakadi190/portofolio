@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '@/lib/i18n';
+  import { placeBlockToolbar } from '@/lib/toolbar-placement';
   import {
     hasSemanticHtml,
     markdownSlice,
@@ -261,6 +262,7 @@
   );
   let sidebarTab = $state<'document' | 'block'>('document');
   let blockTb = $state({ visible: false, top: 0, left: 0 });
+  let blockTbEl = $state<HTMLDivElement>();
 
   type BlockItem = {
     label: string;
@@ -728,7 +730,12 @@
       .run();
   }
 
-  /** Places the floating block toolbar above the block under the caret. */
+  /**
+   * Places the floating block toolbar next to the block under the caret, where it covers
+   * the least text: above when the gap to the previous block is tall enough, else below,
+   * and for blocks that are not text (image, diagram, equation, card) inside their top
+   * edge when both sides would cover a neighbour. Sized from the rendered toolbar.
+   */
   function syncToolbar(): void {
     const range = editor ? topBlock() : null;
     const dom = range ? editor?.view.nodeDOM(range.pos) : null;
@@ -737,7 +744,9 @@
       !editor ||
       mode !== 'visual' ||
       !focused ||
-      !(dom instanceof HTMLElement)
+      !(dom instanceof HTMLElement) ||
+      // A selected image has its own toolbar (`ImageBlockToolbar`); never show two.
+      (!minimal && blockInfo?.kind === 'image')
     ) {
       blockTb.visible = false;
 
@@ -746,6 +755,7 @@
 
     const rect = dom.getBoundingClientRect();
     const floor = shell ? 70 : 72;
+    const footer = 44;
 
     const isLaidOut = rect.height > 0;
 
@@ -758,9 +768,26 @@
       return;
     }
 
+    const previous = dom.previousElementSibling?.getBoundingClientRect() ?? null;
+    const next = dom.nextElementSibling?.getBoundingClientRect() ?? null;
+    const node = range ? editor.state.doc.nodeAt(range.pos) : null;
+    const place = placeBlockToolbar({
+      rect,
+      previous,
+      next,
+      toolbar: {
+        width: blockTbEl?.offsetWidth || 360,
+        height: blockTbEl?.offsetHeight || 46,
+      },
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+      floor: floor + 4,
+      footer,
+      isMedia: Boolean(node && (node.isAtom || node.type.name === 'image')),
+    });
+
     blockTb.visible = true;
-    blockTb.top = Math.max(rect.top - 52, floor + 4);
-    blockTb.left = Math.max(8, Math.min(rect.left, window.innerWidth - 360));
+    blockTb.top = place.top;
+    blockTb.left = place.left;
   }
 
   function openToolbarMenu(
@@ -3358,6 +3385,7 @@
       role="toolbar"
       aria-label={t('ui.pemformatan_blok')}
       tabindex="-1"
+      bind:this={blockTbEl}
       style="top: {blockTb.top}px; left: {blockTb.left}px"
       onmousedown={(event) => event.preventDefault()}
     >

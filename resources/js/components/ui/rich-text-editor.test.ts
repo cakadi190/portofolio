@@ -362,6 +362,34 @@ describe('RichTextEditor', () => {
     });
   });
 
+  describe('block toolbar', () => {
+    const figure =
+      '<figure class="wp-block-image is-align-center"><img src="/storage/a.jpg" alt="a"><figcaption>Keterangan</figcaption></figure>';
+
+    it('shows the block toolbar for text', async () => {
+      await mountEditor({ value: '<p>Satu</p>' });
+      document.querySelector<HTMLElement>('.ProseMirror')!.focus();
+
+      await vi.waitFor(() =>
+        expect(document.querySelector('.rte-blocktb')).not.toBeNull(),
+      );
+    });
+
+    it('shows only the image toolbar, never a second one, for a selected image', async () => {
+      await mountEditor({ value: figure });
+      document.querySelector<HTMLElement>('.ProseMirror')!.focus();
+
+      await vi.waitFor(() =>
+        expect(document.querySelector('.ibt-bar')).not.toBeNull(),
+      );
+      expect(document.querySelector('.rte-blocktb')).toBeNull();
+      expect(document.querySelectorAll('.ibt-bar')).toHaveLength(1);
+      expect(
+        document.querySelector('[aria-label="Pemformatan blok"]'),
+      ).toBeNull();
+    });
+  });
+
   describe('device preview', () => {
     function stubDesktop(initial: boolean) {
       const listeners: Array<() => void> = [];
