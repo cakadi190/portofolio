@@ -191,7 +191,7 @@ test('every email, html and text, ends with the confidentiality notice in Englis
                 ->toContain('CONFIDENTIAL: This email and any files transmitted with it are confidential')
                 ->toContain('RAHASIA: Email ini beserta seluruh berkas yang dilampirkan bersifat rahasia')
                 ->toContain(config('app.name'))
-                ->toContain('PT Kodingin Digital Nusantara (Kodinus)')
+                ->toContain('PT Kodingin Digital Nusantara (Kodinus Group)')
                 ->and(strpos($body, 'CONFIDENTIAL'))->toBeLessThan(strpos($body, 'RAHASIA'));
         }
     }
