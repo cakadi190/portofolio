@@ -21,6 +21,7 @@ const i18n = vi.hoisted(() => ({
     { code: 'en', label: 'English', flag: 'fi-us' },
   ],
   alternates: null as Record<string, string> | null,
+  pageUrl: '/id/blog',
 }));
 
 vi.mock('@/lib/i18n', async (importOriginal) => ({
@@ -37,6 +38,10 @@ vi.mock('@inertiajs/svelte', async (importOriginal) => {
 
   return {
     ...original,
+    page: new Proxy(original.page, {
+      get: (target, key, receiver) =>
+        key === 'url' ? i18n.pageUrl : Reflect.get(target, key, receiver),
+    }),
     router: Object.assign(Object.create(original.router), { post }),
   };
 });
@@ -214,12 +219,13 @@ describe('HeaderPage', () => {
 
 describe('LanguageSwitcher', () => {
   it('links to the same page in the other language on localized pages', () => {
-    i18n.alternates = { id: '/blog', en: '/en/blog' };
+    i18n.alternates = { id: '/id/stale', en: '/en/stale' };
+    i18n.pageUrl = '/id/about/site?tab=1';
     render(LanguageSwitcher);
 
     expect(screen.getByText('Bahasa Indonesia')).toBeTruthy();
     expect(hrefOf(screen.getByRole('link', { name: /English/ }))).toBe(
-      '/en/blog',
+      '/en/about/site?tab=1',
     );
     i18n.alternates = null;
   });
