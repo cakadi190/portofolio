@@ -336,6 +336,86 @@ describe('RichTextEditor', () => {
     });
   });
 
+  describe('markdown clipboard', () => {
+    const markdown = '# Judul\n\nIsi **tebal**\n\n- satu\n- dua';
+
+    async function pasteInto(
+      data: DataTransfer,
+      props: Record<string, unknown> = {},
+    ) {
+      await mountEditor({ value: '', ...props });
+      await fireEvent.paste(document.querySelector('.ProseMirror')!, {
+        clipboardData: data,
+      });
+    }
+
+    it('turns pasted Markdown text into blocks', async () => {
+      const data = new DataTransfer();
+      data.setData('text/plain', markdown);
+
+      await pasteInto(data);
+
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toContain('<h1>Judul</h1>'),
+      );
+      expect(hidden('content')?.value).toContain('<strong>tebal</strong>');
+      expect(hidden('content')?.value).toContain('<li><p>satu</p></li>');
+    });
+
+    it('prefers the Markdown source over the styled HTML a code editor adds', async () => {
+      const data = new DataTransfer();
+      data.setData('text/plain', markdown);
+      data.setData(
+        'text/html',
+        '<div style="font-family:monospace"><div><span style="color:#fff"># Judul</span></div></div>',
+      );
+
+      await pasteInto(data);
+
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toContain('<h1>Judul</h1>'),
+      );
+    });
+
+    it('keeps real HTML from a web page instead of the Markdown-looking text', async () => {
+      const data = new DataTransfer();
+      data.setData('text/plain', '# bukan judul');
+      data.setData('text/html', '<p>Dari <strong>web</strong></p>');
+
+      await pasteInto(data);
+
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toContain('<strong>web</strong>'),
+      );
+      expect(hidden('content')?.value).not.toContain('<h1>');
+    });
+
+    it('does not touch ordinary pasted text', async () => {
+      const data = new DataTransfer();
+      data.setData('text/plain', 'Kalimat biasa saja.');
+
+      await pasteInto(data);
+
+      await vi.waitFor(() =>
+        expect(hidden('content')?.value).toBe('<p>Kalimat biasa saja.</p>'),
+      );
+    });
+
+    it('copies a formatted block with a Markdown text flavour next to the HTML', async () => {
+      await mountEditor({
+        value: '<h2>Judul</h2><p>Isi <strong>tebal</strong></p>',
+      });
+      const data = new DataTransfer();
+
+      await fireEvent.copy(document.querySelector('.ProseMirror')!, {
+        clipboardData: data,
+      });
+
+      expect(data.getData('text/html')).toMatch(/<h2[^>]*>Judul<\/h2>/);
+      expect(data.getData('text/plain')).toBe('## Judul');
+    });
+  });
+
   describe('ordered list numbering', () => {
     it('sets the start number of the list under the caret', async () => {
       await mountEditor({

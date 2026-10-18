@@ -1,5 +1,10 @@
 <script lang="ts">
   import { t } from '@/lib/i18n';
+  import {
+    hasSemanticHtml,
+    markdownSlice,
+    sliceToMarkdown,
+  } from '@/lib/markdown-clipboard';
   import '../../../css/content.scss';
   import AlignCenter from '@lucide/svelte/icons/align-center';
   import AlignLeft from '@lucide/svelte/icons/align-left';
@@ -58,6 +63,7 @@
   import { Fragment, Slice } from '@tiptap/pm/model';
   import { NodeSelection } from '@tiptap/pm/state';
   import StarterKit from '@tiptap/starter-kit';
+  import { Markdown } from '@tiptap/markdown';
   import { onMount, untrack, type Snippet } from 'svelte';
   import { useAdminSidebarState } from '@/layouts/admin/sidebar-state.svelte';
   import HtmlCodeEditor from '@/components/ui/html-code-editor.svelte';
@@ -1942,6 +1948,7 @@
           ? []
           : [TextAlign.configure({ types: ['heading', 'paragraph'] })]),
         CharacterCount,
+        Markdown,
       ],
       editorProps: {
         attributes: {
@@ -2000,11 +2007,55 @@
           void uploadImage(file);
           return true;
         },
-        handlePaste: (_view, event) => {
+        // Copy: the text flavour is Markdown whenever the selection can be written as
+        // Markdown; otherwise it stays ProseMirror's plain text.
+        clipboardTextSerializer: (slice) =>
+          (editor && sliceToMarkdown(editor, slice)) ??
+          slice.content.textBetween(0, slice.content.size, '\n\n'),
+        // Paste of plain text (no HTML on the clipboard): Markdown becomes blocks.
+        // Ctrl+Shift+V and code blocks keep the text exactly as typed.
+        clipboardTextParser: (text, $context, plain) =>
+          (plain || $context.parent.type.spec.code
+            ? null
+            : editor && markdownSlice(editor, text)) as Slice,
+        handlePaste: (view, event) => {
           const file = event.clipboardData?.files?.[0];
-          if (!file?.type.startsWith('image/')) return false;
+          if (file?.type.startsWith('image/')) {
+            event.preventDefault();
+            void uploadImage(file);
+            return true;
+          }
+
+          // Paste from a code editor carries styled HTML but no structure: its plain
+          // text is the Markdown source, so convert that instead of the HTML.
+          const html = event.clipboardData?.getData('text/html') ?? '';
+          const plainPaste = (view as unknown as { input?: { shiftKey?: boolean } })
+            .input?.shiftKey;
+          if (
+            !editor ||
+            html === '' ||
+            plainPaste ||
+            hasSemanticHtml(html) ||
+            view.state.selection.$from.parent.type.spec.code
+          ) {
+            return false;
+          }
+
+          const slice = markdownSlice(
+            editor,
+            event.clipboardData?.getData('text/plain') ?? '',
+          );
+          if (!slice) return false;
+
           event.preventDefault();
-          void uploadImage(file);
+          view.dispatch(
+            view.state.tr
+              .replaceSelection(slice)
+              .scrollIntoView()
+              .setMeta('paste', true)
+              .setMeta('uiEvent', 'paste'),
+          );
+
           return true;
         },
       },
