@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEditorialOwnership;
 use App\Traits\Models\HasEnglishContent;
 use Database\Factories\NoteFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,7 +29,7 @@ use Illuminate\Support\Carbon;
 class Note extends Model
 {
     /** @use HasFactory<NoteFactory> */
-    use AutoGenerateSlug, HasEnglishContent, HasFactory, RecordsActivity;
+    use AutoGenerateSlug, HasEditorialOwnership, HasEnglishContent, HasFactory, RecordsActivity;
 
     protected string $slugSource = 'title';
 

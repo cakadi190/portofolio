@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Concerns;
 use App\Models\Post;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 trait PresentsBlogPosts
 {
@@ -48,7 +49,7 @@ trait PresentsBlogPosts
                 'color' => $category->color,
             ])->values(),
             'tags' => $post->tags->map(fn ($tag): array => ['name' => $tag->name, 'slug' => $tag->slug])->values(),
-            'editUrl' => $canEdit ? route('admin.posts.edit', $post, absolute: false) : null,
+            'editUrl' => $canEdit && Gate::allows('update', $post) ? route('admin.posts.edit', $post, absolute: false) : null,
         ];
     }
 }

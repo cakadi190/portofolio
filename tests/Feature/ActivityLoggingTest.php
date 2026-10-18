@@ -108,7 +108,7 @@ test('changing a role is logged as an explicit event', function () {
     $admin = User::factory()->admin()->create();
     $user = User::factory()->create();
 
-    $this->actingAs($admin)->put(route('admin.users.update', $user), [
+    $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->put(route('admin.users.update', $user), [
         'name' => $user->name, 'email' => $user->email, 'account_type' => 'redaktur',
     ]);
 

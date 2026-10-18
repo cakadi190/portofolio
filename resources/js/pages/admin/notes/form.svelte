@@ -40,7 +40,13 @@
     note,
     tags,
     authors,
-  }: { note: Note | null; tags: Option[]; authors: Option[] } = $props();
+    canAssignAuthor = false,
+  }: {
+    note: Note | null;
+    tags: Option[];
+    authors: Option[];
+    canAssignAuthor?: boolean;
+  } = $props();
 
   // svelte-ignore state_referenced_locally
   let isPublished = $state(note?.is_published ?? false);
@@ -185,23 +191,25 @@
               </a>
             {/if}
           </EditorSummaryRow>
-          <EditorSummaryRow
-            label={t('admin.penulis')}
-            title={t('admin.penulis')}
-            value={authorName}
-            placeholder={t('admin.saya_sendiri')}
-            invalid={!!errors.user_id}
-          >
-            <Select
-              id="note-user_id"
-              name="user_id"
-              items={authors.map((a) => ({ value: a.id, label: a.name }))}
-              bind:value={authorId}
-              invalid={!!errors.user_id}
+          {#if canAssignAuthor}
+            <EditorSummaryRow
+              label={t('admin.penulis')}
+              title={t('admin.penulis')}
+              value={authorName}
               placeholder={t('admin.saya_sendiri')}
-            />
-            <Field.Feedback message={errors.user_id} />
-          </EditorSummaryRow>
+              invalid={!!errors.user_id}
+            >
+              <Select
+                id="note-user_id"
+                name="user_id"
+                items={authors.map((a) => ({ value: a.id, label: a.name }))}
+                bind:value={authorId}
+                invalid={!!errors.user_id}
+                placeholder={t('admin.saya_sendiri')}
+              />
+              <Field.Feedback message={errors.user_id} />
+            </EditorSummaryRow>
+          {/if}
         </div>
       </EditorPanel>
 

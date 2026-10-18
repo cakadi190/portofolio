@@ -134,10 +134,10 @@ test('the list paginates with a whitelisted page size', function () {
         ->assertInertia(fn ($page) => $page->where('filters.per_page', 10));
 });
 
-test('a new post defaults to the signed in user as its author', function () {
+test('a published post is credited to whoever saved it', function () {
     $user = User::factory()->redaktur()->create();
 
-    $this->actingAs($user)->post(route('admin.posts.store'), ['title' => 'Tulisanku', 'content' => '<p>Isi</p>']);
+    $this->actingAs($user)->post(route('admin.posts.store'), ['title' => 'Tulisanku', 'content' => '<p>Isi</p>', 'is_published' => true]);
 
     expect(Post::query()->where('title', 'Tulisanku')->firstOrFail()->user_id)->toBe($user->id);
 });

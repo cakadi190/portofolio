@@ -36,12 +36,16 @@ test('a published note renders sanitized content, reading time and views', funct
         ->where('note.content', fn ($html) => str_contains($html, 'Halo') && ! str_contains($html, '<script')));
 });
 
-test('the edit shortcut on a note is only given to blogging staff', function () {
-    $note = Note::factory()->create();
+test('the edit shortcut on a note is only given to its owner and admins', function () {
+    $owner = User::factory()->redaktur()->create();
+    $note = Note::factory()->create(['user_id' => $owner->id]);
 
     $this->get(route('notes.show', $note))->assertInertia(fn ($page) => $page->where('note.editUrl', null));
     $this->actingAs(User::factory()->create())->get(route('notes.show', $note))->assertInertia(fn ($page) => $page->where('note.editUrl', null));
-    $this->actingAs(User::factory()->redaktur()->create())->get(route('notes.show', $note))
+    $this->actingAs(User::factory()->redaktur()->create())->get(route('notes.show', $note))->assertInertia(fn ($page) => $page->where('note.editUrl', null));
+    $this->actingAs($owner)->get(route('notes.show', $note))
+        ->assertInertia(fn ($page) => $page->where('note.editUrl', route('admin.notes.edit', $note, absolute: false)));
+    $this->actingAs(User::factory()->admin()->create())->get(route('notes.show', $note))
         ->assertInertia(fn ($page) => $page->where('note.editUrl', route('admin.notes.edit', $note, absolute: false)));
 });
 
@@ -79,7 +83,7 @@ test('a note can be assigned to another author and defaults to the current user'
         'title' => 'Milik redaktur', 'content' => '<p>x</p>', 'is_published' => '0', 'user_id' => $other->id,
     ])->assertRedirect();
     $this->actingAs($admin)->post(route('admin.notes.store'), [
-        'title' => 'Milik saya', 'content' => '<p>x</p>', 'is_published' => '0',
+        'title' => 'Milik saya', 'content' => '<p>x</p>', 'is_published' => '1',
     ])->assertRedirect();
 
     expect(Note::query()->where('title', 'Milik redaktur')->value('user_id'))->toBe($other->id)

@@ -83,6 +83,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('services', ServiceController::class)->parameters(['services' => 'service'])->only(['index', 'edit', 'update']);
         Route::resource('speaking-engagements', SpeakingEngagementController::class)->parameters(['speaking-engagements' => 'speakingEngagement'])->only($only);
         Route::get('icons/search', IconSearchController::class)->middleware('throttle:60,1')->name('icons.search');
-        Route::resource('users', UserController::class)->parameters(['users' => 'user'])->only($only);
+        Route::resource('users', UserController::class)->parameters(['users' => 'user'])->only(['index']);
+        Route::middleware('password.confirm:password.confirm,900')->group(function () {
+            Route::resource('users', UserController::class)->parameters(['users' => 'user'])->only(['store', 'update', 'destroy']);
+        });
     });
 });

@@ -76,6 +76,8 @@ tests/Feature/                Tes fitur per modul (Admin/, Auth/, Settings/, Sup
 3. Perubahan perilaku produk → perbarui `docs/*` yang relevan.
 4. Jangan menambah dependensi atau folder dasar baru tanpa persetujuan.
 
+- **Rute admin baru wajib berpagar.** Setiap rute di bawah `/admin` harus berada di `routes/admin.php` dalam grup `can:manage-blog` (admin + redaktur, hanya area blogging) atau `can:manage-site` (admin saja). Untuk area blogging, daftarkan juga prefiks namanya di `$bloggingRoutes` pada `RedakturAccessTest`. `AdminRouteGuardTest` dan `RedakturAccessTest` gagal bila ada rute baru tanpa gate. Konten yang punya penulis (artikel, catatan) juga wajib lewat policy kepemilikan (`Gate::authorize` di controller), bukan hanya gate rute.
+
 ## Minifikasi HTML
 
 Middleware `MinifyHtmlResponse` (grup `web`) memadatkan spasi dan menghapus komentar pada respons HTML **hanya di production**. Blok `pre`, `textarea`, `script`, `style`, dan atribut Inertia `data-page` tidak diubah.

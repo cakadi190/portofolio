@@ -43,9 +43,10 @@ test('admins get a zero-filled traffic series with human views only', function (
 });
 
 test('redaktur only get blog figures', function () {
-    Post::factory()->create(['created_at' => now()]);
+    $editor = User::factory()->redaktur()->create();
+    Post::factory()->create(['created_at' => now(), 'user_id' => $editor->id]);
 
-    $this->actingAs(User::factory()->redaktur()->create())
+    $this->actingAs($editor)
         ->get(route('dashboard'))
         ->assertInertia(fn ($page) => $page
             ->has('summary.blog.monthly', 6)
@@ -55,11 +56,12 @@ test('redaktur only get blog figures', function () {
 });
 
 test('calendar events list posts for staff and speaking engagements for admins only', function () {
-    Post::factory()->create(['title' => 'Artikel Oktober', 'published_at' => '2026-10-05 08:00:00']);
-    Post::factory()->create(['title' => 'Artikel September', 'published_at' => '2026-09-05 08:00:00']);
+    $editor = User::factory()->redaktur()->create();
+    Post::factory()->create(['title' => 'Artikel Oktober', 'published_at' => '2026-10-05 08:00:00', 'user_id' => $editor->id]);
+    Post::factory()->create(['title' => 'Artikel September', 'published_at' => '2026-09-05 08:00:00', 'user_id' => $editor->id]);
     SpeakingEngagement::factory()->create(['title' => 'Talk Oktober', 'starts_at' => '2026-10-10 19:30:00']);
 
-    $this->actingAs(User::factory()->redaktur()->create())
+    $this->actingAs($editor)
         ->getJson(route('admin.calendar-events', ['month' => '2026-10']))
         ->assertOk()
         ->assertJsonCount(1, 'events')

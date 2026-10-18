@@ -121,7 +121,7 @@ test('taxonomy pages set their own title, canonical url and structured data', fu
     $this->get(route('blog.authors.show', $author))->assertSee('ProfilePage', false);
 });
 
-test('the edit shortcut only reaches staff, on the post and on every listing', function () {
+test('the edit shortcut only reaches the owner and admins, on the post and on every listing', function () {
     $category = PostCategory::create(['name' => 'Laravel Tips']);
     $post = publishedPostIn($category);
     $editUrl = route('admin.posts.edit', $post, absolute: false);
@@ -132,6 +132,9 @@ test('the edit shortcut only reaches staff, on the post and on every listing', f
     }
 
     $this->actingAs(User::factory()->redaktur()->create());
+    $this->get(route('blog.show', $post))->assertInertia(fn (Assert $page) => $page->where('post.editUrl', null));
+
+    $this->actingAs(User::factory()->admin()->create());
     $this->get(route('blog.show', $post))->assertInertia(fn (Assert $page) => $page->where('post.editUrl', $editUrl));
     $this->get(route('blog.categories.show', $category))
         ->assertInertia(fn (Assert $page) => $page->where('posts.data.0.editUrl', $editUrl));
@@ -143,7 +146,8 @@ test('the editor and update endpoints stay protected whatever the frontend shows
     $this->get(route('admin.posts.edit', $post))->assertRedirect();
     $this->actingAs(User::factory()->create())->get(route('admin.posts.edit', $post))->assertForbidden();
     $this->actingAs(User::factory()->create())->put(route('admin.posts.update', $post), ['title' => 'Diretas'])->assertForbidden();
-    $this->actingAs(User::factory()->redaktur()->create())->get(route('admin.posts.edit', $post))->assertOk();
+    $this->actingAs(User::factory()->redaktur()->create())->get(route('admin.posts.edit', $post))->assertForbidden();
+    $this->actingAs(User::factory()->admin()->create())->get(route('admin.posts.edit', $post))->assertOk();
 });
 
 test('drafts stay hidden on the post page for the public', function () {

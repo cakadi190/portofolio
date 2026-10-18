@@ -103,7 +103,7 @@ class NoteController extends Controller
                 'readingMinutes' => $note->readingMinutes(),
                 'views' => $this->views->forPath("/notes/{$note->slug}"),
                 'tags' => $note->tags->pluck('name'),
-                'editUrl' => $request->user()?->can('manage-blog') === true
+                'editUrl' => $request->user()?->can('update', $note) === true
                     ? route('admin.notes.edit', $note, absolute: false)
                     : null,
             ],

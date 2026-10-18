@@ -13,8 +13,7 @@ use Illuminate\Support\Collection;
 class CalendarEventController extends Controller
 {
     /**
-     * Events of one month for the navbar calendar: published posts for every
-     * staff member, plus speaking engagements for admins.
+     * Events of one month for the navbar calendar: the posts each staff member may manage, plus speaking engagements for admins.
      */
     public function __invoke(Request $request): JsonResponse
     {
@@ -23,7 +22,7 @@ class CalendarEventController extends Controller
         $start = Carbon::createFromFormat('Y-m-d', ($validated['month'] ?? now()->format('Y-m')).'-01')->startOfMonth();
         $end = $start->copy()->endOfMonth();
 
-        $events = Post::where('is_published', true)
+        $events = Post::manageableBy($request->user())->where('is_published', true)
             ->whereBetween('published_at', [$start, $end])
             ->get(['id', 'title', 'published_at'])
             ->map(fn (Post $post): array => [
@@ -68,7 +67,7 @@ class CalendarEventController extends Controller
     {
         $now = now();
 
-        $events = Post::where('is_published', true)
+        $events = Post::manageableBy($request->user())->where('is_published', true)
             ->where('published_at', '>=', $now)
             ->orderBy('published_at')
             ->limit(5)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Concerns\PaginatesTables;
+use App\Http\Controllers\Concerns\ResolvesEditorialAuthor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\NoteRequest;
 use App\Models\Note;
@@ -12,18 +13,19 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class NoteController extends Controller
 {
-    use PaginatesTables;
+    use PaginatesTables, ResolvesEditorialAuthor;
 
     public function index(Request $request): Response
     {
         return Inertia::render('admin/notes/index', [
             'notes' => $this->paginateTable(
-                Note::query()->with('tags:id,name')->orderByDesc('created_at'),
+                Note::query()->manageableBy($request->user())->with('tags:id,name')->orderByDesc('created_at'),
                 $request,
                 ['title'],
                 ['title', 'is_published', 'published_at'],
@@ -32,18 +34,22 @@ class NoteController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('admin/notes/form', [
             'note' => null,
+            'canAssignAuthor' => $request->user()->can('assignAuthor', Note::class),
             'tags' => $this->tags(),
             'authors' => $this->authors(),
         ]);
     }
 
-    public function edit(Note $note): Response
+    public function edit(Request $request, Note $note): Response
     {
+        Gate::authorize('update', $note);
+
         return Inertia::render('admin/notes/form', [
+            'canAssignAuthor' => $request->user()->can('assignAuthor', Note::class),
             'note' => [
                 ...$note->load('tags:id')->toArray(),
                 'translations' => $note->translationPayload(),
@@ -56,7 +62,7 @@ class NoteController extends Controller
     public function store(NoteRequest $request): RedirectResponse
     {
         $data = $request->safe()->except('tags');
-        $data['user_id'] ??= $request->user()->id;
+        $data['user_id'] = $this->resolveAuthorId($request->user(), (bool) ($data['is_published'] ?? false), null, $data['user_id'] ?? null);
 
         $note = Note::query()->create($data);
         $note->tags()->sync($request->validated('tags', []));
@@ -68,7 +74,12 @@ class NoteController extends Controller
 
     public function update(NoteRequest $request, Note $note): RedirectResponse
     {
-        $note->update($request->safe()->except('tags'));
+        Gate::authorize('update', $note);
+
+        $data = $request->safe()->except('tags');
+        $data['user_id'] = $this->resolveAuthorId($request->user(), (bool) ($data['is_published'] ?? false), $note->user_id, $data['user_id'] ?? null);
+
+        $note->update($data);
         $note->tags()->sync($request->validated('tags', []));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.catatan_berhasil_diperbarui')]);
@@ -78,6 +89,8 @@ class NoteController extends Controller
 
     public function destroy(Note $note): RedirectResponse
     {
+        Gate::authorize('delete', $note);
+
         $note->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.catatan_berhasil_dihapus')]);

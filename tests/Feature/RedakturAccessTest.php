@@ -33,13 +33,13 @@ test('only admins can promote a user to redaktur', function () {
     $this->actingAs(User::factory()->redaktur()->create())->put(route('admin.users.update', $user), $payload)->assertForbidden();
     expect($user->refresh()->account_type)->toBe(UserRole::User);
 
-    $this->actingAs(User::factory()->admin()->create())->put(route('admin.users.update', $user), $payload);
+    $this->actingAs(User::factory()->admin()->create())->withSession(['auth.password_confirmed_at' => time()])->put(route('admin.users.update', $user), $payload);
     expect($user->refresh()->account_type)->toBe(UserRole::Redaktur);
 });
 
 test('redaktur can use the blogging area', function () {
     $redaktur = User::factory()->redaktur()->create();
-    $post = Post::factory()->create();
+    $post = Post::factory()->create(['user_id' => $redaktur->id]);
 
     $this->actingAs($redaktur)->get(route('dashboard'))->assertOk();
     $this->actingAs($redaktur)->get(route('admin.posts.index'))->assertOk();

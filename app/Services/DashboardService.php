@@ -21,6 +21,7 @@ use App\Models\SpeakingEngagement;
 use App\Models\Tag;
 use App\Models\Technology;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
@@ -40,7 +41,7 @@ class DashboardService
     public function summary(User $user): array
     {
         return [
-            'blog' => $this->blog(),
+            'blog' => $this->blog($user),
             'site' => $user->isAdmin() ? $this->site() : null,
             'system' => $user->isAdmin() ? $this->system() : null,
         ];
@@ -49,18 +50,20 @@ class DashboardService
     /**
      * @return array<string, mixed>
      */
-    private function blog(): array
+    private function blog(User $user): array
     {
+        $posts = fn () => Post::query()->manageableBy($user);
+
         return [
-            'posts_total' => Post::count(),
-            'posts_published' => Post::query()->published()->count(),
-            'posts_scheduled' => Post::where('is_published', true)->where('published_at', '>', now())->count(),
-            'posts_draft' => Post::where('is_published', false)->count(),
+            'posts_total' => $posts()->count(),
+            'posts_published' => $posts()->published()->count(),
+            'posts_scheduled' => $posts()->where('is_published', true)->where('published_at', '>', now())->count(),
+            'posts_draft' => $posts()->where('is_published', false)->count(),
             'tags_total' => Tag::count(),
             'comments_pending' => BlogComment::where('status', BlogCommentStatus::Pending)->count(),
             'comments_total' => BlogComment::count(),
-            'monthly' => $this->monthlyBlogActivity(),
-            'recent_posts' => Post::with('author:id,name')
+            'monthly' => $this->monthlyBlogActivity($user),
+            'recent_posts' => $posts()->with('author:id,name')
                 ->latest()
                 ->limit(5)
                 ->get(['id', 'user_id', 'title', 'is_published', 'published_at', 'created_at'])
@@ -142,17 +145,17 @@ class DashboardService
      *
      * @return list<array{month: string, posts: int, comments: int}>
      */
-    private function monthlyBlogActivity(): array
+    private function monthlyBlogActivity(User $user): array
     {
         $start = now()->startOfMonth()->subMonths(5);
 
-        $countByMonth = fn (string $model): array => $model::where('created_at', '>=', $start)
+        $countByMonth = fn (Builder $query): array => $query->where('created_at', '>=', $start)
             ->pluck('created_at')
             ->countBy(fn ($date): string => $date->format('Y-m'))
             ->all();
 
-        $posts = $countByMonth(Post::class);
-        $comments = $countByMonth(BlogComment::class);
+        $posts = $countByMonth(Post::query()->manageableBy($user));
+        $comments = $countByMonth(BlogComment::query());
 
         return collect(range(0, 5))
             ->map(function (int $offset) use ($start, $posts, $comments): array {

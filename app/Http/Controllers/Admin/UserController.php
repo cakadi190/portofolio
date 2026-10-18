@@ -11,7 +11,9 @@ use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -68,6 +70,10 @@ class UserController extends Controller
         $previousRole = $user->account_type;
         $user->update($data);
 
+        if (isset($data['password']) || $previousRole !== $user->account_type) {
+            $this->revokeSessions($user, $request);
+        }
+
         if ($previousRole !== $user->account_type) {
             $this->audit->record('users', 'role_changed', 'Peran pengguna diubah', $user, ['from' => $previousRole->value, 'to' => $user->account_type->value], causer: $request->user());
         }
@@ -91,11 +97,31 @@ class UserController extends Controller
             return back();
         }
 
+        $this->revokeSessions($user, $request);
         $user->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('flash.pengguna_berhasil_dihapus')]);
 
         return to_route('admin.users.index');
+    }
+
+    /**
+     * Sign the user out everywhere after a credential or role change, so a
+     * stolen session or remember-me cookie stops working. The acting admin
+     * keeps the session they are using.
+     */
+    private function revokeSessions(User $user, Request $request): void
+    {
+        $user->forceFill(['remember_token' => Str::random(60)])->saveQuietly();
+
+        if (config('session.driver') !== 'database') {
+            return;
+        }
+
+        DB::table(config('session.table', 'sessions'))
+            ->where('user_id', $user->getKey())
+            ->when($user->is($request->user()), fn ($query) => $query->where('id', '!=', $request->session()->getId()))
+            ->delete();
     }
 
     /**

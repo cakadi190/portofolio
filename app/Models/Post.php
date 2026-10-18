@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\RecordsActivity;
 use App\Traits\Models\AutoGenerateSlug;
+use App\Traits\Models\HasEditorialOwnership;
 use App\Traits\Models\HasEnglishContent;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Post extends Model
 {
     /** @use HasFactory<PostFactory> */
-    use AutoGenerateSlug, HasEnglishContent, HasFactory, RecordsActivity, SoftDeletes;
+    use AutoGenerateSlug, HasEditorialOwnership, HasEnglishContent, HasFactory, RecordsActivity, SoftDeletes;
 
     protected string $slugSource = 'title';
 
