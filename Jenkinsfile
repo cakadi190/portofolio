@@ -214,7 +214,7 @@ pipeline {
     // vendor, node_modules) stay warm until their inputs change, while the
     // per-commit source/asset layers are what gets reclaimed. Raise it if
     // stack layers keep getting rebuilt; lower it if the disk gets tight.
-    BUILDKIT_KEEP_STORAGE = '8GB'
+    BUILDKIT_RESERVED_SPACE = '8GB'
 
     IMAGE_NAME    = 'catatancakadi'
     IMAGE_TAG     = 'latest'
@@ -382,9 +382,9 @@ pipeline {
       sh 'rm -f ${IMAGE_ARCHIVE}'
       sh 'docker image rm ${IMAGE_NAME}:${IMAGE_TAG} || true'
       // Dangling images from superseded builds, then cap the build cache
-      // (see BUILDKIT_KEEP_STORAGE). Never fail the build over cleanup.
+      // (see BUILDKIT_RESERVED_SPACE). Never fail the build over cleanup.
       sh 'docker image prune -f || true'
-      sh 'docker builder prune -f --keep-storage "${BUILDKIT_KEEP_STORAGE}" || true'
+      sh 'docker builder prune -f --reserved-space "${BUILDKIT_RESERVED_SPACE}" || true'
     }
   }
 }
