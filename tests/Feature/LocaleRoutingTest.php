@@ -223,3 +223,16 @@ it('refuses redirects that leave the site', function () {
             ->assertSessionHasErrors('redirect');
     }
 });
+
+it('ships translations and locales on error pages that match no route', function (string $uri) {
+    $this->get($uri)
+        ->assertNotFound()
+        ->assertInertia(fn ($page) => $page
+            ->component('error')
+            ->where('locale', 'id')
+            ->where('translations', fn ($translations) => ($translations['action.back'] ?? null) === trans('common.action.back', [], 'id'))
+            ->has('locales', 2));
+})->with([
+    'missing asset' => '/build/assets/app-missing.js',
+    'unknown page' => '/id/does-not-exist',
+]);

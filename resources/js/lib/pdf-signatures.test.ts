@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { extractPdfSignatures } from '@/lib/pdf-signatures';
 
 function fixture(name: string): Uint8Array {
@@ -10,6 +10,19 @@ function fixture(name: string): Uint8Array {
 }
 
 describe('extractPdfSignatures', () => {
+  // The default resolver asks the server (`/pdf-trust`); without a stub that is a real
+  // request to happy-dom's localhost:3000, which nothing serves.
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(null, { status: 404 })),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('reads the signer, chain and metadata of a document signed under the Indonesian root CA', async () => {
     const [signature] = await extractPdfSignatures(
       fixture('signed-komdigi.pdf'),

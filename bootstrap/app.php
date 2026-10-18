@@ -88,8 +88,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 return $response;
             }
 
-            return Inertia::render('error', $props)
-                ->toResponse($request)
-                ->setStatusCode($status);
+            // A 404 matches no route, so the `web` middleware group never ran: share the
+            // translations, locales and layout props by running the Inertia middleware here.
+            return app(HandleInertiaRequests::class)->handle(
+                $request,
+                fn (Request $request) => Inertia::render('error', $props)
+                    ->toResponse($request)
+                    ->setStatusCode($status),
+            );
         });
     })->create();
