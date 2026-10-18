@@ -102,9 +102,7 @@
                                     <p style="margin:0;">{{ __('mail.footer_auto', ['site' => $siteName]) }}</p>
                                     <p style="margin:6px 0 0;">{{ __('mail.footer_no_reply') }}</p>
                                 @endif
-                                @foreach (['en', 'id'] as $noticeLocale)
-                                    <p lang="{{ $noticeLocale }}" style="margin:{{ $loop->first ? '12px' : '8px' }} 0 0;font-size:11px;line-height:1.6;color:#8495a7;text-align:justify;">{{ __('mail.confidential', ['site' => $siteName], $noticeLocale) }}</p>
-                                @endforeach
+                                <p lang="{{ app()->getLocale() }}" style="margin:12px 0 0;font-size:11px;line-height:1.6;color:#8495a7;text-align:justify;">{{ __('mail.confidential', ['site' => $siteName]) }}</p>
                                 <p style="margin:12px 0 0;color:#8292a3;">{!! __('mail.copyright', ['year' => now()->year, 'site' => e($siteName)]) !!}</p>
                             </div>
                         </td>

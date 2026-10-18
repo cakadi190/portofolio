@@ -178,32 +178,25 @@ test('a reply asks the reader to open the attachment only when files are attache
         ->and($withFile->getTextBody())->toContain('membuka berkas lampiran yang kami kirimkan');
 });
 
-test('every email, html and text, ends with the confidentiality notice in English and Indonesian', function () {
-    $this->post(route('contact.store'), [
+test('every email carries the confidentiality notice in its own language only', function (string $locale, string $shown, string $hidden) {
+    $this->post('/'.$locale.'/contact', [
         'name' => 'Budi', 'email' => 'budi@example.com', 'reason' => 'general', 'message' => '<p>Halo</p>',
     ]);
 
-    foreach (Mail::mailer('array')->getSymfonyTransport()->messages() as $mail) {
-        $email = $mail->getOriginalMessage();
+    $confirmation = collect(Mail::mailer('array')->getSymfonyTransport()->messages())
+        ->map(fn ($mail) => $mail->getOriginalMessage())
+        ->first(fn ($email) => in_array('budi@example.com', array_map(fn ($a) => $a->getAddress(), $email->getTo()), true));
 
-        foreach ([$email->getHtmlBody(), $email->getTextBody()] as $body) {
-            expect($body)
-                ->toContain('CONFIDENTIAL: This email and any files transmitted with it are confidential')
-                ->toContain('RAHASIA: Email ini beserta seluruh berkas yang dilampirkan bersifat rahasia')
-                ->toContain(config('app.name'))
-                ->toContain('PT Kodingin Digital Nusantara (Kodinus Group)')
-                ->and(strpos($body, 'CONFIDENTIAL'))->toBeLessThan(strpos($body, 'RAHASIA'));
-        }
+    foreach ([$confirmation->getHtmlBody(), $confirmation->getTextBody()] as $body) {
+        expect($body)
+            ->toContain($shown)
+            ->not->toContain($hidden)
+            ->toContain('PT Kodingin Digital Nusantara (Kodinus Group)');
     }
-});
-
-test('the notice shows both languages whatever the mail locale is', function () {
-    app()->setLocale('en');
-
-    expect(view('mail.text.partials.confidential')->render())
-        ->toContain('strictly prohibited')
-        ->toContain('sangat dilarang');
-});
+})->with([
+    'english' => ['en', 'CONFIDENTIAL: This email and any files', 'RAHASIA: Email ini'],
+    'indonesian' => ['id', 'RAHASIA: Email ini beserta seluruh berkas', 'CONFIDENTIAL: This email'],
+]);
 
 test('the email footer is tinted apart from the page background', function () {
     $this->post(route('contact.store'), [
