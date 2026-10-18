@@ -19,14 +19,14 @@ class PortfolioGalleryController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/portfolio-galleries/index', [
-            'portfolioGalleries' => Inertia::scroll($this->paginateTable(
+            'portfolioGalleries' => $this->paginateTable(
                 PortfolioGallery::query()
                     ->with('portfolio:id,name')
                     ->orderByDesc('created_at'),
                 $request,
                 ['description', 'portfolio.name'],
                 ['created_at'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['created_at']),
             'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
         ]);

@@ -6,7 +6,7 @@
   import AppHead from '@/components/app-head.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import VerdictBadge from '@/components/clarification/verdict-badge.svelte';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
   import {
     create,
     destroy,
@@ -27,7 +27,7 @@
   let {
     clarifications,
     filters,
-  }: { clarifications: InfiniteList<Clarification>; filters: TableFilters } =
+  }: { clarifications: Paginated<Clarification>; filters: TableFilters } =
     $props();
 </script>
 
@@ -42,7 +42,6 @@
 
 <DataTable
   data={clarifications}
-  scrollKey="clarifications"
   {filters}
   url={index().url}
   columns={[

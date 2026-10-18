@@ -20,7 +20,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/coffee-places';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -55,7 +55,7 @@
     filters,
   }: {
     filters: TableFilters;
-    coffeePlaces: InfiniteList<CoffeePlace>;
+    coffeePlaces: Paginated<CoffeePlace>;
     wifiSpeeds: Option[];
     priceTiers: Option[];
     facilities: Option[];
@@ -92,7 +92,6 @@
 
 <DataTable
   data={coffeePlaces}
-  scrollKey="coffeePlaces"
   {filters}
   url={index().url}
   columns={[

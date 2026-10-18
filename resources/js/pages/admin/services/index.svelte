@@ -5,7 +5,7 @@
   import AppHead from '@/components/app-head.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { edit, index } from '@/wayfinder/routes/admin/services';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Service = {
     id: number;
@@ -18,7 +18,7 @@
   let {
     services,
     filters,
-  }: { services: InfiniteList<Service>; filters: TableFilters } = $props();
+  }: { services: Paginated<Service>; filters: TableFilters } = $props();
 </script>
 
 <AppHead title={t('admin.layanan')} />
@@ -27,7 +27,6 @@
 
 <DataTable
   data={services}
-  scrollKey="services"
   {filters}
   url={index().url}
   columns={[

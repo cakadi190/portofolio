@@ -15,7 +15,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/programmer-channels';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Item = {
     translations?: Record<string, Record<string, string>>;
@@ -32,7 +32,7 @@
     platforms,
     filters,
   }: {
-    channels: InfiniteList<Item>;
+    channels: Paginated<Item>;
     platforms: { value: string; label: string }[];
     filters: TableFilters;
   } = $props();
@@ -61,7 +61,6 @@
 
 <DataTable
   data={channels}
-  scrollKey="channels"
   {filters}
   url={index().url}
   columns={[

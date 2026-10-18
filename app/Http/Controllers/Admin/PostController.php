@@ -27,14 +27,14 @@ class PostController extends Controller
         return Inertia::render('admin/posts/index', [
             'trashed' => $trashed,
             'trashedCount' => Post::onlyTrashed()->count(),
-            'posts' => Inertia::scroll($this->paginateTable(
+            'posts' => $this->paginateTable(
                 Post::query()
                     ->when($trashed, fn ($query) => $query->onlyTrashed())
                     ->orderByDesc('created_at'),
                 $request,
                 ['title'],
                 ['title', 'is_published', 'published_at'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['title', 'is_published', 'published_at']),
         ]);
     }

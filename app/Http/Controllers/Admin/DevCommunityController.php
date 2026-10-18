@@ -19,12 +19,12 @@ class DevCommunityController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/dev-communities/index', [
-            'communities' => Inertia::scroll($this->paginateTable(
+            'communities' => $this->paginateTable(
                 DevCommunity::query()->orderByDesc('is_featured')->orderBy('name'),
                 $request,
                 ['name', 'description'],
                 ['name', 'platform', 'is_featured'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['name', 'platform', 'is_featured']),
             'platforms' => CommunityPlatform::options(),
         ]);

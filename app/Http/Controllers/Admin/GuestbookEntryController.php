@@ -36,7 +36,7 @@ class GuestbookEntryController extends Controller
         $threads->setCollection($this->withReplyTrees($threads->getCollection()));
 
         return Inertia::render('admin/guestbook-entries/index', [
-            'guestbookEntries' => Inertia::scroll($threads),
+            'guestbookEntries' => $threads,
             'filters' => [...$this->tableFilters($request), 'status' => $status?->value],
             'statuses' => BlogCommentStatus::options(),
         ]);

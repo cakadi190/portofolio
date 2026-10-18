@@ -14,7 +14,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/post-categories';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Category = {
     translations?: Record<string, Record<string, string>>;
@@ -27,7 +27,7 @@
   let {
     postCategories,
     filters,
-  }: { filters: TableFilters; postCategories: InfiniteList<Category> } = $props();
+  }: { filters: TableFilters; postCategories: Paginated<Category> } = $props();
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -49,7 +49,6 @@
 
 <DataTable
   data={postCategories}
-  scrollKey="postCategories"
   {filters}
   url={index().url}
   columns={[

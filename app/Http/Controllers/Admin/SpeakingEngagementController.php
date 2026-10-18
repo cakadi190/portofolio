@@ -20,12 +20,12 @@ class SpeakingEngagementController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/speaking-engagements/index', [
-            'speakingEngagements' => Inertia::scroll($this->paginateTable(
+            'speakingEngagements' => $this->paginateTable(
                 SpeakingEngagement::query()->orderByDesc('starts_at'),
                 $request,
                 ['title', 'organizer', 'location'],
                 ['title', 'organizer', 'role', 'starts_at', 'is_published'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['title', 'organizer', 'role', 'starts_at', 'is_published']),
             'roles' => SpeakingRole::options(),
             'formats' => SpeakingFormat::options(),

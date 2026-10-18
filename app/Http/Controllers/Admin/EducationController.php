@@ -20,12 +20,12 @@ class EducationController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/educations/index', [
-            'educations' => Inertia::scroll($this->paginateTable(
+            'educations' => $this->paginateTable(
                 Education::query()->orderByDesc('start_date'),
                 $request,
                 ['name', 'place'],
                 ['name', 'level', 'place', 'start_date'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['name', 'level', 'place', 'start_date']),
             'levels' => EducationLevel::options(),
             'scoreTypes' => AcademicScoreType::options(),

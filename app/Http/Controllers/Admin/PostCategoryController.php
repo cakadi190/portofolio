@@ -19,12 +19,12 @@ class PostCategoryController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/post-categories/index', [
-            'postCategories' => Inertia::scroll($this->paginateTable(
+            'postCategories' => $this->paginateTable(
                 PostCategory::query()->withCount('posts')->orderBy('name'),
                 $request,
                 ['name', 'color'],
                 ['name', 'color', 'posts_count'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['name', 'color', 'posts_count']),
         ]);
     }

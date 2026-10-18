@@ -18,12 +18,12 @@ class ServiceController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/services/index', [
-            'services' => Inertia::scroll($this->paginateTable(
+            'services' => $this->paginateTable(
                 Service::query()->withCount('portfolios')->orderBy('name'),
                 $request,
                 ['name'],
                 ['name'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['name']),
         ]);
     }

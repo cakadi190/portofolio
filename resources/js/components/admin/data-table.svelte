@@ -9,10 +9,9 @@
   import ChevronRight from '@lucide/svelte/icons/chevron-right';
   import Search from '@lucide/svelte/icons/search';
   import X from '@lucide/svelte/icons/x';
-  import { InfiniteScroll, router } from '@inertiajs/svelte';
+  import { router } from '@inertiajs/svelte';
   import type { Snippet } from 'svelte';
   import type {
-    InfiniteList,
     Paginated,
     TableColumn,
     TableFilters,
@@ -27,10 +26,9 @@
     emptyTitle = t('admin.belum_ada_data'),
     emptyText = t('admin.data_akan_muncul_di_sini'),
     row,
-    scrollKey,
     toolbar,
   }: {
-    data: Paginated<T> | InfiniteList<T>;
+    data: Paginated<T>;
     filters: TableFilters;
     /** Index route URL the table reloads against. */
     url: string;
@@ -39,25 +37,21 @@
     emptyTitle?: string;
     emptyText?: string;
     row: Snippet<[T]>;
-    /**
-     * Name of an `Inertia::scroll()` prop. When set, rows load as the user
-     * scrolls instead of through the pager, and `data` only carries `data`.
-     */
-    scrollKey?: string;
     /** Extra controls (e.g. a status filter) shown left of the search box. */
     toolbar?: Snippet;
   } = $props();
 
   const perPageOptions = [10, 25, 50, 100];
+  const baseFilters = { search: 1, sort: 1, direction: 1, per_page: 1 };
 
   // svelte-ignore state_referenced_locally
   let search = $state(filters.search);
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   const isFiltered = $derived(filters.search !== '');
-  const paged = $derived('current_page' in data ? data : null);
+  const paged = $derived(data);
   const pages = $derived(
-    paged ? pageWindow(paged.current_page, paged.last_page) : [],
+    pageWindow(paged.current_page, paged.last_page),
   );
 
   let tbody = $state<HTMLTableSectionElement>();
@@ -92,13 +86,19 @@
       query.direction = next.direction;
     }
     if (next.per_page !== 10) query.per_page = next.per_page;
-    if (next.page > 1 && !scrollKey) query.page = next.page;
+    if (next.page > 1) query.page = next.page;
+
+    // Extra filters a page adds beside search/sort (e.g. `status`) survive paging.
+    for (const [key, value] of Object.entries(next)) {
+      if (!(key in baseFilters) && key !== 'page' && value) {
+        query[key] = value as string | number;
+      }
+    }
 
     router.get(url, query, {
       preserveState: true,
       preserveScroll: true,
       replace: true,
-      ...(scrollKey ? { reset: [scrollKey] } : {}),
     });
   }
 
@@ -147,8 +147,7 @@
 >
   <div class="d-flex align-items-center gap-2 small text-muted">
     {@render toolbar?.()}
-    {#if !scrollKey}
-      <label for="table-per-page">{t('admin.tampilkan')}</label>
+    <label for="table-per-page">{t('admin.tampilkan')}</label>
       <Select
         inline
         required
@@ -163,7 +162,6 @@
         onchange={(next) => visit({ per_page: Number(next) })}
       />
       <span>data</span>
-    {/if}
   </div>
 
   <div class="input-group input-group-sm" style="max-width: 18rem;">
@@ -269,36 +267,20 @@
   {/if}
 {/snippet}
 
-{#if scrollKey}
-  <InfiniteScroll data={scrollKey}>
-    {@render content()}
-    {#snippet loading()}
-      <div
-        class="d-flex justify-content-center align-items-center gap-2 py-3 small text-muted"
-      >
-        <span class="spinner-border spinner-border-sm" aria-hidden="true"
-        ></span>
-        {t('admin.memuat_lebih_banyak')}
-      </div>
-    {/snippet}
-  </InfiniteScroll>
-{:else}
-  {@render content()}
-{/if}
+{@render content()}
 
-{#if !scrollKey}
-  <div
+<div
     class="d-flex flex-wrap align-items-center justify-content-between gap-3"
   >
     <span class="small text-muted">
-      {#if paged && paged.total > 0}
+      {#if paged.total > 0}
         {t('admin.menampilkan_dari', { from: paged.from ?? 0, to: paged.to ?? 0, total: paged.total })}
       {:else}
         {t('admin.tidak_ada_data')}
       {/if}
     </span>
 
-    {#if paged && !scrollKey && paged.last_page > 1}
+    {#if paged.last_page > 1}
       <nav aria-label={t('admin.paginasi_tabel')}>
         <ul class="pagination pagination-sm mb-0">
           <li class="page-item" class:disabled={paged.current_page === 1}>
@@ -345,4 +327,3 @@
       </nav>
     {/if}
   </div>
-{/if}

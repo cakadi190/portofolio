@@ -9,7 +9,7 @@
   import { Field } from '@/components/ui/field';
   import { Form } from '@inertiajs/svelte';
   import { destroy, store, update, index } from '@/wayfinder/routes/admin/tags';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Tag = {
     id: number;
@@ -17,7 +17,7 @@
     translations?: Record<string, Record<string, string>>;
   };
 
-  let { tags, filters }: { filters: TableFilters; tags: InfiniteList<Tag> } =
+  let { tags, filters }: { filters: TableFilters; tags: Paginated<Tag> } =
     $props();
 
   let createOpen = $state(false);
@@ -40,7 +40,6 @@
 
 <DataTable
   data={tags}
-  scrollKey="tags"
   {filters}
   url={index().url}
   columns={[

@@ -12,7 +12,7 @@
     index,
     restore,
   } from '@/wayfinder/routes/admin/posts';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Post = {
     id: number;
@@ -29,7 +29,7 @@
     trashed,
     trashedCount,
   }: {
-    posts: InfiniteList<Post>;
+    posts: Paginated<Post>;
     filters: TableFilters;
     trashed: boolean;
     trashedCount: number;
@@ -62,7 +62,6 @@
 
 <DataTable
   data={posts}
-  scrollKey="posts"
   {filters}
   url={trashed ? index({ query: { trashed: 1 } }).url : index().url}
   columns={[

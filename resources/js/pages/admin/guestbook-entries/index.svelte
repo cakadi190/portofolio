@@ -9,7 +9,7 @@
   import GuestbookEntryEditModal from '@/components/admin/guestbook-entry-edit-modal.svelte';
   import DataTable from '@/components/admin/data-table.svelte';
   import { index } from '@/wayfinder/routes/admin/guestbook-entries';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -18,7 +18,7 @@
     filters,
     statuses,
   }: {
-    guestbookEntries: InfiniteList<GuestbookAdminNode>;
+    guestbookEntries: Paginated<GuestbookAdminNode>;
     filters: TableFilters & { status: string | null };
     statuses: Option[];
   } = $props();
@@ -58,7 +58,6 @@
 <DataTable
   variant="grid"
   data={guestbookEntries}
-  scrollKey="guestbookEntries"
   {filters}
   url={index().url}
   emptyTitle={t('admin.belum_ada_pesan')}

@@ -20,7 +20,7 @@ class ClarificationController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/clarifications/index', [
-            'clarifications' => Inertia::scroll($this->paginateTable(
+            'clarifications' => $this->paginateTable(
                 Clarification::query()->orderByDesc('created_at'),
                 $request,
                 ['title', 'claim'],
@@ -33,7 +33,7 @@ class ClarificationController extends Controller
                 'verdict_color' => $clarification->verdict->color(),
                 'is_published' => $clarification->is_published,
                 'published_at' => $clarification->published_at,
-            ])),
+            ]),
             'filters' => $this->tableFilters($request, ['title', 'verdict', 'is_published', 'published_at']),
         ]);
     }

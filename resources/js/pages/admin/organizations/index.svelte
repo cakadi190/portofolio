@@ -16,7 +16,7 @@
     store,
     update,
   } from '@/wayfinder/routes/admin/organizations';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Organization = {
     translations?: Record<string, Record<string, string>>;
@@ -30,7 +30,7 @@
   let {
     organizations,
     filters,
-  }: { filters: TableFilters; organizations: InfiniteList<Organization> } =
+  }: { filters: TableFilters; organizations: Paginated<Organization> } =
     $props();
 
   let createOpen = $state(false);
@@ -53,7 +53,6 @@
 
 <DataTable
   data={organizations}
-  scrollKey="organizations"
   {filters}
   url={index().url}
   columns={[

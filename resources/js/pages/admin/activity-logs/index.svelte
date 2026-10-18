@@ -8,8 +8,8 @@
   import SlidersHorizontal from '@lucide/svelte/icons/sliders-horizontal';
   import { Link, router } from '@inertiajs/svelte';
   import { index, show, exportMethod } from '@/wayfinder/routes/admin/activity-logs';
-  import InfiniteFeed from '@/components/infinite-feed.svelte';
-  import type { InfiniteList } from '@/types/pagination';
+  import PaginationNav from '@/components/pagination-nav.svelte';
+  import type { Paginated } from '@/types/pagination';
 
   type ActivityRow = {
     id: number;
@@ -38,7 +38,7 @@
     filters,
     options,
   }: {
-    activities: InfiniteList<ActivityRow>;
+    activities: Paginated<ActivityRow>;
     totalActivities: number;
     filters: Filters;
     options: {
@@ -202,7 +202,6 @@
 {#if activities.data.length === 0}
   <EmptyState title={t('admin-activity-logs.tidak_ada_aktivitas')} text={t('admin-activity-logs.tidak_ada_catatan_yang_cocok_dengan')} />
 {:else}
-  <InfiniteFeed data="activities">
   <div class="table-responsive">
     <table class="table table-hover align-middle">
       <thead>
@@ -239,9 +238,16 @@
       </tbody>
     </table>
   </div>
-  </InfiniteFeed>
 
-  <small class="text-muted">{t('admin-activity-logs.n_dari_total', { n: activities.data.length, total: totalActivities })}</small>
+  <PaginationNav
+    currentPage={activities.current_page}
+    lastPage={activities.last_page}
+    total={totalActivities}
+    from={activities.from}
+    to={activities.to}
+    onNavigate={(page) =>
+      router.get(index().url, query({ page }), { preserveState: true, preserveScroll: true, replace: true })}
+  />
 {/if}
 
 <style>

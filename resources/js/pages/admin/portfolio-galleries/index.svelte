@@ -16,7 +16,7 @@
     store,
     update,
   } from '@/wayfinder/routes/admin/portfolio-galleries';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type PortfolioOption = { id: number; name: string };
 
@@ -33,7 +33,7 @@
     portfolios,
     filters,
   }: {
-    portfolioGalleries: InfiniteList<Gallery>;
+    portfolioGalleries: Paginated<Gallery>;
     portfolios: PortfolioOption[];
     filters: TableFilters;
   } = $props();
@@ -58,7 +58,6 @@
 
 <DataTable
   data={portfolioGalleries}
-  scrollKey="portfolioGalleries"
   {filters}
   url={index().url}
   variant="grid"

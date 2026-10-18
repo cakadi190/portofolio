@@ -30,7 +30,7 @@ class ContactMessageController extends Controller
         );
 
         return Inertia::render('admin/contact-messages/index', [
-            'messages' => Inertia::scroll($messages->through(fn (ContactMessage $message): array => [
+            'messages' => $messages->through(fn (ContactMessage $message): array => [
                 ...$message->only(['id', 'name', 'email', 'message', 'read_at', 'created_at']),
                 'reason' => $message->reason->value,
                 'reason_label' => $message->reason->label(),
@@ -47,7 +47,7 @@ class ContactMessageController extends Controller
                     'attachments' => Media::query()->whereIn('path', $reply->attachments ?? [])->pluck('name')->all(),
                     'created_at' => $reply->created_at,
                 ])->all(),
-            ])),
+            ]),
             'filters' => $this->tableFilters($request, ['name', 'email', 'created_at']),
         ]);
     }

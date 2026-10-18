@@ -15,7 +15,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/portfolio-ratings';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type PortfolioOption = { id: number; name: string };
 
@@ -38,7 +38,7 @@
     filters,
   }: {
     filters: TableFilters;
-    portfolioRatings: InfiniteList<Rating>;
+    portfolioRatings: Paginated<Rating>;
     portfolios: PortfolioOption[];
   } = $props();
 
@@ -62,7 +62,6 @@
 
 <DataTable
   data={portfolioRatings}
-  scrollKey="portfolioRatings"
   {filters}
   url={index().url}
   columns={[

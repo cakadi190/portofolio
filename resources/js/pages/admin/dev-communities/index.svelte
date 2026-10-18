@@ -15,7 +15,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/dev-communities';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Item = {
     translations?: Record<string, Record<string, string>>;
@@ -33,7 +33,7 @@
     platforms,
     filters,
   }: {
-    communities: InfiniteList<Item>;
+    communities: Paginated<Item>;
     platforms: { value: string; label: string }[];
     filters: TableFilters;
   } = $props();
@@ -62,7 +62,6 @@
 
 <DataTable
   data={communities}
-  scrollKey="communities"
   {filters}
   url={index().url}
   columns={[

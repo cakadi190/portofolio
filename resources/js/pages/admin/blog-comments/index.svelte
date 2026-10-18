@@ -9,7 +9,7 @@
   import DataTable from '@/components/admin/data-table.svelte';
   import { formatDate } from '@/lib/utils';
   import { destroy, index, show } from '@/wayfinder/routes/admin/blog-comments';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -32,7 +32,7 @@
     filters,
     statuses,
   }: {
-    blogComments: InfiniteList<Row>;
+    blogComments: Paginated<Row>;
     filters: TableFilters & { status: string | null };
     statuses: Option[];
   } = $props();
@@ -77,7 +77,6 @@
 
 <DataTable
   data={blogComments}
-  scrollKey="blogComments"
   {filters}
   url={index().url}
   columns={[

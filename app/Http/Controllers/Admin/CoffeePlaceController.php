@@ -21,12 +21,12 @@ class CoffeePlaceController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/coffee-places/index', [
-            'coffeePlaces' => Inertia::scroll($this->paginateTable(
+            'coffeePlaces' => $this->paginateTable(
                 CoffeePlace::query()->with('galleries:id,coffee_place_id,image_url,description')->orderBy('name'),
                 $request,
                 ['name', 'address'],
                 ['name', 'address', 'price_tier', 'is_recommended'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['name', 'address', 'price_tier', 'is_recommended']),
             'wifiSpeeds' => WifiSpeed::options(),
             'priceTiers' => CafePriceTier::options(),

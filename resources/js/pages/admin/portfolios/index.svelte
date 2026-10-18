@@ -7,7 +7,7 @@
   import DataTable from '@/components/admin/data-table.svelte';
   import { storageUrl } from '@/lib/utils';
   import { create, destroy, edit, index } from '@/wayfinder/routes/admin/portfolios';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Portfolio = {
     id: number;
@@ -23,7 +23,7 @@
     filters,
   }: {
     filters: TableFilters;
-    portfolios: InfiniteList<Portfolio>;
+    portfolios: Paginated<Portfolio>;
   } = $props();
 </script>
 
@@ -38,7 +38,6 @@
 
 <DataTable
   data={portfolios}
-  scrollKey="portfolios"
   {filters}
   url={index().url}
   columns={[

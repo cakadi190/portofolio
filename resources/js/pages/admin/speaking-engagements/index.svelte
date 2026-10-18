@@ -18,7 +18,7 @@
     store,
     update,
   } from '@/wayfinder/routes/admin/speaking-engagements';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -44,7 +44,7 @@
     formats,
     filters,
   }: {
-    speakingEngagements: InfiniteList<SpeakingEngagement>;
+    speakingEngagements: Paginated<SpeakingEngagement>;
     roles: Option[];
     formats: Option[];
     filters: TableFilters;
@@ -74,7 +74,6 @@
 
 <DataTable
   data={speakingEngagements}
-  scrollKey="speakingEngagements"
   {filters}
   url={index().url}
   columns={[

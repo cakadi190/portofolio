@@ -14,7 +14,7 @@
     index,
     update,
   } from '@/wayfinder/routes/admin/contact-messages';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type ContactMessage = {
     id: number;
@@ -43,7 +43,7 @@
   let {
     messages,
     filters,
-  }: { messages: InfiniteList<ContactMessage>; filters: TableFilters } =
+  }: { messages: Paginated<ContactMessage>; filters: TableFilters } =
     $props();
 
   let viewOpen = $state(false);
@@ -79,7 +79,6 @@
 
 <DataTable
   data={messages}
-  scrollKey="messages"
   {filters}
   url={index().url}
   columns={[

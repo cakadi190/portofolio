@@ -21,7 +21,7 @@ class PortfolioController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/portfolios/index', [
-            'portfolios' => Inertia::scroll($this->paginateTable(
+            'portfolios' => $this->paginateTable(
                 Portfolio::query()
                     ->with(['technologies:id,name', 'services:id,name', 'careers:id'])
                     ->withCount(['technologies', 'services', 'galleries', 'ratings'])
@@ -29,7 +29,7 @@ class PortfolioController extends Controller
                 $request,
                 ['name'],
                 ['name', 'is_private'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['name', 'is_private']),
         ]);
     }

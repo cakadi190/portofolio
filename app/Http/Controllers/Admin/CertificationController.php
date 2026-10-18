@@ -18,12 +18,12 @@ class CertificationController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/certifications/index', [
-            'certifications' => Inertia::scroll($this->paginateTable(
+            'certifications' => $this->paginateTable(
                 Certification::query()->orderByDesc('issued_at'),
                 $request,
                 ['title', 'issuer'],
                 ['title', 'issuer', 'issued_at'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['title', 'issuer', 'issued_at']),
         ]);
     }

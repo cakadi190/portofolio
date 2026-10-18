@@ -19,12 +19,12 @@ class ProgrammerChannelController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/programmer-channels/index', [
-            'channels' => Inertia::scroll($this->paginateTable(
+            'channels' => $this->paginateTable(
                 ProgrammerChannel::query()->orderByDesc('is_featured')->orderBy('name'),
                 $request,
                 ['name', 'description'],
                 ['name', 'platform', 'is_featured'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['name', 'platform', 'is_featured']),
             'platforms' => ChannelPlatform::options(),
         ]);

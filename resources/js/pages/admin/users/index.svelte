@@ -16,7 +16,7 @@
     update,
     index,
   } from '@/wayfinder/routes/admin/users';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Option = { value: string; label: string };
 
@@ -37,7 +37,7 @@
     filters,
   }: {
     filters: TableFilters;
-    users: InfiniteList<UserRow>;
+    users: Paginated<UserRow>;
     accountTypes: Option[];
     genders: Option[];
   } = $props();
@@ -69,7 +69,6 @@
 
 <DataTable
   data={users}
-  scrollKey="users"
   {filters}
   url={index().url}
   columns={[

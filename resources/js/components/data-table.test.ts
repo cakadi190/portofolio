@@ -189,6 +189,20 @@ describe('DataTable', () => {
     );
   });
 
+  it('keeps an extra page filter (status) while paging', async () => {
+    mount({
+      data: paginated({ current_page: 1, last_page: 3, total: 30 }),
+      filters: filters({ status: 'pending' }),
+    });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Berikutnya' }));
+    expect(get).toHaveBeenLastCalledWith(
+      '/admin/things',
+      { status: 'pending', page: 2 },
+      expect.any(Object),
+    );
+  });
+
   it('disables previous on the first page', () => {
     mount({ data: paginated({ last_page: 3 }) });
 

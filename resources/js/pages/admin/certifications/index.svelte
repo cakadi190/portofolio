@@ -18,7 +18,7 @@
     store,
     update,
   } from '@/wayfinder/routes/admin/certifications';
-  import type { InfiniteList, TableFilters } from '@/types/pagination';
+  import type { Paginated, TableFilters } from '@/types/pagination';
 
   type Certification = {
     id: number;
@@ -36,7 +36,7 @@
   let {
     certifications,
     filters,
-  }: { filters: TableFilters; certifications: InfiniteList<Certification> } =
+  }: { filters: TableFilters; certifications: Paginated<Certification> } =
     $props();
 
   let createOpen = $state(false);
@@ -78,7 +78,6 @@
 
 <DataTable
   data={certifications}
-  scrollKey="certifications"
   {filters}
   url={index().url}
   columns={[

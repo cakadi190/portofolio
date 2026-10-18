@@ -19,12 +19,12 @@ class CareerController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('admin/careers/index', [
-            'careers' => Inertia::scroll($this->paginateTable(
+            'careers' => $this->paginateTable(
                 Career::query()->with('portfolios:id')->orderByDesc('start_date'),
                 $request,
                 ['position', 'company', 'location'],
                 ['position', 'company', 'location', 'start_date'],
-            )),
+            ),
             'filters' => $this->tableFilters($request, ['position', 'company', 'location', 'start_date']),
             'portfolios' => Portfolio::query()->orderBy('name')->get(['id', 'name']),
         ]);
