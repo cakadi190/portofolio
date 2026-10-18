@@ -83,7 +83,7 @@ class ServiceController extends Controller
                 'description' => ContentImageOptimizer::optimize(HtmlSanitizer::clean($service->description)),
             ],
             'portfolios' => $service->portfolios()
-                ->with('technologies:id,name')
+                ->with('technologies:id,name,icon')
                 ->latest()
                 ->get()
                 ->map(fn (Portfolio $portfolio): array => [
@@ -92,7 +92,7 @@ class ServiceController extends Controller
                     'image' => ImageService::url($portfolio->image),
                     'shortDesc' => $portfolio->short_desc,
                     'services' => [['name' => $service->name, 'color' => $service->color]],
-                    'technologies' => $portfolio->technologies->pluck('name'),
+                    'technologies' => $portfolio->technologies->map(fn ($technology): array => ['name' => $technology->name, 'icon' => $technology->icon]),
                 ]),
         ]);
     }

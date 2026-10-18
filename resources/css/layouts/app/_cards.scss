@@ -150,6 +150,16 @@
   }
 }
 
+.post-taxonomy-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  aspect-ratio: 1;
+  font-size: 0.75rem;
+  border-radius: 999px;
+}
+
 .post-taxonomy-tag {
   display: inline-flex;
   align-items: center;

@@ -2,6 +2,7 @@
 
 use App\Models\Portfolio;
 use App\Models\Service;
+use App\Models\Technology;
 
 test('the services page lists services', function () {
     Service::factory()->create(['name' => 'Website']);
@@ -41,4 +42,17 @@ test('the portfolio list exposes each portfolio services', function () {
 
     $this->get(route('portfolios.index'))
         ->assertInertia(fn ($page) => $page->where('portfolios.data.0.services.0.name', 'Mobile'));
+});
+
+test('the service detail page sends technologies as name and icon chips', function () {
+    $service = Service::factory()->create();
+    $portfolio = Portfolio::factory()->create();
+    $technology = Technology::factory()->create(['name' => 'Laravel', 'icon' => 'devicon:laravel']);
+    $portfolio->technologies()->attach($technology);
+    $service->portfolios()->attach($portfolio);
+
+    $this->get(route('services.show', $service))
+        ->assertInertia(fn ($page) => $page
+            ->where('portfolios.0.technologies.0.name', 'Laravel')
+            ->where('portfolios.0.technologies.0.icon', 'devicon:laravel'));
 });

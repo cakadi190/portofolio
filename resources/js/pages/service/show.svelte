@@ -5,6 +5,7 @@
   import CardPortfolio from '@/components/card-portfolio.svelte';
   import HeaderPage from '@/components/header-page.svelte';
   import { highlightCode } from '@/lib/highlight/action';
+  import type { TechnologyChip } from '@/lib/tech-icon';
 
   type Portfolio = {
     name: string;
@@ -12,7 +13,7 @@
     image: string;
     shortDesc: string | null;
     services: { name: string; color: string | null }[];
-    technologies: string[];
+    technologies: TechnologyChip[];
   };
 
   type Service = {

@@ -296,16 +296,6 @@
     color: var(--neo-secondary-color);
   }
 
-  :global(.post-taxonomy-count) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.5rem;
-    aspect-ratio: 1;
-    font-size: 0.75rem;
-    border-radius: 999px;
-  }
-
   :global(.post-taxonomy-category) {
     padding-block: 0.1875rem;
     padding-inline-end: 0.25rem;

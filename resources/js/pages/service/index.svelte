@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@/lib/i18n';
+  import { t, tChoice } from '@/lib/i18n';
   import { badgeStyle } from '@/lib/badge';
   import Link from '@/components/link.svelte';
   import AppHead from '@/components/app-head.svelte';
@@ -48,8 +48,11 @@
                     <div class="d-flex gap-2 mb-2 justify-content-between">
                       <h2 class="h5 card-title mb-0">{service.name}</h2>
                       <div>
-                        <span class="badge" style={badgeStyle(service.color)}>
-                          {t('services.projects', { count: service.portfoliosCount })}
+                        <span class="post-taxonomy-tag service-count-tag">
+                          <span class="post-taxonomy-count" style={badgeStyle(service.color)}>
+                            {service.portfoliosCount}
+                          </span>
+                          {tChoice('services.projects', service.portfoliosCount)}
                         </span>
                       </div>
                     </div>
@@ -66,3 +69,11 @@
     </div>
   </section>
 </div>
+
+<style>
+  .service-count-tag {
+    padding-block: 0.1875rem;
+    padding-inline: 0.25rem 0.75rem;
+    white-space: nowrap;
+  }
+</style>
