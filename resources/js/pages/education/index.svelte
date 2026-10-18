@@ -74,7 +74,8 @@
                           height="160"
                           src={item.logo ?? '/images/education/default.png'}
                           alt={item.logo ? item.name : 'KEMENDIKBUD'}
-                          class="w-100 ratio ratio-1x1"
+                          class="d-block w-100 h-auto object-fit-contain"
+                          style="aspect-ratio: 1 / 1;"
                         />
                       </div>
                     </div>
