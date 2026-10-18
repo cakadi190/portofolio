@@ -411,6 +411,7 @@
     height: auto;
     aspect-ratio: 1;
     object-fit: cover;
+    object-position: top;
     border-radius: 0.375rem;
     background-color: var(--neo-tertiary-bg);
   }
