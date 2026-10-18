@@ -19,6 +19,18 @@ vi.mock(
  * components mountable; individual tests override them when behavior matters.
  */
 function installBrowserStubs(): void {
+  // Under Bun the runtime's own `Event` stays global instead of happy-dom's, so
+  // Bootstrap's `element.dispatchEvent(new Event(...))` is rejected by happy-dom.
+  vi.stubGlobal('Event', window.Event);
+  vi.stubGlobal('CustomEvent', window.CustomEvent);
+
+  // No test may reach the network (icon API, CDN scripts); happy-dom would abort the
+  // pending request at teardown and print an AbortError. Tests stub their own responses.
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response(null, { status: 404 })),
+  );
+
   window.matchMedia = vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,

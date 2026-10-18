@@ -1,5 +1,5 @@
 import postcss from 'postcss';
-import { obscureMathSelector } from './resources/js/lib/math-classes';
+import { obscureMathSelector } from './resources/js/lib/math-classes.ts';
 
 /**
  * Keeps the equation library from announcing itself: its stylesheet and font
