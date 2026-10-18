@@ -8,6 +8,8 @@ return [
     'balas' => 'Reply',
     'pengirim' => 'Sender',
     'keperluan' => 'Reason',
+    'bahasa_pengirim' => 'Sender language',
+    'tulis_dalam_bahasa' => 'The sender used :language. Write your reply in :language; the confirmation and reply emails use that language\'s template.',
     'dibaca' => 'Read',
     'delete_confirm' => 'Delete message from ":name"?',
 ];

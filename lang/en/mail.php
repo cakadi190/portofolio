@@ -17,6 +17,7 @@ return [
     'confirmation.footnote' => 'You received this email because you sent a message through the contact form. If that was not you, simply ignore this email.',
     'reply.attachments' => 'We have attached files to this email. Please open the attachments for more information.',
     'reply.attachments_label' => 'Attachments:',
+    'reply.subject' => 'Re: :reason',
     'reply.previous' => 'Your previous message (:reason):',
     'reply.footnote' => 'You are receiving this email as a reply to the message you sent through the contact form. You can reply to this email directly.',
     'reset.subject' => 'Reset Password',

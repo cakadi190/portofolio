@@ -17,6 +17,7 @@ return [
     'confirmation.footnote' => 'Anda menerima email ini karena mengirim pesan lewat formulir kontak. Jika bukan Anda, abaikan saja email ini.',
     'reply.attachments' => 'Bersama email ini kami menyertakan lampiran. Mohon berkenan membuka berkas lampiran yang kami kirimkan untuk informasi selengkapnya.',
     'reply.attachments_label' => 'Lampiran:',
+    'reply.subject' => 'Membalas: :reason',
     'reply.previous' => 'Pesan Anda sebelumnya (:reason):',
     'reply.footnote' => 'Anda menerima email ini sebagai balasan atas pesan yang Anda kirim lewat formulir kontak. Anda dapat membalas email ini langsung.',
     'reset.subject' => 'Reset Password',

@@ -8,6 +8,8 @@ return [
     'balas' => 'Balas',
     'pengirim' => 'Pengirim',
     'keperluan' => 'Keperluan',
+    'bahasa_pengirim' => 'Bahasa pengirim',
+    'tulis_dalam_bahasa' => 'Pengirim memakai :language. Tulis balasan dalam :language; email konfirmasi dan balasan otomatis memakai template bahasa itu.',
     'dibaca' => 'Dibaca',
     'delete_confirm' => 'Hapus pesan dari ":name"?',
 ];

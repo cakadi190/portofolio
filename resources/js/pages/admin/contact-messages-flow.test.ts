@@ -25,6 +25,8 @@ const message = (id: number, readAt: string | null) => ({
   reason_label: 'Kerja sama',
   message: '<p>Halo, <strong>saya tertarik</strong></p>',
   default_subject: 'Membalas: Kerja sama',
+  locale: 'en',
+  locale_label: 'English',
   replies: [],
   read_at: readAt,
   created_at: '2024-05-17T00:00:00Z',
@@ -91,6 +93,9 @@ describe('admin contact messages page (full flow)', () => {
     })) as HTMLInputElement;
 
     expect(subject.placeholder).toBe('Membalas: Kerja sama');
+    expect(screen.getByRole('note', { hidden: true }).textContent).toContain(
+      'English',
+    );
     expect(
       screen.getByRole('button', { name: /Kirim Balasan/, hidden: true }),
     ).toBeTruthy();

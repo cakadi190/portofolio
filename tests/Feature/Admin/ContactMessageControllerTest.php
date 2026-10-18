@@ -52,3 +52,17 @@ test('a message can be deleted', function () {
 
     $this->assertModelMissing($message);
 });
+
+test('the list tells the admin which language the sender used and defaults the subject to it', function () {
+    ContactMessage::factory()->create(['locale' => 'en', 'created_at' => now()->subDay()]);
+    ContactMessage::factory()->create(['locale' => null, 'created_at' => now()]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.contact-messages.index'))
+        ->assertInertia(fn ($page) => $page
+            ->has('messages.data', 2)
+            ->where('messages.data.0.locale', 'id')
+            ->where('messages.data.0.locale_label', 'Bahasa Indonesia')
+            ->where('messages.data.1.locale', 'en')
+            ->where('messages.data.1.default_subject', 'Re: General Question'));
+});

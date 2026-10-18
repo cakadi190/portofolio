@@ -10,6 +10,7 @@ use App\Jobs\SendContactReply;
 use App\Models\ContactMessage;
 use App\Models\ContactMessageReply;
 use App\Models\Media;
+use App\Support\AppLocale;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,6 +34,8 @@ class ContactMessageController extends Controller
                 ...$message->only(['id', 'name', 'email', 'message', 'read_at', 'created_at']),
                 'reason' => $message->reason->value,
                 'reason_label' => $message->reason->label(),
+                'locale' => $this->messageLocale($message),
+                'locale_label' => __('locales.'.$this->messageLocale($message).'.label'),
                 'default_subject' => $this->defaultSubject($message),
                 'replies' => $message->replies->map(fn (ContactMessageReply $reply): array => [
                     'id' => $reply->id,
@@ -92,6 +95,21 @@ class ContactMessageController extends Controller
 
     private function defaultSubject(ContactMessage $contactMessage): string
     {
-        return "Membalas: {$contactMessage->reason->label()}";
+        $adminLocale = app()->getLocale();
+        app()->setLocale($this->messageLocale($contactMessage));
+
+        try {
+            return __('mail.reply.subject', ['reason' => $contactMessage->reason->label()]);
+        } finally {
+            app()->setLocale($adminLocale);
+        }
+    }
+
+    /**
+     * The language the sender used on the contact form, which also picks the email template.
+     */
+    private function messageLocale(ContactMessage $contactMessage): string
+    {
+        return in_array($contactMessage->locale, AppLocale::available(), true) ? $contactMessage->locale : AppLocale::DEFAULT;
     }
 }

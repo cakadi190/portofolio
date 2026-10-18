@@ -22,6 +22,8 @@
     email: string;
     reason: string;
     reason_label: string;
+    locale: string;
+    locale_label: string;
     message: string;
     default_subject: string;
     replies: {
@@ -83,6 +85,7 @@
   columns={[
     { label: t('admin-contact-messages.pengirim'), key: 'name', sortable: true },
     { label: t('admin-contact-messages.keperluan') },
+    { label: t('admin-contact-messages.bahasa_pengirim') },
     { label: t('admin-blog-comments.dikirim'), key: 'created_at', sortable: true },
     { label: t('admin.status') },
     { label: t('admin-media.aksi'), align: 'end' },
@@ -98,6 +101,7 @@
         ></td
       >
       <td>{message.reason_label}</td>
+      <td><span class="badge text-bg-light border">{message.locale.toUpperCase()}</span></td>
       <td>{formatDate(message.created_at)}</td>
       <td>
         <span
@@ -137,6 +141,9 @@
     {#if viewing}
       <p class="mb-2">
         <span class="badge text-bg-info">{viewing.reason_label}</span>
+        <span class="badge text-bg-light border"
+          >{t('admin-contact-messages.bahasa_pengirim')}: {viewing.locale_label}</span
+        >
       </p>
       <div class="wysiwyg-content-wrapper border rounded-3 p-3 mb-3">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -175,6 +182,7 @@
         <ContactReplyForm
           messageId={viewing.id}
           defaultSubject={viewing.default_subject}
+          localeLabel={viewing.locale_label}
           onSent={() => (viewOpen = false)}
           onCancel={() => (replying = false)}
         />

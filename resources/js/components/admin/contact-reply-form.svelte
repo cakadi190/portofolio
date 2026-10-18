@@ -19,11 +19,13 @@
   let {
     messageId,
     defaultSubject,
+    localeLabel,
     onSent,
     onCancel,
   }: {
     messageId: number;
     defaultSubject: string;
+    localeLabel: string;
     onSent: () => void;
     onCancel: () => void;
   } = $props();
@@ -48,6 +50,10 @@
   onSuccess={onSent}
 >
   {#snippet children({ errors, processing })}
+    <div class="alert alert-info py-2 mb-0" role="note">
+      {t('admin-contact-messages.tulis_dalam_bahasa', { language: localeLabel })}
+    </div>
+
     <Field.Group>
       <Field.Label for="reply-subject">{t('admin.subjek_opsional')}</Field.Label>
       <Field.Input
