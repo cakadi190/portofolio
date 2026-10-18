@@ -10,3 +10,5 @@
 --
 {!! __('mail.reply.previous', ['reason' => $reply->contactMessage->reason->label()]) !!}
 {!! \App\Services\PlainTextConverter::fromHtml($reply->contactMessage->message) !!}
+
+@include('mail.text.partials.confidential')

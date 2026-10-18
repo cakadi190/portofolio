@@ -177,3 +177,30 @@ test('a reply asks the reader to open the attachment only when files are attache
     expect($withFile->getHtmlBody())->toContain('Mohon berkenan membuka berkas lampiran yang kami kirimkan')
         ->and($withFile->getTextBody())->toContain('membuka berkas lampiran yang kami kirimkan');
 });
+
+test('every email, html and text, ends with the confidentiality notice in English and Indonesian', function () {
+    $this->post(route('contact.store'), [
+        'name' => 'Budi', 'email' => 'budi@example.com', 'reason' => 'general', 'message' => '<p>Halo</p>',
+    ]);
+
+    foreach (Mail::mailer('array')->getSymfonyTransport()->messages() as $mail) {
+        $email = $mail->getOriginalMessage();
+
+        foreach ([$email->getHtmlBody(), $email->getTextBody()] as $body) {
+            expect($body)
+                ->toContain('CONFIDENTIAL: This email and any files transmitted with it are confidential')
+                ->toContain('RAHASIA: Email ini beserta seluruh berkas yang dilampirkan bersifat rahasia')
+                ->toContain(config('app.name'))
+                ->toContain('PT Kodingin Digital Nusantara (Kodinus)')
+                ->and(strpos($body, 'CONFIDENTIAL'))->toBeLessThan(strpos($body, 'RAHASIA'));
+        }
+    }
+});
+
+test('the notice shows both languages whatever the mail locale is', function () {
+    app()->setLocale('en');
+
+    expect(view('mail.text.partials.confidential')->render())
+        ->toContain('strictly prohibited')
+        ->toContain('sangat dilarang');
+});

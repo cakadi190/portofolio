@@ -7,3 +7,5 @@
 
 --
 {!! config('app.name') !!} — {!! config('app.url') !!}
+
+@include('mail.text.partials.confidential')

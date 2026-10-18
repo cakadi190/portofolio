@@ -4,3 +4,5 @@
 {!! $url !!}
 
 {!! __('mail.reset.expiry_text', ['minutes' => $expires]) !!}
+
+@include('mail.text.partials.confidential')

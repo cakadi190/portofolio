@@ -7,3 +7,5 @@ Keperluan : {!! $contactMessage->reason->label() !!}
 {!! \App\Services\PlainTextConverter::fromHtml($contactMessage->message) !!}
 
 Buka kotak masuk: {!! route('admin.contact-messages.index') !!}
+
+@include('mail.text.partials.confidential')
