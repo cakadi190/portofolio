@@ -204,3 +204,14 @@ test('the notice shows both languages whatever the mail locale is', function () 
         ->toContain('strictly prohibited')
         ->toContain('sangat dilarang');
 });
+
+test('the email footer is tinted apart from the page background', function () {
+    $this->post(route('contact.store'), [
+        'name' => 'Budi', 'email' => 'budi@example.com', 'reason' => 'general', 'message' => '<p>Halo</p>',
+    ]);
+
+    foreach (Mail::mailer('array')->getSymfonyTransport()->messages() as $mail) {
+        expect($mail->getOriginalMessage()->getHtmlBody())
+            ->toContain('background:#f6f9fc;border-top:1px solid #e8eef4');
+    }
+});

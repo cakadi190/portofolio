@@ -94,8 +94,8 @@
                     </tr>
 
                     <tr>
-                        <td class="pad" style="padding:22px 32px;background:#f3f5f8;border-top:1px solid #e3e8ef;border-radius:0 0 14px 14px;">
-                            <div style="font-family:'Signika','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#7a879b;text-align:center;">
+                        <td class="pad" style="padding:22px 32px;background:#f6f9fc;border-top:1px solid #e8eef4;border-radius:0 0 14px 14px;">
+                            <div style="font-family:'Signika','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#708398;text-align:center;">
                                 @hasSection('footnote')
                                     <p style="margin:0;">@yield('footnote')</p>
                                 @else
@@ -103,9 +103,9 @@
                                     <p style="margin:6px 0 0;">{{ __('mail.footer_no_reply') }}</p>
                                 @endif
                                 @foreach (['en', 'id'] as $noticeLocale)
-                                    <p lang="{{ $noticeLocale }}" style="margin:{{ $loop->first ? '12px' : '8px' }} 0 0;font-size:11px;line-height:1.6;color:#9aa5b5;text-align:justify;">{{ __('mail.confidential', ['site' => $siteName], $noticeLocale) }}</p>
+                                    <p lang="{{ $noticeLocale }}" style="margin:{{ $loop->first ? '12px' : '8px' }} 0 0;font-size:11px;line-height:1.6;color:#8495a7;text-align:justify;">{{ __('mail.confidential', ['site' => $siteName], $noticeLocale) }}</p>
                                 @endforeach
-                                <p style="margin:12px 0 0;">{!! __('mail.copyright', ['year' => now()->year, 'site' => e($siteName)]) !!}</p>
+                                <p style="margin:12px 0 0;color:#8292a3;">{!! __('mail.copyright', ['year' => now()->year, 'site' => e($siteName)]) !!}</p>
                             </div>
                         </td>
                     </tr>
