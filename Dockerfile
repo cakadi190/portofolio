@@ -22,10 +22,10 @@
 #   production          base + source + vendor + compiled assets + Bun (to
 #                       run the Inertia SSR bundle alongside FrankenPHP).
 
-ARG FRANKENPHP_VERSION=1.12.6
+ARG FRANKENPHP_VERSION=1.13.2
 ARG PHP_VERSION=8.4
 ARG COMPOSER_VERSION=2
-ARG BUN_VERSION=1.4.2
+ARG BUN_VERSION=1.4.4
 
 FROM composer:${COMPOSER_VERSION} AS composer-bin
 

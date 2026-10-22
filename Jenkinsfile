@@ -248,6 +248,18 @@ pipeline {
       }
     }
 
+    // Fails the build on any known advisory in the locked PHP or JS
+    // dependencies, so a vulnerable lockfile never reaches the image.
+    stage('Dependency audit') {
+      steps {
+        sh '''
+          set -eu
+          docker run --rm -v "$PWD/composer.lock:/app/composer.lock:ro" -v "$PWD/composer.json:/app/composer.json:ro" -w /app composer:2 composer audit --locked --no-dev
+          docker run --rm -v "$PWD:/app:ro" -w /app oven/bun:1.4.4-alpine bun audit --prod
+        '''
+      }
+    }
+
     // Tests and the production build run side by side. All three share the
     // same BuildKit cache and in-flight identical layers (base, vendor,
     // frontend-source) are built once, so the image build is no longer queued
