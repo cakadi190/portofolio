@@ -252,10 +252,22 @@ pipeline {
     // dependencies, so a vulnerable lockfile never reaches the image.
     stage('Dependency audit') {
       steps {
-        sh '''
+        // Files go in with `docker cp`, not a bind mount: Jenkins itself runs
+        // in a container, so a `-v $PWD/...` path is resolved by the host's
+        // Docker daemon, where the workspace does not exist.
+        sh '''#!/usr/bin/env bash
           set -eu
-          docker run --rm -v "$PWD/composer.lock:/app/composer.lock:ro" -v "$PWD/composer.json:/app/composer.json:ro" -w /app composer:2 composer audit --locked --no-dev
-          docker run --rm -v "$PWD:/app:ro" -w /app oven/bun:1.4.4-alpine bun audit --prod
+          audit() {
+            local image="$1"; shift
+            local cid rc=0
+            cid="$(docker create -w /tmp "$image" "$@")"
+            for f in $FILES; do docker cp "$f" "$cid:/tmp/$f"; done
+            docker start -a "$cid" || rc=$?
+            docker rm -f "$cid" >/dev/null
+            return "$rc"
+          }
+          FILES="composer.json composer.lock" audit composer:2 composer audit --locked --no-dev
+          FILES="package.json bun.lock" audit oven/bun:1.4.4-alpine bun audit --prod
         '''
       }
     }
